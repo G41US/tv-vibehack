@@ -13,16 +13,16 @@
 # addresses and the Shield can come back from a reboot on the other one, so reserve an IP in your router.
 #
 # Launcher: the stock launcher is com.google.android.tvlauncher, so the defaults in tools/restore.sh
-# and launcher/build-and-install.sh work. Run build-and-install.sh before this list. On this
-# Android 11 build `cmd package set-home-activity` reportedly has no effect while the stock launcher is
-# enabled; disabling it (build-and-install.sh does that last) is what hands Home over. launcher/
-# stayed the default Home across a reboot. With no launcher at all, Home falls back to
-# com.android.tv.settings/.system.FallbackHome.
-# com.google.android.tungsten.setupwraith also claims Home. If Home lands on a setup screen after
-# the switch, disable it as well.
-# The launcher's Inputs pill has nothing to list on a Shield (no HDMI inputs, no tuner) and says
-# "No inputs found". To reach a network tuner through Live Channels, set live_tv_package to
-# com.google.android.tv in config.xml.
+# and launcher/build-and-install.sh work. Run build-and-install.sh before this list. The stock
+# launcher's Home filter has priority 2 and launcher/'s has 0, so `cmd package set-home-activity`
+# has no effect while the stock launcher is enabled; disabling it (build-and-install.sh does that
+# last) is what hands Home over. launcher/ stayed the default Home across a reboot. With no
+# launcher at all, Home falls back to com.android.tv.settings/.system.FallbackHome.
+# Leave com.google.android.tungsten.setupwraith alone. It declares Home activities, but after setup
+# none of them is a Home candidate (its MainActivity is disabled), unlike on some Google TV sets.
+# A Shield has no HDMI inputs and no tuner, so the launcher's Inputs pill has nothing to list. To
+# reach a network tuner through Live Channels, set live_tv_package to com.google.android.tv in
+# config.xml.
 # The network pill says "Wi-Fi" without the network name, because location is off by default
 # (location_mode=0) and Android 11 hides the SSID without it. Over Ethernet it says "Ethernet".
 #
