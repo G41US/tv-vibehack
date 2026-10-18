@@ -83,6 +83,8 @@ tools/restore.sh examples/xiaomi-mi-tv-4a/debloat.txt        # undo it, restore 
 - **Chained `pm` commands** (`pm disable a; pm disable b`) may silently stop after the first. Run
   one per shell call; `--batch` does this.
 - **Large pushes hang** through the Python client. Use `tools/b64push.py` for APKs.
+- **Screenshots come out empty** (0-byte PNG) while Live TV or an HDMI input is on screen (seen on
+  TCL). Press Home before `screencap`.
 - **Disable the stock launcher only after the new one is installed**, or the Home button lands on
   a factory test app.
 - **Third-party launchers** often charge for basics like a custom wallpaper. Hence `launcher/`.
