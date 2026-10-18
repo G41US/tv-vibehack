@@ -66,6 +66,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private int ambientColor;
     private boolean heroShown;
     private TextView greeting;
+    private View btnInputs;
     private TextView btnWifi;
     private SpringAnimation springX, springY;
     private float glassTargetX, glassTargetY;
@@ -88,6 +89,18 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         @Override
         public void onLost(@NonNull Network network) {
             handler.post(MainActivity.this::updateWifiLabel);
+        }
+    };
+    /** Shows the Inputs pill once the TV registers an input: at boot HDMI inputs can appear after Home is shown. */
+    private final TvInputManager.TvInputCallback inputCallback = new TvInputManager.TvInputCallback() {
+        @Override
+        public void onInputAdded(String inputId) {
+            updateInputsButton();
+        }
+
+        @Override
+        public void onInputRemoved(String inputId) {
+            updateInputsButton();
         }
     };
     private final Runnable minuteTick = new Runnable() {
@@ -158,7 +171,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             s.setSpring(new SpringForce().setStiffness(260f).setDampingRatio(0.58f));
         }
 
-        View btnInputs = findViewById(R.id.btnInputs);
+        btnInputs = findViewById(R.id.btnInputs);
         View btnSettings = findViewById(R.id.btnSettings);
         btnInputs.setOnClickListener(v -> showInputs());
         btnWifi.setOnClickListener(v -> open(new Intent(Settings.ACTION_WIFI_SETTINGS)));
@@ -169,7 +182,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         View.OnKeyListener pillKeys = (v, keyCode, event) -> {
             if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
             if (keyCode == KeyEvent.KEYCODE_DPAD_UP) return true;
-            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT && v.getId() == R.id.btnInputs) return true;
+            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+                // The left end is Inputs, or Wi-Fi on a box without inputs.
+                return v.getId() == R.id.btnInputs
+                        || (v.getId() == R.id.btnWifi && btnInputs.getVisibility() != View.VISIBLE);
+            }
             return keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v.getId() == R.id.btnSettings;
         };
         btnInputs.setOnKeyListener(pillKeys);
@@ -184,6 +201,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
         ConnectivityManager cm = getSystemService(ConnectivityManager.class);
         if (cm != null) cm.registerDefaultNetworkCallback(networkCallback);
+        TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
+        if (tim != null) tim.registerCallback(inputCallback, handler);
     }
 
     @Override
@@ -201,6 +220,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         grid.scheduleLayoutAnimation();
         updateGreeting();
         updateWifiLabel();
+        updateInputsButton();
         handler.postDelayed(minuteTick, MINUTE_MS);
 
         // Return to the app we left from, or the same slot if that app is gone. Always refocus: after
@@ -222,6 +242,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         super.onDestroy();
         ConnectivityManager cm = getSystemService(ConnectivityManager.class);
         if (cm != null) cm.unregisterNetworkCallback(networkCallback);
+        TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
+        if (tim != null) tim.unregisterCallback(inputCallback);
     }
 
     @Override
@@ -411,6 +433,21 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         } catch (Exception ignored) {
         }
         btnWifi.setText(text);
+    }
+
+    /** Hides the Inputs pill when it would have nothing to list: streaming boxes have no HDMI-in, AV or tuner. */
+    private void updateInputsButton() {
+        boolean any = !liveTvPkg.isEmpty() && getPackageManager().getLeanbackLaunchIntentForPackage(liveTvPkg) != null;
+        TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
+        if (!any && tim != null) {
+            for (TvInputInfo info : tim.getTvInputList()) {
+                if (info.isPassthroughInput()) {
+                    any = true;
+                    break;
+                }
+            }
+        }
+        btnInputs.setVisibility(any ? View.VISIBLE : View.GONE);
     }
 
     private void open(Intent i) {
