@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId 'com.gathin.tvhome'
         minSdk 26
-        targetSdk 29
+        targetSdk 34
         versionCode 2
         versionName '2.0'
     }
@@ -18,12 +18,6 @@ android {
         release {
             minifyEnabled false
         }
-    }
-
-    lint {
-        // The launcher is sideloaded over ADB, never published to Google Play, so Play's minimum targetSdk
-        // does not apply; without this, lintVitalRelease fails assembleRelease.
-        disable 'ExpiredTargetSdkVersion'
     }
 
     compileOptions {
