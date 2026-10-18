@@ -22,6 +22,10 @@
     <!-- The TV's Live TV / tuner app, offered at the end of the Inputs menu. Leave empty to omit. -->
     <string name="live_tv_package" translatable="false">com.mediatek.wwtv.tvcenter</string>
 
+    <!-- Optional VPN app the network pill opens (hold the pill for Wi-Fi settings), e.g. the package of the
+         VPN you use. Empty: the pill opens Wi-Fi settings. The VPN badge shows for any VPN either way. -->
+    <string name="vpn_app" translatable="false"></string>
+
     <!-- Tiles per row in the grid; the dock always has this many slots. -->
     <integer name="columns">4</integer>
 </resources>
