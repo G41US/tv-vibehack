@@ -67,6 +67,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private boolean heroShown;
     private TextView greeting;
     private TextView btnWifi;
+    private TextView shamsiDate;
+    private boolean shamsi;
     private SpringAnimation springX, springY;
     private float glassTargetX, glassTargetY;
     private boolean glassShown;
@@ -119,6 +121,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 ambientGlow.setGradientRadius((r - l) * 0.62f));
         greeting = findViewById(R.id.greeting);
         btnWifi = findViewById(R.id.btnWifi);
+        shamsiDate = findViewById(R.id.shamsiDate);
+        shamsi = getResources().getBoolean(R.bool.shamsi_date);
+        if (shamsi) {
+            shamsiDate.setVisibility(View.VISIBLE);
+            TextView date = findViewById(R.id.date);
+            date.setTextSize(11f);
+            date.setPadding(0, (int) (4 * density), 0, 0);
+        }
 
         grid = findViewById(R.id.grid);
         grid.setLayoutManager(new GridLayoutManager(this, COLUMNS));
@@ -386,6 +396,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         else if (hour < 22) res = R.string.good_evening;
         else res = R.string.good_night;
         greeting.setText(res);
+        if (shamsi) shamsiDate.setText(Shamsi.today());
     }
 
     /** Shows the Wi-Fi network name on the button when we can read it, otherwise the connection type. */
