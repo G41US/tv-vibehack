@@ -16,4 +16,7 @@
     <string name="good_night">Good night</string>
     <string name="ethernet">Ethernet</string>
     <string name="offline">Offline</string>
+    <string name="not_available">Not available on this TV</string>
+    <string name="cant_open">Can\'t open %1$s</string>
+    <string name="date_format">EEEE  d MMMM</string>
 </resources>
