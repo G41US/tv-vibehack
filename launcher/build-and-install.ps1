@@ -25,11 +25,11 @@ if (-not (Test-Path local.properties)) {
     "sdk.dir=$($sdk -replace '\\', '\\')" | Out-File -Encoding ascii local.properties
 }
 
-.\gradlew.bat assembleDebug -q --console=plain
+.\gradlew.bat assembleRelease -q --console=plain
 if ($LASTEXITCODE -ne 0) { throw 'Gradle build failed' }
 
 $py = '..\tools\venv\Scripts\python.exe'
-$apk = 'app\build\outputs\apk\debug\app-debug.apk'
+$apk = 'app\build\outputs\apk\release\app-release.apk'
 & $py -I ..\tools\b64push.py $apk /data/local/tmp/tvhome.apk
 if ($LASTEXITCODE -ne 0) { throw 'APK upload failed' }
 $out = & $py -I ..\tools\tv.py 'pm install -r /data/local/tmp/tvhome.apk; rm -f /data/local/tmp/tvhome.apk'
@@ -40,6 +40,7 @@ Write-Host $out
 if ("$out" -match 'Error') { throw 'could not set the new launcher as home; the stock launcher was left untouched' }
 @(
     'pm grant com.gathin.tvhome android.permission.ACCESS_FINE_LOCATION 2>/dev/null; echo location-granted',
+    'cmd package compile -m speed -f com.gathin.tvhome',
     'cmd package set-home-activity --user 0 com.gathin.tvhome',
     "pm disable-user --user 0 $StockLauncher"
 ) | & $py -I ..\tools\tv.py --batch

@@ -8,16 +8,17 @@ export JAVA_HOME="${JAVA_HOME:-$(/usr/libexec/java_home -v 17 2>/dev/null || ech
 export ANDROID_HOME="${ANDROID_HOME:-$([ -d ~/Library/Android/sdk ] && echo ~/Library/Android/sdk || echo /opt/homebrew/share/android-commandlinetools)}"
 export PATH="$JAVA_HOME/bin:$PATH"
 [ -f local.properties ] || echo "sdk.dir=$ANDROID_HOME" > local.properties
-./gradlew assembleDebug -q --console=plain
+./gradlew assembleRelease -q --console=plain
 PY=../tools/venv/bin/python
 [ -x "$PY" ] || PY=../tools/venv/Scripts/python.exe
 export MSYS_NO_PATHCONV=1
-APK=app/build/outputs/apk/debug/app-debug.apk
+APK=app/build/outputs/apk/release/app-release.apk
 "$PY" -I ../tools/b64push.py "$APK" /data/local/tmp/tvhome.apk
 printf '%s\n' \
   "pm install -r /data/local/tmp/tvhome.apk" \
   "rm -f /data/local/tmp/tvhome.apk" \
   "pm grant com.gathin.tvhome android.permission.ACCESS_FINE_LOCATION 2>/dev/null; echo location-granted" \
+  "cmd package compile -m speed -f com.gathin.tvhome" \
   "cmd package set-home-activity --user 0 com.gathin.tvhome/.MainActivity" \
   "pm disable-user --user 0 $STOCK_LAUNCHER" \
   | "$PY" -I ../tools/tv.py --batch
