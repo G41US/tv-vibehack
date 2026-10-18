@@ -13,7 +13,8 @@ export MSYS_NO_PATHCONV=1
 {
   grep -vE '^\s*(#|$)' "$LIST" | sed -E 's/\s+#.*$//' | awk '{print "pm enable " $1}'
   echo "pm enable $STOCK"
-  echo "cmd package set-home-activity --user 0 $STOCK"
+  # resolve the stock HOME component on the TV (Android 9 needs pkg/activity, not just pkg)
+  echo "cmd package set-home-activity --user 0 \$(cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.HOME $STOCK | tail -n 1)"
   echo "settings put global window_animation_scale 1.0"
   echo "settings put global transition_animation_scale 1.0"
   echo "settings put global animator_duration_scale 1.0"

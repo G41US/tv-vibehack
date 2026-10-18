@@ -60,6 +60,8 @@ TV_HOST=192.168.1.50 launcher/build-and-install.sh
 
 Needs JDK 17 and the Android SDK (platform 34, build-tools 34.0.0). On macOS:
 `brew install openjdk@17 android-commandlinetools && sdkmanager "platforms;android-34" "build-tools;34.0.0"`.
+Without Homebrew, the script also finds a JDK 17 known to `/usr/libexec/java_home` and an SDK in
+`~/Library/Android/sdk` (Android Studio's default).
 
 ### Windows
 
