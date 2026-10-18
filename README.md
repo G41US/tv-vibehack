@@ -80,6 +80,10 @@ tools/restore.sh examples/xiaomi-mi-tv-4a/debloat.txt        # undo it, restore 
   `tools/tv.py` avoids the binary entirely.
 - **No "wireless debugging" toggle** on some TVs (Xiaomi among them). USB debugging alone opens
   network ADB on port 5555.
+- **Windows (Git Bash)**: the scripts pick up `tools/venv/Scripts/python.exe` and set
+  `MSYS_NO_PATHCONV=1`, otherwise Git Bash rewrites device paths like `/data/local/tmp` into Windows
+  paths. `launcher/build-and-install.sh` defaults to Homebrew paths, so set `JAVA_HOME` and
+  `ANDROID_HOME` first.
 - **Chained `pm` commands** (`pm disable a; pm disable b`) may silently stop after the first. Run
   one per shell call; `--batch` does this.
 - **Large pushes hang** through the Python client. Use `tools/b64push.py` for APKs.
