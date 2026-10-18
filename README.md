@@ -50,6 +50,11 @@ A small native Android TV home screen (`com.gathin.tvhome`), built for sets with
   set in [Outfit](https://fonts.google.com/specimen/Outfit).
 - Deterministic D-pad navigation, last focused tile remembered, staggered entrance animation.
   No blur, no video, no network, no background services.
+- A **Clock** screensaver in the same style: a large thin clock and the date over an ambient glow.
+  Every minute the clock drifts to a new spot and the glow shifts colour, so nothing burns in. The
+  system runs it only while the TV is idle. Turn it on with
+  `tools/tv.py 'settings put secure screensaver_components com.gathin.tvhome/.ClockDream; settings put secure screensaver_enabled 1'`
+  (it starts after the TV's "screen off" idle time, `settings get system screen_off_timeout`).
 
 Configure it in [`launcher/app/src/main/res/values/config.xml`](launcher/app/src/main/res/values/config.xml):
 dock order, hidden apps, Live TV package and columns. Build and install with
