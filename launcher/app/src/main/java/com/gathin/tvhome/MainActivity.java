@@ -434,6 +434,15 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 if (ha != hb) return ha ? -1 : 1;
                 return String.valueOf(a.loadLabel(this)).compareToIgnoreCase(String.valueOf(b.loadLabel(this)));
             });
+            // Some TVs (Sony) report every HDMI port as connected whether or not anything is plugged in,
+            // so drop the HDMI status then. A TV with every port really in use loses it too.
+            int hdmiPorts = 0, hdmiConnected = 0;
+            for (TvInputInfo info : inputs) {
+                if (!info.isPassthroughInput() || info.getType() != TvInputInfo.TYPE_HDMI) continue;
+                hdmiPorts++;
+                if (tim.getInputState(info.getId()) == TvInputManager.INPUT_STATE_CONNECTED) hdmiConnected++;
+            }
+            boolean hdmiStateBogus = hdmiPorts > 1 && hdmiConnected == hdmiPorts;
             for (TvInputInfo info : inputs) {
                 if (!info.isPassthroughInput()) continue;
                 CharSequence l = info.loadLabel(this);
@@ -441,7 +450,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 boolean hdmi = info.getType() == TvInputInfo.TYPE_HDMI;
                 if (hdmi && !label.toUpperCase().contains("HDMI")) label = "HDMI " + label;
                 final String id = info.getId();
-                int state = tim.getInputState(id);
+                int state = hdmi && hdmiStateBogus ? -1 : tim.getInputState(id);
                 if (!hdmi && rows.getChildCount() > 0 && !sawNonHdmi) addSeparator(rows);
                 if (!hdmi) sawNonHdmi = true;
                 addInputRow(rows, popup, hdmi ? R.drawable.ic_input : R.drawable.ic_av, label, state,
@@ -458,6 +467,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             Toast.makeText(this, R.string.no_inputs, Toast.LENGTH_SHORT).show();
             return;
         }
+
+        // Fit the widest row: TVs that report a status on every port (Sony) would otherwise squeeze the names out.
+        panel.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        popup.setWidth(Math.max(width, panel.getMeasuredWidth()));
 
         // Drop in: fade and unfold from the top edge.
         panel.setAlpha(0f);
