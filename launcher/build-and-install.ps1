@@ -41,6 +41,7 @@ if ("$out" -match 'Error') { throw 'could not set the new launcher as home; the 
 @(
     'pm grant com.gathin.tvhome android.permission.ACCESS_FINE_LOCATION 2>/dev/null; echo location-granted',
     'cmd package set-home-activity --user 0 com.gathin.tvhome',
-    "pm disable-user --user 0 $StockLauncher"
+    "pm disable-user --user 0 $StockLauncher",
+    's=$(settings get secure enabled_accessibility_services); case "$s" in *InputKeyService*) ;; null|"") settings put secure enabled_accessibility_services com.gathin.tvhome/.InputKeyService ;; *) settings put secure enabled_accessibility_services "$s:com.gathin.tvhome/.InputKeyService" ;; esac; settings put secure accessibility_enabled 1; echo input-button-enabled'
 ) | & $py -I ..\tools\tv.py --batch
 Write-Host 'Installed. Press Home on the remote to see it.'

@@ -20,5 +20,6 @@ printf '%s\n' \
   "pm grant com.gathin.tvhome android.permission.ACCESS_FINE_LOCATION 2>/dev/null; echo location-granted" \
   "cmd package set-home-activity --user 0 com.gathin.tvhome/.MainActivity" \
   "pm disable-user --user 0 $STOCK_LAUNCHER" \
+  's=$(settings get secure enabled_accessibility_services); case "$s" in *InputKeyService*) ;; null|"") settings put secure enabled_accessibility_services com.gathin.tvhome/.InputKeyService ;; *) settings put secure enabled_accessibility_services "$s:com.gathin.tvhome/.InputKeyService" ;; esac; settings put secure accessibility_enabled 1; echo input-button-enabled' \
   | "$PY" -I ../tools/tv.py --batch
 echo "Installed. Press Home on the remote to see it."
