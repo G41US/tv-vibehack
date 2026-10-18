@@ -102,6 +102,7 @@ Lists that people have tested and contributed live in [`examples/`](examples/):
 | TCL 55" 4K Google TV, 2023 (G10) | Google TV 12 |
 | SANYO ATV R2 | Android TV 9 |
 | OnePlus TV (D00) | Google TV 14 |
+| Sony BRAVIA XBR-65X900E (2017) | Android TV 9 |
 
 Your TV not here? The prompt works regardless, it discovers the bloat itself. If you add your
 list afterwards, the next person with your model skips that step. See
