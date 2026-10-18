@@ -61,6 +61,22 @@ TV_HOST=192.168.1.50 launcher/build-and-install.sh
 Needs JDK 17 and the Android SDK (platform 34, build-tools 34.0.0). On macOS:
 `brew install openjdk@17 android-commandlinetools && sdkmanager "platforms;android-34" "build-tools;34.0.0"`.
 
+### Windows
+
+PowerShell versions of the scripts sit next to the bash ones. With Android Studio installed, nothing
+else is needed: the script uses Android Studio's bundled JDK and the default SDK location, and Gradle
+downloads platform 34 and build-tools 34.0.0 on the first build if the SDK licence is accepted.
+
+```powershell
+python -m venv tools\venv; tools\venv\Scripts\python.exe -m pip install -r tools\requirements.txt
+powershell -ExecutionPolicy Bypass -File launcher\build-and-install.ps1 -TvHost 192.168.1.50
+powershell -ExecutionPolicy Bypass -File tools\disable.ps1 -TvHost 192.168.1.50 examples\xiaomi-mi-tv-4a\debloat.txt
+powershell -ExecutionPolicy Bypass -File tools\restore.ps1 -TvHost 192.168.1.50 examples\xiaomi-mi-tv-4a\debloat.txt
+```
+
+`build-and-install.ps1` stops before touching the stock launcher if the install or setting the new
+home screen fails.
+
 ## Talking to the TV by hand
 
 ```bash
@@ -75,6 +91,9 @@ tools/restore.sh examples/xiaomi-mi-tv-4a/debloat.txt        # undo it, restore 
 
 ### Gotchas we hit
 
+- **Windows PowerShell 5.1 prepends a byte-order mark** to text piped into a native program, which
+  turned the first `--batch` command into `﻿pm` ("inaccessible or not found"). `tools/tv.py` now
+  reads stdin as `utf-8-sig`, and the `.ps1` scripts pipe UTF-8 without a BOM.
 - **macOS: `adb connect` says "No route to host"** while the port is clearly open. Recent macOS
   treats the Google-signed `adb` as its own app under Local Network privacy and silently blocks it.
   `tools/tv.py` avoids the binary entirely.
