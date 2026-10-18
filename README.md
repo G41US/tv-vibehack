@@ -200,6 +200,9 @@ Things that bit us or contributors, so they don't bite you.
   `tools/tv.py` avoids the binary entirely.
 - **No "wireless debugging" toggle** on some TVs, Xiaomi among them. USB debugging alone opens
   network ADB on port 5555.
+- **USB devices go dead while USB debugging is on**, seen on the Xiaomi Mi Box S: its firmware
+  switches the USB port to ADB device mode, which cuts the power to a USB speaker or drive. Switch
+  USB debugging off when you're done; the launcher doesn't need it.
 - **Windows PowerShell 5.1 adds a byte-order mark** to text piped into a program, which turned the
   first batch command into gibberish. `tv.py` now strips it, and the `.ps1` scripts pipe clean UTF-8.
 - **Git Bash rewrites paths** like `/data/local/tmp` into Windows paths. The scripts set
