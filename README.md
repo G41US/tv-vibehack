@@ -61,6 +61,10 @@ TV_HOST=192.168.1.50 launcher/build-and-install.sh
 Needs JDK 17 and the Android SDK (platform 34, build-tools 34.0.0). On macOS:
 `brew install openjdk@17 android-commandlinetools && sdkmanager "platforms;android-34" "build-tools;34.0.0"`.
 
+The launcher follows the TV's language (English, German, Catalan). If your TV doesn't offer yours
+system-wide, Android 13 and later can set it for the launcher alone, e.g. Catalan:
+`adb shell cmd locale set-app-locales com.gathin.tvhome --locales ca`.
+
 ### Windows
 
 PowerShell versions of the scripts sit next to the bash ones. With Android Studio installed, nothing
