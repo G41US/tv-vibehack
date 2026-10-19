@@ -3,15 +3,17 @@
 **Your TV, minus the ads.**
 
 Strip the bloatware from any Android TV or Google TV over Wi-Fi, and replace the ad-filled home
-screen with a clean launcher that looks like an Apple TV. No root, no cable, nothing uninstalled,
-and a one-line restore if you change your mind.
+screen with a clean launcher that looks like an Apple TV.
+
+**No root, no cable, nothing uninstalled, and a one-line restore if you change your mind.**
 
 ![Before: stock Google TV home with a sponsored ad. After: the tv-vibehack launcher](docs/stock-vs-new-side.jpg)
 
 It started as an afternoon fixing my parents' Mi TV, which showed them an advert before they
 could reach Netflix. The whole thing was done with Claude Code talking to the real TV, and the
-prompt that did it is in this repo so you can do the same with yours. The replies to the tweet
-below are where most of the TV lists in this repo came from.
+prompt that did it is in this repo so you can do the same with yours. The replies to the
+[tweet below](https://x.com/gathint/status/2111379569030939102) are where most of the TV lists in
+this repo came from.
 
 <p align="center">
   <a href="https://x.com/gathint/status/2111379569030939102"><img src="docs/tweet.png" alt="The tweet: Vibe coded my parents' TV this afternoon. Before and after screenshots." width="380"></a>
