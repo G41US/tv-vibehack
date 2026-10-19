@@ -25,6 +25,9 @@
     <!-- Show the Solar Hijri (Shamsi) date used in Iran and Afghanistan, e.g. "27 Mehr 1405", above the
          Gregorian date. -->
     <bool name="shamsi_date">false</bool>
+    <!-- Optional VPN app the network pill opens (hold the pill for Wi-Fi settings), e.g. the package of the
+         VPN you use. Empty: the pill opens Wi-Fi settings. The VPN badge shows for any VPN either way. -->
+    <string name="vpn_app" translatable="false"></string>
 
     <!-- Tiles per row in the grid; the dock always has this many slots. -->
     <integer name="columns">4</integer>
