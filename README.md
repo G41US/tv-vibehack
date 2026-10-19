@@ -114,6 +114,7 @@ Lists that people have tested and contributed live in [`examples/`](examples/):
 | Sony BRAVIA XBR-65X900E (2017) | Android TV 9 |
 | NVIDIA SHIELD TV Pro 2019 (P2897) | Android TV 11 |
 | Xiaomi MiTV-MOOR2 (venom) | Google TV 11 |
+| Xiaomi MiTV-AESP0 (TV stick) | Android TV 9 |
 
 Your TV not here? The prompt works regardless, it discovers the bloat itself. If you add your
 list afterwards, the next person with your model skips that step. See
@@ -164,7 +165,9 @@ AndroidX RecyclerView and nothing heavier. It is built for sets with 1 GB of RAM
 video, no network, no background services.
 
 **Configure** it in [`launcher/app/src/main/res/values/config.xml`](launcher/app/src/main/res/values/config.xml):
-the dock order, apps to hide, your TV's Live TV package, and the number of columns.
+the dock order, apps to hide, your TV's Live TV package, the number of columns, and how many grid
+rows stay visible under the dock (`rows_below_dock`). The Inputs button hides itself on sticks and
+boxes that have no HDMI or tuner.
 
 **Language** follows the TV: English, German, Spanish, Catalan and Simplified Chinese so far. If your
 TV doesn't offer yours system-wide, Android 13 and later can set it for the launcher alone, e.g. Catalan:

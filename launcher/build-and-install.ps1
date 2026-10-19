@@ -4,10 +4,12 @@
 #
 # Usage: launcher\build-and-install.ps1 -TvHost 192.168.1.50 [-StockLauncher com.google.android.tvlauncher]
 #        [-InputKeyService]   remote's Input button opens the input switcher (Google TV); re-pass on every install
+#        [-HomeKeyService]    remotes whose Home button sends KEYCODE_ALL_APPS (Xiaomi sticks)
 param(
     [string]$TvHost = $env:TV_HOST,
     [string]$StockLauncher = 'com.google.android.tvlauncher',
-    [switch]$InputKeyService
+    [switch]$InputKeyService,
+    [switch]$HomeKeyService
 )
 $ErrorActionPreference = 'Stop'
 # Pipe plain UTF-8 to native commands; the default here prepends a BOM that corrupts the first command.
@@ -53,4 +55,5 @@ function Enable-Service([string]$Name) {
     & $py -I ..\tools\tv.py ('s=$(settings get secure enabled_accessibility_services); case "$s" in *' + $Name + '*) ;; null|"") settings put secure enabled_accessibility_services ' + $svc + ' ;; *) settings put secure enabled_accessibility_services "$s:' + $svc + '" ;; esac; settings put secure accessibility_enabled 1; echo ' + $Name + ' enabled')
 }
 if ($InputKeyService) { Enable-Service 'InputKeyService' }
+if ($HomeKeyService) { Enable-Service 'HomeKeyService' }
 Write-Host 'Installed. Press Home on the remote to see it.'
