@@ -350,6 +350,15 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         // Home screen: Back goes nowhere.
     }
 
+    @Override
+    public void onDockChanged(String focusKey) {
+        adapter.reload();
+        grid.post(() -> {
+            int pos = adapter.positionOf(focusKey);
+            focusTile(Math.max(pos, 0));
+        });
+    }
+
     // ---- glass highlight -------------------------------------------------------------------------
 
     @Override

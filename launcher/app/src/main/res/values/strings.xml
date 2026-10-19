@@ -26,4 +26,11 @@
     <string name="input_key_service_description">Opens the input switcher when the remote\'s Input button is pressed.</string>
     <string name="home_key_name">Home button</string>
     <string name="home_key_description">Makes the remote\'s Home button open this launcher.</string>
+    <string name="dock_move_left">Move left</string>
+    <string name="dock_move_right">Move right</string>
+    <string name="dock_remove">Remove from dock</string>
+    <string name="dock_add">Add to dock</string>
+    <string name="dock_replace">Add to dock (replace an app)</string>
+    <string name="dock_replace_title">Replace which dock app?</string>
+    <string name="app_info">App info</string>
 </resources>
