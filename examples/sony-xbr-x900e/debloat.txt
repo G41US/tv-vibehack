@@ -9,8 +9,8 @@
 # Live TV / input app: com.sony.dtv.tvx. Keep it: it also plays every HDMI input.
 # Keep: com.sony.dtv.tvinput.*, braviasync* (HDMI-CEC), remotepairing, rcpowerkey, uinputservice,
 # imeproxy, sonysystemservice, settingsprovider, all com.mediatek.* and mtktvapi.agent, timers (sleep timer).
-# Left alone on purpose: com.sony.dtv.b2b.* (hotel/pro mode plumbing), webapi.core and remoteaccess
-# (Sony IP control, possibly used by Alexa control).
+# Left alone on purpose: the rest of com.sony.dtv.b2b.* (hotel/pro mode plumbing), webapi.core and
+# remoteaccess (Sony IP control, possibly used by Alexa control).
 # Already disabled at the factory/by owner: com.sony.rvu, actionmenu.plugin.harmony, Vudu, Crackle,
 # com.google.android.inputmethod.latin. Not in this list so restore.sh leaves them off.
 #
@@ -46,6 +46,8 @@ com.qterics.da.product                         # Qterics device agent
 com.sony.dtv.sonybugreportsys
 com.google.android.tv.bugreportsender
 com.google.android.feedback
+com.sony.dtv.b2b.vendorprotocol                # runs Node.js 4.2.4 (2015) broadcasting model/MAC/IP over SDDP
+                                               # for Control4-style home automation; re-enable if you use one
 
 # Preloaded apps
 com.sony.dtv.customersupport                   # Help tile
