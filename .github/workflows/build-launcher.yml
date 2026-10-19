@@ -41,30 +41,24 @@ jobs:
         env:
           TVHOME_SIGNING: ${{ secrets.TVHOME_SIGNING }}
         run: |
-          # One secret, "password:base64-of-the-PKCS12-keystore". Without it the code is still built
-          # (to catch errors) but nothing is published, and the run fails at the end.
+          # TVHOME_SIGNING is the base64 of the release keystore (PKCS12, alias tvhome). The secret
+          # itself is what's protected; the keystore's own password is a fixed internal one. Without
+          # the secret the code is still built (to catch errors) but nothing is published.
           if [ -z "$TVHOME_SIGNING" ]; then
             echo "HAVE_KEY=0" >> "$GITHUB_ENV"
             exit 0
           fi
-          echo "HAVE_KEY=1" >> "$GITHUB_ENV"
-          pass="${TVHOME_SIGNING%%:*}"
-          echo "::add-mask::$pass"
-          b64="${TVHOME_SIGNING#*:}"
-          printf '%s' "$b64" | tr -d ' \r\n\t' | base64 -d > "$RUNNER_TEMP/tvhome.p12" 2>/dev/null
-          size=$(stat -c%s "$RUNNER_TEMP/tvhome.p12")
-          # Say what is wrong with the key without printing any of it.
-          if ! keytool -list -storetype pkcs12 -keystore "$RUNNER_TEMP/tvhome.p12" -storepass "$pass" -alias tvhome \
+          b64="${TVHOME_SIGNING##*:}"   # an older "password:key" value still works for its key part
+          printf '%s' "$b64" | tr -d ' \r\n\t' | base64 -d > "$RUNNER_TEMP/tvhome.p12" 2>/dev/null || true
+          if ! keytool -list -storetype pkcs12 -keystore "$RUNNER_TEMP/tvhome.p12" -storepass tvhome -alias tvhome \
                >"$RUNNER_TEMP/kt.err" 2>&1; then
-            why=$(grep -v JAVA_TOOL "$RUNNER_TEMP/kt.err" | head -c 300 | tr '\n' ' ')
-            sum=$(sha256sum "$RUNNER_TEMP/tvhome.p12" | cut -c1-16)
-            j21=$("${JAVA_HOME_21_X64:-/nonexistent}/bin/keytool" -list -storetype pkcs12 -keystore "$RUNNER_TEMP/tvhome.p12" -storepass "$pass" -alias tvhome 2>&1 | grep -v JAVA_TOOL | head -c 160 | tr "\n" " " || true)
-            why="$why | java21 says: ${j21:-nothing} (JAVA_HOME_21_X64=${JAVA_HOME_21_X64:-unset})"
-            echo "::error title=Signing key unreadable::$why | password ${#pass} chars, key text ${#b64} chars, decoded ${size} bytes, file ${sum}; java $(java -version 2>&1 | grep -v JAVA_TOOL | head -1)"
+            why=$(grep -v JAVA_TOOL "$RUNNER_TEMP/kt.err" | head -c 200 | tr '\n' ' ')
+            echo "::error title=Signing key unreadable::$why (key text ${#b64} chars, expected 4600). Paste the whole TVHOME_SIGNING_v2.txt as the secret."
             exit 1
           fi
+          echo "HAVE_KEY=1" >> "$GITHUB_ENV"
           echo "TVHOME_KEYSTORE=$RUNNER_TEMP/tvhome.p12" >> "$GITHUB_ENV"
-          echo "TVHOME_KEYSTORE_PASSWORD=$pass" >> "$GITHUB_ENV"
+          echo "TVHOME_KEYSTORE_PASSWORD=tvhome" >> "$GITHUB_ENV"
 
       - name: Version this build
         run: echo "VERSION_CODE=$((1000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
