@@ -110,8 +110,9 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
             }
             return a.label.compareToIgnoreCase(b.label);
         });
-        // An internal shortcut: do not discover our own activities as ordinary app entries.
-        if (ctx.getResources().getBoolean(R.bool.show_home_settings_shortcut)) {
+        // Optional "Default home" tile (config.xml), only when this TV actually has a home-screen picker.
+        if (ctx.getResources().getBoolean(R.bool.show_home_settings_shortcut)
+                && pm.resolveActivity(new Intent(Settings.ACTION_HOME_SETTINGS), 0) != null) {
             fresh.add(new Entry(ctx.getString(R.string.home_settings),
                     new ComponentName(ctx, HomeSettingsActivity.class), null,
                     ctx.getDrawable(R.drawable.ic_home_settings)));

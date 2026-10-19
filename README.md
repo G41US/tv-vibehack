@@ -205,13 +205,10 @@ It starts after the TV's "screen off" idle time (`settings get system screen_off
 
 ### Changing the default home from the TV
 
-The **Default home** tile at the end of the app grid opens Android's system home-screen settings.
-Choose the launcher you want, then press Home. The choice is confirmed in the system UI; this
-tile does not silently set a default, re-enable disabled apps, or require ADB after installation.
-If the stock launcher was disabled during installation, re-enable it before trying to select it
-(see the restore instructions). Some TV firmware does not expose this settings page; in that
-case the tile shows “Not available on this TV”. Set `show_home_settings_shortcut` to `false`
-in `config.xml` to hide it.
+Optional: set `show_home_settings_shortcut` to `true` in `config.xml` and a **Default home** tile
+appears at the end of the grid, opening Android's own home-screen picker so you can switch
+launchers from the sofa. Most Android TV firmware has no such page, and then the tile stays
+hidden. The stock launcher has to be enabled before it can be picked, see the restore instructions.
 
 ## Troubleshooting
 

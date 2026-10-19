@@ -32,6 +32,7 @@
     <!-- Tiles per row in the grid; the dock always has this many slots. -->
     <integer name="columns">4</integer>
 
-    <!-- Open Android's default-HOME picker from a tile; the user confirms the choice there. -->
-    <bool name="show_home_settings_shortcut">true</bool>
+    <!-- "Default home" tile that opens Android's home-screen picker, for TVs whose settings have one
+         (most Android TVs don't; the tile only appears when the page exists). Off by default. -->
+    <bool name="show_home_settings_shortcut">false</bool>
 </resources>
