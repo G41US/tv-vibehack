@@ -123,6 +123,16 @@ public final class Updater {
     }
 
     private void install(String base) {
+        installFrom(base + "tvhome-update.apk", base + "tvhome.apk", act.getPackageName(),
+                act.getString(R.string.update_downloading));
+    }
+
+    /**
+     * Downloads an APK and hands it to Android's installer, which asks the person to confirm. Used for
+     * TV Home's own updates and for the optional apps (AppPack). {@code fallbackUrl} is tried when the
+     * first link fails; {@code packageName} is the app being installed, or null when not known.
+     */
+    void installFrom(String url, String fallbackUrl, String packageName, String title) {
         PackageManager pm = act.getPackageManager();
         if (!pm.canRequestPackageInstalls()) {
             toast(act.getString(R.string.update_allow_installs));
@@ -136,7 +146,7 @@ public final class Updater {
         if (busy) return;
         busy = true;
         AlertDialog progress = new AlertDialog.Builder(act, DIALOG_THEME)
-                .setTitle(R.string.update_downloading)
+                .setTitle(title)
                 .setMessage("0%")
                 .setCancelable(false)
                 .show();
@@ -147,18 +157,19 @@ public final class Updater {
             try {
                 PackageInstaller.SessionParams params =
                         new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
-                params.setAppPackageName(act.getPackageName());
+                if (packageName != null) params.setAppPackageName(packageName);
                 id = pi.createSession(params);
                 try (PackageInstaller.Session session = pi.openSession(id)) {
                     HttpURLConnection c;
                     try {
-                        c = open(base + "tvhome-update.apk");   // counted apart from new installs
+                        c = open(url);
                     } catch (IOException e) {
-                        c = open(base + "tvhome.apk");          // releases from before the split
+                        if (fallbackUrl == null) throw e;
+                        c = open(fallbackUrl);
                     }
                     long total = c.getContentLengthLong();
                     try (InputStream in = c.getInputStream();
-                         OutputStream out = session.openWrite("tvhome.apk", 0, total > 0 ? total : -1)) {
+                         OutputStream out = session.openWrite("app.apk", 0, total > 0 ? total : -1)) {
                         byte[] buf = new byte[64 * 1024];
                         long done = 0;
                         int n, shown = -1;

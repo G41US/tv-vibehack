@@ -58,7 +58,7 @@
     <string name="update_later">Later</string>
     <string name="update_downloading">Downloading update</string>
     <string name="update_allow_installs">Allow TV Home to install apps, then press Back and choose Install again.</string>
-    <string name="update_failed">Update failed: %1$s</string>
+    <string name="update_failed">Couldn\'t install: %1$s</string>
     <string name="menu_weather">Weather</string>
     <string name="weather_auto">Automatic</string>
     <string name="weather_auto_found">Automatic (%1$s)</string>
@@ -121,4 +121,18 @@
     <string name="wx_snow_showers">Snow showers</string>
     <string name="wx_thunderstorm">Thunderstorm</string>
     <string name="wx_thunderstorm_hail">Thunderstorm, hail</string>
+    <string name="menu_apps">Get apps</string>
+    <string name="apps_title">Get apps</string>
+    <string name="apps_smarttube">SmartTube: YouTube without ads (takes YouTube\'s place in the dock)</string>
+    <string name="apps_smarttube_installed">✓ SmartTube is installed: put it in the dock</string>
+    <string name="apps_smarttube_docked">SmartTube is in the dock.</string>
+    <string name="apps_downloading">Downloading %1$s</string>
+    <string name="apps_movies">Movie and TV apps…</string>
+    <string name="apps_movies_title">Movie and TV apps (Play Store)</string>
+    <string name="apps_netflix">films and series, subscription</string>
+    <string name="apps_prime">films and series, subscription</string>
+    <string name="apps_showmax">African films and series, subscription</string>
+    <string name="apps_plex">free films and live channels</string>
+    <string name="setup_apps_title">Popular apps (optional)</string>
+    <string name="setup_apps_desc">Add SmartTube for YouTube without ads, and movie apps from the Play Store. Skip this if you don\'t want them.</string>
 </resources>

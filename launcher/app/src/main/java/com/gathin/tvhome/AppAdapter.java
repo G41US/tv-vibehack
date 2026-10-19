@@ -139,6 +139,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
             String label = String.valueOf(ri.loadLabel(pm));
             fresh.add(new Entry(label, new ComponentName(pkg, ri.activityInfo.name), banner, icon));
         }
+        swapYouTubeForSmartTube(fresh);
         Collections.sort(fresh, (a, b) -> {
             int fa = favourites.indexOf(a.pkg), fb = favourites.indexOf(b.pkg);
             if (fa >= 0 || fb >= 0) {
@@ -208,6 +209,24 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
             showTileMenu(e);
             return true;
         });
+    }
+
+    /**
+     * After the person chose SmartTube in the app pack: once it's installed, it takes YouTube's place in
+     * the dock (or the first place, if YouTube isn't docked). YouTube stays in the app list.
+     */
+    private void swapYouTubeForSmartTube(List<Entry> installed) {
+        android.content.SharedPreferences p = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        if (!p.getBoolean(AppPack.KEY_SWAP_YOUTUBE, false)) return;
+        String st = null;
+        for (Entry e : installed) if (AppPack.isSmartTube(e.pkg)) st = e.pkg;
+        if (st == null) return;   // not installed yet: try again next time Home opens
+        if (!favourites.contains(st)) {
+            int yt = favourites.indexOf(AppPack.YOUTUBE);
+            if (yt >= 0) favourites.set(yt, st);
+            else favourites.add(0, st);
+        }
+        p.edit().putString(KEY_ORDER, String.join(",", favourites)).putBoolean(AppPack.KEY_SWAP_YOUTUBE, false).apply();
     }
 
     // ---- dock editing (hold OK on a tile) ---------------------------------------------------------

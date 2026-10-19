@@ -59,7 +59,7 @@
     <string name="update_later">Plus tard</string>
     <string name="update_downloading">Téléchargement de la mise à jour</string>
     <string name="update_allow_installs">Autorisez TV Home à installer des applis, puis appuyez sur Retour et choisissez à nouveau Installer.</string>
-    <string name="update_failed">Échec de la mise à jour : %1$s</string>
+    <string name="update_failed">Installation impossible : %1$s</string>
     <string name="menu_weather">Météo</string>
     <string name="weather_auto">Automatique</string>
     <string name="weather_auto_found">Automatique (%1$s)</string>
@@ -122,4 +122,18 @@
     <string name="wx_snow_showers">Averses de neige</string>
     <string name="wx_thunderstorm">Orage</string>
     <string name="wx_thunderstorm_hail">Orage, grêle</string>
+    <string name="menu_apps">Obtenir des applis</string>
+    <string name="apps_title">Obtenir des applis</string>
+    <string name="apps_smarttube">SmartTube : YouTube sans publicité (remplace YouTube dans le dock)</string>
+    <string name="apps_smarttube_installed">✓ SmartTube est installé : le mettre dans le dock</string>
+    <string name="apps_smarttube_docked">SmartTube est dans le dock.</string>
+    <string name="apps_downloading">Téléchargement de %1$s</string>
+    <string name="apps_movies">Applis de films et séries…</string>
+    <string name="apps_movies_title">Applis de films et séries (Play Store)</string>
+    <string name="apps_netflix">films et séries, abonnement</string>
+    <string name="apps_prime">films et séries, abonnement</string>
+    <string name="apps_showmax">films et séries africains, abonnement</string>
+    <string name="apps_plex">films et chaînes gratuits</string>
+    <string name="setup_apps_title">Applis populaires (facultatif)</string>
+    <string name="setup_apps_desc">Ajoutez SmartTube pour YouTube sans publicité, et des applis de films depuis le Play Store. Passez si vous n\'en voulez pas.</string>
 </resources>
