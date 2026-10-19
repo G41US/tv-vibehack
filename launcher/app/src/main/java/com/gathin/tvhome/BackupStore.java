@@ -39,8 +39,7 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Keeps TV Home's settings (dock, wallpaper choice and photo, weather city, guest Wi-Fi, update
- * channel) safe across an uninstall. App storage is wiped on uninstall, so the backup lives in shared
+ * Keeps TV Home's settings (dock, wallpaper choice and photo, weather city, guest Wi-Fi) safe across an uninstall. App storage is wiped on uninstall, so the backup lives in shared
  * storage as pictures in Pictures/TVHome: the settings ride inside a PNG's text chunk, encrypted with
  * AES-GCM under a key derived from ANDROID_ID. ANDROID_ID is per signing key and device, so only
  * TV Home on this same box can read it back, and it survives reinstalls (not a factory reset).
@@ -62,7 +61,6 @@ final class BackupStore {
             {"look", "wallpaper"},
             {"weather", "place"},
             {"guest_wifi", "ssid", "password", "security", "hidden"},
-            {"update", Updater.KEY_CHANNEL},
     };
 
     private BackupStore() {

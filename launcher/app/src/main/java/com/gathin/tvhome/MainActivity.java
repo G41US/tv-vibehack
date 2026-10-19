@@ -497,33 +497,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 .setItems(items, (d, which) -> {
                     if (which == 0) showWallpaperMenu();
                     else if (which == 1) showWeatherMenu();
-                    else if (which == 2) showUpdatesMenu();
+                    else if (which == 2) updater.check(true);
                     else setupPanel.show();
                 })
-                .show();
-    }
-
-    private void showUpdatesMenu() {
-        String ch = updater.channel();
-        List<String> labels = new ArrayList<>();
-        List<Runnable> actions = new ArrayList<>();
-        labels.add(getString(R.string.updates_check));
-        actions.add(() -> updater.check(true));
-        if (updater.hasBeta()) {
-            labels.add(mark(ch, Updater.STABLE, getString(R.string.updates_stable)));
-            actions.add(() -> {
-                updater.setChannel(Updater.STABLE);
-                Toast.makeText(this, R.string.updates_now_stable, Toast.LENGTH_LONG).show();
-            });
-            labels.add(mark(ch, Updater.BETA, getString(R.string.updates_beta)));
-            actions.add(() -> {
-                updater.setChannel(Updater.BETA);
-                updater.check(true);
-            });
-        }
-        new AlertDialog.Builder(this, Updater.DIALOG_THEME)
-                .setTitle(R.string.menu_updates_title)
-                .setItems(labels.toArray(new String[0]), (d, which) -> actions.get(which).run())
                 .show();
     }
 

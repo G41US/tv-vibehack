@@ -21,7 +21,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh api --paginate "repos/${{ github.repository }}/releases" \
-            --jq '.[] | select(.tag_name != "beta") | .assets[] | "\(.name) \(.download_count)"' > counts.txt
+            --jq '.[] | .assets[] | "\(.name) \(.download_count)"' > counts.txt
           installs=$(awk '$1=="tvhome.apk"{s+=$2} END{print s+0}' counts.txt)
           updates=$(awk '$1=="tvhome-update.apk"{s+=$2} END{print s+0}' counts.txt)
           printf '{"schemaVersion":1,"label":"installs","message":"%s","color":"3d6bff"}\n' "$installs" > docs/installs.json

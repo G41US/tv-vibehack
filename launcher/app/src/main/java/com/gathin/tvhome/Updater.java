@@ -34,41 +34,22 @@ import java.nio.charset.StandardCharsets;
 public final class Updater {
 
     private static final String PREFS = "update", KEY_LAST_CHECK = "last_check", KEY_SKIPPED = "skipped";
-    static final String KEY_CHANNEL = "channel", STABLE = "stable", BETA = "beta";
     private static final long AUTO_EVERY_MS = 6L * 60 * 60 * 1000;
     static final int DIALOG_THEME = android.R.style.Theme_DeviceDefault_Dialog_Alert;
 
     private final Activity act;
-    private final String stableBase, betaBase;
+    private final String base;
     private final Handler main = new Handler(Looper.getMainLooper());
     private boolean busy;
 
     Updater(Activity act) {
         this.act = act;
-        this.stableBase = folder(act.getString(R.string.update_url));
-        this.betaBase = folder(act.getString(R.string.update_beta_url));
+        this.base = folder(act.getString(R.string.update_url));
     }
 
     private static String folder(String url) {
         url = url.trim();
         return url.isEmpty() || url.endsWith("/") ? url : url + "/";
-    }
-
-    /** STABLE (everyone) or BETA (new builds first, for testing). */
-    String channel() {
-        return BETA.equals(prefs().getString(KEY_CHANNEL, STABLE)) && !betaBase.isEmpty() ? BETA : STABLE;
-    }
-
-    boolean hasBeta() {
-        return !betaBase.isEmpty();
-    }
-
-    void setChannel(String channel) {
-        prefs().edit().putString(KEY_CHANNEL, BETA.equals(channel) ? BETA : STABLE).remove(KEY_SKIPPED).apply();
-    }
-
-    private String base() {
-        return BETA.equals(channel()) ? betaBase : stableBase;
     }
 
     private SharedPreferences prefs() {
@@ -85,7 +66,7 @@ public final class Updater {
 
     /** Quiet check when Home opens, at most every few hours. */
     void autoCheck() {
-        if (base().isEmpty() || busy) return;
+        if (base.isEmpty() || busy) return;
         long now = System.currentTimeMillis();
         if (now - prefs().getLong(KEY_LAST_CHECK, 0) < AUTO_EVERY_MS) return;
         prefs().edit().putLong(KEY_LAST_CHECK, now).apply();
@@ -93,7 +74,6 @@ public final class Updater {
     }
 
     void check(boolean manual) {
-        final String base = base();
         if (base.isEmpty()) {
             if (manual) toast(act.getString(R.string.update_off));
             return;
@@ -134,7 +114,6 @@ public final class Updater {
         if (notes != null && !notes.isEmpty()) {
             message = act.getString(R.string.update_whats_new, notes) + "\n\n" + message;
         }
-        if (BETA.equals(channel())) message += "\n" + act.getString(R.string.update_beta_note);
         new AlertDialog.Builder(act, DIALOG_THEME)
                 .setTitle(R.string.update_available)
                 .setMessage(message)
