@@ -35,12 +35,13 @@ if ($LASTEXITCODE -ne 0) { throw 'APK upload failed' }
 $out = & $py -I ..\tools\tv.py 'pm install -r /data/local/tmp/tvhome.apk; rm -f /data/local/tmp/tvhome.apk'
 Write-Host $out
 if ("$out" -notmatch 'Success') { throw 'pm install failed; the stock launcher was left untouched' }
-$out = & $py -I ..\tools\tv.py 'cmd package set-home-activity --user 0 com.gathin.tvhome'
+# Android 9 only accepts a component here; Android 10+ also takes a bare package name.
+$out = & $py -I ..\tools\tv.py 'cmd package set-home-activity --user 0 com.gathin.tvhome/.MainActivity'
 Write-Host $out
 if ("$out" -match 'Error') { throw 'could not set the new launcher as home; the stock launcher was left untouched' }
 @(
     'pm grant com.gathin.tvhome android.permission.ACCESS_FINE_LOCATION 2>/dev/null; echo location-granted',
-    'cmd package set-home-activity --user 0 com.gathin.tvhome',
+    'cmd package set-home-activity --user 0 com.gathin.tvhome/.MainActivity',
     "pm disable-user --user 0 $StockLauncher"
 ) | & $py -I ..\tools\tv.py --batch
 Write-Host 'Installed. Press Home on the remote to see it.'
