@@ -50,7 +50,16 @@ jobs:
           echo "HAVE_KEY=1" >> "$GITHUB_ENV"
           pass="${TVHOME_SIGNING%%:*}"
           echo "::add-mask::$pass"
-          printf '%s' "${TVHOME_SIGNING#*:}" | base64 -d > "$RUNNER_TEMP/tvhome.p12"
+          b64="${TVHOME_SIGNING#*:}"
+          printf '%s' "$b64" | tr -d ' \r\n\t' | base64 -d > "$RUNNER_TEMP/tvhome.p12" 2>/dev/null
+          size=$(stat -c%s "$RUNNER_TEMP/tvhome.p12")
+          # Say what is wrong with the key without printing any of it.
+          if ! keytool -list -storetype pkcs12 -keystore "$RUNNER_TEMP/tvhome.p12" -storepass "$pass" -alias tvhome \
+               >/dev/null 2>"$RUNNER_TEMP/kt.err"; then
+            why=$(grep -v JAVA_TOOL "$RUNNER_TEMP/kt.err" | head -c 200 | tr '\n' ' ')
+            echo "::error title=Signing key unreadable::$why | password ${#pass} chars, key text ${#b64} chars, decoded ${size} bytes. Expected 32 chars, 4600 chars, 3448 bytes: paste the whole TVHOME_SIGNING.txt again."
+            exit 1
+          fi
           echo "TVHOME_KEYSTORE=$RUNNER_TEMP/tvhome.p12" >> "$GITHUB_ENV"
           echo "TVHOME_KEYSTORE_PASSWORD=$pass" >> "$GITHUB_ENV"
 
@@ -67,7 +76,7 @@ jobs:
           status=${PIPESTATUS[0]}
           if [ "$status" -ne 0 ]; then
             # Put the compiler errors in an annotation, readable without downloading the log.
-            msg=$(grep -E "error:|What went wrong|^\* What|^> [^T]" build.log | head -40 | sed ':a;N;$!ba;s/%/%25/g;s/\r//g;s/\n/%0A/g')
+            msg=$(grep -E "error:|What went wrong|^\* What|^> [^T]|^ +> " build.log | head -40 | sed ':a;N;$!ba;s/%/%25/g;s/\r//g;s/\n/%0A/g')
             echo "::error title=Build failed::$msg"
           fi
           exit "$status"
