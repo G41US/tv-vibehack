@@ -29,6 +29,7 @@ this repo came from.
 - [Supported TVs](#supported-tvs)
 - [Doing it by hand](#doing-it-by-hand)
 - [The launcher](#the-launcher)
+- [Restoring your TV](#restoring-your-tv)
 - [Troubleshooting](#troubleshooting)
 - [Questions people ask](#questions-people-ask)
 - [Contributing](#contributing)
@@ -126,7 +127,7 @@ Lists that people have tested and contributed live in [`examples/`](examples/):
 | Xiaomi Mi TV (MiTV-MOOQ0, croods) | Android TV 10 |
 | Xiaomi Mi TV 4A (MiTV-MOOQ1) | Android TV 10 |
 | Xiaomi MiTV-AESP0 stick (aquaman, 1 GB) | Android TV 9 |
-| Xiaomi MiTV-AXSO0 (dangal) | Android TV 9 |
+| Xiaomi MiTV-AXSO0 (dangal; Mi TV 4C Pro 2019 / 4A Pro) | Android TV 9 |
 | Xiaomi MiTV-MOOR2 (venom, MediaTek) | Google TV 11 |
 | Xiaomi TV A Pro 75" 2026 (MiTV-MZTU0, river, MediaTek) | Google TV 14 |
 
@@ -234,6 +235,23 @@ appears at the end of the grid, opening Android's own home-screen picker so you 
 launchers from the sofa. Most Android TV firmware has no such page, and then the tile stays
 hidden. The stock launcher has to be enabled before it can be picked, see the restore instructions.
 
+## Restoring your TV
+
+Keep the list you applied: the restore script re-enables exactly those packages, then re-enables and
+re-selects the stock launcher, and resets the three animation scales.
+
+```bash
+TV_HOST=192.168.1.50 tools/restore.sh examples/<your tv>/debloat.txt                 # Android TV
+TV_HOST=192.168.1.50 tools/restore.sh examples/<your tv>/debloat.txt com.google.android.apps.tv.launcherx   # Google TV
+```
+
+The second argument is the stock launcher package; it defaults to Google's `tvlauncher`, so pass
+`launcherx` on Google TV (on Windows: `-Stock`). What restore does not do: it leaves the new launcher
+installed (uninstall it from the TV's settings if you want it gone), it does not know about packages
+you disabled outside the list, and it does not undo the optional accessibility services or a changed
+screensaver. Those are one `settings` command each, see Troubleshooting. If the TV is unreachable,
+the TV's own Settings → Apps page can re-enable apps too.
+
 ## Troubleshooting
 
 Things that bit us or contributors, so they don't bite you.
@@ -296,10 +314,14 @@ Things that bit us or contributors, so they don't bite you.
 ## Questions people ask
 
 **Is this safe? Can it brick the TV?**
-No. Nothing is flashed, rooted or deleted. Packages are disabled for the user profile, which
-lives in the data partition, not in the system image. The firmware is untouched. If something
-goes wrong, `tools/restore.sh` puts everything back, and even without the tools you can re-enable
-apps from the TV's own settings.
+Nothing is flashed, rooted or deleted, so the firmware itself is never at risk: packages are
+disabled for the user profile, which lives in the data partition. What can go wrong is disabling
+something the TV leans on. One Hisense booted to Android Recovery until "Try again" was pressed,
+and on Google TV disabling the stock launcher without the setup wizard sent Home into a crash
+loop (both are in Troubleshooting, with the way out). So: apply a list in small batches, keep
+the backup folder the assistant makes, and have `tools/restore.sh` ready. Even without the tools,
+the TV's own Settings → Apps page can re-enable packages, and a factory reset is the last resort,
+not the first.
 
 **What about firmware updates?**
 Most lists disable the manufacturer's update service, so updates only arrive when you re-enable
