@@ -30,7 +30,7 @@
     <!-- Stock home screens to replace on sight (needs HomeKeyService switched on). Many boxes open
          their own launcher at boot or from the Home key whatever the default home is, and without adb
          it can't be disabled; this sends Home to TV Home instead. Package names from real devices in
-         examples/. Not Fire TV: Fire OS doesn't let any other app take over Home. -->
+         examples/. An entry may be "package/full.ActivityName" to match only that screen. -->
     <string-array name="takeover_packages">
         <item>com.nes.hometv</item>                         <!-- Airtel Smart Router -->
         <item>com.google.android.tvlauncher</item>          <!-- Android TV (Sony, Philips, Mi Box…) -->
@@ -39,6 +39,10 @@
         <item>com.tcl.cyberui</item>                        <!-- TCL Android TV -->
         <item>com.mitv.tvhome.atv</item>                    <!-- Xiaomi PatchWall -->
         <item>com.hisense.tv.customerlauncher</item>        <!-- Hisense Android TV -->
+        <!-- Fire TV (Fire OS 7 and 8): only Amazon's home screens, not its content pages. Activity
+             names as found by github.com/toolicious/home-on-fire. -->
+        <item>com.amazon.tv.launcher/com.amazon.tv.launcher.ui.HomeActivity_vNext</item>
+        <item>com.amazon.tahoe/com.amazon.tahoe.ftv.HomeActivity</item>
     </string-array>
 
     <!-- Where the launcher looks for updates: a GitHub "latest release" download folder holding
