@@ -2,6 +2,7 @@ package com.gathin.tvhome;
 
 import android.accessibilityservice.AccessibilityService;
 import android.content.Intent;
+import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.view.accessibility.AccessibilityEvent;
 
@@ -12,6 +13,10 @@ import android.view.accessibility.AccessibilityEvent;
  * firmware whose own key handler opens the stock launcher directly whatever the default home is
  * (Airtel Smart Router, com.nes.tvglobalkeyhandler -> com.nes.hometv). Every other key passes
  * through untouched.
+ *
+ * Takeover: some firmware starts its own home screen itself (at boot, or from its key handler),
+ * whatever the default home is. Packages listed in config.xml's takeover_packages are replaced by
+ * this launcher the moment one of their windows comes to the front.
  *
  * Enable over adb:
  *   settings put secure enabled_accessibility_services com.gathin.tvhome/.HomeKeyService
@@ -24,17 +29,41 @@ public class HomeKeyService extends AccessibilityService {
         int code = event.getKeyCode();
         if (code != KeyEvent.KEYCODE_ALL_APPS && code != KeyEvent.KEYCODE_HOME) return false;
         if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
-            Intent home = new Intent(Intent.ACTION_MAIN)
-                    .addCategory(Intent.CATEGORY_HOME)
-                    .setPackage(getPackageName())
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-            startActivity(home);
+            goHome();
         }
         return true;
     }
 
+    private String[] takeover = new String[0];
+    private long lastTakeover;
+
+    @Override
+    protected void onServiceConnected() {
+        takeover = getResources().getStringArray(R.array.takeover_packages);
+    }
+
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
+        if (event.getEventType() != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return;
+        CharSequence pkg = event.getPackageName();
+        if (pkg == null) return;
+        for (String p : takeover) {
+            if (p.contentEquals(pkg)) {
+                long now = SystemClock.elapsedRealtime();
+                if (now - lastTakeover < 1000) return;   // one hop per second, never a loop
+                lastTakeover = now;
+                goHome();
+                return;
+            }
+        }
+    }
+
+    private void goHome() {
+        Intent home = new Intent(Intent.ACTION_MAIN)
+                .addCategory(Intent.CATEGORY_HOME)
+                .setPackage(getPackageName())
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        startActivity(home);
     }
 
     @Override

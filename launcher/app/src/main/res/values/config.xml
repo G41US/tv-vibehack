@@ -22,6 +22,13 @@
         <item>com.nes.tvbugtracker</item>
     </string-array>
 
+    <!-- Stock home screens to replace on sight (needs HomeKeyService switched on). For firmware that
+         opens its own launcher at boot or from its key handler even when this one is the default.
+         Airtel Smart Router: com.nes.hometv. Leave empty on other TVs. -->
+    <string-array name="takeover_packages">
+        <item>com.nes.hometv</item>
+    </string-array>
+
     <!-- The TV's Live TV / tuner app, offered at the end of the Inputs menu. Leave empty to omit. -->
     <string name="live_tv_package" translatable="false"></string>
 
