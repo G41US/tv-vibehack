@@ -48,9 +48,16 @@ public class HomeKeyService extends AccessibilityService {
         }
     }
 
+    private long lastSample;
+
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         if (event.getEventType() != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return;
+        long t = SystemClock.elapsedRealtime();
+        if (t - lastSample > 60_000) {   // keeps the data counts going while other apps are open
+            lastSample = t;
+            DataUsage.sample(this);
+        }
         CharSequence pkg = event.getPackageName();
         if (pkg == null) return;
         for (String p : takeover) {

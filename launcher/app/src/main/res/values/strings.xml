@@ -63,4 +63,19 @@
     <string name="weather_auto">Automatic</string>
     <string name="weather_auto_found">Automatic (%1$s)</string>
     <string name="weather_off">Off</string>
+    <string name="net_title">Network</string>
+    <string name="net_scan">Scan to join %1$s</string>
+    <string name="net_password">Password: %1$s</string>
+    <string name="net_no_wifi">Set your Wi-Fi name and password once, and a QR code guests can scan to join will show here.</string>
+    <string name="net_data_title">DATA USED</string>
+    <string name="net_data_line">Today %1$s   ·   %2$s %3$s</string>
+    <string name="net_since">Since %1$s</string>
+    <string name="net_data_mobile">Mobile data through this box, counted by the box</string>
+    <string name="net_data_all">All traffic through this box, counted by the box</string>
+    <string name="net_close">Close</string>
+    <string name="net_set_up">Set up Wi-Fi QR</string>
+    <string name="net_change">Change Wi-Fi details</string>
+    <string name="net_settings">Wi-Fi settings</string>
+    <string name="net_setup_title">Wi-Fi details from your phone</string>
+    <string name="net_setup_message">On a phone on the same Wi-Fi, open this in the browser:\n\n%1$s\n\nThen enter the Wi-Fi name and password. Keep this window open until they arrive.</string>
 </resources>

@@ -1,6 +1,5 @@
 package com.gathin.tvhome;
 
-import android.graphics.BitmapFactory;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -24,32 +23,35 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * A tiny web server for sending a wallpaper from a phone on the same Wi-Fi. It runs only while the
- * "Send a photo" dialog is open, and only answers under a random 4-digit path shown on the TV.
- * The phone's browser crops and compresses the picture to 1920x1080 before sending it, so the TV
- * only ever receives a small JPEG.
+ * A tiny web server for sending something from a phone on the same Wi-Fi: a wallpaper photo, or the
+ * Wi-Fi name and password for the guest QR code. It runs only while its dialog is open on the TV, and
+ * only answers under a random 4-digit path shown there. The page (res/raw) does the work on the phone
+ * and POSTs one body to PATH/upload; the handler checks and stores it.
  */
-final class PhotoServer {
+final class PhoneServer {
 
-    interface Listener {
-        void onPhoto(File file);
+    /** Called on the server thread with the received body; return true to accept it. */
+    interface BodyHandler {
+        boolean accept(File body) throws IOException;
     }
 
     private static final int MAX_BODY = 20 * 1024 * 1024;
 
     private final byte[] page;
-    private final File target;
-    private final Listener listener;
+    private final File scratch;
+    private final BodyHandler handler;
+    private final Runnable onDone;
     private final Handler main = new Handler(Looper.getMainLooper());
     final String pin;
     int port;
     private ServerSocket server;
     private volatile boolean running;
 
-    PhotoServer(byte[] page, File target, Listener listener) {
+    PhoneServer(byte[] page, File scratch, BodyHandler handler, Runnable onDone) {
         this.page = page;
-        this.target = target;
-        this.listener = listener;
+        this.scratch = scratch;
+        this.handler = handler;
+        this.onDone = onDone;
         this.pin = String.format(Locale.US, "%04d", new SecureRandom().nextInt(10000));
     }
 
@@ -63,7 +65,7 @@ final class PhotoServer {
         }
         if (server == null) return false;
         running = true;
-        new Thread(this::loop, "photo-server").start();
+        new Thread(this::loop, "phone-server").start();
         return true;
     }
 
@@ -115,7 +117,7 @@ final class PhotoServer {
                 respond(out, "413 Payload Too Large", "text/plain", "too big".getBytes(StandardCharsets.UTF_8));
                 return;
             }
-            File tmp = new File(target.getPath() + ".part");
+            File tmp = scratch;
             try (FileOutputStream f = new FileOutputStream(tmp)) {
                 byte[] buf = new byte[64 * 1024];
                 long left = length;
@@ -126,16 +128,19 @@ final class PhotoServer {
                     left -= n;
                 }
             }
-            BitmapFactory.Options o = new BitmapFactory.Options();
-            o.inJustDecodeBounds = true;
-            BitmapFactory.decodeFile(tmp.getPath(), o);
-            if (o.outWidth <= 0 || o.outHeight <= 0 || !tmp.renameTo(target)) {
-                tmp.delete();
-                respond(out, "400 Bad Request", "text/plain", "not a picture".getBytes(StandardCharsets.UTF_8));
+            boolean ok;
+            try {
+                ok = handler.accept(tmp);
+            } catch (Exception e) {
+                ok = false;
+            }
+            tmp.delete();
+            if (!ok) {
+                respond(out, "400 Bad Request", "text/plain", "not accepted".getBytes(StandardCharsets.UTF_8));
                 return;
             }
             respond(out, "200 OK", "text/plain", "ok".getBytes(StandardCharsets.UTF_8));
-            main.post(() -> listener.onPhoto(target));
+            main.post(onDone);
         } else {
             respond(out, "404 Not Found", "text/plain", "not found".getBytes(StandardCharsets.UTF_8));
         }
