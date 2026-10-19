@@ -1,5 +1,17 @@
 # tv-vibehack
 
+> ### Airtel Smart Router edition: TV Home
+> A clean, ad-free home screen for the Airtel Smart Router TV box, installed with the remote alone.
+> **Install:** on the box, get **Downloader** from the Play Store, open it, type
+> `g41us.github.io/tv-vibehack/get`, install, open TV Home and follow its two-step setup.
+> Full guide: **https://g41us.github.io/tv-vibehack/**
+>
+> This edition adds first-run setup without ADB, takeover of the Airtel home screen at boot and on the
+> Home button, dock editing on the TV, updates from the TV, wallpapers, weather, a guest Wi-Fi QR code
+> and data usage. Releases are signed with a private key held in this repo's Actions secrets.
+> Built on the original tv-vibehack by [Gathin23](https://github.com/Gathin23/tv-vibehack) (MIT); not affiliated with Airtel.
+
+
 **Your TV, minus the ads.**
 
 Strip the bloatware from any Android TV or Google TV over Wi-Fi, and replace the ad-filled home

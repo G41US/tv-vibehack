@@ -159,6 +159,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         root = findViewById(R.id.root);
         config = cfg;
         updater = new Updater(this);
+        setupPanel = new SetupPanel(this);
         applyWallpaper(cfg);
         glass = findViewById(R.id.glass);
         ambient = findViewById(R.id.ambient);
@@ -338,6 +339,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         adapter.reload();
         grid.scheduleLayoutAnimation();
         SelfHeal.ensureService(this);
+        setupPanel.onResume();
         updater.autoCheck();
         weather.refresh(false, this::showWeather);
         DataUsage.sample(this);
@@ -390,6 +392,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     private Config config;
     private Updater updater;
+    private SetupPanel setupPanel;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // Back from the default-home picker: onResume refreshes the setup panel.
+    }
     private Weather weather;
     private TextView weatherView;
     private TextView dateView;
@@ -461,13 +470,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     private void showHomeMenu() {
         String[] items = {getString(R.string.menu_wallpaper), getString(R.string.menu_weather),
-                getString(R.string.menu_updates)};
+                getString(R.string.menu_updates), getString(R.string.menu_setup)};
         new AlertDialog.Builder(this, Updater.DIALOG_THEME)
                 .setTitle(R.string.menu_title)
                 .setItems(items, (d, which) -> {
                     if (which == 0) showWallpaperMenu();
                     else if (which == 1) showWeatherMenu();
-                    else updater.check(true);
+                    else if (which == 2) updater.check(true);
+                    else setupPanel.show();
                 })
                 .show();
     }

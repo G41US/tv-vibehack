@@ -37,6 +37,23 @@ jobs:
           yes | "$SDK/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK" --licenses > /dev/null || true
           "$SDK/cmdline-tools/latest/bin/sdkmanager" --sdk_root="$SDK" "platforms;android-34" "build-tools;34.0.0"
 
+      - name: Load the signing key
+        env:
+          TVHOME_SIGNING: ${{ secrets.TVHOME_SIGNING }}
+        run: |
+          # One secret, "password:base64-of-the-PKCS12-keystore". Without it the code is still built
+          # (to catch errors) but nothing is published, and the run fails at the end.
+          if [ -z "$TVHOME_SIGNING" ]; then
+            echo "HAVE_KEY=0" >> "$GITHUB_ENV"
+            exit 0
+          fi
+          echo "HAVE_KEY=1" >> "$GITHUB_ENV"
+          pass="${TVHOME_SIGNING%%:*}"
+          echo "::add-mask::$pass"
+          printf '%s' "${TVHOME_SIGNING#*:}" | base64 -d > "$RUNNER_TEMP/tvhome.p12"
+          echo "TVHOME_KEYSTORE=$RUNNER_TEMP/tvhome.p12" >> "$GITHUB_ENV"
+          echo "TVHOME_KEYSTORE_PASSWORD=$pass" >> "$GITHUB_ENV"
+
       - name: Version this build
         run: echo "VERSION_CODE=$((1000 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
 
@@ -55,16 +72,19 @@ jobs:
           fi
           exit "$status"
 
-      - name: Check the APK is signed with the repo key
+      - name: Check the APK is signed with the TV Home release key
+        if: env.HAVE_KEY == '1'
         run: |
+          # Public fingerprint of the release certificate. Boxes only accept updates signed with it.
+          WANT=9f5655ba967f66efb4a6e4f50c1d79ce58a80132f25abaea5063b90dd53f18ba
           APK=launcher/app/build/outputs/apk/release/app-release.apk
-          WANT=$(keytool -list -v -keystore launcher/debug.keystore -storepass android -alias androiddebugkey | sed -n 's/.*SHA256: //p' | tr -d ':' | tr 'A-F' 'a-f')
           GOT=$("$ANDROID_HOME/build-tools/34.0.0/apksigner" verify --print-certs "$APK" | sed -n 's/.*certificate SHA-256 digest: //p' | head -1)
-          echo "repo key: $WANT"; echo "apk key:  $GOT"
-          [ -n "$GOT" ] && [ "$WANT" = "$GOT" ]
+          echo "expected: $WANT"; echo "apk:      $GOT"
+          [ "$WANT" = "$GOT" ] || { echo "::error title=Wrong signing key::The APK is not signed with the TV Home release key."; exit 1; }
+          rm -f "$TVHOME_KEYSTORE"
 
       - name: Publish release for the TV's updater
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' && env.HAVE_KEY == '1'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -84,3 +104,9 @@ jobs:
         with:
           name: tvhome-apk
           path: launcher/app/build/outputs/apk/release/app-release.apk
+
+      - name: Fail when the signing key is missing
+        if: env.HAVE_KEY != '1'
+        run: |
+          echo "::error title=No signing key::Built, but not published. Add the TVHOME_SIGNING secret: repo Settings > Secrets and variables > Actions > New repository secret."
+          exit 1

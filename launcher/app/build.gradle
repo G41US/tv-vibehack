@@ -15,13 +15,19 @@ android {
         versionName "2.${System.getenv('VERSION_CODE') ?: '0'}"
     }
 
+    // Release builds are signed with the key in the TVHOME_SIGNING secret (see the workflow), so only
+    // builds from this repo can update TV Home on people's boxes. Local builds without it fall back to
+    // the machine's own debug key.
     signingConfigs {
-        // One fixed key in the repo, so every CI build installs over the previous one.
-        fixed {
-            storeFile rootProject.file('debug.keystore')
-            storePassword 'android'
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
+        release {
+            def ks = System.getenv('TVHOME_KEYSTORE')
+            if (ks) {
+                storeFile file(ks)
+                storeType 'pkcs12'
+                storePassword System.getenv('TVHOME_KEYSTORE_PASSWORD')
+                keyAlias 'tvhome'
+                keyPassword System.getenv('TVHOME_KEYSTORE_PASSWORD')
+            }
         }
     }
 
@@ -31,8 +37,7 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            // Sideloaded over ADB, never published: sign with the debug key so it installs over a debug build.
-            signingConfig signingConfigs.fixed
+            signingConfig System.getenv('TVHOME_KEYSTORE') ? signingConfigs.release : signingConfigs.debug
         }
     }
 

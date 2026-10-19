@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Home</string>
+    <string name="app_name">TV Home</string>
     <string name="inputs">Inputs</string>
     <string name="wifi">Wi-Fi</string>
     <string name="settings">Settings</string>
@@ -24,8 +24,8 @@
     <string name="home_settings">Default home</string>
     <string name="home_settings_help">Choose a home screen in system settings, then press Home.</string>
     <string name="input_key_service_description">Opens the input switcher when the remote\'s Input button is pressed.</string>
-    <string name="home_key_name">Home button</string>
-    <string name="home_key_description">Makes the remote\'s Home button open this launcher.</string>
+    <string name="home_key_name">TV Home</string>
+    <string name="home_key_description">Makes the remote\'s Home button, and the box at start-up, open TV Home instead of the box\'s own home screen. TV Home does not read or collect what is on your screen.</string>
     <string name="dock_move_left">Move left</string>
     <string name="dock_move_right">Move right</string>
     <string name="dock_remove">Remove from dock</string>
@@ -81,4 +81,19 @@
     <string name="net_not_set_up">Not set up yet</string>
     <string name="net_qr_empty">Press Set up Wi-Fi QR, then send your Wi-Fi name and password from your phone.</string>
     <string name="net_today">Today</string>
+    <string name="menu_setup">Setup</string>
+    <string name="setup_kicker">Welcome to TV Home</string>
+    <string name="setup_title">Two quick switches</string>
+    <string name="setup_intro">Do these once with the remote and TV Home runs your box: it opens at start-up, on the Home button, and updates itself.</string>
+    <string name="setup_home_title">Home button and start-up</string>
+    <string name="setup_home_desc">In Accessibility, choose TV Home and turn it on. Android warns about full control; TV Home only uses it to catch the Home button and the box\'s own home screen.</string>
+    <string name="setup_home_toast">Choose TV Home, turn it on, then press Back.</string>
+    <string name="setup_updates_title">Updates from the TV</string>
+    <string name="setup_updates_desc">Allow TV Home to install apps, so new versions install with one press.</string>
+    <string name="setup_default_title">Default home (optional)</string>
+    <string name="setup_default_desc">Pick TV Home as the default home screen if the box asks.</string>
+    <string name="setup_turn_on">Turn on</string>
+    <string name="setup_allow">Allow</string>
+    <string name="setup_choose">Choose</string>
+    <string name="setup_done">Done</string>
 </resources>
