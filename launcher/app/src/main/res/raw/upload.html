@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TV Home wallpaper</title>
+<style>
+  :root { color-scheme: dark; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #0b0d14; color: #e8e9ef;
+         margin: 0 auto; padding: 28px 18px; max-width: 520px; }
+  h1 { font-weight: 600; font-size: 24px; margin: 0 0 8px; }
+  p { color: #a9adbd; line-height: 1.45; }
+  label { display: block; margin-top: 22px; background: #3d6bff; color: #fff; text-align: center;
+          padding: 16px; border-radius: 14px; font-size: 18px; font-weight: 600; }
+  input { display: none; }
+  img { width: 100%; border-radius: 12px; margin-top: 18px; }
+  #s { margin-top: 16px; font-size: 17px; color: #e8e9ef; }
+</style>
+</head>
+<body>
+<h1>Set your TV wallpaper</h1>
+<p>Pick a photo. It's cropped to the TV screen, dimmed a little so the clock and apps stay readable,
+  and sent straight to the TV.</p>
+<label>Choose a photo<input id="f" type="file" accept="image/*"></label>
+<img id="p" hidden alt="">
+<p id="s"></p>
+<script>
+const f = document.getElementById('f'), s = document.getElementById('s'), p = document.getElementById('p');
+f.onchange = async () => {
+  const file = f.files[0];
+  if (!file) return;
+  s.textContent = 'Preparing…';
+  try {
+    const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    const W = 1920, H = 1080, c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    const k = Math.max(W / bmp.width, H / bmp.height), w = bmp.width * k, h = bmp.height * k;
+    const g = c.getContext('2d');
+    g.drawImage(bmp, (W - w) / 2, (H - h) / 2, w, h);
+    g.fillStyle = 'rgba(0,0,0,0.25)';
+    g.fillRect(0, 0, W, H);
+    const shade = g.createLinearGradient(0, H * 0.45, 0, H);
+    shade.addColorStop(0, 'rgba(0,0,0,0)');
+    shade.addColorStop(1, 'rgba(0,0,0,0.6)');
+    g.fillStyle = shade;
+    g.fillRect(0, 0, W, H);
+    const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.88));
+    p.src = URL.createObjectURL(blob);
+    p.hidden = false;
+    s.textContent = 'Sending to the TV…';
+    const r = await fetch(location.pathname.replace(/\/$/, '') + '/upload', { method: 'POST', body: blob });
+    s.textContent = r.ok ? 'Done ✓ Look at your TV.' : 'The TV said no (' + r.status + '). Try again.';
+  } catch (e) {
+    s.textContent = 'Something went wrong: ' + e.message;
+  }
+};
+</script>
+</body>
+</html>

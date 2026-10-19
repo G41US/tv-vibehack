@@ -10,8 +10,9 @@ android {
         applicationId 'com.gathin.tvhome'
         minSdk 26
         targetSdk 34
-        versionCode 2
-        versionName '2.0'
+        // CI sets VERSION_CODE (1000 + run number) so the TV's updater can tell builds apart.
+        versionCode Integer.parseInt(System.getenv('VERSION_CODE') ?: '2')
+        versionName "2.${System.getenv('VERSION_CODE') ?: '0'}"
     }
 
     signingConfigs {
