@@ -261,11 +261,11 @@ Things that bit us or contributors, so they don't bite you.
   has its own.
 - **Wrong time zone, clock off by 30 or 60 minutes**, seen on Xiaomi in Iran: the TV picked a
   neighbouring zone, and older firmware ships time zone data from before Iran dropped daylight
-  saving in 2022 (check with `tools/tv.py 'cat /apex/com.android.tzdata/etc/tz/tz_version'`).
-  Set the zone yourself:
-  `tools/tv.py 'settings put global auto_time_zone 0; service call alarm 3 s16 Asia/Tehran'`.
+  saving in 2022 (on Android 10 and newer, check with
+  `tools/tv.py 'cat /apex/com.android.tzdata/etc/tz/tz_version'`). Set the zone yourself:
+  `tools/tv.py 'settings put global auto_time_zone 0; cmd alarm set-timezone Asia/Tehran'`.
   If the clock then jumps an hour ahead in spring, a fixed offset keeps it right:
-  `tools/tv.py 'service call alarm 3 s16 GMT+03:30'`. The same applies to any country whose rules
+  `tools/tv.py 'cmd alarm set-timezone GMT+03:30'`. The same applies to any country whose rules
   changed after the firmware was built.
 
 ## Questions people ask
