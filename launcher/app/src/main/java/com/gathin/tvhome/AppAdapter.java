@@ -92,18 +92,20 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
     private final Context ctx;
     private final TileListener listener;
     private final int dockSize;
-    /** Dock order (res/values/config.xml, dock_apps). */
+    /** Dock order (config.xml dock_apps, or a theme's config.json). */
     private final List<String> favourites;
     /** Never shown as tiles (res/values/config.xml, hidden_apps). */
     private final Set<String> hidden;
+    private final boolean showHomeSettings;
     private final List<Entry> items = new ArrayList<>();
 
-    AppAdapter(Context ctx, TileListener listener, int dockSize) {
+    AppAdapter(Context ctx, TileListener listener, int dockSize, Config cfg) {
         this.ctx = ctx;
         this.listener = listener;
         this.dockSize = dockSize;
-        this.favourites = Arrays.asList(ctx.getResources().getStringArray(R.array.dock_apps));
-        this.hidden = new HashSet<>(Arrays.asList(ctx.getResources().getStringArray(R.array.hidden_apps)));
+        this.favourites = cfg.dockApps;
+        this.hidden = new HashSet<>(cfg.hiddenApps);
+        this.showHomeSettings = cfg.showHomeSettingsShortcut;
         // Tiles keep their identity across reload(), so a focused tile stays on its app instead of
         // its view being rebound to whatever app now sits in that slot.
         setHasStableIds(true);
@@ -134,7 +136,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
             return a.label.compareToIgnoreCase(b.label);
         });
         // Optional "Default home" tile (config.xml), only when this TV actually has a home-screen picker.
-        if (ctx.getResources().getBoolean(R.bool.show_home_settings_shortcut)
+        if (showHomeSettings
                 && pm.resolveActivity(new Intent(Settings.ACTION_HOME_SETTINGS), 0) != null) {
             fresh.add(new Entry(ctx.getString(R.string.home_settings),
                     new ComponentName(ctx, HomeSettingsActivity.class), null,
