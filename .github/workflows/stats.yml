@@ -1,0 +1,33 @@
+name: Count installs
+
+# Once a day, add up release downloads: tvhome.apk = new installs (Downloader code, web page),
+# tvhome-update.apk = updates from TVs. Writes docs/stats.json and the README badge's data.
+# Releases from before the split (up to build 1022) counted updates as tvhome.apk too.
+on:
+  schedule:
+    - cron: "17 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  count:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - name: Count and save
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api --paginate "repos/${{ github.repository }}/releases" \
+            --jq '.[] | select(.tag_name != "beta") | .assets[] | "\(.name) \(.download_count)"' > counts.txt
+          installs=$(awk '$1=="tvhome.apk"{s+=$2} END{print s+0}' counts.txt)
+          updates=$(awk '$1=="tvhome-update.apk"{s+=$2} END{print s+0}' counts.txt)
+          printf '{"schemaVersion":1,"label":"installs","message":"%s","color":"3d6bff"}\n' "$installs" > docs/installs.json
+          printf '{"installs":%s,"updates":%s,"counted":"%s"}\n' "$installs" "$updates" "$(date -u +%FT%TZ)" > docs/stats.json
+          echo "::notice title=TV Home::$installs installs, $updates updates"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/installs.json docs/stats.json
+          git diff --cached --quiet || { git commit -m "Update install count" && git push; }

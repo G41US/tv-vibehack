@@ -83,8 +83,8 @@
     <string name="net_today">Today</string>
     <string name="menu_setup">Setup</string>
     <string name="setup_kicker">Welcome to TV Home</string>
-    <string name="setup_title">Two quick switches</string>
-    <string name="setup_intro">Do these once with the remote and TV Home runs your box: it opens at start-up, on the Home button, and updates itself.</string>
+    <string name="setup_title">Quick setup</string>
+    <string name="setup_intro">Do these once with the remote. TV Home then opens at start-up and on the Home button, updates itself, and keeps your settings safe.</string>
     <string name="setup_home_title">Home button and start-up</string>
     <string name="setup_home_desc">In Accessibility, choose TV Home and turn it on. Android warns about full control; TV Home only uses it to catch the Home button and the box\'s own home screen.</string>
     <string name="setup_home_toast">Choose TV Home, turn it on, then press Back.</string>
@@ -108,4 +108,23 @@
     <string name="backup_restored">Your TV Home settings are back.</string>
     <string name="backup_card_title">TV Home settings backup</string>
     <string name="backup_card_body">Keep this picture: TV Home uses it to restore your settings.</string>
+    <string name="weather_hilo">H %1$d°  L %2$d°</string>
+    <string name="wx_clear">Clear</string>
+    <string name="wx_mostly_clear">Mostly clear</string>
+    <string name="wx_partly_cloudy">Partly cloudy</string>
+    <string name="wx_cloudy">Cloudy</string>
+    <string name="wx_fog">Fog</string>
+    <string name="wx_drizzle">Drizzle</string>
+    <string name="wx_freezing_drizzle">Freezing drizzle</string>
+    <string name="wx_light_rain">Light rain</string>
+    <string name="wx_rain">Rain</string>
+    <string name="wx_heavy_rain">Heavy rain</string>
+    <string name="wx_freezing_rain">Freezing rain</string>
+    <string name="wx_snow">Snow</string>
+    <string name="wx_light_showers">Light showers</string>
+    <string name="wx_showers">Showers</string>
+    <string name="wx_heavy_showers">Heavy showers</string>
+    <string name="wx_snow_showers">Snow showers</string>
+    <string name="wx_thunderstorm">Thunderstorm</string>
+    <string name="wx_thunderstorm_hail">Thunderstorm, hail</string>
 </resources>

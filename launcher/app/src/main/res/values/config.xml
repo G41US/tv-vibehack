@@ -19,13 +19,26 @@
     <string-array name="hidden_apps">
         <item>com.nes.tvbugtracker</item>
         <item>com.nes.hometv</item>
+        <item>com.google.android.tvlauncher</item>
+        <item>com.google.android.apps.tv.launcherx</item>
+        <item>com.google.android.leanbacklauncher</item>
+        <item>com.tcl.cyberui</item>
+        <item>com.mitv.tvhome.atv</item>
+        <item>com.hisense.tv.customerlauncher</item>
     </string-array>
 
-    <!-- Stock home screens to replace on sight (needs HomeKeyService switched on). For firmware that
-         opens its own launcher at boot or from its key handler even when this one is the default.
-         Airtel Smart Router: com.nes.hometv. Leave empty on other TVs. -->
+    <!-- Stock home screens to replace on sight (needs HomeKeyService switched on). Many boxes open
+         their own launcher at boot or from the Home key whatever the default home is, and without adb
+         it can't be disabled; this sends Home to TV Home instead. Package names from real devices in
+         examples/. Not Fire TV: Fire OS doesn't let any other app take over Home. -->
     <string-array name="takeover_packages">
-        <item>com.nes.hometv</item>
+        <item>com.nes.hometv</item>                         <!-- Airtel Smart Router -->
+        <item>com.google.android.tvlauncher</item>          <!-- Android TV (Sony, Philips, Mi Box…) -->
+        <item>com.google.android.apps.tv.launcherx</item>   <!-- Google TV (Chromecast, TCL, Sony…) -->
+        <item>com.google.android.leanbacklauncher</item>    <!-- older Android TV -->
+        <item>com.tcl.cyberui</item>                        <!-- TCL Android TV -->
+        <item>com.mitv.tvhome.atv</item>                    <!-- Xiaomi PatchWall -->
+        <item>com.hisense.tv.customerlauncher</item>        <!-- Hisense Android TV -->
     </string-array>
 
     <!-- Where the launcher looks for updates: a GitHub "latest release" download folder holding
