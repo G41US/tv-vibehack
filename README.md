@@ -105,6 +105,7 @@ Lists that people have tested and contributed live in [`examples/`](examples/):
 | OnePlus TV (D00) | Google TV 14 |
 | Sony BRAVIA XBR-65X900E (2017) | Android TV 9 |
 | NVIDIA SHIELD TV Pro 2019 (P2897) | Android TV 11 |
+| Xiaomi MiTV-MOOR2 (venom) | Google TV 11 |
 
 Your TV not here? The prompt works regardless, it discovers the bloat itself. If you add your
 list afterwards, the next person with your model skips that step. See
@@ -220,6 +221,16 @@ Things that bit us or contributors, so they don't bite you.
   Home before `screencap`.
 - **Disable the stock launcher only after the new one is installed**, or the Home button lands on
   a factory test app.
+- **The new launcher still doesn't own Home** after the stock one is disabled, seen on Google TV
+  (Xiaomi MiTV-MOOR2). Another system app answers HOME: `com.google.android.tungsten.setupwraith`,
+  with `.MainActivity` at intent-filter priority 4 and `.RecoveryActivity` at priority 1. You
+  cannot outrank it, and the obvious workarounds don't help: Android ignores `android:priority` on
+  HOME filters for apps that aren't on the system image, `cmd package set-home-activity` prints
+  `Success` without changing anything (not even after a reboot), and `pm disable-user` on one of
+  setupwraith's components is refused with a SecurityException. Disabling the whole
+  `com.google.android.tungsten.setupwraith` package is what frees the slot. It is the first-run
+  setup wizard, so everyday use is unaffected, but re-enable it before a factory reset - list it in
+  your `debloat.txt` and `tools/restore.sh` does that for you.
 - **No on-screen keyboard** after switching launchers, seen on Xiaomi: the default input method
   pointed at a Baidu keyboard that isn't installed. Fix:
   `tools/tv.py 'ime set com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME'`
