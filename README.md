@@ -295,7 +295,9 @@ Things that bit us or contributors, so they don't bite you.
   on it. The install script now starts the new launcher before disabling the stock one, sets the
   home preference last (Android drops it whenever the set of HOME apps changes), then checks where
   Home resolves and re-enables the stock launcher if it is not the new one. Disable setupwraith as
-  above. If you're already in the loop:
+  above. To confirm it is this bug: `logcat -b crash` shows `FATAL EXCEPTION IN SYSTEM PROCESS:
+  android.display`, and the main log shows `setupwraith/.RecoveryActivity` being started every
+  200 ms or so. If you're already in the loop:
   `tools/tv.py 'pm enable --user 0 com.google.android.apps.tv.launcherx'`.
 - **No on-screen keyboard** after switching launchers, seen on Xiaomi: the default input method
   pointed at a Baidu keyboard that isn't installed. Fix:
