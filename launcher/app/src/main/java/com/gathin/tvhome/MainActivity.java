@@ -36,6 +36,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.dynamicanimation.animation.DynamicAnimation;
+import androidx.dynamicanimation.animation.FloatPropertyCompat;
 import androidx.dynamicanimation.animation.SpringAnimation;
 import androidx.dynamicanimation.animation.SpringForce;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -70,6 +71,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private TextView btnWifi;
     private SpringAnimation springX, springY;
     private float glassTargetX, glassTargetY;
+    // How far the grid has scrolled the glass. springY works without it, in grid content space, so a
+    // scroll moves the glass in lockstep with its tile instead of becoming a moving spring target.
+    private float glassScrollShift;
     private boolean glassShown;
     // Static so they survive the activity being destroyed while another app is open (low-memory TVs,
     // or Developer options → "Don't keep activities"); they only reset when the process dies.
@@ -159,14 +163,24 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             public void onScrolled(@NonNull RecyclerView rv, int dx, int dy) {
                 if (!glassShown) return;
                 glassTargetY -= dy;
-                if (springY.isRunning()) springY.animateToFinalPosition(glassTargetY);
-                else glass.setTranslationY(glassTargetY);
+                glassScrollShift -= dy;
+                glass.setTranslationY(glass.getTranslationY() - dy);
             }
         });
 
         // Liquid feel: soft springs on the highlight's position.
         springX = new SpringAnimation(glass, DynamicAnimation.TRANSLATION_X);
-        springY = new SpringAnimation(glass, DynamicAnimation.TRANSLATION_Y);
+        springY = new SpringAnimation(glass, new FloatPropertyCompat<View>("glassContentY") {
+            @Override
+            public float getValue(View v) {
+                return v.getTranslationY() - glassScrollShift;
+            }
+
+            @Override
+            public void setValue(View v, float value) {
+                v.setTranslationY(value + glassScrollShift);
+            }
+        });
         for (SpringAnimation s : new SpringAnimation[]{springX, springY}) {
             s.setSpring(new SpringForce().setStiffness(260f).setDampingRatio(0.58f));
         }
@@ -284,7 +298,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             glassShown = true;
         } else {
             springX.animateToFinalPosition(x);
-            springY.animateToFinalPosition(y);
+            springY.animateToFinalPosition(y - glassScrollShift);
         }
         View item = (View) card.getParent();
         if (position < COLUMNS) {
