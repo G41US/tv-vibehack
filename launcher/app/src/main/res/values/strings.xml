@@ -35,7 +35,7 @@
     <string name="app_info">App info</string>
     <string name="menu_title">TV Home</string>
     <string name="menu_wallpaper">Wallpaper</string>
-    <string name="menu_updates">Updates</string>
+    <string name="menu_updates">Check for updates</string>
     <string name="wp_black">Black</string>
     <string name="wp_aurora">Aurora</string>
     <string name="wp_midnight">Midnight</string>
@@ -96,13 +96,7 @@
     <string name="setup_allow">Allow</string>
     <string name="setup_choose">Choose</string>
     <string name="setup_done">Done</string>
-    <string name="menu_updates_title">Updates</string>
-    <string name="updates_check">Check for updates</string>
-    <string name="updates_stable">Stable: tested updates (recommended)</string>
-    <string name="updates_beta">Beta: newest builds first, for testing</string>
-    <string name="updates_now_stable">Stable channel. You\'ll get the next tested update.</string>
     <string name="update_whats_new">What\'s new: %1$s</string>
-    <string name="update_beta_note">Beta build: if something breaks, switch back to Stable in Updates.</string>
     <string name="setup_backup_title">Keep your settings safe</string>
     <string name="setup_backup_desc">Your dock, wallpaper, weather and Wi-Fi QR are backed up on the box, encrypted. Allow photos so they come back after a reinstall.</string>
     <string name="backup_restored">Your TV Home settings are back.</string>

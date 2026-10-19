@@ -36,7 +36,7 @@
     <string name="app_info">Infos sur l\'appli</string>
     <string name="menu_title">TV Home</string>
     <string name="menu_wallpaper">Fond d\'écran</string>
-    <string name="menu_updates">Mises à jour</string>
+    <string name="menu_updates">Rechercher des mises à jour</string>
     <string name="wp_black">Noir</string>
     <string name="wp_aurora">Aurore</string>
     <string name="wp_midnight">Minuit</string>
@@ -97,13 +97,7 @@
     <string name="setup_allow">Autoriser</string>
     <string name="setup_choose">Choisir</string>
     <string name="setup_done">Terminé</string>
-    <string name="menu_updates_title">Mises à jour</string>
-    <string name="updates_check">Rechercher des mises à jour</string>
-    <string name="updates_stable">Stable : mises à jour testées (recommandé)</string>
-    <string name="updates_beta">Bêta : nouvelles versions en avant-première</string>
-    <string name="updates_now_stable">Canal stable. Vous recevrez la prochaine mise à jour testée.</string>
     <string name="update_whats_new">Nouveautés : %1$s</string>
-    <string name="update_beta_note">Version bêta : en cas de problème, repassez en Stable dans Mises à jour.</string>
     <string name="setup_backup_title">Protéger vos réglages</string>
     <string name="setup_backup_desc">Votre dock, fond d\'écran, météo et QR Wi-Fi sont sauvegardés sur le boîtier, chiffrés. Autorisez l\'accès aux photos pour les retrouver après une réinstallation.</string>
     <string name="backup_restored">Vos réglages TV Home sont de retour.</string>
