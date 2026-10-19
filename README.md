@@ -168,9 +168,11 @@ powershell -ExecutionPolicy Bypass -File tools\disable.ps1 -TvHost 192.168.1.50 
 powershell -ExecutionPolicy Bypass -File tools\restore.ps1 -TvHost 192.168.1.50 examples\xiaomi-mi-tv-4a\debloat.txt
 ```
 
-The install script stops before touching the stock launcher if the install or the home-screen
-switch fails. Git Bash also works; the `.sh` scripts detect a Windows venv and disable MSYS path
-rewriting themselves.
+Both install scripts ask the TV which launcher owns Home and only disable one they recognise
+(Google's `tvlauncher` or `launcherx`); pass `STOCK_LAUNCHER=<package>` (or `-StockLauncher`) to
+override, or `none` to leave it alone. After the switch they check where Home actually resolves and
+put the stock launcher back if it is not the new one. Git Bash also works; the `.sh` scripts detect a
+Windows venv and disable MSYS path rewriting themselves.
 
 ## The launcher
 
@@ -198,6 +200,8 @@ It needs JDK 17 and the Android SDK (platform 34, build-tools 34.0.0). On macOS:
 ```bash
 brew install openjdk@17 android-commandlinetools
 sdkmanager "platforms;android-34" "build-tools;34.0.0"
+# newer command-line tools (sdkmanager forwards to the "android" CLI) take this form instead:
+# android sdk install platforms/android-34 build-tools/34.0.0
 ```
 
 Without Homebrew, the script also finds a JDK 17 known to `/usr/libexec/java_home` and an SDK in

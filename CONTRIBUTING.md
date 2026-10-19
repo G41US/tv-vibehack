@@ -36,7 +36,8 @@ DynamicAnimation, no Kotlin, no Compose, no network. It targets TVs with 1 GB of
 
 Build with `TV_HOST=<ip> launcher/build-and-install.sh` (JDK 17, Android SDK platform 34 and
 build-tools 34.0.0; on macOS `brew install openjdk@17 android-commandlinetools` then
-`sdkmanager "platforms;android-34" "build-tools;34.0.0"`).
+`sdkmanager "platforms;android-34" "build-tools;34.0.0"`; with the newer command-line tools the form is
+`android sdk install platforms/android-34 build-tools/34.0.0`).
 
 Ideas that fit the direction: an idle screensaver with clock and ambient colour, per-TV icon packs
 for apps without banners, a settings screen to edit the dock from the TV, localisation.
