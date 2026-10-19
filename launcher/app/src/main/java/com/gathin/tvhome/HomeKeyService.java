@@ -68,8 +68,15 @@ public class HomeKeyService extends AccessibilityService {
             failures = 0;
             return;
         }
+        CharSequence cls = event.getClassName();
         for (String p : takeover) {
-            if (p.contentEquals(pkg)) {
+            // "package" matches any of its windows; "package/full.Activity" only that one screen
+            // (Fire TV, where the same package also shows Amazon's movie and show pages).
+            int slash = p.indexOf('/');
+            boolean match = slash < 0 ? p.contentEquals(pkg)
+                    : p.regionMatches(0, pkg.toString(), 0, slash) && slash == pkg.length()
+                    && cls != null && p.substring(slash + 1).contentEquals(cls);
+            if (match) {
                 long now = SystemClock.elapsedRealtime();
                 if (now - lastTakeover < 1000) return;   // one hop per second, never a loop
                 if (now < pausedUntil) return;
