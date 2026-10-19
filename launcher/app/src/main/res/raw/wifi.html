@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TV Home Wi-Fi QR</title>
+<style>
+  :root { color-scheme: dark; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #0b0d14; color: #e8e9ef;
+         margin: 0 auto; padding: 28px 18px; max-width: 520px; }
+  h1 { font-weight: 600; font-size: 24px; margin: 0 0 8px; }
+  p { color: #a9adbd; line-height: 1.45; }
+  label { display: block; margin: 18px 0 6px; font-size: 15px; color: #c9ccd8; }
+  input, select { width: 100%; box-sizing: border-box; padding: 14px; font-size: 17px; border-radius: 12px;
+                  border: 1px solid #2c3142; background: #151927; color: #fff; }
+  .row { display: flex; align-items: center; gap: 10px; margin-top: 10px; color: #c9ccd8; }
+  .row input { width: auto; }
+  button { width: 100%; margin-top: 24px; background: #3d6bff; color: #fff; border: 0; padding: 16px;
+           border-radius: 14px; font-size: 18px; font-weight: 600; }
+  #s { margin-top: 16px; font-size: 17px; color: #e8e9ef; }
+</style>
+</head>
+<body>
+<h1>Wi-Fi for the guest QR code</h1>
+<p>Enter your Wi-Fi name and password exactly as they are. The TV turns them into a QR code that
+  guests scan to join. They're kept only on the TV.</p>
+<label for="ssid">Wi-Fi name</label>
+<input id="ssid" autocomplete="off" autocapitalize="off" spellcheck="false">
+<label for="pw">Password</label>
+<input id="pw" type="password" autocomplete="off" autocapitalize="off" spellcheck="false">
+<div class="row"><input id="show" type="checkbox"><span>Show password</span></div>
+<label for="sec">Security</label>
+<select id="sec">
+  <option value="WPA" selected>WPA2 / WPA3 (most routers)</option>
+  <option value="WEP">WEP (old routers)</option>
+  <option value="nopass">No password</option>
+</select>
+<div class="row"><input id="hidden" type="checkbox"><span>The network is hidden</span></div>
+<button id="go">Send to TV</button>
+<p id="s"></p>
+<script>
+const $ = id => document.getElementById(id);
+$('show').onchange = () => { $('pw').type = $('show').checked ? 'text' : 'password'; };
+$('go').onclick = async () => {
+  const body = JSON.stringify({ ssid: $('ssid').value, password: $('pw').value,
+                                security: $('sec').value, hidden: $('hidden').checked });
+  if (!$('ssid').value) { $('s').textContent = 'Enter the Wi-Fi name first.'; return; }
+  $('s').textContent = 'Sending…';
+  try {
+    const r = await fetch(location.pathname.replace(/\/$/, '') + '/upload',
+                          { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
+    $('s').textContent = r.ok ? 'Done ✓ The QR code is on your TV.' : 'The TV said no (' + r.status + '). Try again.';
+  } catch (e) {
+    $('s').textContent = 'Something went wrong: ' + e.message;
+  }
+};
+</script>
+</body>
+</html>

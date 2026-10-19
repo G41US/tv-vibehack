@@ -138,6 +138,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             updateGreeting();
             updateWifiLabel();
             weather.refresh(false, MainActivity.this::showWeather);
+            DataUsage.sample(MainActivity.this);
             handler.postDelayed(this, MINUTE_MS);
         }
     };
@@ -242,8 +243,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         View btnSettings = findViewById(R.id.btnSettings);
         btnInputs.setOnClickListener(v -> showInputs());
         btnWifi.setOnClickListener(v -> openNetworkPill());
+        // Hold OK: the Network panel (guest Wi-Fi QR code, data used); Wi-Fi settings are one button away there.
         btnWifi.setOnLongClickListener(v -> {
-            open(new Intent(Settings.ACTION_WIFI_SETTINGS));
+            showNetworkPanel();
             return true;
         });
         btnSettings.setOnClickListener(v -> open(new Intent(Settings.ACTION_SETTINGS)));
@@ -338,6 +340,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         SelfHeal.ensureService(this);
         updater.autoCheck();
         weather.refresh(false, this::showWeather);
+        DataUsage.sample(this);
         updateGreeting();
         updateWifiLabel();
         updateInputsButton();
@@ -360,7 +363,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (photoServer != null) photoServer.stop();
+        if (phoneServer != null) phoneServer.stop();
         ConnectivityManager cm = getSystemService(ConnectivityManager.class);
         TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
         if (tim != null) tim.unregisterCallback(inputCallback);
@@ -426,8 +429,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 })
                 .show();
     }
-    private PhotoServer photoServer;
-    private AlertDialog photoDialog;
+    private PhoneServer phoneServer;
+    private AlertDialog phoneDialog;
 
     private File customWallpaper() {
         return new File(getFilesDir(), "custom_wallpaper.jpg");
@@ -500,10 +503,25 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         return (key.equals(current) ? "✓  " : "     ") + label;
     }
 
-    /** Runs the phone upload page until a photo arrives or the dialog is closed. */
+    /** Phone page for sending a wallpaper photo. */
     private void showPhotoReceiver() {
+        File target = customWallpaper();
+        showPhoneLink(R.raw.upload, R.string.wp_send_title, R.string.wp_send_message, body -> {
+            android.graphics.BitmapFactory.Options o = new android.graphics.BitmapFactory.Options();
+            o.inJustDecodeBounds = true;
+            android.graphics.BitmapFactory.decodeFile(body.getPath(), o);
+            return o.outWidth > 0 && o.outHeight > 0 && body.renameTo(target);
+        }, () -> setWallpaper(WP_PHOTO));
+    }
+
+    /**
+     * Shows the address of a one-off phone page (PhoneServer) and keeps it running until something
+     * arrives or the dialog is closed.
+     */
+    private void showPhoneLink(int pageRes, int titleRes, int messageRes,
+                               PhoneServer.BodyHandler handler, Runnable onDone) {
         byte[] page;
-        try (java.io.InputStream in = getResources().openRawResource(R.raw.upload)) {
+        try (java.io.InputStream in = getResources().openRawResource(pageRes)) {
             java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
             byte[] buf = new byte[8192];
             int n;
@@ -512,30 +530,164 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         } catch (java.io.IOException e) {
             return;
         }
-        if (photoServer != null) photoServer.stop();
-        photoServer = new PhotoServer(page, customWallpaper(), file -> {
-            if (photoDialog != null) photoDialog.dismiss();
-            setWallpaper(WP_PHOTO);
+        if (phoneServer != null) phoneServer.stop();
+        File scratch = new File(getCacheDir(), "phone-upload.part");
+        phoneServer = new PhoneServer(page, scratch, handler, () -> {
+            if (phoneDialog != null) phoneDialog.dismiss();
+            onDone.run();
         });
-        List<String> ips = PhotoServer.lanAddresses();
-        if (ips.isEmpty() || !photoServer.start()) {
-            photoServer.stop();
+        List<String> ips = PhoneServer.lanAddresses();
+        if (ips.isEmpty() || !phoneServer.start()) {
+            phoneServer.stop();
             Toast.makeText(this, R.string.wp_send_failed, Toast.LENGTH_LONG).show();
             return;
         }
         StringBuilder urls = new StringBuilder();
         for (String ip : ips) {
             if (urls.length() > 0) urls.append('\n');
-            urls.append("http://").append(ip).append(':').append(photoServer.port).append('/').append(photoServer.pin);
+            urls.append("http://").append(ip).append(':').append(phoneServer.port).append('/').append(phoneServer.pin);
         }
-        final PhotoServer running = photoServer;
-        photoDialog = new AlertDialog.Builder(this, Updater.DIALOG_THEME)
-                .setTitle(R.string.wp_send_title)
-                .setMessage(getString(R.string.wp_send_message, urls.toString()))
+        final PhoneServer running = phoneServer;
+        phoneDialog = new AlertDialog.Builder(this, Updater.DIALOG_THEME)
+                .setTitle(titleRes)
+                .setMessage(getString(messageRes, urls.toString()))
                 .setNegativeButton(android.R.string.cancel, null)
                 .create();
-        photoDialog.setOnDismissListener(d -> running.stop());
-        photoDialog.show();
+        phoneDialog.setOnDismissListener(d -> running.stop());
+        phoneDialog.show();
+    }
+
+    // ---- Network panel: guest Wi-Fi QR code and data used (hold OK on the network pill) ----------
+
+    private static final String WIFI_PREFS = "guest_wifi";
+
+    private void showNetworkPanel() {
+        android.content.SharedPreferences wifi = getSharedPreferences(WIFI_PREFS, MODE_PRIVATE);
+        String ssid = wifi.getString("ssid", "");
+        String password = wifi.getString("password", "");
+        String security = wifi.getString("security", "WPA");
+        boolean hidden = wifi.getBoolean("hidden", false);
+        int pad = (int) (24 * density);
+
+        LinearLayout box = new LinearLayout(this);
+        box.setOrientation(LinearLayout.VERTICAL);
+        box.setGravity(Gravity.CENTER_HORIZONTAL);
+        box.setPadding(pad, pad / 2, pad, 0);
+
+        if (!ssid.isEmpty()) {
+            ImageView qr = new ImageView(this);
+            android.graphics.Bitmap bmp = qrBitmap(wifiQrText(ssid, password, security, hidden), (int) (220 * density));
+            if (bmp != null) {
+                qr.setImageBitmap(bmp);
+                box.addView(qr, new LinearLayout.LayoutParams((int) (220 * density), (int) (220 * density)));
+            }
+            box.addView(panelText(getString(R.string.net_scan, ssid), 18, 0xFFFFFFFF, (int) (14 * density)));
+            if (!"nopass".equals(security) && !password.isEmpty()) {
+                box.addView(panelText(getString(R.string.net_password, password), 15, 0xB3FFFFFF, (int) (4 * density)));
+            }
+        } else {
+            box.addView(panelText(getString(R.string.net_no_wifi), 16, 0xD9FFFFFF, 0));
+        }
+
+        DataUsage.Totals t = DataUsage.read(this);
+        String month = new java.text.SimpleDateFormat("MMMM", Locale.getDefault()).format(new java.util.Date());
+        long since = DataUsage.since(this);
+        java.util.Calendar startOfMonth = java.util.Calendar.getInstance();
+        startOfMonth.set(java.util.Calendar.DAY_OF_MONTH, 1);
+        startOfMonth.set(java.util.Calendar.HOUR_OF_DAY, 0);
+        startOfMonth.set(java.util.Calendar.MINUTE, 0);
+        String monthLabel = since > startOfMonth.getTimeInMillis()
+                ? getString(R.string.net_since, new java.text.SimpleDateFormat("d MMM", Locale.getDefault()).format(new java.util.Date(since)))
+                : month;
+        box.addView(panelText(getString(R.string.net_data_title), 13, 0x8CFFFFFF, (int) (22 * density)));
+        box.addView(panelText(getString(R.string.net_data_line, DataUsage.format(t.today), monthLabel,
+                DataUsage.format(t.month)), 17, 0xFFFFFFFF, (int) (4 * density)));
+        box.addView(panelText(getString(t.mobile ? R.string.net_data_mobile : R.string.net_data_all),
+                12, 0x80FFFFFF, (int) (4 * density)));
+
+        new AlertDialog.Builder(this, Updater.DIALOG_THEME)
+                .setTitle(R.string.net_title)
+                .setView(box)
+                .setPositiveButton(R.string.net_close, null)
+                .setNegativeButton(ssid.isEmpty() ? R.string.net_set_up : R.string.net_change, (d, w) -> showWifiSetup())
+                .setNeutralButton(R.string.net_settings, (d, w) -> open(new Intent(Settings.ACTION_WIFI_SETTINGS)))
+                .show();
+    }
+
+    private TextView panelText(String text, int sp, int color, int topMargin) {
+        TextView v = new TextView(this);
+        v.setText(text);
+        v.setTextSize(sp);
+        v.setTextColor(color);
+        v.setGravity(Gravity.CENTER_HORIZONTAL);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = topMargin;
+        v.setLayoutParams(lp);
+        return v;
+    }
+
+    /** Phone page for the Wi-Fi name and password behind the QR code. */
+    private void showWifiSetup() {
+        showPhoneLink(R.raw.wifi, R.string.net_setup_title, R.string.net_setup_message, body -> {
+            byte[] bytes = java.nio.file.Files.readAllBytes(body.toPath());
+            org.json.JSONObject j;
+            try {
+                j = new org.json.JSONObject(new String(bytes, java.nio.charset.StandardCharsets.UTF_8));
+            } catch (org.json.JSONException e) {
+                return false;
+            }
+            String ssid = j.optString("ssid", "").trim();
+            if (ssid.isEmpty() || ssid.length() > 64) return false;
+            String sec = j.optString("security", "WPA");
+            if (!sec.equals("WPA") && !sec.equals("WEP") && !sec.equals("nopass")) sec = "WPA";
+            getSharedPreferences(WIFI_PREFS, MODE_PRIVATE).edit()
+                    .putString("ssid", ssid)
+                    .putString("password", j.optString("password", ""))
+                    .putString("security", sec)
+                    .putBoolean("hidden", j.optBoolean("hidden", false))
+                    .commit();
+            return true;
+        }, this::showNetworkPanel);
+    }
+
+    /** The standard Wi-Fi QR payload phones understand: WIFI:T:WPA;S:name;P:password;; */
+    private static String wifiQrText(String ssid, String password, String security, boolean hidden) {
+        StringBuilder s = new StringBuilder("WIFI:T:").append(security).append(";S:").append(qrEscape(ssid)).append(';');
+        if (!"nopass".equals(security)) s.append("P:").append(qrEscape(password)).append(';');
+        if (hidden) s.append("H:true;");
+        return s.append(';').toString();
+    }
+
+    private static String qrEscape(String v) {
+        StringBuilder b = new StringBuilder();
+        for (char c : v.toCharArray()) {
+            if (c == '\\' || c == ';' || c == ',' || c == ':' || c == '"') b.append('\\');
+            b.append(c);
+        }
+        return b.toString();
+    }
+
+    /** Black-on-white QR code with a small quiet zone, scaled up without blurring. */
+    private static android.graphics.Bitmap qrBitmap(String text, int sizePx) {
+        try {
+            java.util.Map<com.google.zxing.EncodeHintType, Object> hints = new java.util.EnumMap<>(com.google.zxing.EncodeHintType.class);
+            hints.put(com.google.zxing.EncodeHintType.CHARACTER_SET, "UTF-8");
+            hints.put(com.google.zxing.EncodeHintType.MARGIN, 2);
+            hints.put(com.google.zxing.EncodeHintType.ERROR_CORRECTION, com.google.zxing.qrcode.decoder.ErrorCorrectionLevel.M);
+            com.google.zxing.common.BitMatrix m = new com.google.zxing.qrcode.QRCodeWriter()
+                    .encode(text, com.google.zxing.BarcodeFormat.QR_CODE, 0, 0, hints);
+            int w = m.getWidth(), h = m.getHeight();
+            int[] px = new int[w * h];
+            for (int y = 0; y < h; y++) {
+                for (int x = 0; x < w; x++) px[y * w + x] = m.get(x, y) ? 0xFF000000 : 0xFFFFFFFF;
+            }
+            android.graphics.Bitmap small = android.graphics.Bitmap.createBitmap(px, w, h, android.graphics.Bitmap.Config.ARGB_8888);
+            int scale = Math.max(1, sizePx / w);
+            return android.graphics.Bitmap.createScaledBitmap(small, w * scale, h * scale, false);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
