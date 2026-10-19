@@ -182,8 +182,8 @@ AndroidX RecyclerView and nothing heavier. It is built for sets with 1 GB of RAM
 video, no network, no background services.
 
 **Configure** it in [`launcher/app/src/main/res/values/config.xml`](launcher/app/src/main/res/values/config.xml):
-the dock order, apps to hide, your TV's Live TV package, the number of columns, and how many grid
-rows stay visible under the dock (`rows_below_dock`). The Inputs button hides itself on sticks and
+the dock order, apps to hide, your TV's Live TV package, the number of columns (tiles shrink to fit
+from 5 columns up), and how many grid rows stay visible under the dock (`rows_below_dock`). The Inputs button hides itself on sticks and
 boxes that have no HDMI or tuner.
 
 **Language** follows the TV: English, German, Spanish, Catalan and Simplified Chinese so far. If your

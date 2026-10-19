@@ -180,8 +180,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         int rowsBelowDock = Math.max(0, getResources().getInteger(R.integer.rows_below_dock));
         grid.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
             int h = b - t;
-            int dockRow = (int) ((145 + 6 + 12) * density);   // item height plus DockDecoration offsets
-            int gridRows = (int) (145 * density * rowsBelowDock);
+            // Item height follows the tile size, which follows the column count (AppAdapter.tileWidthPx).
+            int inner = (r - l) - grid.getPaddingLeft() - grid.getPaddingRight();
+            int itemH = AppAdapter.itemHeightPx(AppAdapter.tileHeightPx(AppAdapter.tileWidthPx(inner, COLUMNS, density)), density);
+            int dockRow = itemH + (int) ((6 + 12) * density);   // item height plus DockDecoration offsets
+            int gridRows = itemH * rowsBelowDock;
             int want = Math.max(0, h - dockRow - gridRows - (int) (30 * density));
             if (grid.getPaddingTop() != want) {
                 grid.setPadding(grid.getPaddingLeft(), want, grid.getPaddingRight(), grid.getPaddingBottom());
@@ -329,7 +332,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             lp.width = (int) w;
             lp.height = (int) h;
             glass.setLayoutParams(lp);
-            glass.setRadius(16f * density * AppAdapter.FOCUS_SCALE + pad);
+            glass.setRadius(AppAdapter.cornerRadius(card.getWidth(), density) * AppAdapter.FOCUS_SCALE + pad);
         }
         glassTargetX = x;
         glassTargetY = y;
