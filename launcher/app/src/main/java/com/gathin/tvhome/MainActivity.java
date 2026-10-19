@@ -130,11 +130,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         adapter = new AppAdapter(this, this, COLUMNS);
         grid.setAdapter(adapter);
 
-        // tvOS layout: push the dock row to the bottom of the screen; the grid hides below until you press Down.
+        // tvOS layout: push the dock row towards the bottom of the screen, leaving room for
+        // rows_below_dock grid rows under it; the rest of the grid stays below until you press Down.
+        int rowsBelowDock = Math.max(0, getResources().getInteger(R.integer.rows_below_dock));
         grid.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> {
             int h = b - t;
             int dockRow = (int) ((145 + 6 + 12) * density);   // item height plus DockDecoration offsets
-            int want = Math.max(0, h - dockRow - (int) (30 * density));
+            int gridRows = (int) (145 * density * rowsBelowDock);
+            int want = Math.max(0, h - dockRow - gridRows - (int) (30 * density));
             if (grid.getPaddingTop() != want) {
                 grid.setPadding(grid.getPaddingLeft(), want, grid.getPaddingRight(), grid.getPaddingBottom());
             }
@@ -160,7 +163,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
         View btnInputs = findViewById(R.id.btnInputs);
         View btnSettings = findViewById(R.id.btnSettings);
+        boolean showInputs = getResources().getBoolean(R.bool.show_inputs);
+        btnInputs.setVisibility(showInputs ? View.VISIBLE : View.GONE);
         btnInputs.setOnClickListener(v -> showInputs());
+        int firstPill = showInputs ? R.id.btnInputs : R.id.btnWifi;
         btnWifi.setOnClickListener(v -> open(new Intent(Settings.ACTION_WIFI_SETTINGS)));
         btnSettings.setOnClickListener(v -> open(new Intent(Settings.ACTION_SETTINGS)));
 
@@ -169,7 +175,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         View.OnKeyListener pillKeys = (v, keyCode, event) -> {
             if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
             if (keyCode == KeyEvent.KEYCODE_DPAD_UP) return true;
-            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT && v.getId() == R.id.btnInputs) return true;
+            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT && v.getId() == firstPill) return true;
             return keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v.getId() == R.id.btnSettings;
         };
         btnInputs.setOnKeyListener(pillKeys);
