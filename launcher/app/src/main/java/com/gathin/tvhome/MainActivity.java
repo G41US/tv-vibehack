@@ -582,9 +582,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 box.addView(qr, new LinearLayout.LayoutParams((int) (220 * density), (int) (220 * density)));
             }
             box.addView(panelText(getString(R.string.net_scan, ssid), 18, 0xFFFFFFFF, (int) (14 * density)));
-            if (!"nopass".equals(security) && !password.isEmpty()) {
-                box.addView(panelText(getString(R.string.net_password, password), 15, 0xB3FFFFFF, (int) (4 * density)));
-            }
         } else {
             box.addView(panelText(getString(R.string.net_no_wifi), 16, 0xD9FFFFFF, 0));
         }
