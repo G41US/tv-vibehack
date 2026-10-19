@@ -35,7 +35,8 @@
                 line-height: 30px; font-weight: 600; }
   ol.steps li b { display: block; color: var(--text); font-size: 18px; margin-bottom: 3px; }
   code, .addr { font-family: ui-monospace, Menlo, Consolas, monospace; background: #1c2030; border: 1px solid var(--line);
-         border-radius: 7px; padding: 2px 7px; color: #fff; font-size: 15px; white-space: nowrap; }
+         border-radius: 7px; padding: 2px 7px; color: #fff; font-size: 15px; overflow-wrap: anywhere; }
+  .addr.code { font-size: 30px; letter-spacing: .12em; padding: 8px 18px; }
   .addr { display: inline-block; font-size: 19px; padding: 6px 12px; margin: 6px 0; max-width: 100%;
           white-space: normal; overflow-wrap: anywhere; }
   ul.feat { padding-left: 20px; color: var(--dim); }
@@ -64,16 +65,17 @@
   <div class="cap">The TV Home look. Your dock shows the apps you choose.</div>
 
   <a class="get" href="https://github.com/G41US/tv-vibehack/releases/latest/download/tvhome.apk">Download TV Home (APK)</a>
-  <p class="small">On the TV, the easiest way is the Downloader app. See the steps below.</p>
+  <p class="small">On the TV: open Downloader and type <strong style="color:var(--text)">2960939</strong>. Full steps below.</p>
 
   <h2>Install it with the remote</h2>
   <ol class="steps">
     <li><b>Get Downloader</b>On the Airtel box, open the <strong>Play Store</strong>, search for <strong>Downloader</strong>
       (by AFTVnews) and install it.</li>
-    <li><b>Download TV Home</b>Open Downloader. In the address box type<br>
-      <span class="addr">g41us.github.io/tv-vibehack/get</span><br>
+    <li><b>Type the code</b>Open Downloader. In the box, type the code<br>
+      <span class="addr code">2960939</span><br>
       and press <strong>Go</strong>. If Downloader asks to be allowed to install apps, choose <strong>Settings</strong>,
-      switch it on, and press Back.</li>
+      switch it on, and press Back.
+      <br><span style="font-size:14px;color:var(--faint)">No luck with the code? Type <code>g41us.github.io/tv-vibehack/get</code> instead.</span></li>
     <li><b>Install and open</b>Choose <strong>Install</strong>, then <strong>Open</strong>.</li>
     <li><b>Two quick switches</b>TV Home shows a short setup screen:
       <br>• <strong>Home button and start-up → Turn on.</strong> In Accessibility, choose <strong>TV Home</strong>, turn it on, press Back.
