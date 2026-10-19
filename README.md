@@ -203,6 +203,16 @@ tools/venv/bin/python -I tools/tv.py 'settings put secure screensaver_components
 It starts after the TV's "screen off" idle time (`settings get system screen_off_timeout`).
 </details>
 
+### Changing the default home from the TV
+
+The **Default home** tile at the end of the app grid opens Android's system home-screen settings.
+Choose the launcher you want, then press Home. The choice is confirmed in the system UI; this
+tile does not silently set a default, re-enable disabled apps, or require ADB after installation.
+If the stock launcher was disabled during installation, re-enable it before trying to select it
+(see the restore instructions). Some TV firmware does not expose this settings page; in that
+case the tile shows “Not available on this TV”. Set `show_home_settings_shortcut` to `false`
+in `config.xml` to hide it.
+
 ## Troubleshooting
 
 Things that bit us or contributors, so they don't bite you.

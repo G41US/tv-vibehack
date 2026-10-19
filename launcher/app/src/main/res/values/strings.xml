@@ -21,4 +21,6 @@
     <string name="date_format">EEEE  d MMMM</string>
     <string name="dream_name">Clock</string>
     <string name="vpn">VPN</string>
+    <string name="home_settings">Default home</string>
+    <string name="home_settings_help">Choose a home screen in system settings, then press Home.</string>
 </resources>
