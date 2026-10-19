@@ -55,9 +55,10 @@ jobs:
           size=$(stat -c%s "$RUNNER_TEMP/tvhome.p12")
           # Say what is wrong with the key without printing any of it.
           if ! keytool -list -storetype pkcs12 -keystore "$RUNNER_TEMP/tvhome.p12" -storepass "$pass" -alias tvhome \
-               >/dev/null 2>"$RUNNER_TEMP/kt.err"; then
-            why=$(grep -v JAVA_TOOL "$RUNNER_TEMP/kt.err" | head -c 200 | tr '\n' ' ')
-            echo "::error title=Signing key unreadable::$why | password ${#pass} chars, key text ${#b64} chars, decoded ${size} bytes. Expected 32 chars, 4600 chars, 3448 bytes: paste the whole TVHOME_SIGNING.txt again."
+               >"$RUNNER_TEMP/kt.err" 2>&1; then
+            why=$(grep -v JAVA_TOOL "$RUNNER_TEMP/kt.err" | head -c 300 | tr '\n' ' ')
+            sum=$(sha256sum "$RUNNER_TEMP/tvhome.p12" | cut -c1-16)
+            echo "::error title=Signing key unreadable::$why | password ${#pass} chars, key text ${#b64} chars, decoded ${size} bytes, file ${sum}; java $(java -version 2>&1 | grep -v JAVA_TOOL | head -1)"
             exit 1
           fi
           echo "TVHOME_KEYSTORE=$RUNNER_TEMP/tvhome.p12" >> "$GITHUB_ENV"
