@@ -29,7 +29,13 @@ printf '%s\n' \
   "pm install -r /data/local/tmp/tvhome.apk" \
   "rm -f /data/local/tmp/tvhome.apk" \
   "pm grant com.gathin.tvhome android.permission.ACCESS_FINE_LOCATION 2>/dev/null; echo location-granted" \
-  "cmd package set-home-activity --user 0 com.gathin.tvhome/.MainActivity" \
+  "am start -W -n com.gathin.tvhome/.MainActivity | grep -E '^(Status|Error)'" \
   "pm disable-user --user 0 $STOCK_LAUNCHER" \
+  "cmd package set-home-activity --user 0 com.gathin.tvhome/.MainActivity" \
+  "cmd package resolve-activity --brief -c android.intent.category.HOME -a android.intent.action.MAIN | tail -n 1" \
   | "$PY" -I ../tools/tv.py --batch
+# Order matters: the new launcher is started before the stock one is disabled, and the home
+# preference is set after. Android drops the preference whenever the set of HOME apps changes, and
+# on Google TV 14 the next candidate is the setup wizard's RecoveryActivity, which crash-loops
+# system_server (see examples/xiaomi-tv-a-pro-2026). The last line must print com.gathin.tvhome.
 echo "Installed. Press Home on the remote to see it."

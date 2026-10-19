@@ -111,6 +111,7 @@ Lists that people have tested and contributed live in [`examples/`](examples/):
 | Sony BRAVIA XBR-65X900E (2017) | Android TV 9 |
 | NVIDIA SHIELD TV Pro 2019 (P2897) | Android TV 11 |
 | Xiaomi MiTV-MOOR2 (venom) | Google TV 11 |
+| Xiaomi TV A Pro 75" 2026 (MiTV-MZTU0) | Google TV 14 |
 
 Your TV not here? The prompt works regardless, it discovers the bloat itself. If you add your
 list afterwards, the next person with your model skips that step. See
@@ -236,6 +237,12 @@ Things that bit us or contributors, so they don't bite you.
   `com.google.android.tungsten.setupwraith` package is what frees the slot. It is the first-run
   setup wizard, so everyday use is unaffected, but re-enable it before a factory reset - list it in
   your `debloat.txt` and `tools/restore.sh` does that for you.
+- **The TV drops off Wi-Fi every minute right after the install**, seen on Google TV 14 (Xiaomi
+  MiTV-MZTU0): the same setupwraith `.RecoveryActivity` took Home and system_server crash-looped
+  on it. The install script now starts the new launcher before disabling the stock one, sets the
+  home preference last (Android drops it whenever the set of HOME apps changes) and prints what
+  HOME resolves to; disable setupwraith as above. If you're already in the loop:
+  `tools/tv.py 'pm enable --user 0 com.google.android.apps.tv.launcherx'`.
 - **No on-screen keyboard** after switching launchers, seen on Xiaomi: the default input method
   pointed at a Baidu keyboard that isn't installed. Fix:
   `tools/tv.py 'ime set com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME'`

@@ -41,7 +41,10 @@ Write-Host $out
 if ("$out" -match 'Error') { throw 'could not set the new launcher as home; the stock launcher was left untouched' }
 @(
     'pm grant com.gathin.tvhome android.permission.ACCESS_FINE_LOCATION 2>/dev/null; echo location-granted',
+    "am start -W -n com.gathin.tvhome/.MainActivity | grep -E '^(Status|Error)'",
+    "pm disable-user --user 0 $StockLauncher",
     'cmd package set-home-activity --user 0 com.gathin.tvhome/.MainActivity',
-    "pm disable-user --user 0 $StockLauncher"
+    'cmd package resolve-activity --brief -c android.intent.category.HOME -a android.intent.action.MAIN | tail -n 1'
 ) | & $py -I ..\tools\tv.py --batch
+# Order matters, see build-and-install.sh. The last line printed must be com.gathin.tvhome.
 Write-Host 'Installed. Press Home on the remote to see it.'
