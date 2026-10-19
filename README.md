@@ -270,6 +270,9 @@ Things that bit us or contributors, so they don't bite you.
   `tools/tv.py` avoids the binary entirely.
 - **No "wireless debugging" toggle** on some TVs, Xiaomi among them. USB debugging alone opens
   network ADB on port 5555.
+- **USB debugging never opens port 5555** on some Google TV sets (a Skyworth-built Philips among
+  them). Pair once through Wireless debugging with the stock `adb` (`adb pair <ip>:<port> <code>`,
+  then `adb connect`), run `adb tcpip 5555`, and `tools/tv.py` works from then on.
 - **USB devices go dead while USB debugging is on**, seen on the Xiaomi Mi Box S: its firmware
   switches the USB port to ADB device mode, which cuts the power to a USB speaker or drive. Switch
   USB debugging off when you're done; the launcher doesn't need it.
