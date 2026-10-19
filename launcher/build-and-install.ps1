@@ -3,9 +3,11 @@
 # JAVA_HOME / ANDROID_HOME are set.
 #
 # Usage: launcher\build-and-install.ps1 -TvHost 192.168.1.50 [-StockLauncher com.google.android.tvlauncher]
+#        [-InputKeyService]   remote's Input button opens the input switcher (Google TV); re-pass on every install
 param(
     [string]$TvHost = $env:TV_HOST,
-    [string]$StockLauncher = 'com.google.android.tvlauncher'
+    [string]$StockLauncher = 'com.google.android.tvlauncher',
+    [switch]$InputKeyService
 )
 $ErrorActionPreference = 'Stop'
 # Pipe plain UTF-8 to native commands; the default here prepends a BOM that corrupts the first command.
@@ -45,4 +47,10 @@ if ("$out" -match 'Error') { throw 'could not set the new launcher as home; the 
     'cmd package set-home-activity --user 0 com.gathin.tvhome/.MainActivity',
     "pm disable-user --user 0 $StockLauncher"
 ) | & $py -I ..\tools\tv.py --batch
+# Optional accessibility services, appended to enabled_accessibility_services without dropping others.
+function Enable-Service([string]$Name) {
+    $svc = "com.gathin.tvhome/.$Name"
+    & $py -I ..\tools\tv.py ('s=$(settings get secure enabled_accessibility_services); case "$s" in *' + $Name + '*) ;; null|"") settings put secure enabled_accessibility_services ' + $svc + ' ;; *) settings put secure enabled_accessibility_services "$s:' + $svc + '" ;; esac; settings put secure accessibility_enabled 1; echo ' + $Name + ' enabled')
+}
+if ($InputKeyService) { Enable-Service 'InputKeyService' }
 Write-Host 'Installed. Press Home on the remote to see it.'
