@@ -10,7 +10,7 @@
     <!-- Apps pinned to the dock row at the bottom, in this order. Missing apps are skipped. -->
     <string-array name="dock_apps">
         <item>com.amhkor.voltratv</item>
-        <item>com.google.android.youtube.tv</item>
+        <item>com.teamsmart.videomanager.tv</item>
         <item>com.spotify.tv.android</item>
         <item>com.esaba.downloader</item>
     </string-array>
