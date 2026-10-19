@@ -10,7 +10,9 @@ and a one-line restore if you change your mind.
 
 It started as an afternoon fixing my parents' Mi TV, which showed them an advert before they
 could reach Netflix. The whole thing was done with Claude Code talking to the real TV, and the
-prompt that did it is in this repo so you can do the same with yours.
+prompt that did it is in this repo so you can do the same with yours. The
+[tweet that started it](https://x.com/gathint/status/2111379569030939102) has the before-and-after,
+and the replies are where most of the TV lists below came from.
 
 ---
 
