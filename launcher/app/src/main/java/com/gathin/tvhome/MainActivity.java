@@ -339,6 +339,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         adapter.reload();
         grid.scheduleLayoutAnimation();
         SelfHeal.ensureService(this);
+        if (BackupStore.supported() && BackupStore.canRead(this) && !BackupStore.restoreChecked(this)) {
+            runRestore();   // first start after a reinstall, once the photos permission is granted
+        }
         setupPanel.onResume();
         updater.autoCheck();
         weather.refresh(false, this::showWeather);
@@ -359,6 +362,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     protected void onPause() {
         super.onPause();
+        BackupStore.saveAsync(this);
         handler.removeCallbacks(minuteTick);
     }
 
@@ -393,6 +397,23 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private Config config;
     private Updater updater;
     private SetupPanel setupPanel;
+
+    private boolean restoring;
+
+    private void runRestore() {
+        if (restoring) return;
+        restoring = true;
+        Context app = getApplicationContext();
+        new Thread(() -> {
+            boolean ok = BackupStore.restore(app);
+            runOnUiThread(() -> {
+                restoring = false;
+                if (!ok || isFinishing() || isDestroyed()) return;
+                Toast.makeText(this, R.string.backup_restored, Toast.LENGTH_LONG).show();
+                recreate();
+            });
+        }, "restore").start();
+    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -476,9 +497,33 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 .setItems(items, (d, which) -> {
                     if (which == 0) showWallpaperMenu();
                     else if (which == 1) showWeatherMenu();
-                    else if (which == 2) updater.check(true);
+                    else if (which == 2) showUpdatesMenu();
                     else setupPanel.show();
                 })
+                .show();
+    }
+
+    private void showUpdatesMenu() {
+        String ch = updater.channel();
+        List<String> labels = new ArrayList<>();
+        List<Runnable> actions = new ArrayList<>();
+        labels.add(getString(R.string.updates_check));
+        actions.add(() -> updater.check(true));
+        if (updater.hasBeta()) {
+            labels.add(mark(ch, Updater.STABLE, getString(R.string.updates_stable)));
+            actions.add(() -> {
+                updater.setChannel(Updater.STABLE);
+                Toast.makeText(this, R.string.updates_now_stable, Toast.LENGTH_LONG).show();
+            });
+            labels.add(mark(ch, Updater.BETA, getString(R.string.updates_beta)));
+            actions.add(() -> {
+                updater.setChannel(Updater.BETA);
+                updater.check(true);
+            });
+        }
+        new AlertDialog.Builder(this, Updater.DIALOG_THEME)
+                .setTitle(R.string.menu_updates_title)
+                .setItems(labels.toArray(new String[0]), (d, which) -> actions.get(which).run())
                 .show();
     }
 

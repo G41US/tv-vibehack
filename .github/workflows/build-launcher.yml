@@ -89,22 +89,28 @@ jobs:
           [ "$WANT" = "$GOT" ] || { echo "::error title=Wrong signing key::The APK is not signed with the TV Home release key."; exit 1; }
           rm -f "$TVHOME_KEYSTORE"
 
-      - name: Publish release for the TV's updater
+      - name: Publish to the beta channel
+        # Every build goes to one rolling pre-release, "beta". Boxes on the Beta channel get it;
+        # everyone else stays on the latest stable release until "Release beta to everyone" runs.
         if: github.ref == 'refs/heads/main' && env.HAVE_KEY == '1'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p out
-          cp launcher/app/build/outputs/apk/release/app-release.apk out/tvhome.apk
+          APK=launcher/app/build/outputs/apk/release/app-release.apk
+          cp "$APK" out/tvhome.apk            # new installs (Downloader code, web page)
+          cp "$APK" out/tvhome-update.apk     # updates from TVs, counted separately
           echo "$VERSION_CODE" > out/version.txt
-          gh release delete "v$VERSION_CODE" --yes --cleanup-tag 2>/dev/null || true
-          gh release create "v$VERSION_CODE" out/tvhome.apk out/version.txt \
-            --title "TV Home build $VERSION_CODE" --notes "Built from ${GITHUB_SHA::7}." \
-            --target "$GITHUB_SHA" --latest
-          # Keep the five newest releases.
-          gh release list --limit 100 --json tagName --jq '.[5:][].tagName' | while read -r t; do
-            gh release delete "$t" --yes --cleanup-tag
-          done
+          git log -1 --format=%s "$GITHUB_SHA" > out/notes.txt
+          if ! gh release view beta >/dev/null 2>&1; then
+            gh release create beta --prerelease --target "$GITHUB_SHA" \
+              --title "TV Home beta" --notes "Newest build for boxes on the Beta channel."
+          fi
+          # APKs first, version.txt last, so a TV never sees a version whose APK isn't there yet.
+          gh release upload beta out/tvhome.apk out/tvhome-update.apk out/notes.txt --clobber
+          gh release upload beta out/version.txt --clobber
+          gh release edit beta --prerelease --title "TV Home beta (build $VERSION_CODE)" \
+            --notes "Build $VERSION_CODE: $(cat out/notes.txt)"
 
       - uses: actions/upload-artifact@v4
         with:
