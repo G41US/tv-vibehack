@@ -102,6 +102,7 @@ Lists that people have tested and contributed live in [`examples/`](examples/):
 | TCL 55" 4K Google TV, 2023 (G10) | Google TV 12 |
 | SANYO ATV R2 | Android TV 9 |
 | OnePlus TV (D00) | Google TV 14 |
+| Xiaomi MiTV-AESP0 (TV stick) | Android TV 9 |
 
 Your TV not here? The prompt works regardless, it discovers the bloat itself. If you add your
 list afterwards, the next person with your model skips that step. See
@@ -152,7 +153,9 @@ AndroidX RecyclerView and nothing heavier. It is built for sets with 1 GB of RAM
 video, no network, no background services.
 
 **Configure** it in [`launcher/app/src/main/res/values/config.xml`](launcher/app/src/main/res/values/config.xml):
-the dock order, apps to hide, your TV's Live TV package, and the number of columns.
+the dock order, apps to hide, your TV's Live TV package, the number of columns, whether to show
+the Inputs button (`show_inputs`, off for sticks and boxes) and how many grid rows stay visible
+under the dock (`rows_below_dock`).
 
 **Build and install** with one command:
 
