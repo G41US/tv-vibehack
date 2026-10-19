@@ -129,6 +129,21 @@
                             android:includeFontPadding="false"
                             android:visibility="gone" />
 
+                        <!-- Weather ("31°  Partly cloudy  ·  H 33°  L 24°  ·  Lagos"), see Weather. -->
+                        <TextView
+                            android:id="@+id/weather"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:singleLine="true"
+                            android:ellipsize="end"
+                            android:textColor="#E6FFFFFF"
+                            android:textSize="17sp"
+                            android:fontFamily="@font/outfit"
+                            android:fontVariationSettings="'wght' 400"
+                            android:letterSpacing="0.02"
+                            android:includeFontPadding="false"
+                            android:visibility="gone" />
+
                         <TextClock
                             android:id="@+id/date"
                             android:layout_width="match_parent"
