@@ -14,9 +14,6 @@
 #   - ad-blocking Private DNS (AdGuard). Undo: adb shell settings put global private_dns_mode opportunistic
 #   - lets TV Home switch its own Home-button service back on after updates (WRITE_SECURE_SETTINGS)
 #     and install its own updates from the TV (REQUEST_INSTALL_PACKAGES)
-#   - stops background-only junk (bug tracker, unused preinstalled apps, Airtel's own home screen)
-#     from running in the background. Nothing is disabled or removed; the apps still open normally.
-#     Undo: UNRESTRICT=1 bash airtel-fix.sh
 #   - SMARTTUBE=1 also downloads and installs SmartTube from its official GitHub release
 set -u
 
@@ -72,47 +69,6 @@ else
 fi
 sh_tv appops set $PKG REQUEST_INSTALL_PACKAGES allow >/dev/null
 echo "updates from the TV allowed"
-
-# Apps that only run in the background on this box. Each one is closed, kept from running in the
-# background (app op RUN_ANY_IN_BACKGROUND) and put in the "restricted" standby bucket. They still
-# open normally if you start them. Edit the list to taste; UNRESTRICT=1 undoes it for all of them.
-RESTRICT_APPS="
-com.nes.tvbugtracker
-com.tulix.viewsatandroidtv
-tv.africa.streaming
-com.daydream.airtel
-com.google.android.tvrecommendations
-com.nes.hometv
-"
-free_ram() { sh_tv dumpsys meminfo | grep -m1 "Free RAM" | sed 's/(.*//; s/^ *//'; }
-
-if [ "${UNRESTRICT:-0}" = 1 ]; then
-  say "Letting background apps run again"
-  for p in $RESTRICT_APPS; do
-    sh_tv cmd appops set "$p" RUN_ANY_IN_BACKGROUND allow >/dev/null
-    sh_tv am set-standby-bucket "$p" active >/dev/null
-    echo "  $p: unrestricted"
-  done
-else
-  say "Stopping junk apps running in the background"
-  echo "before: $(free_ram)"
-  INSTALLED=$(sh_tv pm list packages)
-  for p in $RESTRICT_APPS; do
-    if ! printf '%s\n' "$INSTALLED" | grep -qx "package:$p"; then
-      echo "  $p: not installed, skipped"; continue
-    fi
-    sh_tv am force-stop "$p" >/dev/null
-    A=$(sh_tv cmd appops set "$p" RUN_ANY_IN_BACKGROUND ignore)
-    B=$(sh_tv am set-standby-bucket "$p" restricted)
-    OP=$(sh_tv cmd appops get "$p" RUN_ANY_IN_BACKGROUND)
-    BUCKET=$(sh_tv am get-standby-bucket "$p")
-    case "$OP" in *ignore*) bg="background blocked" ;; *) bg="background NOT blocked${A:+ ($A)}" ;; esac
-    case "$BUCKET" in 45|*estricted*) bk="restricted" ;; *) bk="bucket ${BUCKET:-?}${B:+ ($B)}" ;; esac
-    echo "  $p: $bg, $bk"
-  done
-  sleep 3
-  echo "after:  $(free_ram)"
-fi
 
 say "Theme"
 if curl -fsSL -o "$TMP/config.json" "$RAW/themes/aurora/config.json" &&
