@@ -46,9 +46,18 @@ if ("$out" -match 'Error') { throw 'could not set the new launcher as home; the 
 @(
     'pm grant com.gathin.tvhome android.permission.ACCESS_FINE_LOCATION 2>/dev/null; echo location-granted',
     'cmd package compile -m speed -f com.gathin.tvhome',
-    'cmd package set-home-activity --user 0 com.gathin.tvhome/.MainActivity',
-    "pm disable-user --user 0 $StockLauncher"
+    "am start -W -n com.gathin.tvhome/.MainActivity | grep -E '^(Status|Error)'",
+    "pm disable-user --user 0 $StockLauncher",
+    'cmd package set-home-activity --user 0 com.gathin.tvhome/.MainActivity'
 ) | & $py -I ..\tools\tv.py --batch
+# Order matters, see build-and-install.sh: start the new launcher, disable the stock one, set the
+# preference last, then check where Home ended up and put the stock launcher back if it is not ours.
+$homeNow = (& $py -I ..\tools\tv.py 'cmd package resolve-activity --brief -c android.intent.category.HOME -a android.intent.action.MAIN' | Select-Object -Last 1).Trim()
+if ($homeNow -notlike 'com.gathin.tvhome/*') {
+    & $py -I ..\tools\tv.py "pm enable --user 0 $StockLauncher" | Out-Null
+    throw "Home resolves to '$homeNow', not to the new launcher; $StockLauncher was re-enabled. On Google TV this usually means com.google.android.tungsten.setupwraith also claims Home: add it to your debloat list (see README, Troubleshooting), apply it, then run this script again."
+}
+Write-Host "Home now resolves to $homeNow"
 # Optional accessibility services, appended to enabled_accessibility_services without dropping others.
 function Enable-Service([string]$Name) {
     $svc = "com.gathin.tvhome/.$Name"

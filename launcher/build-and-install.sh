@@ -30,9 +30,25 @@ printf '%s\n' \
   "rm -f /data/local/tmp/tvhome.apk" \
   "pm grant com.gathin.tvhome android.permission.ACCESS_FINE_LOCATION 2>/dev/null; echo location-granted" \
   "cmd package compile -m speed -f com.gathin.tvhome" \
-  "cmd package set-home-activity --user 0 com.gathin.tvhome/.MainActivity" \
+  "am start -W -n com.gathin.tvhome/.MainActivity | grep -E '^(Status|Error)'" \
   "pm disable-user --user 0 $STOCK_LAUNCHER" \
+  "cmd package set-home-activity --user 0 com.gathin.tvhome/.MainActivity" \
   | "$PY" -I ../tools/tv.py --batch
+# Order matters: the new launcher is started before the stock one is disabled, and the home
+# preference is set after. Android drops the preference whenever the set of HOME apps changes, and
+# on Google TV 14 the next candidate is the setup wizard's RecoveryActivity, which crash-loops
+# system_server (see examples/xiaomi-tv-a-pro-2026). So check where Home ended up, and put the
+# stock launcher back if it is not ours.
+HOME_NOW=$("$PY" -I ../tools/tv.py 'cmd package resolve-activity --brief -c android.intent.category.HOME -a android.intent.action.MAIN' | tail -n 1 | tr -d '\r')
+case "$HOME_NOW" in
+  com.gathin.tvhome/*) echo "Home now resolves to $HOME_NOW" ;;
+  *)
+    "$PY" -I ../tools/tv.py "pm enable --user 0 $STOCK_LAUNCHER" >/dev/null || true
+    echo "ERROR: Home resolves to ${HOME_NOW:-nothing}, not to the new launcher; $STOCK_LAUNCHER was re-enabled." >&2
+    echo "On Google TV this usually means com.google.android.tungsten.setupwraith also claims Home: add it to" >&2
+    echo "your debloat list (see README, Troubleshooting), apply the list, then run this script again." >&2
+    exit 1 ;;
+esac
 
 # Optional accessibility services. Off unless asked for, and Android switches them off again on
 # every reinstall, so pass the flag each time you run this script.
