@@ -10,9 +10,10 @@ and a one-line restore if you change your mind.
 
 It started as an afternoon fixing my parents' Mi TV, which showed them an advert before they
 could reach Netflix. The whole thing was done with Claude Code talking to the real TV, and the
-prompt that did it is in this repo so you can do the same with yours. The
-[tweet that started it](https://x.com/gathint/status/2111379569030939102) has the before-and-after,
-and the replies are where most of the TV lists below came from.
+prompt that did it is in this repo so you can do the same with yours. The replies to the tweet
+below are where most of the TV lists in this repo came from.
+
+<a href="https://x.com/gathint/status/2111379569030939102"><img src="docs/tweet.png" alt="The tweet: Vibe coded my parents' TV this afternoon. Before and after screenshots." width="560"></a>
 
 ---
 
