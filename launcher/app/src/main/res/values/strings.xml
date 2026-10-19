@@ -65,7 +65,6 @@
     <string name="weather_off">Off</string>
     <string name="net_title">Network</string>
     <string name="net_scan">Scan to join %1$s</string>
-    <string name="net_password">Password: %1$s</string>
     <string name="net_no_wifi">Set your Wi-Fi name and password once, and a QR code guests can scan to join will show here.</string>
     <string name="net_data_title">DATA USED</string>
     <string name="net_data_line">Today %1$s   ·   %2$s %3$s</string>
