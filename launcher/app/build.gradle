@@ -14,6 +14,16 @@ android {
         versionName '2.0'
     }
 
+    signingConfigs {
+        // One fixed key in the repo, so every CI build installs over the previous one.
+        fixed {
+            storeFile rootProject.file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+        }
+    }
+
     buildTypes {
         release {
             // R8 strips and optimises the code (AndroidX included): smaller APK, faster start on a slow TV CPU.
@@ -21,7 +31,7 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             // Sideloaded over ADB, never published: sign with the debug key so it installs over a debug build.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.fixed
         }
     }
 
