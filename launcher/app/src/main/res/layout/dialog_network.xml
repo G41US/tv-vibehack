@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Network panel (hold OK on the network pill): guest Wi-Fi QR code, data used, and the actions,
+     all on one screen. Filled in by MainActivity.showNetworkPanel. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="32dp"
+    android:background="@drawable/glass_panel">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <FrameLayout
+            android:layout_width="232dp"
+            android:layout_height="232dp"
+            android:padding="8dp"
+            android:background="@drawable/qr_bg">
+
+            <ImageView
+                android:id="@+id/qr"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="center"
+                android:importantForAccessibility="no" />
+
+            <TextView
+                android:id="@+id/qrEmpty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:padding="16dp"
+                android:text="@string/net_qr_empty"
+                android:textColor="#FF333333"
+                android:textSize="16sp"
+                android:fontFamily="@font/outfit"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="340dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/net_title"
+                android:textAllCaps="true"
+                android:letterSpacing="0.14"
+                android:textColor="#8CFFFFFF"
+                android:textSize="12sp"
+                android:fontFamily="@font/outfit" />
+
+            <TextView
+                android:id="@+id/netLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:textColor="#B3FFFFFF"
+                android:textSize="15sp"
+                android:fontFamily="@font/outfit" />
+
+            <TextView
+                android:id="@+id/netName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:textColor="#FFFFFFFF"
+                android:textSize="26sp"
+                android:fontFamily="@font/outfit" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="28dp"
+                android:text="@string/net_data_title"
+                android:letterSpacing="0.14"
+                android:textColor="#8CFFFFFF"
+                android:textSize="12sp"
+                android:fontFamily="@font/outfit" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/dataToday"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#FFFFFFFF"
+                        android:textSize="24sp"
+                        android:fontFamily="@font/outfit" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/net_today"
+                        android:textColor="#99FFFFFF"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/outfit" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="40dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/dataMonth"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#FFFFFFFF"
+                        android:textSize="24sp"
+                        android:fontFamily="@font/outfit" />
+
+                    <TextView
+                        android:id="@+id/dataMonthLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#99FFFFFF"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/outfit" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/dataNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="#80FFFFFF"
+                android:textSize="12sp"
+                android:fontFamily="@font/outfit" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <TextView
+            android:id="@+id/btnWifiDetails"
+            style="@style/TopButton"
+            android:paddingStart="20dp" />
+
+        <TextView
+            android:id="@+id/btnWifiSettings"
+            style="@style/TopButton"
+            android:paddingStart="20dp"
+            android:text="@string/net_settings" />
+
+        <TextView
+            android:id="@+id/btnClose"
+            style="@style/TopButton"
+            android:paddingStart="20dp"
+            android:text="@string/net_close" />
+    </LinearLayout>
+</LinearLayout>

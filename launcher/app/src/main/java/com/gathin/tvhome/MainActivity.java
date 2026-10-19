@@ -567,27 +567,35 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         String password = wifi.getString("password", "");
         String security = wifi.getString("security", "WPA");
         boolean hidden = wifi.getBoolean("hidden", false);
-        int pad = (int) (24 * density);
 
-        LinearLayout box = new LinearLayout(this);
-        box.setOrientation(LinearLayout.VERTICAL);
-        box.setGravity(Gravity.CENTER_HORIZONTAL);
-        box.setPadding(pad, pad / 2, pad, 0);
+        android.app.Dialog dlg = new android.app.Dialog(this);
+        dlg.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+        dlg.setContentView(R.layout.dialog_network);
+        android.view.Window w = dlg.getWindow();
+        if (w != null) {
+            w.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            w.addFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            w.setDimAmount(0.6f);
+        }
 
-        if (!ssid.isEmpty()) {
-            ImageView qr = new ImageView(this);
-            android.graphics.Bitmap bmp = qrBitmap(wifiQrText(ssid, password, security, hidden), (int) (220 * density));
-            if (bmp != null) {
-                qr.setImageBitmap(bmp);
-                box.addView(qr, new LinearLayout.LayoutParams((int) (220 * density), (int) (220 * density)));
-            }
-            box.addView(panelText(getString(R.string.net_scan, ssid), 18, 0xFFFFFFFF, (int) (14 * density)));
+        ImageView qr = dlg.findViewById(R.id.qr);
+        TextView qrEmpty = dlg.findViewById(R.id.qrEmpty);
+        TextView netLabel = dlg.findViewById(R.id.netLabel);
+        TextView netName = dlg.findViewById(R.id.netName);
+        android.graphics.Bitmap bmp = ssid.isEmpty() ? null
+                : qrBitmap(wifiQrText(ssid, password, security, hidden), (int) (216 * density));
+        if (bmp != null) {
+            qr.setImageBitmap(bmp);
+            netLabel.setText(R.string.net_scan_label);
+            netName.setText(ssid);
         } else {
-            box.addView(panelText(getString(R.string.net_no_wifi), 16, 0xD9FFFFFF, 0));
+            qr.setVisibility(View.GONE);
+            qrEmpty.setVisibility(View.VISIBLE);
+            netLabel.setText(R.string.net_guest_label);
+            netName.setText(R.string.net_not_set_up);
         }
 
         DataUsage.Totals t = DataUsage.read(this);
-        String month = new java.text.SimpleDateFormat("MMMM", Locale.getDefault()).format(new java.util.Date());
         long since = DataUsage.since(this);
         java.util.Calendar startOfMonth = java.util.Calendar.getInstance();
         startOfMonth.set(java.util.Calendar.DAY_OF_MONTH, 1);
@@ -595,33 +603,26 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         startOfMonth.set(java.util.Calendar.MINUTE, 0);
         String monthLabel = since > startOfMonth.getTimeInMillis()
                 ? getString(R.string.net_since, new java.text.SimpleDateFormat("d MMM", Locale.getDefault()).format(new java.util.Date(since)))
-                : month;
-        box.addView(panelText(getString(R.string.net_data_title), 13, 0x8CFFFFFF, (int) (22 * density)));
-        box.addView(panelText(getString(R.string.net_data_line, DataUsage.format(t.today), monthLabel,
-                DataUsage.format(t.month)), 17, 0xFFFFFFFF, (int) (4 * density)));
-        box.addView(panelText(getString(t.mobile ? R.string.net_data_mobile : R.string.net_data_all),
-                12, 0x80FFFFFF, (int) (4 * density)));
+                : new java.text.SimpleDateFormat("MMMM", Locale.getDefault()).format(new java.util.Date());
+        ((TextView) dlg.findViewById(R.id.dataToday)).setText(DataUsage.format(t.today));
+        ((TextView) dlg.findViewById(R.id.dataMonth)).setText(DataUsage.format(t.month));
+        ((TextView) dlg.findViewById(R.id.dataMonthLabel)).setText(monthLabel);
+        ((TextView) dlg.findViewById(R.id.dataNote)).setText(t.mobile ? R.string.net_data_mobile : R.string.net_data_all);
 
-        new AlertDialog.Builder(this, Updater.DIALOG_THEME)
-                .setTitle(R.string.net_title)
-                .setView(box)
-                .setPositiveButton(R.string.net_close, null)
-                .setNegativeButton(ssid.isEmpty() ? R.string.net_set_up : R.string.net_change, (d, w) -> showWifiSetup())
-                .setNeutralButton(R.string.net_settings, (d, w) -> open(new Intent(Settings.ACTION_WIFI_SETTINGS)))
-                .show();
-    }
-
-    private TextView panelText(String text, int sp, int color, int topMargin) {
-        TextView v = new TextView(this);
-        v.setText(text);
-        v.setTextSize(sp);
-        v.setTextColor(color);
-        v.setGravity(Gravity.CENTER_HORIZONTAL);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.topMargin = topMargin;
-        v.setLayoutParams(lp);
-        return v;
+        TextView details = dlg.findViewById(R.id.btnWifiDetails);
+        details.setText(ssid.isEmpty() ? R.string.net_set_up : R.string.net_change);
+        details.setOnClickListener(v -> {
+            dlg.dismiss();
+            showWifiSetup();
+        });
+        dlg.findViewById(R.id.btnWifiSettings).setOnClickListener(v -> {
+            dlg.dismiss();
+            open(new Intent(Settings.ACTION_WIFI_SETTINGS));
+        });
+        View close = dlg.findViewById(R.id.btnClose);
+        close.setOnClickListener(v -> dlg.dismiss());
+        dlg.setOnShowListener(d -> close.requestFocus());
+        dlg.show();
     }
 
     /** Phone page for the Wi-Fi name and password behind the QR code. */
