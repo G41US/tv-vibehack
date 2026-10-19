@@ -115,6 +115,7 @@ Lists that people have tested and contributed live in [`examples/`](examples/):
 | Insignia 55" F30 4K Fire TV (NS-55F301NA25, AFTDCT31, duckie) | Fire OS 7 / Android 9 |
 | NVIDIA SHIELD TV Pro 2019 (P2897, mdarcy) | Android TV 11 |
 | OnePlus TV (D00, Dubai) | Google TV 14 |
+| Philips Smart 4K TV (Skyworth, eleonas) | Google TV 14 |
 | RCA AI PONT SA (Changhong, redwood, ISDB92RC) | Android 14 |
 | SANYO ATV R2 (SCBC, Realtek RTD285O) | Android TV 9 |
 | Sony BRAVIA 4K UR2 (BRAVIA_UR2_4K, MediaTek) | Android TV 10 |
