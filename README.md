@@ -104,6 +104,7 @@ Lists that people have tested and contributed live in [`examples/`](examples/):
 | SANYO ATV R2 | Android TV 9 |
 | OnePlus TV (D00) | Google TV 14 |
 | Sony BRAVIA XBR-65X900E (2017) | Android TV 9 |
+| NVIDIA SHIELD TV Pro 2019 (P2897) | Android TV 11 |
 
 Your TV not here? The prompt works regardless, it discovers the bloat itself. If you add your
 list afterwards, the next person with your model skips that step. See
