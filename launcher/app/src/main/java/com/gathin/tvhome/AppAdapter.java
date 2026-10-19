@@ -1,5 +1,6 @@
 package com.gathin.tvhome;
 
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
@@ -45,6 +46,9 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
 
         /** Called for a D-pad direction key on a tile. Return true when handled (focus stays put). */
         boolean onTileVerticalKey(int position, int keyCode);
+
+        /** The dock was edited on the TV: reload the tiles and focus the app with this key. */
+        void onDockChanged(String focusKey);
     }
 
     static final class Entry {
@@ -92,8 +96,12 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
     private final Context ctx;
     private final TileListener listener;
     private final int dockSize;
-    /** Dock order (config.xml dock_apps, or a theme's config.json). */
-    private final List<String> favourites;
+    /**
+     * Dock order. Edited on the TV (hold OK on a tile) and saved in {@link #PREFS}; until then it comes
+     * from config.xml dock_apps, or a theme's config.json.
+     */
+    private final List<String> favourites = new ArrayList<>();
+    static final String PREFS = "dock", KEY_ORDER = "order";
     /** Never shown as tiles (res/values/config.xml, hidden_apps). */
     private final Set<String> hidden;
     private final boolean showHomeSettings;
@@ -103,7 +111,12 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         this.ctx = ctx;
         this.listener = listener;
         this.dockSize = dockSize;
-        this.favourites = cfg.dockApps;
+        String saved = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_ORDER, null);
+        if (saved != null) {
+            for (String p : saved.split(",")) if (!p.isEmpty()) favourites.add(p);
+        } else {
+            favourites.addAll(cfg.dockApps);
+        }
         this.hidden = new HashSet<>(cfg.hiddenApps);
         this.showHomeSettings = cfg.showHomeSettingsShortcut;
         // Tiles keep their identity across reload(), so a focused tile stays on its app instead of
@@ -192,14 +205,86 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         }
         h.card.setOnClickListener(v -> launch(e));
         h.card.setOnLongClickListener(v -> {
-            Intent i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + e.pkg));
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            try {
-                ctx.startActivity(i);
-            } catch (ActivityNotFoundException ignored) {
-            }
+            showTileMenu(e);
             return true;
         });
+    }
+
+    // ---- dock editing (hold OK on a tile) ---------------------------------------------------------
+
+    /** The dock as it shows now: saved favourites that are installed, at most dockSize of them. */
+    private List<String> currentDock() {
+        Set<String> installed = new HashSet<>();
+        for (Entry x : items) installed.add(x.pkg);
+        List<String> dock = new ArrayList<>();
+        for (String p : favourites) {
+            if (installed.contains(p) && !dock.contains(p) && dock.size() < dockSize) dock.add(p);
+        }
+        return dock;
+    }
+
+    private void showTileMenu(Entry e) {
+        if (e.component.equals(new ComponentName(ctx, HomeSettingsActivity.class))) return;
+        List<String> dock = currentDock();
+        int idx = dock.indexOf(e.pkg);
+        List<String> labels = new ArrayList<>();
+        List<Runnable> actions = new ArrayList<>();
+        if (idx >= 0) {
+            if (idx > 0) {
+                labels.add(ctx.getString(R.string.dock_move_left));
+                actions.add(() -> { Collections.swap(dock, idx, idx - 1); saveDock(dock, e); });
+            }
+            if (idx < dock.size() - 1) {
+                labels.add(ctx.getString(R.string.dock_move_right));
+                actions.add(() -> { Collections.swap(dock, idx, idx + 1); saveDock(dock, e); });
+            }
+            labels.add(ctx.getString(R.string.dock_remove));
+            actions.add(() -> { dock.remove(idx); saveDock(dock, e); });
+        } else if (dock.size() < dockSize) {
+            labels.add(ctx.getString(R.string.dock_add));
+            actions.add(() -> { dock.add(e.pkg); saveDock(dock, e); });
+        } else {
+            labels.add(ctx.getString(R.string.dock_replace));
+            actions.add(() -> chooseReplacement(e, dock));
+        }
+        labels.add(ctx.getString(R.string.app_info));
+        actions.add(() -> openAppInfo(e));
+        new AlertDialog.Builder(ctx, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle(e.label)
+                .setItems(labels.toArray(new String[0]), (d, which) -> actions.get(which).run())
+                .show();
+    }
+
+    /** The dock is full: pick which app gives up its slot; the new app takes that exact slot. */
+    private void chooseReplacement(Entry e, List<String> dock) {
+        String[] names = new String[dock.size()];
+        for (int i = 0; i < dock.size(); i++) names[i] = labelOf(dock.get(i));
+        new AlertDialog.Builder(ctx, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle(R.string.dock_replace_title)
+                .setItems(names, (d, which) -> { dock.set(which, e.pkg); saveDock(dock, e); })
+                .show();
+    }
+
+    private String labelOf(String pkg) {
+        for (Entry x : items) if (x.pkg.equals(pkg)) return x.label;
+        return pkg;
+    }
+
+    private void saveDock(List<String> dock, Entry focus) {
+        favourites.clear();
+        favourites.addAll(dock);
+        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                .putString(KEY_ORDER, String.join(",", dock)).apply();
+        listener.onDockChanged(focus.component.flattenToShortString());
+    }
+
+    private void openAppInfo(Entry e) {
+        Intent i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + e.pkg));
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            ctx.startActivity(i);
+        } catch (ActivityNotFoundException ignored) {
+        }
     }
 
     private void launch(Entry e) {
