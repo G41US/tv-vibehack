@@ -9,17 +9,16 @@
 
     <!-- Apps pinned to the dock row at the bottom, in this order. Missing apps are skipped. -->
     <string-array name="dock_apps">
-        <item>com.amhkor.voltratv</item>
-        <item>com.teamsmart.videomanager.tv</item>
+        <item>com.google.android.youtube.tv</item>
+        <item>com.netflix.ninja</item>
+        <item>com.amazon.amazonvideo.livingroom</item>
         <item>com.spotify.tv.android</item>
-        <item>com.esaba.downloader</item>
     </string-array>
 
     <!-- Apps never shown as tiles (e.g. the Live TV app, which the Inputs menu already covers). -->
     <string-array name="hidden_apps">
-        <item>com.tulix.viewsatandroidtv</item>
-        <item>tv.africa.streaming</item>
         <item>com.nes.tvbugtracker</item>
+        <item>com.nes.hometv</item>
     </string-array>
 
     <!-- Stock home screens to replace on sight (needs HomeKeyService switched on). For firmware that
