@@ -99,6 +99,7 @@ Lists that people have tested and contributed live in [`examples/`](examples/):
 |---|---|
 | Xiaomi Mi TV 4A (MiTV-MOOQ1) | Android TV 10 |
 | Xiaomi MiTV-AXSO0 | Android TV 9 |
+| Xiaomi Mi Box S (MIBOX4), streaming box | Android TV 9 |
 | TCL 55" 4K Google TV, 2023 (G10) | Google TV 12 |
 | SANYO ATV R2 | Android TV 9 |
 | OnePlus TV (D00) | Google TV 14 |
