@@ -35,10 +35,8 @@
 #   INSTALL_FAILED_INSUFFICIENT_STORAGE; `pm trim-caches 2000M` is usually enough.
 # - Installed launcher version here is com.tcl.cyberui 7746 (7.7.46). The 灵控桌面 APKs circulating
 #   for TCL sets are the same package at versionCode 7670 (7.6.70), i.e. a downgrade.
-# - `cmd package set-home-activity` DOES work here, so the stock launcher can stay enabled; the new
-#   one is still picked for Home. Only disable com.tcl.cyberui if Home keeps landing on it.
-# - screensaver_components ships pointing at com.android.deskclock, which is not installed. Point it
-#   at the launcher: 'settings put secure screensaver_components com.gathin.tvhome/.ClockDream'
+# - screensaver_components ships pointing at com.android.deskclock, which is not installed, so the
+#   TV has no working screensaver out of the box (and launcher/'s Clock can't be installed here).
 # - /data/local/tmp is not writable by the shell user; push to /sdcard instead.
 # - `screencap` cannot write to /data/local/tmp either, and returns an empty file while Live TV/HDMI
 #   is on screen (same as the G10). Press Home first.
