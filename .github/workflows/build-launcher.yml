@@ -58,8 +58,8 @@ jobs:
                >"$RUNNER_TEMP/kt.err" 2>&1; then
             why=$(grep -v JAVA_TOOL "$RUNNER_TEMP/kt.err" | head -c 300 | tr '\n' ' ')
             sum=$(sha256sum "$RUNNER_TEMP/tvhome.p12" | cut -c1-16)
-            j21=$("${JAVA_HOME_21_X64:-/nonexistent}/bin/keytool" -list -storetype pkcs12 -keystore "$RUNNER_TEMP/tvhome.p12" -storepass "$pass" -alias tvhome 2>&1 | grep -c PrivateKeyEntry)
-            why="$why | java21 opens it: $j21"
+            j21=$("${JAVA_HOME_21_X64:-/nonexistent}/bin/keytool" -list -storetype pkcs12 -keystore "$RUNNER_TEMP/tvhome.p12" -storepass "$pass" -alias tvhome 2>&1 | grep -v JAVA_TOOL | head -c 160 | tr "\n" " " || true)
+            why="$why | java21 says: ${j21:-nothing} (JAVA_HOME_21_X64=${JAVA_HOME_21_X64:-unset})"
             echo "::error title=Signing key unreadable::$why | password ${#pass} chars, key text ${#b64} chars, decoded ${size} bytes, file ${sum}; java $(java -version 2>&1 | grep -v JAVA_TOOL | head -1)"
             exit 1
           fi
