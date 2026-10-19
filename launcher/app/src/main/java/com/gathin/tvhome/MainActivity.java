@@ -137,6 +137,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         public void run() {
             updateGreeting();
             updateWifiLabel();
+            weather.refresh(false, MainActivity.this::showWeather);
             handler.postDelayed(this, MINUTE_MS);
         }
     };
@@ -178,6 +179,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             date.setPadding(0, (int) (4 * density), 0, 0);
         }
         vpnApp = cfg.vpnApp;
+        weatherView = findViewById(R.id.weather);
+        dateView = findViewById(R.id.date);
+        weather = new Weather(this);
+        showWeather(weather.cached());
 
         grid = findViewById(R.id.grid);
         grid.setLayoutManager(new GridLayoutManager(this, COLUMNS));
@@ -332,6 +337,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         grid.scheduleLayoutAnimation();
         SelfHeal.ensureService(this);
         updater.autoCheck();
+        weather.refresh(false, this::showWeather);
         updateGreeting();
         updateWifiLabel();
         updateInputsButton();
@@ -381,6 +387,45 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     private Config config;
     private Updater updater;
+    private Weather weather;
+    private TextView weatherView;
+    private TextView dateView;
+
+    /** The weather line above the date; with it showing, the date steps down a size like the Shamsi date. */
+    private void showWeather(String line) {
+        boolean on = line != null && !line.isEmpty();
+        weatherView.setText(on ? line : "");
+        weatherView.setVisibility(on ? View.VISIBLE : View.GONE);
+        boolean small = on || shamsi;
+        dateView.setTextSize(small ? 11f : 14f);
+        dateView.setPadding(0, small ? (int) (4 * density) : 0, 0, 0);
+        if (on && shamsi) shamsiDate.setVisibility(View.GONE);   // one line above the date is enough
+        else if (shamsi) shamsiDate.setVisibility(View.VISIBLE);
+    }
+
+    private void showWeatherMenu() {
+        String current = weather.place();
+        List<String> labels = new ArrayList<>();
+        List<String> keys = new ArrayList<>();
+        String found = weather.autoCity();
+        labels.add(mark(current, Weather.AUTO, found != null && !found.isEmpty()
+                ? getString(R.string.weather_auto_found, found) : getString(R.string.weather_auto)));
+        keys.add(Weather.AUTO);
+        for (String[] c : Weather.CITIES) {
+            labels.add(mark(current, c[0], c[0]));
+            keys.add(c[0]);
+        }
+        labels.add(mark(current, Weather.OFF, getString(R.string.weather_off)));
+        keys.add(Weather.OFF);
+        new AlertDialog.Builder(this, Updater.DIALOG_THEME)
+                .setTitle(R.string.menu_weather)
+                .setItems(labels.toArray(new String[0]), (d, which) -> {
+                    weather.setPlace(keys.get(which));
+                    showWeather(null);
+                    weather.refresh(true, this::showWeather);
+                })
+                .show();
+    }
     private PhotoServer photoServer;
     private AlertDialog photoDialog;
 
@@ -412,11 +457,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private void showHomeMenu() {
-        String[] items = {getString(R.string.menu_wallpaper), getString(R.string.menu_updates)};
+        String[] items = {getString(R.string.menu_wallpaper), getString(R.string.menu_weather),
+                getString(R.string.menu_updates)};
         new AlertDialog.Builder(this, Updater.DIALOG_THEME)
                 .setTitle(R.string.menu_title)
                 .setItems(items, (d, which) -> {
                     if (which == 0) showWallpaperMenu();
+                    else if (which == 1) showWeatherMenu();
                     else updater.check(true);
                 })
                 .show();
