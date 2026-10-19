@@ -34,18 +34,41 @@ import java.nio.charset.StandardCharsets;
 public final class Updater {
 
     private static final String PREFS = "update", KEY_LAST_CHECK = "last_check", KEY_SKIPPED = "skipped";
+    static final String KEY_CHANNEL = "channel", STABLE = "stable", BETA = "beta";
     private static final long AUTO_EVERY_MS = 6L * 60 * 60 * 1000;
     static final int DIALOG_THEME = android.R.style.Theme_DeviceDefault_Dialog_Alert;
 
     private final Activity act;
-    private final String base;
+    private final String stableBase, betaBase;
     private final Handler main = new Handler(Looper.getMainLooper());
     private boolean busy;
 
     Updater(Activity act) {
         this.act = act;
-        String url = act.getString(R.string.update_url).trim();
-        this.base = url.isEmpty() || url.endsWith("/") ? url : url + "/";
+        this.stableBase = folder(act.getString(R.string.update_url));
+        this.betaBase = folder(act.getString(R.string.update_beta_url));
+    }
+
+    private static String folder(String url) {
+        url = url.trim();
+        return url.isEmpty() || url.endsWith("/") ? url : url + "/";
+    }
+
+    /** STABLE (everyone) or BETA (new builds first, for testing). */
+    String channel() {
+        return BETA.equals(prefs().getString(KEY_CHANNEL, STABLE)) && !betaBase.isEmpty() ? BETA : STABLE;
+    }
+
+    boolean hasBeta() {
+        return !betaBase.isEmpty();
+    }
+
+    void setChannel(String channel) {
+        prefs().edit().putString(KEY_CHANNEL, BETA.equals(channel) ? BETA : STABLE).remove(KEY_SKIPPED).apply();
+    }
+
+    private String base() {
+        return BETA.equals(channel()) ? betaBase : stableBase;
     }
 
     private SharedPreferences prefs() {
@@ -62,7 +85,7 @@ public final class Updater {
 
     /** Quiet check when Home opens, at most every few hours. */
     void autoCheck() {
-        if (base.isEmpty() || busy) return;
+        if (base().isEmpty() || busy) return;
         long now = System.currentTimeMillis();
         if (now - prefs().getLong(KEY_LAST_CHECK, 0) < AUTO_EVERY_MS) return;
         prefs().edit().putLong(KEY_LAST_CHECK, now).apply();
@@ -70,6 +93,7 @@ public final class Updater {
     }
 
     void check(boolean manual) {
+        final String base = base();
         if (base.isEmpty()) {
             if (manual) toast(act.getString(R.string.update_off));
             return;
@@ -79,19 +103,22 @@ public final class Updater {
         if (manual) toast(act.getString(R.string.update_checking));
         new Thread(() -> {
             long latest = -1;
+            String notes = null;
             try {
                 latest = Long.parseLong(fetchText(base + "version.txt").trim());
+                if (latest > installedVersion()) notes = fetchText(base + "notes.txt").trim();
             } catch (Exception ignored) {
             }
             final long found = latest;
+            final String whatsNew = notes;
             main.post(() -> {
                 busy = false;
-                onChecked(found, manual);
+                onChecked(found, whatsNew, base, manual);
             });
         }, "update-check").start();
     }
 
-    private void onChecked(long latest, boolean manual) {
+    private void onChecked(long latest, String notes, String base, boolean manual) {
         if (act.isFinishing() || act.isDestroyed()) return;
         if (latest < 0) {
             if (manual) toast(act.getString(R.string.update_check_failed));
@@ -103,15 +130,20 @@ public final class Updater {
             return;
         }
         if (!manual && prefs().getLong(KEY_SKIPPED, -1) == latest) return;
+        String message = act.getString(R.string.update_message, String.valueOf(mine), String.valueOf(latest));
+        if (notes != null && !notes.isEmpty()) {
+            message = act.getString(R.string.update_whats_new, notes) + "\n\n" + message;
+        }
+        if (BETA.equals(channel())) message += "\n" + act.getString(R.string.update_beta_note);
         new AlertDialog.Builder(act, DIALOG_THEME)
                 .setTitle(R.string.update_available)
-                .setMessage(act.getString(R.string.update_message, String.valueOf(mine), String.valueOf(latest)))
-                .setPositiveButton(R.string.update_install, (d, w) -> install())
+                .setMessage(message)
+                .setPositiveButton(R.string.update_install, (d, w) -> install(base))
                 .setNegativeButton(R.string.update_later, (d, w) -> prefs().edit().putLong(KEY_SKIPPED, latest).apply())
                 .show();
     }
 
-    private void install() {
+    private void install(String base) {
         PackageManager pm = act.getPackageManager();
         if (!pm.canRequestPackageInstalls()) {
             toast(act.getString(R.string.update_allow_installs));
@@ -139,7 +171,12 @@ public final class Updater {
                 params.setAppPackageName(act.getPackageName());
                 id = pi.createSession(params);
                 try (PackageInstaller.Session session = pi.openSession(id)) {
-                    HttpURLConnection c = open(base + "tvhome.apk");
+                    HttpURLConnection c;
+                    try {
+                        c = open(base + "tvhome-update.apk");   // counted apart from new installs
+                    } catch (IOException e) {
+                        c = open(base + "tvhome.apk");          // releases from before the split
+                    }
                     long total = c.getContentLengthLong();
                     try (InputStream in = c.getInputStream();
                          OutputStream out = session.openWrite("tvhome.apk", 0, total > 0 ? total : -1)) {
@@ -212,7 +249,7 @@ public final class Updater {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             byte[] buf = new byte[1024];
             int n;
-            while ((n = in.read(buf)) > 0 && out.size() < 4096) out.write(buf, 0, n);
+            while ((n = in.read(buf)) > 0 && out.size() < 2048) out.write(buf, 0, n);
             return new String(out.toByteArray(), StandardCharsets.UTF_8);
         } finally {
             c.disconnect();

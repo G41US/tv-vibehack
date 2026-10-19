@@ -34,7 +34,7 @@ final class SetupPanel {
 
     private static final String PREFS = "setup", KEY_LATER = "later_at";
     private static final long NAG_EVERY_MS = 24L * 60 * 60 * 1000;
-    static final int REQUEST_HOME_ROLE = 4711;
+    static final int REQUEST_HOME_ROLE = 4711, REQUEST_PHOTOS = 4712;
 
     private final Activity act;
     private final float density;
@@ -138,6 +138,12 @@ final class SetupPanel {
         boolean installs = installsAllowed(act);
         addRow(n++, installs, R.string.setup_updates_title, R.string.setup_updates_desc,
                 installs ? 0 : R.string.setup_allow, this::openInstallSettings);
+        if (BackupStore.supported()) {
+            boolean backup = BackupStore.canRead(act);
+            addRow(n++, backup, R.string.setup_backup_title, R.string.setup_backup_desc,
+                    backup ? 0 : R.string.setup_allow,
+                    () -> act.requestPermissions(new String[]{BackupStore.readPermission()}, REQUEST_PHOTOS));
+        }
         Boolean home = defaultHome();
         if (home != null) {
             addRow(n, home, R.string.setup_default_title, R.string.setup_default_desc,
