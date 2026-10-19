@@ -67,7 +67,7 @@ jobs:
           status=${PIPESTATUS[0]}
           if [ "$status" -ne 0 ]; then
             # Put the compiler errors in an annotation, readable without downloading the log.
-            msg=$(grep -E "error:|warning: \[|e: |What went wrong|> " build.log | head -40 | sed ':a;N;$!ba;s/%/%25/g;s/\r//g;s/\n/%0A/g')
+            msg=$(grep -E "error:|What went wrong|^\* What|^> [^T]" build.log | head -40 | sed ':a;N;$!ba;s/%/%25/g;s/\r//g;s/\n/%0A/g')
             echo "::error title=Build failed::$msg"
           fi
           exit "$status"

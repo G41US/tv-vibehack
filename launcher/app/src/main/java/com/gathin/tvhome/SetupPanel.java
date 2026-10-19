@@ -194,7 +194,7 @@ final class SetupPanel {
         Toast.makeText(act, R.string.setup_home_toast, Toast.LENGTH_LONG).show();
         Intent i = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
         if (android.os.Build.VERSION.SDK_INT >= 33) {
-            Intent details = new Intent(Settings.ACTION_ACCESSIBILITY_DETAILS_SETTINGS)
+            Intent details = new Intent("android.settings.ACCESSIBILITY_DETAILS_SETTINGS")
                     .putExtra(Intent.EXTRA_COMPONENT_NAME,
                             new ComponentName(act, HomeKeyService.class).flattenToString());
             if (details.resolveActivity(act.getPackageManager()) != null) i = details;
