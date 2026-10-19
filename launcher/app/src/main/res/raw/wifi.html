@@ -21,37 +21,45 @@
 </style>
 </head>
 <body>
-<h1>Wi-Fi for the guest QR code</h1>
-<p>Enter your Wi-Fi name and password exactly as they are. The TV turns them into a QR code that
+<h1 data-fr="Wi-Fi pour le QR code invités">Wi-Fi for the guest QR code</h1>
+<p data-fr="Saisissez le nom et le mot de passe du Wi-Fi exactement tels quels. Le téléviseur en fait un QR code que vos invités scannent pour se connecter. Ils restent uniquement sur le téléviseur.">Enter your Wi-Fi name and password exactly as they are. The TV turns them into a QR code that
   guests scan to join. They're kept only on the TV.</p>
-<label for="ssid">Wi-Fi name</label>
+<label for="ssid" data-fr="Nom du Wi-Fi">Wi-Fi name</label>
 <input id="ssid" autocomplete="off" autocapitalize="off" spellcheck="false">
-<label for="pw">Password</label>
+<label for="pw" data-fr="Mot de passe">Password</label>
 <input id="pw" type="password" autocomplete="off" autocapitalize="off" spellcheck="false">
-<div class="row"><input id="show" type="checkbox"><span>Show password</span></div>
-<label for="sec">Security</label>
+<div class="row"><input id="show" type="checkbox"><span data-fr="Afficher le mot de passe">Show password</span></div>
+<label for="sec" data-fr="Sécurité">Security</label>
 <select id="sec">
-  <option value="WPA" selected>WPA2 / WPA3 (most routers)</option>
-  <option value="WEP">WEP (old routers)</option>
-  <option value="nopass">No password</option>
+  <option value="WPA" selected data-fr="WPA2 / WPA3 (la plupart des routeurs)">WPA2 / WPA3 (most routers)</option>
+  <option value="WEP" data-fr="WEP (anciens routeurs)">WEP (old routers)</option>
+  <option value="nopass" data-fr="Sans mot de passe">No password</option>
 </select>
-<div class="row"><input id="hidden" type="checkbox"><span>The network is hidden</span></div>
-<button id="go">Send to TV</button>
+<div class="row"><input id="hidden" type="checkbox"><span data-fr="Le réseau est masqué">The network is hidden</span></div>
+<button id="go" data-fr="Envoyer au téléviseur">Send to TV</button>
 <p id="s"></p>
+
+<script>
+if ((navigator.language || '').toLowerCase().startsWith('fr')) {
+  document.documentElement.lang = 'fr';
+  document.querySelectorAll('[data-fr]').forEach(el => { el.innerHTML = el.getAttribute('data-fr'); });
+}
+const T = (en, fr) => document.documentElement.lang === 'fr' ? fr : en;
+</script>
 <script>
 const $ = id => document.getElementById(id);
 $('show').onchange = () => { $('pw').type = $('show').checked ? 'text' : 'password'; };
 $('go').onclick = async () => {
   const body = JSON.stringify({ ssid: $('ssid').value, password: $('pw').value,
                                 security: $('sec').value, hidden: $('hidden').checked });
-  if (!$('ssid').value) { $('s').textContent = 'Enter the Wi-Fi name first.'; return; }
-  $('s').textContent = 'Sending…';
+  if (!$('ssid').value) { $('s').textContent = T('Enter the Wi-Fi name first.', "Saisissez d'abord le nom du Wi-Fi."); return; }
+  $('s').textContent = T('Sending…', 'Envoi…');
   try {
     const r = await fetch(location.pathname.replace(/\/$/, '') + '/upload',
                           { method: 'POST', headers: { 'Content-Type': 'application/json' }, body });
-    $('s').textContent = r.ok ? 'Done ✓ The QR code is on your TV.' : 'The TV said no (' + r.status + '). Try again.';
+    $('s').textContent = r.ok ? T('Done ✓ The QR code is on your TV.', 'Terminé ✓ Le QR code est sur votre téléviseur.') : T('The TV said no (', 'Le téléviseur a refusé (') + r.status + T('). Try again.', '). Réessayez.');
   } catch (e) {
-    $('s').textContent = 'Something went wrong: ' + e.message;
+    $('s').textContent = T('Something went wrong: ', 'Un problème est survenu : ') + e.message;
   }
 };
 </script>

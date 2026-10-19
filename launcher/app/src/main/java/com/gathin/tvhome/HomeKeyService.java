@@ -49,6 +49,9 @@ public class HomeKeyService extends AccessibilityService {
     }
 
     private long lastSample;
+    private long pausedUntil;
+    private int failures;
+    private boolean cameUp = true;
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
@@ -60,10 +63,29 @@ public class HomeKeyService extends AccessibilityService {
         }
         CharSequence pkg = event.getPackageName();
         if (pkg == null) return;
+        if (getPackageName().contentEquals(pkg)) {   // TV Home is on screen: the last takeover worked
+            cameUp = true;
+            failures = 0;
+            return;
+        }
         for (String p : takeover) {
             if (p.contentEquals(pkg)) {
                 long now = SystemClock.elapsedRealtime();
                 if (now - lastTakeover < 1000) return;   // one hop per second, never a loop
+                if (now < pausedUntil) return;
+                // TV Home never came up after the last takeover (it fails to open, or the firmware
+                // insists): after a few of those in a row, stop for ten minutes instead of bouncing.
+                // Pressing Home often is fine: each time TV Home appears, the count starts over.
+                if (!cameUp && now - lastTakeover < 5000) {
+                    if (++failures >= 4) {
+                        pausedUntil = now + 10 * 60_000;
+                        failures = 0;
+                        return;
+                    }
+                } else {
+                    failures = 0;
+                }
+                cameUp = false;
                 lastTakeover = now;
                 goHome();
                 return;

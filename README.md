@@ -1,6 +1,8 @@
 # tv-vibehack
 
 > ### Airtel Smart Router edition: TV Home
+> ![installs](https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2FG41US%2Ftv-vibehack%2Fmain%2Fdocs%2Finstalls.json)
+>
 > A clean, ad-free home screen for the Airtel Smart Router TV box, installed with the remote alone.
 > **Install:** on the box, get **Downloader** from the Play Store, open it, type the code **`2960939`**,
 > install, open TV Home and follow its two-step setup. (The code always fetches the latest release.)

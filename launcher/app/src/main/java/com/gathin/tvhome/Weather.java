@@ -36,6 +36,15 @@ final class Weather {
             {"Enugu", "6.4584", "7.5464"}, {"Benin City", "6.3350", "5.6037"},
             {"Calabar", "4.9757", "8.3417"}, {"Owerri", "5.4840", "7.0351"},
             {"Kaduna", "10.5105", "7.4165"}, {"Jos", "9.8965", "8.8583"},
+            // Other countries where Airtel sells the box
+            {"Antananarivo", "-18.8792", "47.5079"}, {"Brazzaville", "-4.2634", "15.2429"},
+            {"Dar es Salaam", "-6.7924", "39.2083"}, {"Kampala", "0.3476", "32.5825"},
+            {"Kigali", "-1.9441", "30.0619"}, {"Kinshasa", "-4.4419", "15.2663"},
+            {"Libreville", "0.4162", "9.4673"}, {"Lilongwe", "-13.9626", "33.7741"},
+            {"Lubumbashi", "-11.6876", "27.5026"}, {"Lusaka", "-15.3875", "28.3228"},
+            {"Mombasa", "-4.0435", "39.6682"}, {"N'Djamena", "12.1348", "15.0557"},
+            {"Nairobi", "-1.2864", "36.8172"}, {"Niamey", "13.5116", "2.1254"},
+            {"Pointe-Noire", "-4.7761", "11.8635"}, {"Victoria", "-4.6191", "55.4513"},
     };
 
     private static final String PREFS = "weather", KEY_PLACE = "place", KEY_LINE = "line", KEY_TIME = "time",
@@ -138,36 +147,39 @@ final class Weather {
         long now = Math.round(cur.getDouble("temperature_2m"));
         long hi = Math.round(daily.getJSONArray("temperature_2m_max").getDouble(0));
         long lo = Math.round(daily.getJSONArray("temperature_2m_min").getDouble(0));
-        String sky = describe(cur.getInt("weather_code"));
+        String sky = describe(ctx, cur.getInt("weather_code"));
         StringBuilder s = new StringBuilder();
-        s.append(now).append("°  ").append(sky).append("  ·  H ").append(hi).append("°  L ").append(lo).append('°');
+        s.append(now).append("°  ").append(sky).append("  ·  ")
+                .append(ctx.getString(R.string.weather_hilo, (int) hi, (int) lo));
         if (!city.isEmpty()) s.append("  ·  ").append(city);
         return s.toString();
     }
 
     /** WMO weather codes, as Open-Meteo reports them. */
-    static String describe(int code) {
+    static String describe(Context ctx, int code) {
+        int id;
         switch (code) {
-            case 0: return "Clear";
-            case 1: return "Mostly clear";
-            case 2: return "Partly cloudy";
-            case 3: return "Cloudy";
-            case 45: case 48: return "Fog";
-            case 51: case 53: case 55: return "Drizzle";
-            case 56: case 57: return "Freezing drizzle";
-            case 61: return "Light rain";
-            case 63: return "Rain";
-            case 65: return "Heavy rain";
-            case 66: case 67: return "Freezing rain";
-            case 71: case 73: case 75: case 77: return "Snow";
-            case 80: return "Light showers";
-            case 81: return "Showers";
-            case 82: return "Heavy showers";
-            case 85: case 86: return "Snow showers";
-            case 95: return "Thunderstorm";
-            case 96: case 99: return "Thunderstorm, hail";
+            case 0: id = R.string.wx_clear; break;
+            case 1: id = R.string.wx_mostly_clear; break;
+            case 2: id = R.string.wx_partly_cloudy; break;
+            case 3: id = R.string.wx_cloudy; break;
+            case 45: case 48: id = R.string.wx_fog; break;
+            case 51: case 53: case 55: id = R.string.wx_drizzle; break;
+            case 56: case 57: id = R.string.wx_freezing_drizzle; break;
+            case 61: id = R.string.wx_light_rain; break;
+            case 63: id = R.string.wx_rain; break;
+            case 65: id = R.string.wx_heavy_rain; break;
+            case 66: case 67: id = R.string.wx_freezing_rain; break;
+            case 71: case 73: case 75: case 77: id = R.string.wx_snow; break;
+            case 80: id = R.string.wx_light_showers; break;
+            case 81: id = R.string.wx_showers; break;
+            case 82: id = R.string.wx_heavy_showers; break;
+            case 85: case 86: id = R.string.wx_snow_showers; break;
+            case 95: id = R.string.wx_thunderstorm; break;
+            case 96: case 99: id = R.string.wx_thunderstorm_hail; break;
             default: return "";
         }
+        return ctx.getString(id);
     }
 
     private static String get(String url) throws IOException {

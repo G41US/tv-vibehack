@@ -55,7 +55,7 @@
 </head>
 <body>
 <main>
-  <div class="kicker">For the Airtel Smart Router TV box</div>
+  <div class="kicker">For the Airtel Smart Router TV box · <a href="fr/" style="color:#9db3ff">Français</a></div>
   <h1>A clean home screen for your Airtel box.</h1>
   <p>TV Home replaces the box's ad-filled home screen with a simple, beautiful one: your favourite apps in a dock,
     a big clock, the weather and a few wallpapers. <strong>Installs with the remote in about three minutes.</strong>
@@ -77,9 +77,10 @@
       switch it on, and press Back.
       <br><span style="font-size:14px;color:var(--faint)">No luck with the code? Type <code>g41us.github.io/tv-vibehack/get</code> instead.</span></li>
     <li><b>Install and open</b>Choose <strong>Install</strong>, then <strong>Open</strong>.</li>
-    <li><b>Two quick switches</b>TV Home shows a short setup screen:
+    <li><b>Quick setup</b>TV Home shows a short setup screen:
       <br>• <strong>Home button and start-up → Turn on.</strong> In Accessibility, choose <strong>TV Home</strong>, turn it on, press Back.
       <br>• <strong>Updates from the TV → Allow.</strong>
+      <br>• <strong>Keep your settings safe → Allow.</strong>
       <br>That's it. Press Home: TV Home opens, and the box starts in it from now on.</li>
   </ol>
 
@@ -98,6 +99,13 @@
     <img src="focus-1-fancode.png" alt="The home screen with an app focused in the dock">
     <img src="clock-screensaver.png" alt="The clock screensaver: a large thin clock and the date on a dark glow">
   </div>
+
+  <h2>Which TVs it works on</h2>
+  <p><strong>Made for the Airtel Smart Router.</strong> It should also work on other TVs and boxes that run
+    <strong>Android TV or Google TV</strong>: Sony, TCL, Hisense (Android models), Xiaomi, Philips (Android models),
+    Chromecast with Google TV, Nvidia Shield and most Android boxes. Install it the same way, with Downloader.</p>
+  <p><strong>It can't work on</strong> Samsung (Tizen), LG (webOS), Roku, Hisense VIDAA, Apple TV or Amazon Fire TV.
+    Those run other systems that don't let any app replace the home screen.</p>
 
   <h2>Using it</h2>
   <div class="tip"><b>Hold OK on an app</b> to move it in the dock, add it, or remove it. The dock holds four.</div>
@@ -119,6 +127,9 @@
   <details><summary>Is it safe?</summary>
     <p>Yes. The code is open on GitHub, nothing is flashed or rooted, and updates only install when they're signed with
       TV Home's own key, so nobody else can push a fake update to your box.</p></details>
+  <details><summary>I reinstalled TV Home. Are my settings gone?</summary>
+    <p>No. TV Home keeps an encrypted backup of your dock, wallpaper, weather and Wi-Fi QR on the box. After
+      reinstalling, press <strong>Allow</strong> next to "Keep your settings safe" on the setup screen and they come back.</p></details>
   <details><summary>Extras for people with a phone or computer</summary>
     <p>With ADB (Termux on Android, or a computer) the <a href="https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh">airtel-fix.sh</a>
       script adds ad-blocking DNS for the whole box, faster animations and SmartTube. Not needed for TV Home itself.</p></details>

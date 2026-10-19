@@ -18,18 +18,26 @@
 </style>
 </head>
 <body>
-<h1>Set your TV wallpaper</h1>
-<p>Pick a photo. It's cropped to the TV screen, dimmed a little so the clock and apps stay readable,
+<h1 data-fr="Votre fond d'écran TV">Set your TV wallpaper</h1>
+<p data-fr="Choisissez une photo. Elle est recadrée pour l'écran, un peu assombrie pour que l'horloge et les applis restent lisibles, puis envoyée au téléviseur.">Pick a photo. It's cropped to the TV screen, dimmed a little so the clock and apps stay readable,
   and sent straight to the TV.</p>
-<label>Choose a photo<input id="f" type="file" accept="image/*"></label>
+<label><span data-fr="Choisir une photo">Choose a photo</span><input id="f" type="file" accept="image/*"></label>
 <img id="p" hidden alt="">
 <p id="s"></p>
+
+<script>
+if ((navigator.language || '').toLowerCase().startsWith('fr')) {
+  document.documentElement.lang = 'fr';
+  document.querySelectorAll('[data-fr]').forEach(el => { el.innerHTML = el.getAttribute('data-fr'); });
+}
+const T = (en, fr) => document.documentElement.lang === 'fr' ? fr : en;
+</script>
 <script>
 const f = document.getElementById('f'), s = document.getElementById('s'), p = document.getElementById('p');
 f.onchange = async () => {
   const file = f.files[0];
   if (!file) return;
-  s.textContent = 'Preparing…';
+  s.textContent = T('Preparing…', 'Préparation…');
   try {
     const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
     const W = 1920, H = 1080, c = document.createElement('canvas');
@@ -47,11 +55,11 @@ f.onchange = async () => {
     const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.88));
     p.src = URL.createObjectURL(blob);
     p.hidden = false;
-    s.textContent = 'Sending to the TV…';
+    s.textContent = T('Sending to the TV…', 'Envoi au téléviseur…');
     const r = await fetch(location.pathname.replace(/\/$/, '') + '/upload', { method: 'POST', body: blob });
-    s.textContent = r.ok ? 'Done ✓ Look at your TV.' : 'The TV said no (' + r.status + '). Try again.';
+    s.textContent = r.ok ? T('Done ✓ Look at your TV.', 'Terminé ✓ Regardez votre téléviseur.') : T('The TV said no (', 'Le téléviseur a refusé (') + r.status + T('). Try again.', '). Réessayez.');
   } catch (e) {
-    s.textContent = 'Something went wrong: ' + e.message;
+    s.textContent = T('Something went wrong: ', 'Un problème est survenu : ') + e.message;
   }
 };
 </script>

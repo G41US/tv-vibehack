@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TV Home pour l'Airtel Smart Router</title>
+<meta name="description" content="Un écran d'accueil propre et sans publicité pour le boîtier Airtel Smart Router. S'installe avec la télécommande en trois minutes environ. Gratuit et open source.">
+<meta property="og:title" content="TV Home pour l'Airtel Smart Router">
+<meta property="og:description" content="Remplacez l'écran d'accueil du boîtier Airtel par un écran propre et sans publicité. Télécommande seulement, trois minutes, gratuit.">
+<meta property="og:image" content="https://g41us.github.io/tv-vibehack/focus-2-up-netflix.png">
+<style>
+  :root {
+    --bg: #0a0b10; --panel: #13151d; --line: #262a37; --text: #eceef4; --dim: #a3a8b8; --faint: #6f7587;
+    --accent: #3d6bff; --ok: #5bd68a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 40px 18px 64px; }
+  .kicker { color: var(--dim); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
+  h1 { font-size: 38px; line-height: 1.12; margin: 10px 0 14px; font-weight: 700; letter-spacing: -.01em; }
+  h2 { font-size: 24px; margin: 52px 0 14px; }
+  p { margin: 0 0 14px; color: var(--dim); }
+  strong { color: var(--text); }
+  .hero { width: 100%; border-radius: 14px; border: 1px solid var(--line); display: block; margin: 26px 0 10px; }
+  .cap { font-size: 13px; color: var(--faint); }
+  .get { display: block; margin: 22px 0 6px; padding: 18px 20px; border-radius: 14px; background: var(--accent);
+         color: #fff; text-decoration: none; font-weight: 700; font-size: 19px; text-align: center; }
+  .small { font-size: 14px; color: var(--faint); text-align: center; }
+  ol.steps { list-style: none; padding: 0; margin: 0; counter-reset: s; }
+  ol.steps li { counter-increment: s; position: relative; background: var(--panel); border: 1px solid var(--line);
+                border-radius: 14px; padding: 18px 18px 16px 66px; margin-bottom: 12px; color: var(--dim); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 18px; top: 16px; width: 32px; height: 32px;
+                border-radius: 50%; border: 1px solid #4a5063; color: var(--text); text-align: center;
+                line-height: 30px; font-weight: 600; }
+  ol.steps li b { display: block; color: var(--text); font-size: 18px; margin-bottom: 3px; }
+  code, .addr { font-family: ui-monospace, Menlo, Consolas, monospace; background: #1c2030; border: 1px solid var(--line);
+         border-radius: 7px; padding: 2px 7px; color: #fff; font-size: 15px; overflow-wrap: anywhere; }
+  .addr.code { font-size: 30px; letter-spacing: .12em; padding: 8px 18px; }
+  .addr { display: inline-block; font-size: 19px; padding: 6px 12px; margin: 6px 0; max-width: 100%;
+          white-space: normal; overflow-wrap: anywhere; }
+  ul.feat { padding-left: 20px; color: var(--dim); }
+  ul.feat li { margin-bottom: 8px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid img { width: 100%; border-radius: 10px; border: 1px solid var(--line); display: block; }
+  .tip { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; margin-bottom: 10px; color: var(--dim); }
+  .tip b { color: var(--text); }
+  details { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; margin-bottom: 10px; }
+  summary { cursor: pointer; font-weight: 600; color: var(--text); }
+  details p { margin-top: 10px; }
+  footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 14px; color: var(--faint); }
+  footer a, p a, li a { color: #9db3ff; }
+  @media (max-width: 520px) { h1 { font-size: 30px; } .grid { grid-template-columns: 1fr; } .addr { font-size: 16px; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="kicker">Pour le boîtier TV Airtel Smart Router · <a href="../" style="color:#9db3ff">English</a></div>
+  <h1>Un écran d'accueil propre pour votre boîtier Airtel.</h1>
+  <p>TV Home remplace l'écran d'accueil plein de publicités par un écran simple et élégant : vos applis préférées dans
+    un dock, une grande horloge, la météo et quelques fonds d'écran. <strong>S'installe avec la télécommande en trois
+    minutes environ.</strong> Pas besoin de téléphone, d'ordinateur ni d'options pour développeurs. Gratuit et open source.</p>
+
+  <img class="hero" src="../focus-2-up-netflix.png" alt="TV Home : une grande horloge et la date en haut, le nom de l'appli sélectionnée en grand, et un dock de quatre applis">
+  <div class="cap">L'apparence de TV Home. Votre dock affiche les applis que vous choisissez.</div>
+
+  <a class="get" href="https://github.com/G41US/tv-vibehack/releases/latest/download/tvhome.apk">Télécharger TV Home (APK)</a>
+  <p class="small">Sur le téléviseur : ouvrez Downloader et tapez <strong style="color:var(--text)">2960939</strong>. Étapes ci-dessous.</p>
+
+  <h2>Installer avec la télécommande</h2>
+  <ol class="steps">
+    <li><b>Installez Downloader</b>Sur le boîtier Airtel, ouvrez le <strong>Play Store</strong>, cherchez <strong>Downloader</strong>
+      (par AFTVnews) et installez-le.</li>
+    <li><b>Tapez le code</b>Ouvrez Downloader. Dans la case, tapez le code<br>
+      <span class="addr code">2960939</span><br>
+      et appuyez sur <strong>Go</strong>. Si Downloader demande l'autorisation d'installer des applis, choisissez
+      <strong>Paramètres</strong>, activez-la et appuyez sur Retour.
+      <br><span style="font-size:14px;color:var(--faint)">Le code ne marche pas ? Tapez plutôt <code>g41us.github.io/tv-vibehack/get</code>.</span></li>
+    <li><b>Installez et ouvrez</b>Choisissez <strong>Installer</strong>, puis <strong>Ouvrir</strong>.</li>
+    <li><b>Configuration rapide</b>TV Home affiche un court écran de configuration :
+      <br>• <strong>Bouton Accueil et démarrage → Activer.</strong> Dans Accessibilité, choisissez <strong>TV Home</strong>, activez-le, appuyez sur Retour.
+      <br>• <strong>Mises à jour depuis le téléviseur → Autoriser.</strong>
+      <br>• <strong>Protéger vos réglages → Autoriser.</strong>
+      <br>C'est tout. Appuyez sur Accueil : TV Home s'ouvre, et le boîtier démarre dessus désormais.</li>
+  </ol>
+
+  <h2>Ce que vous obtenez</h2>
+  <ul class="feat">
+    <li><strong>Plus de publicités ni de rangées sponsorisées.</strong> Juste vos applis, avec vos quatre préférées dans un dock.</li>
+    <li><strong>Démarre sur TV Home</strong>, et le bouton Accueil y revient toujours.</li>
+    <li><strong>Horloge, date et météo</strong> de votre ville.</li>
+    <li><strong>Fonds d'écran :</strong> six inclus, ou une photo envoyée depuis votre téléphone.</li>
+    <li><strong>QR code Wi-Fi pour les invités :</strong> ils scannent le téléviseur pour se connecter.</li>
+    <li><strong>Données utilisées</strong> aujourd'hui et ce mois-ci.</li>
+    <li><strong>Se met à jour tout seul :</strong> les nouvelles versions s'installent en un clic.</li>
+    <li><strong>Un économiseur d'écran horloge</strong> qui se déplace pour éviter le marquage.</li>
+  </ul>
+  <div class="grid">
+    <img src="../focus-1-fancode.png" alt="L'écran d'accueil avec une appli sélectionnée dans le dock">
+    <img src="../clock-screensaver.png" alt="L'économiseur d'écran : une grande horloge fine et la date sur un fond sombre">
+  </div>
+
+  <h2>Sur quels téléviseurs</h2>
+  <p><strong>Conçu pour l'Airtel Smart Router.</strong> Il devrait aussi fonctionner sur les téléviseurs et boîtiers sous
+    <strong>Android TV ou Google TV</strong> : Sony, TCL, Hisense (modèles Android), Xiaomi, Philips (modèles Android),
+    Chromecast avec Google TV, Nvidia Shield et la plupart des boîtiers Android. L'installation est la même, avec Downloader.</p>
+  <p><strong>Impossible sur</strong> Samsung (Tizen), LG (webOS), Roku, Hisense VIDAA, Apple TV et Amazon Fire TV :
+    ces systèmes ne laissent aucune appli remplacer l'écran d'accueil.</p>
+
+  <h2>Utilisation</h2>
+  <div class="tip"><b>Maintenez OK sur une appli</b> pour la déplacer dans le dock, l'ajouter ou la retirer. Le dock en contient quatre.</div>
+  <div class="tip"><b>Maintenez OK sur Paramètres</b> (en haut à droite) pour le fond d'écran, la ville météo, les mises à jour et la configuration.</div>
+  <div class="tip"><b>Maintenez OK sur le bouton réseau</b> pour le QR code Wi-Fi et les données utilisées.</div>
+
+  <h2>Questions</h2>
+  <details><summary>Pourquoi l'accès Accessibilité ?</summary>
+    <p>Le boîtier Airtel ouvre son propre écran d'accueil au démarrage et avec le bouton Accueil, quelle que soit l'appli choisie.
+      L'option Accessibilité de TV Home surveille seulement cet écran et le bouton Accueil, et ouvre TV Home à la place.
+      Elle ne lit, n'enregistre et n'envoie rien de ce qui est à l'écran. Android affiche le même avertissement pour toutes les applis qui la demandent.</p></details>
+  <details><summary>Est-ce que ça supprime ou casse les applis Airtel ?</summary>
+    <p>Non. Rien n'est désinstallé ni désactivé. Vos chaînes, l'appli de compte Airtel et vos réglages restent tels quels.</p></details>
+  <details><summary>Comment revenir à l'écran d'accueil Airtel ?</summary>
+    <p>Paramètres → Accessibilité → TV Home → désactiver. Pour le supprimer complètement : Paramètres → Applis → TV Home → Désinstaller.
+      Le boîtier redevient exactement comme avant.</p></details>
+  <details><summary>Une mise à jour Airtel a ramené leur écran d'accueil.</summary>
+    <p>Ouvrez TV Home depuis la liste des applis et refaites la configuration (maintenez OK sur Paramètres → Configuration).</p></details>
+  <details><summary>Est-ce sûr ?</summary>
+    <p>Oui. Le code est public sur GitHub, rien n'est flashé ni rooté, et les mises à jour ne s'installent que si elles sont
+      signées avec la clé de TV Home : personne d'autre ne peut envoyer une fausse mise à jour sur votre boîtier.</p></details>
+  <details><summary>J'ai réinstallé TV Home. Mes réglages sont-ils perdus ?</summary>
+    <p>Non. TV Home garde une sauvegarde chiffrée de votre dock, fond d'écran, météo et QR Wi-Fi sur le boîtier. Après la
+      réinstallation, appuyez sur <strong>Autoriser</strong> à côté de « Protéger vos réglages » et ils reviennent.</p></details>
+
+  <footer>
+    TV Home est basé sur <a href="https://github.com/Gathin23/tv-vibehack">tv-vibehack</a> de Gathin23 (licence MIT),
+    adapté pour l'Airtel Smart Router par <a href="https://github.com/G41US/tv-vibehack">G41US</a>.
+    Il n'est ni fait par Airtel ni affilié à Airtel. Utilisation à vos risques ; Airtel peut ne pas assister les boîtiers qui l'utilisent.
+  </footer>
+</main>
+</body>
+</html>
