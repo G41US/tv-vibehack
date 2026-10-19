@@ -13,7 +13,9 @@ could reach Netflix. The whole thing was done with Claude Code talking to the re
 prompt that did it is in this repo so you can do the same with yours. The replies to the tweet
 below are where most of the TV lists in this repo came from.
 
-<a href="https://x.com/gathint/status/2111379569030939102"><img src="docs/tweet.png" alt="The tweet: Vibe coded my parents' TV this afternoon. Before and after screenshots." width="560"></a>
+<p align="center">
+  <a href="https://x.com/gathint/status/2111379569030939102"><img src="docs/tweet.png" alt="The tweet: Vibe coded my parents' TV this afternoon. Before and after screenshots." width="380"></a>
+</p>
 
 ---
 
