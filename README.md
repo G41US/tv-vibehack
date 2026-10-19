@@ -167,6 +167,7 @@ tools/restore.sh examples/xiaomi-mi-tv-4a/debloat.txt        # undo it and resto
 | [`tools/tv.py`](tools/tv.py) | A pure-Python ADB client: shell, batch, push, pull. Works where the stock `adb` binary is blocked. |
 | [`tools/b64push.py`](tools/b64push.py) | Uploads larger files such as APKs as base64 chunks and verifies the checksum. |
 | [`tools/disable.sh`](tools/disable.sh) / [`tools/restore.sh`](tools/restore.sh) | Apply or undo a debloat list. PowerShell versions sit next to them. |
+| [`tools/theme.sh`](tools/theme.sh) | Push a theme folder from [`themes/`](themes/) to the launcher and restart Home; `--reset` removes it. PowerShell version next to it. |
 
 ### Windows
 
@@ -196,6 +197,11 @@ video, no network, no background services.
 the dock order, apps to hide, your TV's Live TV package, the number of columns (tiles shrink to fit
 from 5 columns up), and how many grid rows stay visible under the dock (`rows_below_dock`). The Inputs button hides itself on sticks and
 boxes that have no HDMI or tuner.
+
+**Themes** change the same settings, plus a background colour and a wallpaper, without a rebuild:
+a folder with a `config.json` (and optionally a `wallpaper.jpg`) pushed to the TV with
+`tools/theme.sh themes/<name>`, which the launcher reads as an overlay over `config.xml`. Three ship
+in [`themes/`](themes/), and the keys are documented there. `tools/theme.sh --reset` goes back.
 
 **Language** follows the TV: English, German, Spanish, Catalan, Simplified Chinese and Thai so far. If your
 TV doesn't offer yours system-wide, Android 13 and later can set it for the launcher alone, e.g. Catalan:
