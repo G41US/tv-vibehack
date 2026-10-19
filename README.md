@@ -106,15 +106,24 @@ Lists that people have tested and contributed live in [`examples/`](examples/):
 | TV | OS |
 |---|---|
 | Xiaomi Mi TV 4A (MiTV-MOOQ1) | Android TV 10 |
-| Xiaomi MiTV-AXSO0 | Android TV 9 |
-| Xiaomi Mi Box S (MIBOX4), streaming box | Android TV 9 |
-| TCL 55" 4K Google TV, 2023 (G10) | Google TV 12 |
-| SANYO ATV R2 | Android TV 9 |
-| OnePlus TV (D00) | Google TV 14 |
-| Sony BRAVIA XBR-65X900E (2017) | Android TV 9 |
-| NVIDIA SHIELD TV Pro 2019 (P2897) | Android TV 11 |
-| Xiaomi MiTV-MOOR2 (venom) | Google TV 11 |
-| Xiaomi MiTV-AESP0 (TV stick) | Android TV 9 |
+| TCL 55" 4K Google TV, 2023 (G10, G10_4K_US_NF) | Google TV 12 |
+| Xiaomi MiTV-AXSO0 (dangal) | Android TV 9 |
+| Xiaomi Mi Box S (MIBOX4, oneday), streaming box | Android TV 9 |
+| SANYO ATV R2 (SCBC, Realtek RTD285O) | Android TV 9 |
+| OnePlus TV (D00, Dubai) | Google TV 14 |
+| BenQ E55-735 (Changhong AI PONT, DVB96BQ) | Google TV 14 |
+| Hisense SmartTV 4K FFM (huangshan, MediaTek) | Android TV 10 |
+| TCL 65C725 (Smart TV Pro, BeyondTV4) | Android TV 11 |
+| Sony BRAVIA 4K UR2 (BRAVIA_UR2_4K, MediaTek) | Android TV 10 |
+| Xiaomi Mi TV (MiTV-MOOQ0, croods) | Android TV 10 |
+| Sony BRAVIA XBR-65X900E (2017, BRAVIA_ATV2) | Android TV 9 |
+| TCL BeyondTV (India) | Android TV 9 |
+| NVIDIA SHIELD TV Pro 2019 (P2897, mdarcy) | Android TV 11 |
+| Xiaomi MiTV-MOOR2 (venom, MediaTek) | Google TV 11 |
+| Xiaomi MiTV-AESP0 stick (aquaman, 1 GB) | Android TV 9 |
+| TCL QM6K Pro, 2025 (G08, MediaTek tcl9618) | Google TV 14 |
+| RCA AI PONT SA (Changhong, redwood, ISDB92RC) | Android 14 |
+| CHiQ AI PONT (DVB93CQ) | Android TV 11 |
 
 Your TV not here? The prompt works regardless, it discovers the bloat itself. If you add your
 list afterwards, the next person with your model skips that step. See
