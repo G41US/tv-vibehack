@@ -37,12 +37,14 @@ final class SetupPanel {
     static final int REQUEST_HOME_ROLE = 4711, REQUEST_PHOTOS = 4712;
 
     private final Activity act;
+    private final Updater updater;
     private final float density;
     private Dialog dialog;
     private LinearLayout rows;
 
-    SetupPanel(Activity act) {
+    SetupPanel(Activity act, Updater updater) {
         this.act = act;
+        this.updater = updater;
         this.density = act.getResources().getDisplayMetrics().density;
     }
 
@@ -144,6 +146,10 @@ final class SetupPanel {
                     backup ? 0 : R.string.setup_allow,
                     () -> act.requestPermissions(new String[]{BackupStore.readPermission()}, REQUEST_PHOTOS));
         }
+        // Optional: SmartTube and licensed movie apps. Shows as done once SmartTube is on the box.
+        boolean apps = AppPack.smartTubeInstalled(act);
+        addRow(n++, apps, R.string.setup_apps_title, R.string.setup_apps_desc,
+                apps ? 0 : R.string.setup_choose, () -> AppPack.show(act, updater));
         Boolean home = defaultHome();
         if (home != null) {
             addRow(n, home, R.string.setup_default_title, R.string.setup_default_desc,

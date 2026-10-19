@@ -159,7 +159,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         root = findViewById(R.id.root);
         config = cfg;
         updater = new Updater(this);
-        setupPanel = new SetupPanel(this);
+        setupPanel = new SetupPanel(this, updater);
         applyWallpaper(cfg);
         glass = findViewById(R.id.glass);
         ambient = findViewById(R.id.ambient);
@@ -491,13 +491,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     private void showHomeMenu() {
         String[] items = {getString(R.string.menu_wallpaper), getString(R.string.menu_weather),
-                getString(R.string.menu_updates), getString(R.string.menu_setup)};
+                getString(R.string.menu_apps), getString(R.string.menu_updates), getString(R.string.menu_setup)};
         new AlertDialog.Builder(this, Updater.DIALOG_THEME)
                 .setTitle(R.string.menu_title)
                 .setItems(items, (d, which) -> {
                     if (which == 0) showWallpaperMenu();
                     else if (which == 1) showWeatherMenu();
-                    else if (which == 2) updater.check(true);
+                    else if (which == 2) AppPack.show(this, updater);
+                    else if (which == 3) updater.check(true);
                     else setupPanel.show();
                 })
                 .show();

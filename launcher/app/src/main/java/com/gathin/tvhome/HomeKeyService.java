@@ -24,6 +24,9 @@ import android.view.accessibility.AccessibilityEvent;
  */
 public class HomeKeyService extends AccessibilityService {
 
+    /** The running service, when Android has it bound (so SelfHeal can send Home to TV Home after an update). */
+    static volatile HomeKeyService live;
+
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
         int code = event.getKeyCode();
@@ -40,12 +43,9 @@ public class HomeKeyService extends AccessibilityService {
     @Override
     protected void onServiceConnected() {
         takeover = getResources().getStringArray(R.array.takeover_packages);
+        live = this;
         // Just updated (SelfHeal.Receiver): come back to this home screen instead of the stock one.
-        android.content.SharedPreferences p = getSharedPreferences(SelfHeal.PREFS, MODE_PRIVATE);
-        if (p.getBoolean(SelfHeal.KEY_GO_HOME, false)) {
-            p.edit().putBoolean(SelfHeal.KEY_GO_HOME, false).apply();
-            goHome();
-        }
+        if (takeGoHomeFlag(this)) goHome();
     }
 
     private long lastSample;
@@ -100,7 +100,27 @@ public class HomeKeyService extends AccessibilityService {
         }
     }
 
-    private void goHome() {
+    @Override
+    public boolean onUnbind(Intent intent) {
+        if (live == this) live = null;
+        return super.onUnbind(intent);
+    }
+
+    @Override
+    public void onDestroy() {
+        if (live == this) live = null;
+        super.onDestroy();
+    }
+
+    /** Consumes SelfHeal's "just updated" flag: true when TV Home should come back to the front now. */
+    static boolean takeGoHomeFlag(android.content.Context ctx) {
+        android.content.SharedPreferences p = ctx.getSharedPreferences(SelfHeal.PREFS, MODE_PRIVATE);
+        if (!p.getBoolean(SelfHeal.KEY_GO_HOME, false)) return false;
+        p.edit().putBoolean(SelfHeal.KEY_GO_HOME, false).commit();
+        return true;
+    }
+
+    void goHome() {
         Intent home = new Intent(Intent.ACTION_MAIN)
                 .addCategory(Intent.CATEGORY_HOME)
                 .setPackage(getPackageName())
