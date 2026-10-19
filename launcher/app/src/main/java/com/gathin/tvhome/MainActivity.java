@@ -374,6 +374,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     public boolean onTileVerticalKey(int position, int keyCode) {
         int count = adapter.getItemCount();
         int target;
+        // Horizontal: swallow the key at a row's ends so focus never wraps to the next row or
+        // escapes up into the top bar. Mid-row moves fall through to the default focus search.
+        if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+            return position % COLUMNS == 0;
+        }
+        if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+            return position % COLUMNS == COLUMNS - 1 || position == count - 1;
+        }
         if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
             if (position < COLUMNS) return false;          // dock row: let focus move to the top bar
             target = position - COLUMNS;
