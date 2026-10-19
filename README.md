@@ -51,8 +51,8 @@ You need a computer on the same Wi-Fi as the TV and a coding assistant with shel
 (Claude Code, or anything similar).
 
 **1. On the TV**
-Settings → Device Preferences → About → press OK on **Build** seven times → go back →
-Developer options → turn on **USB debugging**. Some TVs also show a Network or ADB debugging
+Settings â†’ Device Preferences â†’ About â†’ press OK on **Build** seven times â†’ go back â†’
+Developer options â†’ turn on **USB debugging**. Some TVs also show a Network or ADB debugging
 toggle; turn it on too. Keep the TV switched on.
 
 **2. On your computer**
@@ -108,6 +108,7 @@ Lists that people have tested and contributed live in [`examples/`](examples/):
 | Sony BRAVIA XBR-65X900E (2017) | Android TV 9 |
 | NVIDIA SHIELD TV Pro 2019 (P2897) | Android TV 11 |
 | Xiaomi MiTV-MOOR2 (venom) | Google TV 11 |
+| Insignia 55" F30 4K (NS-55F301NA25, AFTDCT31) | Fire OS 7 / Android 9 |
 
 Your TV not here? The prompt works regardless, it discovers the bloat itself. If you add your
 list afterwards, the next person with your model skips that step. See
