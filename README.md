@@ -138,10 +138,6 @@ tools/restore.sh examples/xiaomi-mi-tv-4a/debloat.txt        # undo it and resto
 | [`tools/b64push.py`](tools/b64push.py) | Uploads larger files such as APKs as base64 chunks and verifies the checksum. |
 | [`tools/disable.sh`](tools/disable.sh) / [`tools/restore.sh`](tools/restore.sh) | Apply or undo a debloat list. PowerShell versions sit next to them. |
 
-The launcher follows the TV's language (English, German, Catalan). If your TV doesn't offer yours
-system-wide, Android 13 and later can set it for the launcher alone, e.g. Catalan:
-`adb shell cmd locale set-app-locales com.gathin.tvhome --locales ca`.
-
 ### Windows
 
 The PowerShell scripts work without WSL or Git Bash. With Android Studio installed nothing else
@@ -166,6 +162,10 @@ video, no network, no background services.
 
 **Configure** it in [`launcher/app/src/main/res/values/config.xml`](launcher/app/src/main/res/values/config.xml):
 the dock order, apps to hide, your TV's Live TV package, and the number of columns.
+
+**Language** follows the TV: English, German, Spanish, Catalan and Simplified Chinese so far. If your
+TV doesn't offer yours system-wide, Android 13 and later can set it for the launcher alone, e.g. Catalan:
+`tools/tv.py 'cmd locale set-app-locales com.gathin.tvhome --locales ca'`.
 
 **Build and install** with one command:
 

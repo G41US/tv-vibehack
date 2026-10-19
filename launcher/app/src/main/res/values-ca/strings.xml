@@ -18,4 +18,5 @@
     <string name="offline">Sense connexió</string>
     <string name="not_available">No disponible en aquest televisor</string>
     <string name="cant_open">No s\'ha pogut obrir %1$s</string>
+    <string name="dream_name">Rellotge</string>
 </resources>
