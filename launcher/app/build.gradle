@@ -16,7 +16,12 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            // R8 strips and optimises the code (AndroidX included): smaller APK, faster start on a slow TV CPU.
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            // Sideloaded over ADB, never published: sign with the debug key so it installs over a debug build.
+            signingConfig signingConfigs.debug
         }
     }
 
