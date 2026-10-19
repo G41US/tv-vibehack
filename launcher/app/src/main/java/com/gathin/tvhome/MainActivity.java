@@ -1,6 +1,7 @@
 package com.gathin.tvhome;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
@@ -154,8 +155,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         sourcePanelAction = cfg.sourcePanelAction;
 
         root = findViewById(R.id.root);
-        root.setBackgroundColor(cfg.backgroundColor);
-        if (cfg.wallpaper != null) showWallpaper(cfg.wallpaper);
+        config = cfg;
+        updater = new Updater(this);
+        applyWallpaper(cfg);
         glass = findViewById(R.id.glass);
         ambient = findViewById(R.id.ambient);
         heroName = findViewById(R.id.heroName);
@@ -240,6 +242,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             return true;
         });
         btnSettings.setOnClickListener(v -> open(new Intent(Settings.ACTION_SETTINGS)));
+        // Hold OK on Settings: the launcher's own menu (wallpaper, updates).
+        btnSettings.setOnLongClickListener(v -> {
+            showHomeMenu();
+            return true;
+        });
 
         // Keep focus on the top bar at its ends and at the top: Android's focus finder would otherwise
         // jump to a tile far below when there is nothing in that direction.
@@ -280,17 +287,26 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
      * JPEG costs a 1080p bitmap at most (about 8 MB), which is the price of a wallpaper on a 1 GB TV.
      */
     private void showWallpaper(File file) {
+        showWallpaper(opts -> android.graphics.BitmapFactory.decodeFile(file.getPath(), opts));
+    }
+
+    private void showWallpaper(int resId) {
+        showWallpaper(opts -> android.graphics.BitmapFactory.decodeResource(getResources(), resId, opts));
+    }
+
+    private void showWallpaper(java.util.function.Function<android.graphics.BitmapFactory.Options, android.graphics.Bitmap> decoder) {
         try {
             android.util.DisplayMetrics dm = getResources().getDisplayMetrics();
             android.graphics.BitmapFactory.Options opts = new android.graphics.BitmapFactory.Options();
             opts.inJustDecodeBounds = true;
-            android.graphics.BitmapFactory.decodeFile(file.getPath(), opts);
+            decoder.apply(opts);
             int sample = 1;
             while (opts.outWidth / (sample * 2) >= dm.widthPixels && opts.outHeight / (sample * 2) >= dm.heightPixels) sample *= 2;
             opts.inJustDecodeBounds = false;
             opts.inSampleSize = sample;
+            opts.inScaled = false;
             opts.inPreferredConfig = android.graphics.Bitmap.Config.RGB_565;   // no alpha needed, half the memory
-            android.graphics.Bitmap bmp = android.graphics.BitmapFactory.decodeFile(file.getPath(), opts);
+            android.graphics.Bitmap bmp = decoder.apply(opts);
             if (bmp == null) return;
             android.widget.ImageView wall = new android.widget.ImageView(this);
             wall.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
@@ -314,6 +330,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         final int returnSlot = lastFocused;
         adapter.reload();
         grid.scheduleLayoutAnimation();
+        SelfHeal.ensureService(this);
+        updater.autoCheck();
         updateGreeting();
         updateWifiLabel();
         updateInputsButton();
@@ -336,6 +354,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (photoServer != null) photoServer.stop();
         ConnectivityManager cm = getSystemService(ConnectivityManager.class);
         TvInputManager tim = (TvInputManager) getSystemService(TV_INPUT_SERVICE);
         if (tim != null) tim.unregisterCallback(inputCallback);
@@ -348,6 +367,128 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     public void onBackPressed() {
         // Home screen: Back goes nowhere.
+    }
+
+    // ---- TV Home menu: wallpaper and updates (hold OK on Settings) --------------------------------
+
+    private static final String LOOK_PREFS = "look", KEY_WALLPAPER = "wallpaper";
+    private static final String WP_BLACK = "black", WP_PHOTO = "photo", WP_THEME = "theme";
+    private static final String[] BUILT_IN = {"aurora", "midnight", "ember", "ocean", "dusk"};
+    private static final int[] BUILT_IN_RES = {R.drawable.wp_aurora, R.drawable.wp_midnight,
+            R.drawable.wp_ember, R.drawable.wp_ocean, R.drawable.wp_dusk};
+    private static final int[] BUILT_IN_NAMES = {R.string.wp_aurora, R.string.wp_midnight,
+            R.string.wp_ember, R.string.wp_ocean, R.string.wp_dusk};
+
+    private Config config;
+    private Updater updater;
+    private PhotoServer photoServer;
+    private AlertDialog photoDialog;
+
+    private File customWallpaper() {
+        return new File(getFilesDir(), "custom_wallpaper.jpg");
+    }
+
+    /** The wallpaper picked on the TV wins; until one is picked, a pushed theme's look applies. */
+    private void applyWallpaper(Config cfg) {
+        String choice = getSharedPreferences(LOOK_PREFS, MODE_PRIVATE).getString(KEY_WALLPAPER, WP_THEME);
+        if (WP_THEME.equals(choice)) {
+            root.setBackgroundColor(cfg.backgroundColor);
+            if (cfg.wallpaper != null) showWallpaper(cfg.wallpaper);
+            return;
+        }
+        root.setBackgroundColor(Color.BLACK);
+        if (WP_PHOTO.equals(choice)) {
+            if (customWallpaper().isFile()) showWallpaper(customWallpaper());
+            return;
+        }
+        for (int i = 0; i < BUILT_IN.length; i++) {
+            if (BUILT_IN[i].equals(choice)) showWallpaper(BUILT_IN_RES[i]);
+        }
+    }
+
+    private void setWallpaper(String key) {
+        getSharedPreferences(LOOK_PREFS, MODE_PRIVATE).edit().putString(KEY_WALLPAPER, key).apply();
+        recreate();
+    }
+
+    private void showHomeMenu() {
+        String[] items = {getString(R.string.menu_wallpaper), getString(R.string.menu_updates)};
+        new AlertDialog.Builder(this, Updater.DIALOG_THEME)
+                .setTitle(R.string.menu_title)
+                .setItems(items, (d, which) -> {
+                    if (which == 0) showWallpaperMenu();
+                    else updater.check(true);
+                })
+                .show();
+    }
+
+    private void showWallpaperMenu() {
+        String current = getSharedPreferences(LOOK_PREFS, MODE_PRIVATE).getString(KEY_WALLPAPER, WP_THEME);
+        List<String> labels = new ArrayList<>();
+        List<Runnable> actions = new ArrayList<>();
+        labels.add(mark(current, WP_BLACK, getString(R.string.wp_black)));
+        actions.add(() -> setWallpaper(WP_BLACK));
+        for (int i = 0; i < BUILT_IN.length; i++) {
+            final String key = BUILT_IN[i];
+            labels.add(mark(current, key, getString(BUILT_IN_NAMES[i])));
+            actions.add(() -> setWallpaper(key));
+        }
+        if (customWallpaper().isFile()) {
+            labels.add(mark(current, WP_PHOTO, getString(R.string.wp_photo)));
+            actions.add(() -> setWallpaper(WP_PHOTO));
+        }
+        if (config != null && config.wallpaper != null) {
+            labels.add(mark(current, WP_THEME, getString(R.string.wp_theme)));
+            actions.add(() -> setWallpaper(WP_THEME));
+        }
+        labels.add(getString(R.string.wp_send));
+        actions.add(this::showPhotoReceiver);
+        new AlertDialog.Builder(this, Updater.DIALOG_THEME)
+                .setTitle(R.string.menu_wallpaper)
+                .setItems(labels.toArray(new String[0]), (d, which) -> actions.get(which).run())
+                .show();
+    }
+
+    private static String mark(String current, String key, String label) {
+        return (key.equals(current) ? "✓  " : "     ") + label;
+    }
+
+    /** Runs the phone upload page until a photo arrives or the dialog is closed. */
+    private void showPhotoReceiver() {
+        byte[] page;
+        try (java.io.InputStream in = getResources().openRawResource(R.raw.upload)) {
+            java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
+            page = out.toByteArray();
+        } catch (java.io.IOException e) {
+            return;
+        }
+        if (photoServer != null) photoServer.stop();
+        photoServer = new PhotoServer(page, customWallpaper(), file -> {
+            if (photoDialog != null) photoDialog.dismiss();
+            setWallpaper(WP_PHOTO);
+        });
+        List<String> ips = PhotoServer.lanAddresses();
+        if (ips.isEmpty() || !photoServer.start()) {
+            photoServer.stop();
+            Toast.makeText(this, R.string.wp_send_failed, Toast.LENGTH_LONG).show();
+            return;
+        }
+        StringBuilder urls = new StringBuilder();
+        for (String ip : ips) {
+            if (urls.length() > 0) urls.append('\n');
+            urls.append("http://").append(ip).append(':').append(photoServer.port).append('/').append(photoServer.pin);
+        }
+        final PhotoServer running = photoServer;
+        photoDialog = new AlertDialog.Builder(this, Updater.DIALOG_THEME)
+                .setTitle(R.string.wp_send_title)
+                .setMessage(getString(R.string.wp_send_message, urls.toString()))
+                .setNegativeButton(android.R.string.cancel, null)
+                .create();
+        photoDialog.setOnDismissListener(d -> running.stop());
+        photoDialog.show();
     }
 
     @Override

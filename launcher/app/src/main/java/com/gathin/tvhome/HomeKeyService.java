@@ -40,6 +40,12 @@ public class HomeKeyService extends AccessibilityService {
     @Override
     protected void onServiceConnected() {
         takeover = getResources().getStringArray(R.array.takeover_packages);
+        // Just updated (SelfHeal.Receiver): come back to this home screen instead of the stock one.
+        android.content.SharedPreferences p = getSharedPreferences(SelfHeal.PREFS, MODE_PRIVATE);
+        if (p.getBoolean(SelfHeal.KEY_GO_HOME, false)) {
+            p.edit().putBoolean(SelfHeal.KEY_GO_HOME, false).apply();
+            goHome();
+        }
     }
 
     @Override

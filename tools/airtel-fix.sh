@@ -12,6 +12,8 @@
 #   - the aurora theme and the Clock screensaver
 #   - faster animations (0.5x)
 #   - ad-blocking Private DNS (AdGuard). Undo: adb shell settings put global private_dns_mode opportunistic
+#   - lets TV Home switch its own Home-button service back on after updates (WRITE_SECURE_SETTINGS)
+#     and install its own updates from the TV (REQUEST_INSTALL_PACKAGES)
 #   - SMARTTUBE=1 also downloads and installs SmartTube from its official GitHub release
 set -u
 
@@ -56,6 +58,17 @@ case "$CUR" in
   *) sh_tv settings put secure enabled_accessibility_services "$CUR:$SVC"; echo "turned on (kept: $CUR)" ;;
 esac
 sh_tv settings put secure accessibility_enabled 1
+
+say "Self-repair and updates from the TV"
+G=$(sh_tv pm grant $PKG android.permission.WRITE_SECURE_SETTINGS)
+if [ -n "$G" ]; then G2=$(sh_tv cmd package grant $PKG android.permission.WRITE_SECURE_SETTINGS); else G2=""; fi
+if sh_tv dumpsys package $PKG | grep -q "WRITE_SECURE_SETTINGS: granted=true"; then
+  echo "self-repair on: after updates, TV Home turns its Home-button service back on by itself"
+else
+  echo "self-repair blocked by the box (${G2:-$G}); after updates, run this script again"
+fi
+sh_tv appops set $PKG REQUEST_INSTALL_PACKAGES allow >/dev/null
+echo "updates from the TV allowed"
 
 say "Theme"
 if curl -fsSL -o "$TMP/config.json" "$RAW/themes/aurora/config.json" &&
