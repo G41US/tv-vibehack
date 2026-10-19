@@ -86,6 +86,8 @@ A home screen that is yours again:
 - **A greeting, a large thin clock and the date**, set in
   [Outfit](https://fonts.google.com/specimen/Outfit).
 - **A matching Clock screensaver**, optional, that drifts around the screen so nothing burns in.
+- **The remote's Input button keeps working.** On Google TV it was handled by the stock launcher;
+  a small accessibility service maps it (`KEYCODE_TV`) to the system input switcher, in any app.
 
 And a TV that stops working against you: no sponsored rows, no "Discover" nags, no analytics
 phoning home, no apps you never asked for.
