@@ -11,7 +11,8 @@
 #   - HomeKeyService (Home button + replaces Airtel's screen at boot), kept alongside other services
 #   - the aurora theme and the Clock screensaver
 #   - faster animations (0.5x)
-#   - ad-blocking Private DNS (AdGuard). Undo: adb shell settings put global private_dns_mode opportunistic
+#   - Private DNS back to Automatic. ADBLOCK=1 bash airtel-fix.sh turns on AdGuard's ad-blocking DNS
+#     instead (off by default: on some networks it cuts the box off from the internet)
 #   - lets TV Home switch its own Home-button service back on after updates (WRITE_SECURE_SETTINGS)
 #     and install its own updates from the TV (REQUEST_INSTALL_PACKAGES)
 #   - SMARTTUBE=1 also downloads and installs SmartTube from its official GitHub release
@@ -93,10 +94,15 @@ for k in window_animation_scale transition_animation_scale animator_duration_sca
 done
 echo "0.5x"
 
-say "Ad-blocking DNS"
-sh_tv settings put global private_dns_mode hostname
-sh_tv settings put global private_dns_specifier dns.adguard-dns.com
-echo "AdGuard DNS on"
+say "Private DNS"
+if [ "${ADBLOCK:-0}" = 1 ]; then
+  sh_tv settings put global private_dns_specifier dns.adguard-dns.com
+  sh_tv settings put global private_dns_mode hostname
+  echo "AdGuard ad-blocking DNS on (if the internet stops working: bash airtel-fix.sh without ADBLOCK=1)"
+else
+  sh_tv settings put global private_dns_mode opportunistic
+  echo "automatic"
+fi
 
 say "Restarting the launcher"
 sh_tv am force-stop $PKG
