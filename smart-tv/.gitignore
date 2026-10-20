@@ -1,0 +1,10 @@
+# Platform build output
+**/build/
+**/dist/
+**/*.wgt
+**/*.ipk
+**/*.zip
+**/*.cer
+**/*.p12
+**/*.pem
+**/author-signature.xml
