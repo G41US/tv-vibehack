@@ -58,6 +58,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         final Drawable banner;
         final Drawable icon;
         int ambient;
+        long updated;
 
         Entry(String label, ComponentName component, Drawable banner, Drawable icon) {
             this.label = label;
@@ -138,7 +139,12 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
             if (banner == null) banner = ri.activityInfo.applicationInfo.loadBanner(pm);
             Drawable icon = ri.loadIcon(pm);
             String label = String.valueOf(ri.loadLabel(pm));
-            fresh.add(new Entry(label, new ComponentName(pkg, ri.activityInfo.name), banner, icon));
+            Entry entry = new Entry(label, new ComponentName(pkg, ri.activityInfo.name), banner, icon);
+            try {
+                entry.updated = pm.getPackageInfo(pkg, 0).lastUpdateTime;
+            } catch (PackageManager.NameNotFoundException ignored) {
+            }
+            fresh.add(entry);
         }
         swapYouTubeForSmartTube(fresh);
         Collections.sort(fresh, (a, b) -> {
@@ -192,7 +198,15 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         h.name.setAlpha(focused ? 1f : 0f);
         h.card.setScaleX(focused ? FOCUS_SCALE : 1f);
         h.card.setScaleY(focused ? FOCUS_SCALE : 1f);
-        if (e.banner != null) {
+        boolean withName = e.banner == null && position >= dockSize;   // the grid names banner-less apps
+        Bitmap art = artFor(e, withName);
+        if (art != null) {
+            h.banner.setImageDrawable(new android.graphics.drawable.BitmapDrawable(ctx.getResources(), art));
+            h.banner.setVisibility(View.VISIBLE);
+            h.icon.setVisibility(View.GONE);
+            h.label.setText(e.label);
+            h.label.setVisibility(withName ? View.VISIBLE : View.GONE);
+        } else if (e.banner != null) {
             h.banner.setImageDrawable(e.banner);
             h.banner.setVisibility(View.VISIBLE);
             h.icon.setVisibility(View.GONE);
@@ -349,6 +363,25 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
 
     String labelAt(int position) {
         return position >= 0 && position < items.size() ? items.get(position).label : "";
+    }
+
+    /** Tile art per app version (TileArt); a missing value means the banner is used as it is. */
+    private static final java.util.Map<String, Bitmap> ART = new java.util.HashMap<>();
+    private static final Bitmap NO_ART = Bitmap.createBitmap(1, 1, Bitmap.Config.ALPHA_8);
+
+    private Bitmap artFor(Entry e, boolean withName) {
+        String key = e.component.flattenToString() + "|" + e.updated + "|" + withName;
+        Bitmap b = ART.get(key);
+        if (b == null) {
+            try {
+                b = TileArt.make(e.banner, e.icon, ambientColorAt(items.indexOf(e)), withName);
+            } catch (RuntimeException | OutOfMemoryError err) {
+                b = null;   // never let one odd icon break Home
+            }
+            if (b == null) b = NO_ART;
+            ART.put(key, b);
+        }
+        return b == NO_ART ? null : b;
     }
 
     /** A vivid colour sampled from the app's banner (or icon), cached per entry. */
