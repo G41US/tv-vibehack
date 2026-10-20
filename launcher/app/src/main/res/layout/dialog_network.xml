@@ -157,6 +157,12 @@
         android:gravity="end">
 
         <TextView
+            android:id="@+id/btnDataLimit"
+            style="@style/TopButton"
+            android:paddingStart="20dp"
+            android:text="@string/limit_button" />
+
+        <TextView
             android:id="@+id/btnWifiDetails"
             style="@style/TopButton"
             android:paddingStart="20dp" />

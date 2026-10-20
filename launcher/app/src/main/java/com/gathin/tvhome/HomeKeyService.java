@@ -29,6 +29,7 @@ public class HomeKeyService extends AccessibilityService {
 
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
+        lastInput = SystemClock.elapsedRealtime();   // someone's there (Still watching?)
         int code = event.getKeyCode();
         if (code != KeyEvent.KEYCODE_ALL_APPS && code != KeyEvent.KEYCODE_HOME) return false;
         if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
@@ -44,6 +45,9 @@ public class HomeKeyService extends AccessibilityService {
     protected void onServiceConnected() {
         takeover = getResources().getStringArray(R.array.takeover_packages);
         live = this;
+        lastInput = SystemClock.elapsedRealtime();
+        idleHandler.removeCallbacks(idleCheck);
+        idleHandler.postDelayed(idleCheck, IDLE_CHECK_MS);
         // Just updated (SelfHeal.Receiver): come back to this home screen instead of the stock one.
         if (takeGoHomeFlag(this)) goHome();
     }
@@ -100,8 +104,36 @@ public class HomeKeyService extends AccessibilityService {
         }
     }
 
+    // ---- Still watching? ---------------------------------------------------------------------------
+
+    private static final long IDLE_CHECK_MS = 2 * 60_000;
+    private final android.os.Handler idleHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private volatile long lastInput;
+    private final Runnable idleCheck = new Runnable() {
+        @Override
+        public void run() {
+            checkIdle();
+            idleHandler.postDelayed(this, IDLE_CHECK_MS);
+        }
+    };
+
+    private void checkIdle() {
+        int hours = StillWatching.hours(this);
+        long now = SystemClock.elapsedRealtime();
+        android.os.PowerManager pm = (android.os.PowerManager) getSystemService(POWER_SERVICE);
+        if (hours <= 0 || pm == null || !pm.isInteractive()) {
+            lastInput = now;   // screen off or feature off: start counting again when it's back
+            return;
+        }
+        if (now - lastInput >= hours * 3_600_000L && !StillWatching.Prompt.showing) {
+            lastInput = now;
+            StillWatching.ask(this, 60);
+        }
+    }
+
     @Override
     public boolean onUnbind(Intent intent) {
+        idleHandler.removeCallbacks(idleCheck);
         if (live == this) live = null;
         return super.onUnbind(intent);
     }
