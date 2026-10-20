@@ -1,0 +1,12 @@
+{
+  "id": "com.g41us.tvvibehack",
+  "version": "0.1.0",
+  "vendor": "G41US",
+  "type": "web",
+  "main": "index.html",
+  "title": "TV VibeHack",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png",
+  "requiredPermissions": [],
+  "resolution": "1920x1080"
+}
