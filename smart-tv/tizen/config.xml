@@ -5,8 +5,7 @@
         version="0.1.0"
         viewmodes="maximized">
   <name>TV VibeHack</name>
-  <content src="../shared/index.html"/>
-  <icon src="icon.png"/>
+  <content src="index.html"/>
   <tizen:application id="G41US.TVVibeHack" package="G41US" required_version="5.5"/>
   <tizen:profile name="tv-samsung"/>
   <tizen:setting screen-orientation="landscape"
