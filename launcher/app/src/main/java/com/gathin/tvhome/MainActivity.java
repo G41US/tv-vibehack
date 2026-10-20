@@ -162,6 +162,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         config = cfg;
         updater = new Updater(this);
         setupPanel = new SetupPanel(this, updater);
+        tvSettings = new TvSettings(this);
         applyWallpaper(cfg);
         glass = findViewById(R.id.glass);
         ambient = findViewById(R.id.ambient);
@@ -188,6 +189,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         weather = new Weather(this);
         showWeather(weather.cached());
 
+        applyClockStyle();
         grid = findViewById(R.id.grid);
         grid.setLayoutManager(new GridLayoutManager(this, COLUMNS));
         grid.setHasFixedSize(true);
@@ -259,7 +261,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             showNetworkPanel();
             return true;
         });
-        btnSettings.setOnClickListener(v -> showTvSettings());
+        btnSettings.setOnClickListener(v -> tvSettings.show());
         // Hold OK on Settings: the launcher's own menu (wallpaper, updates).
         btnSettings.setOnLongClickListener(v -> {
             showHomeMenu();
@@ -543,55 +545,41 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         GlassMenu.grid(this, getString(R.string.menu_kicker), getString(R.string.menu_title), tiles, 4);
     }
 
-    // ---- TV settings (press OK on Settings) --------------------------------------------------------
+    // ---- TV settings (press OK on Settings): see TvSettings ---------------------------------------
 
-    /**
-     * The box's settings in TV Home's own glass grid. Each tile opens that exact page of Android's
-     * settings (the pages themselves belong to Android); All settings opens the full list.
-     */
-    private void showTvSettings() {
-        GlassMenu.Tile[] tiles = {
-                new GlassMenu.Tile(R.drawable.ic_wifi, getString(R.string.tv_network), netText,
-                        () -> openSettings(Settings.ACTION_WIFI_SETTINGS, "android.settings.NETWORK_AND_INTERNET_SETTINGS")),
-                new GlassMenu.Tile(R.drawable.ic_s_display, getString(R.string.tv_picture), getString(R.string.tv_picture_value),
-                        () -> openSettings(Settings.ACTION_DISPLAY_SETTINGS, Settings.ACTION_SOUND_SETTINGS)),
-                new GlassMenu.Tile(R.drawable.ic_s_remote, getString(R.string.tv_remotes), getString(R.string.tv_remotes_value),
-                        () -> openSettings(Settings.ACTION_BLUETOOTH_SETTINGS)),
-                new GlassMenu.Tile(R.drawable.ic_m_apps, getString(R.string.tv_apps), getString(R.string.tv_apps_value),
-                        () -> openSettings(Settings.ACTION_APPLICATION_SETTINGS, Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS)),
-                new GlassMenu.Tile(R.drawable.ic_m_profile, getString(R.string.tv_accounts), getString(R.string.tv_accounts_value),
-                        () -> openSettings(Settings.ACTION_SYNC_SETTINGS, Settings.ACTION_ADD_ACCOUNT)),
-                new GlassMenu.Tile(R.drawable.ic_s_clock, getString(R.string.tv_date),
-                        java.util.TimeZone.getDefault().getID().replace('_', ' '),
-                        () -> openSettings(Settings.ACTION_DATE_SETTINGS)),
-                new GlassMenu.Tile(R.drawable.ic_s_storage, getString(R.string.tv_storage), storageFree(),
-                        () -> openSettings(Settings.ACTION_INTERNAL_STORAGE_SETTINGS, Settings.ACTION_DEVICE_INFO_SETTINGS)),
-                new GlassMenu.Tile(R.drawable.ic_s_tune, getString(R.string.tv_all), getString(R.string.tv_all_value),
-                        () -> openSettings(Settings.ACTION_SETTINGS)),
-        };
-        GlassMenu.grid(this, getString(R.string.menu_kicker), getString(R.string.tv_title), tiles, 4);
+    private TvSettings tvSettings;
+
+    NetHealth.State netState() {
+        return netHealth.state();
     }
 
-    /** The first of these settings pages the box has, or the main settings. */
-    private void openSettings(String... actions) {
-        for (String a : actions) {
-            Intent i = new Intent(a);
-            if (getPackageManager().resolveActivity(i, 0) != null) {
-                open(i);
-                return;
-            }
+    /** TV Home's clock as 12- or 24-hour, or as the box is set (Date & time page). */
+    void applyClockStyle() {
+        android.widget.TextClock clock = findViewById(R.id.clock), ampm = findViewById(R.id.ampm);
+        if (clock == null || ampm == null) return;
+        String style = getSharedPreferences(LOOK_PREFS, MODE_PRIVATE).getString(TvSettings.KEY_CLOCK, "");
+        if ("24".equals(style)) {
+            clock.setFormat12Hour("HH:mm");
+            clock.setFormat24Hour("HH:mm");
+            ampm.setFormat12Hour("");
+            ampm.setFormat24Hour("");
+        } else if ("12".equals(style)) {
+            clock.setFormat12Hour("h:mm");
+            clock.setFormat24Hour("h:mm");
+            ampm.setFormat12Hour("a");
+            ampm.setFormat24Hour("a");
+        } else {
+            clock.setFormat12Hour("h:mm");
+            clock.setFormat24Hour("HH:mm");
+            ampm.setFormat12Hour("a");
+            ampm.setFormat24Hour("");
         }
-        open(new Intent(Settings.ACTION_SETTINGS));
     }
 
-    private String storageFree() {
-        try {
-            android.os.StatFs fs = new android.os.StatFs(android.os.Environment.getDataDirectory().getPath());
-            return getString(R.string.tv_storage_value,
-                    android.text.format.Formatter.formatShortFileSize(this, fs.getAvailableBytes()));
-        } catch (Exception e) {
-            return "";
-        }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {
+        super.onRequestPermissionsResult(requestCode, permissions, results);
+        if (requestCode == TvSettings.REQUEST_BT) tvSettings.remotes(0);
     }
 
     // ---- profiles ----------------------------------------------------------------------------------
@@ -774,7 +762,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     private static final String WIFI_PREFS = "guest_wifi";
 
-    private void showNetworkPanel() {
+    void showNetworkPanel() {
         android.content.SharedPreferences wifi = getSharedPreferences(WIFI_PREFS, MODE_PRIVATE);
         String ssid = wifi.getString("ssid", "");
         String password = wifi.getString("password", "");
@@ -1141,7 +1129,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     /** What the network pill says ("Ethernet", the Wi-Fi name, "Offline"), for the TV settings grid. */
-    private String netText = "";
+    String netText = "";
 
     private final NetHealth netHealth = new NetHealth();
 
@@ -1205,7 +1193,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
     }
 
-    private void open(Intent i) {
+    void open(Intent i) {
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try {
             startActivity(i);
