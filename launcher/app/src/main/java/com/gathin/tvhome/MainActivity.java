@@ -78,6 +78,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private boolean heroShown;
     private TextView greeting;
     private View btnInputs;
+    private View btnSearch;
     private TextView btnWifi;
     private TextView shamsiDate;
     private boolean shamsi;
@@ -137,6 +138,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         public void run() {
             updateGreeting();
             updateWifiLabel();
+            checkNet();
             weather.refresh(false, MainActivity.this::showWeather);
             DataUsage.sample(MainActivity.this);
             handler.postDelayed(this, MINUTE_MS);
@@ -242,6 +244,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
         btnInputs = findViewById(R.id.btnInputs);
         View btnSettings = findViewById(R.id.btnSettings);
+        btnSearch = findViewById(R.id.btnSearch);
+        if (searchIntent() != null) {
+            btnSearch.setVisibility(View.VISIBLE);
+            btnSearch.setOnClickListener(v -> {
+                Intent i = searchIntent();
+                if (i != null) open(i);
+            });
+        }
         btnInputs.setOnClickListener(v -> showInputs());
         btnWifi.setOnClickListener(v -> openNetworkPill());
         // Hold OK: the Network panel (guest Wi-Fi QR code, data used); Wi-Fi settings are one button away there.
@@ -262,13 +272,15 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
             if (keyCode == KeyEvent.KEYCODE_DPAD_UP) return true;
             if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-                // The left end is Inputs, or Wi-Fi on a box without inputs.
+                // The left end is Search, else Inputs, else Wi-Fi on a box without inputs.
+                if (btnSearch.getVisibility() == View.VISIBLE) return v.getId() == R.id.btnSearch;
                 return v.getId() == R.id.btnInputs
                         || (v.getId() == R.id.btnWifi && btnInputs.getVisibility() != View.VISIBLE);
             }
             return keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v.getId() == R.id.btnSettings;
         };
         btnInputs.setOnKeyListener(pillKeys);
+        btnSearch.setOnKeyListener(pillKeys);
         btnWifi.setOnKeyListener(pillKeys);
         btnSettings.setOnKeyListener(pillKeys);
 
@@ -343,11 +355,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             runRestore();   // first start after a reinstall, once the photos permission is granted
         }
         setupPanel.onResume();
+        if (Profiles.shouldAsk(this)) showWhoIsWatching();
+        DataLimit.maybeWarn(this);
         updater.autoCheck();
         weather.refresh(false, this::showWeather);
         DataUsage.sample(this);
         updateGreeting();
         updateWifiLabel();
+        checkNet();
         updateInputsButton();
         handler.postDelayed(minuteTick, MINUTE_MS);
 
@@ -463,12 +478,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private AlertDialog phoneDialog;
 
     private File customWallpaper() {
-        return new File(getFilesDir(), "custom_wallpaper.jpg");
+        return new File(getFilesDir(), Profiles.key(this, "custom_wallpaper") + ".jpg");
     }
 
     /** The wallpaper picked on the TV wins; until one is picked, a pushed theme's look applies. */
     private void applyWallpaper(Config cfg) {
-        String choice = getSharedPreferences(LOOK_PREFS, MODE_PRIVATE).getString(KEY_WALLPAPER, WP_THEME);
+        String choice = getSharedPreferences(LOOK_PREFS, MODE_PRIVATE).getString(Profiles.key(this, KEY_WALLPAPER), WP_THEME);
         if (WP_THEME.equals(choice)) {
             root.setBackgroundColor(cfg.backgroundColor);
             if (cfg.wallpaper != null) showWallpaper(cfg.wallpaper);
@@ -485,27 +500,125 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private void setWallpaper(String key) {
-        getSharedPreferences(LOOK_PREFS, MODE_PRIVATE).edit().putString(KEY_WALLPAPER, key).apply();
+        getSharedPreferences(LOOK_PREFS, MODE_PRIVATE).edit().putString(Profiles.key(this, KEY_WALLPAPER), key).apply();
         recreate();
     }
 
     private void showHomeMenu() {
         String[] items = {getString(R.string.menu_wallpaper), getString(R.string.menu_weather),
+                getString(R.string.menu_profiles), getString(R.string.menu_still),
                 getString(R.string.menu_apps), getString(R.string.menu_updates), getString(R.string.menu_setup)};
         new AlertDialog.Builder(this, Updater.DIALOG_THEME)
                 .setTitle(R.string.menu_title)
                 .setItems(items, (d, which) -> {
                     if (which == 0) showWallpaperMenu();
                     else if (which == 1) showWeatherMenu();
-                    else if (which == 2) AppPack.show(this, updater);
-                    else if (which == 3) updater.check(true);
+                    else if (which == 2) showProfilesMenu();
+                    else if (which == 3) StillWatching.showSettings(this);
+                    else if (which == 4) AppPack.show(this, updater);
+                    else if (which == 5) updater.check(true);
                     else setupPanel.show();
                 })
                 .show();
     }
 
+    // ---- profiles ----------------------------------------------------------------------------------
+
+    private void switchProfile(String id) {
+        Profiles.asked(this);
+        if (id.equals(Profiles.active(this))) return;
+        Profiles.setActive(this, id);
+        recreate();
+    }
+
+    /** "Who's watching?": after the box starts, or after Still watching? turned it off. */
+    private void showWhoIsWatching() {
+        List<String[]> people = Profiles.list(this);
+        String current = Profiles.active(this);
+        String[] names = new String[people.size()];
+        for (int i = 0; i < names.length; i++) names[i] = mark(current, people.get(i)[0], people.get(i)[1]);
+        new AlertDialog.Builder(this, Updater.DIALOG_THEME)
+                .setTitle(R.string.profile_who)
+                .setItems(names, (d, which) -> switchProfile(people.get(which)[0]))
+                .setOnCancelListener(d -> Profiles.asked(this))
+                .show();
+    }
+
+    private void showProfilesMenu() {
+        List<String[]> people = Profiles.list(this);
+        String current = Profiles.active(this);
+        List<String> labels = new ArrayList<>();
+        List<Runnable> actions = new ArrayList<>();
+        for (String[] p : people) {
+            labels.add(mark(current, p[0], p[1]));
+            actions.add(() -> switchProfile(p[0]));
+        }
+        labels.add(getString(R.string.profile_add));
+        actions.add(() -> askName(getString(R.string.profile_add_title), "", name -> {
+            String id = Profiles.add(this, name);
+            switchProfile(id);
+        }));
+        labels.add(getString(R.string.profile_rename, Profiles.activeName(this)));
+        actions.add(() -> askName(getString(R.string.profile_rename_title), Profiles.activeName(this), name -> {
+            Profiles.rename(this, Profiles.active(this), name);
+            updateGreeting();
+        }));
+        if (people.size() > 1) {
+            labels.add(getString(R.string.profile_remove));
+            actions.add(this::showRemoveProfile);
+            boolean ask = Profiles.askEnabled(this);
+            labels.add(getString(ask ? R.string.profile_ask_on : R.string.profile_ask_off));
+            actions.add(() -> Profiles.setAsk(this, !ask));
+        }
+        new AlertDialog.Builder(this, Updater.DIALOG_THEME)
+                .setTitle(R.string.menu_profiles)
+                .setItems(labels.toArray(new String[0]), (d, which) -> actions.get(which).run())
+                .show();
+    }
+
+    private void showRemoveProfile() {
+        List<String[]> others = new ArrayList<>(Profiles.list(this));
+        others.remove(0);   // the main profile stays
+        String[] names = new String[others.size()];
+        for (int i = 0; i < names.length; i++) names[i] = others.get(i)[1];
+        new AlertDialog.Builder(this, Updater.DIALOG_THEME)
+                .setTitle(R.string.profile_remove)
+                .setItems(names, (d, which) -> {
+                    String id = others.get(which)[0];
+                    boolean wasActive = id.equals(Profiles.active(this));
+                    Profiles.remove(this, id);
+                    if (wasActive) recreate();
+                })
+                .show();
+    }
+
+    private interface NameListener {
+        void onName(String name);
+    }
+
+    private void askName(String title, String initial, NameListener l) {
+        android.widget.EditText input = new android.widget.EditText(this);
+        input.setSingleLine(true);
+        input.setText(initial);
+        input.setSelection(initial.length());
+        input.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+        FrameLayout box = new FrameLayout(this);
+        int pad = (int) (24 * density);
+        box.setPadding(pad, pad / 2, pad, 0);
+        box.addView(input);
+        new AlertDialog.Builder(this, Updater.DIALOG_THEME)
+                .setTitle(title)
+                .setView(box)
+                .setPositiveButton(android.R.string.ok, (d, w) -> {
+                    String name = input.getText().toString().trim();
+                    if (!name.isEmpty()) l.onName(name.length() > 24 ? name.substring(0, 24) : name);
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
     private void showWallpaperMenu() {
-        String current = getSharedPreferences(LOOK_PREFS, MODE_PRIVATE).getString(KEY_WALLPAPER, WP_THEME);
+        String current = getSharedPreferences(LOOK_PREFS, MODE_PRIVATE).getString(Profiles.key(this, KEY_WALLPAPER), WP_THEME);
         List<String> labels = new ArrayList<>();
         List<Runnable> actions = new ArrayList<>();
         labels.add(mark(current, WP_BLACK, getString(R.string.wp_black)));
@@ -638,7 +751,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 : new java.text.SimpleDateFormat("MMMM", Locale.getDefault()).format(new java.util.Date());
         ((TextView) dlg.findViewById(R.id.dataToday)).setText(DataUsage.format(t.today));
         ((TextView) dlg.findViewById(R.id.dataMonth)).setText(DataUsage.format(t.month));
-        ((TextView) dlg.findViewById(R.id.dataMonthLabel)).setText(monthLabel);
+        String limit = DataLimit.panelLine(this, t.month);
+        ((TextView) dlg.findViewById(R.id.dataMonthLabel)).setText(limit == null ? monthLabel : monthLabel + "  ·  " + limit);
+        dlg.findViewById(R.id.btnDataLimit).setOnClickListener(v -> DataLimit.showSettings(this, () -> {
+            dlg.dismiss();
+            showNetworkPanel();
+        }));
         ((TextView) dlg.findViewById(R.id.dataNote)).setText(t.mobile ? R.string.net_data_mobile : R.string.net_data_all);
 
         TextView details = dlg.findViewById(R.id.btnWifiDetails);
@@ -893,7 +1011,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         else if (hour < 17) res = R.string.good_afternoon;
         else if (hour < 22) res = R.string.good_evening;
         else res = R.string.good_night;
-        greeting.setText(res);
+        // With several profiles, greet the person: "Good evening, Ada".
+        greeting.setText(Profiles.multiple(this) ? getString(res) + ", " + Profiles.activeName(this) : getString(res));
         if (shamsi) shamsiDate.setText(Shamsi.today());
     }
 
@@ -933,16 +1052,42 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             }
         } catch (Exception ignored) {
         }
+        android.text.SpannableStringBuilder label = new android.text.SpannableStringBuilder(text);
         if (vpn) {
             // Network name, then a green lock-and-VPN capsule drawn in place of the word "VPN".
             String badge = getString(R.string.vpn);
-            SpannableString label = new SpannableString(text + " " + badge);
+            int at = label.length() + 1;
+            label.append(' ').append(badge);
             label.setSpan(new VpnBadge(getDrawable(R.drawable.ic_lock), density),
-                    text.length() + 1, label.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            btnWifi.setText(label);
-        } else {
-            btnWifi.setText(text);
+                    at, label.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
+        // Connection health dot (NetHealth): green fine, amber slow or patchy, red not getting through.
+        int dot = netHealth != null ? NetHealth.color(netHealth.state()) : 0;
+        if (dot != 0 && !text.equals(getString(R.string.offline))) {
+            int at = label.length() + 1;
+            label.append(" •");
+            label.setSpan(new NetHealth.Dot(dot, density), at, label.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        btnWifi.setText(label);
+    }
+
+    private final NetHealth netHealth = new NetHealth();
+
+    private void checkNet() {
+        netHealth.check(s -> {
+            if (!isFinishing() && !isDestroyed()) updateWifiLabel();
+        });
+    }
+
+    /** The first of these the box answers: its assistant, Google search, voice command, web search. */
+    private Intent searchIntent() {
+        String[] actions = {"android.intent.action.ASSIST", "android.search.action.GLOBAL_SEARCH",
+                "android.intent.action.VOICE_COMMAND", "android.speech.action.WEB_SEARCH"};
+        for (String a : actions) {
+            Intent i = new Intent(a);
+            if (i.resolveActivity(getPackageManager()) != null) return i;
+        }
+        return null;
     }
 
     /** The network pill opens the VPN app when one is configured and installed, otherwise Wi-Fi settings. */

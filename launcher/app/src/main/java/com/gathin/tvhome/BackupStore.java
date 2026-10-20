@@ -55,12 +55,15 @@ final class BackupStore {
             KEY_WALL_STAMP = "wall_stamp", KEY_CHECKED = "restore_checked";
     private static final String CHUNK_KEYWORD = "tvhome";
 
-    /** Settings files and the keys kept from each. */
+    /** Settings files and the keys kept from each; "*" keeps every key (all Strings or booleans). */
     private static final String[][] KEPT = {
-            {AppAdapter.PREFS, AppAdapter.KEY_ORDER},
-            {"look", "wallpaper"},
+            {AppAdapter.PREFS, "*"},          // dock order, per profile
+            {"look", "*"},                    // wallpaper choice, per profile
             {"weather", "place"},
             {"guest_wifi", "ssid", "password", "security", "hidden"},
+            {Profiles.PREFS, Profiles.KEY_LIST, Profiles.KEY_ACTIVE, Profiles.KEY_ASK},
+            {"still", "hours", "action"},
+            {DataLimit.PREFS, DataLimit.KEY_GB},
     };
 
     private BackupStore() {
@@ -126,9 +129,15 @@ final class BackupStore {
         for (String[] kept : KEPT) {
             Map<String, ?> all = ctx.getSharedPreferences(kept[0], Context.MODE_PRIVATE).getAll();
             JSONObject o = new JSONObject();
-            for (int i = 1; i < kept.length; i++) {
-                Object v = all.get(kept[i]);
-                if (v instanceof String || v instanceof Boolean || v instanceof Number) o.put(kept[i], v);
+            if (kept.length == 2 && "*".equals(kept[1])) {
+                for (Map.Entry<String, ?> e : all.entrySet()) {
+                    if (e.getValue() instanceof String || e.getValue() instanceof Boolean) o.put(e.getKey(), e.getValue());
+                }
+            } else {
+                for (int i = 1; i < kept.length; i++) {
+                    Object v = all.get(kept[i]);
+                    if (v instanceof String || v instanceof Boolean || v instanceof Number) o.put(kept[i], v);
+                }
             }
             root.put(kept[0], o);
         }

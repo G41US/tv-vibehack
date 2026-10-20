@@ -111,7 +111,8 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         this.ctx = ctx;
         this.listener = listener;
         this.dockSize = dockSize;
-        String saved = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_ORDER, null);
+        String saved = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .getString(Profiles.key(ctx, KEY_ORDER), null);
         if (saved != null) {
             for (String p : saved.split(",")) if (!p.isEmpty()) favourites.add(p);
         } else {
@@ -226,7 +227,8 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
             if (yt >= 0) favourites.set(yt, st);
             else favourites.add(0, st);
         }
-        p.edit().putString(KEY_ORDER, String.join(",", favourites)).putBoolean(AppPack.KEY_SWAP_YOUTUBE, false).apply();
+        p.edit().putString(Profiles.key(ctx, KEY_ORDER), String.join(",", favourites))
+                .putBoolean(AppPack.KEY_SWAP_YOUTUBE, false).apply();
     }
 
     // ---- dock editing (hold OK on a tile) ---------------------------------------------------------
@@ -293,7 +295,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         favourites.clear();
         favourites.addAll(dock);
         ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
-                .putString(KEY_ORDER, String.join(",", dock)).apply();
+                .putString(Profiles.key(ctx, KEY_ORDER), String.join(",", dock)).apply();
         listener.onDockChanged(focus.component.flattenToShortString());
     }
 

@@ -70,7 +70,10 @@ public final class SelfHeal {
                 forceRebind(app);
             }
             ensureService(app);
-            if (!updated) return;
+            if (!updated) {
+                Profiles.markPending(app);   // box started: ask who's watching
+                return;
+            }
             PendingResult pending = goAsync();
             android.os.Handler h = new android.os.Handler(android.os.Looper.getMainLooper());
             for (int i = 0; i < RETRY_MS.length; i++) {
