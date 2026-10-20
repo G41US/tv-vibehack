@@ -172,4 +172,6 @@
     <string name="updates_value">Build %1$s</string>
     <string name="setup_value_done">All set</string>
     <string name="setup_value_todo">A step is left</string>
+    <string name="tile_style_dark">Dark tile style</string>
+    <string name="tile_style_original">Original tile style</string>
 </resources>

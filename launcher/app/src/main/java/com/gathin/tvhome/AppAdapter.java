@@ -165,6 +165,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         }
         items.clear();
         items.addAll(fresh);
+        darkCache = null;
         notifyDataSetChanged();
     }
 
@@ -199,7 +200,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         h.card.setScaleX(focused ? FOCUS_SCALE : 1f);
         h.card.setScaleY(focused ? FOCUS_SCALE : 1f);
         boolean withName = e.banner == null && position >= dockSize;   // the grid names banner-less apps
-        Bitmap art = artFor(e, withName);
+        Bitmap art = isDark(e) ? artFor(e, withName) : null;
         if (art != null) {
             h.banner.setImageDrawable(new android.graphics.drawable.BitmapDrawable(ctx.getResources(), art));
             h.banner.setVisibility(View.VISIBLE);
@@ -282,6 +283,9 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
             labels.add(ctx.getString(R.string.dock_replace));
             actions.add(() -> chooseReplacement(e, dock));
         }
+        boolean dark = isDark(e);
+        labels.add(ctx.getString(dark ? R.string.tile_style_original : R.string.tile_style_dark));
+        actions.add(() -> setDark(e, !dark));
         labels.add(ctx.getString(R.string.app_info));
         actions.add(() -> openAppInfo(e));
         GlassMenu.list((android.app.Activity) ctx, ctx.getString(R.string.app_kicker), e.label,
@@ -363,6 +367,44 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
 
     String labelAt(int position) {
         return position >= 0 && position < items.size() ? items.get(position).label : "";
+    }
+
+    // ---- dark tile style (hold OK on a tile) ------------------------------------------------------
+
+    static final String KEY_DARK = "dark_tiles";
+
+    /** Apps shown with a dark logo tile. Until the person changes any, just SportzX. */
+    private Set<String> darkTiles() {
+        String saved = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_DARK, null);
+        Set<String> set = new HashSet<>();
+        if (saved == null) {
+            for (Entry x : items) if (isSportzX(x)) set.add(x.pkg);
+        } else {
+            for (String p : saved.split(",")) if (!p.isEmpty()) set.add(p);
+        }
+        return set;
+    }
+
+    private static boolean isSportzX(Entry e) {
+        return e.label.replace(" ", "").toLowerCase(java.util.Locale.ROOT).contains("sportzx")
+                || e.pkg.toLowerCase(java.util.Locale.ROOT).contains("sportzx");
+    }
+
+    private Set<String> darkCache;
+
+    private boolean isDark(Entry e) {
+        if (darkCache == null) darkCache = darkTiles();
+        return darkCache.contains(e.pkg);
+    }
+
+    private void setDark(Entry e, boolean on) {
+        Set<String> set = darkTiles();
+        if (on) set.add(e.pkg);
+        else set.remove(e.pkg);
+        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                .putString(KEY_DARK, String.join(",", set)).apply();
+        darkCache = set;
+        notifyDataSetChanged();
     }
 
     /** Tile art per app version (TileArt); a missing value means the banner is used as it is. */

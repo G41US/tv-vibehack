@@ -173,4 +173,6 @@
     <string name="updates_value">Version %1$s</string>
     <string name="setup_value_done">Tout est prêt</string>
     <string name="setup_value_todo">Il reste une étape</string>
+    <string name="tile_style_dark">Style de tuile sombre</string>
+    <string name="tile_style_original">Style de tuile d\'origine</string>
 </resources>

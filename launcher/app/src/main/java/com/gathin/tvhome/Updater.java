@@ -153,6 +153,12 @@ public final class Updater {
                 PackageInstaller.SessionParams params =
                         new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
                 if (packageName != null) params.setAppPackageName(packageName);
+                // Android 12+: an app may update itself (or an app it installed) without Android's own
+                // "Do you want to update this app?" screen. Android still shows it where that isn't
+                // allowed, e.g. the first install of a new app.
+                if (Build.VERSION.SDK_INT >= 31) {
+                    params.setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED);
+                }
                 id = pi.createSession(params);
                 try (PackageInstaller.Session session = pi.openSession(id)) {
                     HttpURLConnection c;
