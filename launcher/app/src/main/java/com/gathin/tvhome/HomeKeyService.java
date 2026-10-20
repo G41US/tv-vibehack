@@ -30,6 +30,7 @@ public class HomeKeyService extends AccessibilityService {
     @Override
     protected boolean onKeyEvent(KeyEvent event) {
         lastInput = SystemClock.elapsedRealtime();   // someone's there (Still watching?)
+        if (volume != null && volume.onKey(event)) return true;   // TV Home's volume display
         int code = event.getKeyCode();
         if (code != KeyEvent.KEYCODE_ALL_APPS && code != KeyEvent.KEYCODE_HOME) return false;
         if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
@@ -38,12 +39,14 @@ public class HomeKeyService extends AccessibilityService {
         return true;
     }
 
+    private VolumeOverlay volume;
     private String[] takeover = new String[0];
     private long lastTakeover;
 
     @Override
     protected void onServiceConnected() {
         takeover = getResources().getStringArray(R.array.takeover_packages);
+        if (volume == null) volume = new VolumeOverlay(this);
         live = this;
         lastInput = SystemClock.elapsedRealtime();
         idleHandler.removeCallbacks(idleCheck);
@@ -141,6 +144,7 @@ public class HomeKeyService extends AccessibilityService {
     @Override
     public void onDestroy() {
         if (live == this) live = null;
+        if (volume != null) volume.release();
         super.onDestroy();
     }
 

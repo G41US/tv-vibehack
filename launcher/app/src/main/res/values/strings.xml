@@ -234,4 +234,7 @@
     <string name="tv_date_zone">Time zone, date and time</string>
     <string name="tv_storage_of">of %1$s · %2$d%% used</string>
     <string name="tv_storage_more">Android storage settings</string>
+    <string name="tv_vol_style">Volume display</string>
+    <string name="tv_vol_style_home">TV Home</string>
+    <string name="tv_vol_style_android">Android</string>
 </resources>

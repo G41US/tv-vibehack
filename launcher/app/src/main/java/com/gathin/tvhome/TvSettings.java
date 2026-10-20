@@ -202,13 +202,21 @@ final class TvSettings {
             rows.add(new GlassMenu.Row(R.drawable.ic_s_volume, s(R.string.tv_volume), s(R.string.tv_volume_tv), null));
         }
 
+        boolean homeStyle = VolumeOverlay.enabled(act);
+        rows.add(new GlassMenu.Row(R.drawable.ic_s_volume, s(R.string.tv_vol_style),
+                s(homeStyle ? R.string.tv_vol_style_home : R.string.tv_vol_style_android), () -> {
+            act.getSharedPreferences(VolumeOverlay.PREFS, Context.MODE_PRIVATE).edit()
+                    .putString(VolumeOverlay.KEY_STYLE, homeStyle ? "android" : "").apply();
+            picture(1);
+        }));
+
         float scale = Settings.Global.getFloat(cr(), Settings.Global.ANIMATOR_DURATION_SCALE, 1f);
         int anim = scale <= 0.01f ? 2 : scale < 0.9f ? 1 : 0;
         String[] animNames = {s(R.string.tv_anim_normal), s(R.string.tv_anim_fast), s(R.string.tv_off)};
         rows.add(new GlassMenu.Row(R.drawable.ic_s_speed, s(R.string.tv_anim), animNames[anim], () -> change(() -> {
             float next = anim == 0 ? 0.5f : anim == 1 ? 0f : 1f;
             for (String k : SCALE_KEYS) Settings.Global.putFloat(cr(), k, next);
-        }, () -> picture(1))));
+        }, () -> picture(2))));
 
         String mine = act.getPackageName() + "/" + ClockDream.class.getName();
         String comp = Settings.Secure.getString(cr(), "screensaver_components");
@@ -222,7 +230,7 @@ final class TvSettings {
                 Settings.Secure.putString(cr(), "screensaver_components", mine);
                 Settings.Secure.putInt(cr(), "screensaver_enabled", 1);
             }
-        }, () -> picture(2))));
+        }, () -> picture(3))));
 
         rows.add(new GlassMenu.Row(R.drawable.ic_s_display, s(R.string.tv_resolution), null,
                 () -> openSettings(Settings.ACTION_DISPLAY_SETTINGS)).external());
