@@ -259,7 +259,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             showNetworkPanel();
             return true;
         });
-        btnSettings.setOnClickListener(v -> open(new Intent(Settings.ACTION_SETTINGS)));
+        btnSettings.setOnClickListener(v -> showTvSettings());
         // Hold OK on Settings: the launcher's own menu (wallpaper, updates).
         btnSettings.setOnLongClickListener(v -> {
             showHomeMenu();
@@ -541,6 +541,57 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                         setupPanel::show),
         };
         GlassMenu.grid(this, getString(R.string.menu_kicker), getString(R.string.menu_title), tiles, 4);
+    }
+
+    // ---- TV settings (press OK on Settings) --------------------------------------------------------
+
+    /**
+     * The box's settings in TV Home's own glass grid. Each tile opens that exact page of Android's
+     * settings (the pages themselves belong to Android); All settings opens the full list.
+     */
+    private void showTvSettings() {
+        GlassMenu.Tile[] tiles = {
+                new GlassMenu.Tile(R.drawable.ic_wifi, getString(R.string.tv_network), netText,
+                        () -> openSettings(Settings.ACTION_WIFI_SETTINGS, "android.settings.NETWORK_AND_INTERNET_SETTINGS")),
+                new GlassMenu.Tile(R.drawable.ic_s_display, getString(R.string.tv_picture), getString(R.string.tv_picture_value),
+                        () -> openSettings(Settings.ACTION_DISPLAY_SETTINGS, Settings.ACTION_SOUND_SETTINGS)),
+                new GlassMenu.Tile(R.drawable.ic_s_remote, getString(R.string.tv_remotes), getString(R.string.tv_remotes_value),
+                        () -> openSettings(Settings.ACTION_BLUETOOTH_SETTINGS)),
+                new GlassMenu.Tile(R.drawable.ic_m_apps, getString(R.string.tv_apps), getString(R.string.tv_apps_value),
+                        () -> openSettings(Settings.ACTION_APPLICATION_SETTINGS, Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS)),
+                new GlassMenu.Tile(R.drawable.ic_m_profile, getString(R.string.tv_accounts), getString(R.string.tv_accounts_value),
+                        () -> openSettings(Settings.ACTION_SYNC_SETTINGS, Settings.ACTION_ADD_ACCOUNT)),
+                new GlassMenu.Tile(R.drawable.ic_s_clock, getString(R.string.tv_date),
+                        java.util.TimeZone.getDefault().getID().replace('_', ' '),
+                        () -> openSettings(Settings.ACTION_DATE_SETTINGS)),
+                new GlassMenu.Tile(R.drawable.ic_s_storage, getString(R.string.tv_storage), storageFree(),
+                        () -> openSettings(Settings.ACTION_INTERNAL_STORAGE_SETTINGS, Settings.ACTION_DEVICE_INFO_SETTINGS)),
+                new GlassMenu.Tile(R.drawable.ic_s_tune, getString(R.string.tv_all), getString(R.string.tv_all_value),
+                        () -> openSettings(Settings.ACTION_SETTINGS)),
+        };
+        GlassMenu.grid(this, getString(R.string.menu_kicker), getString(R.string.tv_title), tiles, 4);
+    }
+
+    /** The first of these settings pages the box has, or the main settings. */
+    private void openSettings(String... actions) {
+        for (String a : actions) {
+            Intent i = new Intent(a);
+            if (getPackageManager().resolveActivity(i, 0) != null) {
+                open(i);
+                return;
+            }
+        }
+        open(new Intent(Settings.ACTION_SETTINGS));
+    }
+
+    private String storageFree() {
+        try {
+            android.os.StatFs fs = new android.os.StatFs(android.os.Environment.getDataDirectory().getPath());
+            return getString(R.string.tv_storage_value,
+                    android.text.format.Formatter.formatShortFileSize(this, fs.getAvailableBytes()));
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     // ---- profiles ----------------------------------------------------------------------------------
@@ -1069,6 +1120,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             }
         } catch (Exception ignored) {
         }
+        netText = text;
         android.text.SpannableStringBuilder label = new android.text.SpannableStringBuilder(text);
         if (vpn) {
             // Network name, then a green lock-and-VPN capsule drawn in place of the word "VPN".
@@ -1087,6 +1139,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         btnWifi.setText(label);
     }
+
+    /** What the network pill says ("Ethernet", the Wi-Fi name, "Offline"), for the TV settings grid. */
+    private String netText = "";
 
     private final NetHealth netHealth = new NetHealth();
 

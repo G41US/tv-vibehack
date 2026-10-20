@@ -175,4 +175,19 @@
     <string name="setup_value_todo">Il reste une étape</string>
     <string name="tile_style_dark">Style de tuile sombre</string>
     <string name="tile_style_original">Style de tuile d\'origine</string>
+    <string name="tv_title">Ce téléviseur</string>
+    <string name="tv_network">Réseau</string>
+    <string name="tv_picture">Image et son</string>
+    <string name="tv_picture_value">Résolution, audio</string>
+    <string name="tv_remotes">Télécommandes</string>
+    <string name="tv_remotes_value">Associer, Bluetooth</string>
+    <string name="tv_apps">Applications</string>
+    <string name="tv_apps_value">Gérer, autorisations</string>
+    <string name="tv_accounts">Comptes</string>
+    <string name="tv_accounts_value">Connexion Google</string>
+    <string name="tv_date">Date et heure</string>
+    <string name="tv_storage">Stockage</string>
+    <string name="tv_storage_value">%1$s libres</string>
+    <string name="tv_all">Tous les réglages</string>
+    <string name="tv_all_value">À propos, plus</string>
 </resources>
