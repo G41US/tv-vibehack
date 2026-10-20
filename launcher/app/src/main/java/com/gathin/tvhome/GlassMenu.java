@@ -3,7 +3,11 @@ package com.gathin.tvhome;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.res.ColorStateList;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.text.InputType;
@@ -20,6 +24,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+
+import java.util.List;
 
 /**
  * TV Home's own menus and pop-ups, in the frosted-glass style of the Network panel: a glass card,
@@ -72,6 +78,42 @@ final class GlassMenu {
                 dialog.dismiss();
             } catch (Exception ignored) {
             }
+        }
+    }
+
+    /** Changes a value with Left/Right (volume); returns the new value to show. */
+    interface Stepper {
+        CharSequence step(int direction);
+    }
+
+    /**
+     * A row on a settings page: an icon (a drawable resource, tinted, or an app's own Drawable), a name,
+     * the current value on the right, and what OK does. external() marks a row that opens one of
+     * Android's own settings pages.
+     */
+    static final class Row {
+        final Object icon;
+        final CharSequence title;
+        final CharSequence value;
+        final Runnable action;
+        boolean external;
+        Stepper stepper;
+
+        Row(Object icon, CharSequence title, CharSequence value, Runnable action) {
+            this.icon = icon;
+            this.title = title;
+            this.value = value;
+            this.action = action;
+        }
+
+        Row external() {
+            external = true;
+            return this;
+        }
+
+        Row stepper(Stepper s) {
+            stepper = s;
+            return this;
         }
     }
 
@@ -300,6 +342,153 @@ final class GlassMenu {
         Dialog d = dialog(a, content, width);
         holder[0] = d;
         final View f = first;
+        d.setOnShowListener(x -> {
+            if (f != null) f.requestFocus();
+        });
+        d.show();
+        return d;
+    }
+
+    // ---- settings page -----------------------------------------------------------------------------
+
+    /** A summary block at the top of a page: one large line and smaller ones under it. */
+    static LinearLayout hero(Activity a, CharSequence big, CharSequence... lines) {
+        LinearLayout h = column(a);
+        TextView b = text(a, big, 30, Color.WHITE);
+        b.setSingleLine(true);
+        b.setEllipsize(TextUtils.TruncateAt.END);
+        h.addView(b);
+        for (CharSequence l : lines) {
+            if (l == null || l.length() == 0) continue;
+            TextView t = text(a, l, 15, 0xA6FFFFFF);
+            t.setPadding(0, dp(a, 3), 0, 0);
+            h.addView(t);
+        }
+        return h;
+    }
+
+    /** A rounded bar filled to fraction (storage used). */
+    static View meter(Activity a, float fraction) {
+        final float f = Math.max(0f, Math.min(1f, fraction));
+        View v = new View(a) {
+            private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+            private final RectF r = new RectF();
+
+            @Override
+            protected void onDraw(Canvas c) {
+                float h = getHeight(), w = getWidth();
+                r.set(0, 0, w, h);
+                p.setColor(0x26FFFFFF);
+                c.drawRoundRect(r, h / 2, h / 2, p);
+                r.set(0, 0, Math.max(h, w * f), h);
+                p.setColor(0xE6FFFFFF);
+                c.drawRoundRect(r, h / 2, h / 2, p);
+            }
+        };
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(a, 10));
+        lp.topMargin = dp(a, 12);
+        v.setLayoutParams(lp);
+        return v;
+    }
+
+    /**
+     * A settings page: header, an optional summary, then rows. Back returns through {@code back}
+     * (the page it came from); focus starts on row {@code focusIndex}.
+     */
+    static Dialog page(Activity a, CharSequence kicker, CharSequence title, View hero, List<Row> rows,
+                       Runnable back, int focusIndex) {
+        LinearLayout content = column(a);
+        header(a, content, kicker, title);
+        if (hero != null) {
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.bottomMargin = dp(a, 18);
+            content.addView(hero, lp);
+        }
+        ColorStateList ink = a.getColorStateList(R.color.menu_ink);
+        ColorStateList dim = a.getColorStateList(R.color.menu_ink_dim);
+        LinearLayout list = column(a);
+        final Dialog[] holder = new Dialog[1];
+        View focus = null;
+        for (int i = 0; i < rows.size(); i++) {
+            Row r = rows.get(i);
+            LinearLayout row = new LinearLayout(a);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            row.setFocusable(true);
+            row.setClickable(true);
+            row.setBackgroundResource(R.drawable.menu_row_bg);
+            row.setPadding(dp(a, 18), 0, dp(a, 18), 0);
+            if (r.icon != null) {
+                ImageView icon = new ImageView(a);
+                int size;
+                if (r.icon instanceof Integer) {
+                    icon.setImageResource((Integer) r.icon);
+                    icon.setImageTintList(ink);
+                    icon.setDuplicateParentStateEnabled(true);
+                    size = 22;
+                } else {
+                    icon.setImageDrawable((Drawable) r.icon);
+                    size = 30;
+                }
+                LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(dp(a, size), dp(a, size));
+                ilp.rightMargin = dp(a, 16);
+                row.addView(icon, ilp);
+            }
+            TextView name = text(a, r.title, 17, ink);
+            name.setSingleLine(true);
+            name.setEllipsize(TextUtils.TruncateAt.END);
+            row.addView(name, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            TextView value = null;
+            if (r.value != null || r.stepper != null) {
+                value = text(a, r.stepper != null ? "‹   " + r.value + "   ›" : r.value, 15, dim);
+                value.setSingleLine(true);
+                value.setEllipsize(TextUtils.TruncateAt.END);
+                value.setMaxWidth(dp(a, 280));
+                value.setPadding(dp(a, 12), 0, 0, 0);
+                row.addView(value);
+            }
+            if (r.external) {
+                ImageView out = new ImageView(a);
+                out.setImageResource(R.drawable.ic_s_open);
+                out.setImageTintList(dim);
+                out.setDuplicateParentStateEnabled(true);
+                LinearLayout.LayoutParams olp = new LinearLayout.LayoutParams(dp(a, 16), dp(a, 16));
+                olp.leftMargin = dp(a, 12);
+                row.addView(out, olp);
+            }
+            if (r.stepper != null) {
+                final TextView v = value;
+                row.setOnKeyListener((x, keyCode, e) -> {
+                    if (keyCode != KeyEvent.KEYCODE_DPAD_LEFT && keyCode != KeyEvent.KEYCODE_DPAD_RIGHT) return false;
+                    if (e.getAction() == KeyEvent.ACTION_DOWN) {
+                        v.setText("‹   " + r.stepper.step(keyCode == KeyEvent.KEYCODE_DPAD_RIGHT ? 1 : -1) + "   ›");
+                    }
+                    return true;
+                });
+            }
+            if (r.action != null) {
+                row.setOnClickListener(v -> {
+                    holder[0].dismiss();
+                    r.action.run();
+                });
+            }
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, dp(a, 56));
+            lp.topMargin = i == 0 ? 0 : dp(a, 4);
+            list.addView(row, lp);
+            if (i == focusIndex || focus == null) focus = row;
+        }
+        ScrollView scroll = new ScrollView(a);
+        scroll.setVerticalScrollBarEnabled(false);
+        scroll.addView(list);
+        int full = rows.size() * dp(a, 60);
+        content.addView(scroll, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                Math.min(full, dp(a, hero != null ? 330 : 420))));
+        Dialog d = dialog(a, content, 660);
+        holder[0] = d;
+        if (back != null) d.setOnCancelListener(x -> back.run());
+        final View f = focus;
         d.setOnShowListener(x -> {
             if (f != null) f.requestFocus();
         });
