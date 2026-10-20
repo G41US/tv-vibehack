@@ -442,6 +442,21 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     /** The weather line above the date; with it showing, the date steps down a size like the Shamsi date. */
     private void showWeather(String line) {
         boolean on = line != null && !line.isEmpty();
+        // The city moves down to the date line ("WEDNESDAY 21 OCTOBER · ABUJA") so the weather line
+        // stays short enough to show in full next to the buttons.
+        String city = null;
+        if (on) {
+            String[] parts = line.split("  ·  ");
+            String last = parts[parts.length - 1];
+            if (parts.length >= 3 || (parts.length == 2 && !last.contains("°"))) {
+                city = last.trim();
+                line = line.substring(0, line.length() - last.length() - "  ·  ".length());
+            }
+        }
+        String fmt = getString(R.string.date_format);
+        if (city != null && !city.isEmpty()) fmt += "  '·  " + city.replace("'", "''") + "'";
+        ((android.widget.TextClock) dateView).setFormat12Hour(fmt);
+        ((android.widget.TextClock) dateView).setFormat24Hour(fmt);
         weatherView.setText(on ? line : "");
         weatherView.setVisibility(on ? View.VISIBLE : View.GONE);
         boolean small = on || shamsi;
