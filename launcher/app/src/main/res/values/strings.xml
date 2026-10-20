@@ -174,4 +174,19 @@
     <string name="setup_value_todo">A step is left</string>
     <string name="tile_style_dark">Dark tile style</string>
     <string name="tile_style_original">Original tile style</string>
+    <string name="tv_title">This TV</string>
+    <string name="tv_network">Network</string>
+    <string name="tv_picture">Picture &amp; sound</string>
+    <string name="tv_picture_value">Resolution, audio</string>
+    <string name="tv_remotes">Remotes</string>
+    <string name="tv_remotes_value">Pair, Bluetooth</string>
+    <string name="tv_apps">Apps</string>
+    <string name="tv_apps_value">Manage, permissions</string>
+    <string name="tv_accounts">Accounts</string>
+    <string name="tv_accounts_value">Google sign-in</string>
+    <string name="tv_date">Date &amp; time</string>
+    <string name="tv_storage">Storage</string>
+    <string name="tv_storage_value">%1$s free</string>
+    <string name="tv_all">All settings</string>
+    <string name="tv_all_value">About, more</string>
 </resources>
