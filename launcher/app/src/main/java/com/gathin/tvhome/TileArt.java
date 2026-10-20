@@ -13,14 +13,13 @@ import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.Drawable;
 
 /**
- * Dock and grid art for apps whose own banner doesn't sit well on a dark Home: a white or light-grey
- * banner (a bright block next to the dark Netflix, Spotify and SmartTube tiles), or no banner at all.
+ * "Dark tile" art for an app whose own banner doesn't sit well on the dark Home, such as a white or
+ * light-grey one. Only for apps the person picked (hold OK on the tile), plus SportzX by default.
  *
- * Such an app gets a tile in the house style instead: a deep gradient in the app's own colour with its
+ * The app gets a tile in the house style instead: a deep gradient in the app's own colour with its
  * logo lifted off the light background and centred. The logo comes from the banner (its background
  * colour is keyed out, edges un-blended so there's no pale fringe, and black lettering turns white), or,
- * failing that, from the foreground layer of the app's icon. Apps with a dark, full-colour banner keep it
- * as it is.
+ * failing that, from the foreground layer of the app's icon.
  */
 final class TileArt {
 
@@ -42,7 +41,6 @@ final class TileArt {
 
         if (banner != null) {
             int[] px = render(banner, W, H);
-            if (!isLight(px)) return null;               // a dark banner looks right already
             int[] keyed = keyOut(px, W, H);
             if (keyed != null) {
                 int[] box = trim(keyed, W, H);
