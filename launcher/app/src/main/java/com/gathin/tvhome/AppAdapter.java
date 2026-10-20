@@ -270,20 +270,18 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         }
         labels.add(ctx.getString(R.string.app_info));
         actions.add(() -> openAppInfo(e));
-        new AlertDialog.Builder(ctx, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                .setTitle(e.label)
-                .setItems(labels.toArray(new String[0]), (d, which) -> actions.get(which).run())
-                .show();
+        GlassMenu.list((android.app.Activity) ctx, ctx.getString(R.string.app_kicker), e.label,
+                labels.toArray(new String[0]), which -> actions.get(which).run());
     }
 
     /** The dock is full: pick which app gives up its slot; the new app takes that exact slot. */
     private void chooseReplacement(Entry e, List<String> dock) {
         String[] names = new String[dock.size()];
         for (int i = 0; i < dock.size(); i++) names[i] = labelOf(dock.get(i));
-        new AlertDialog.Builder(ctx, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-                .setTitle(R.string.dock_replace_title)
-                .setItems(names, (d, which) -> { dock.set(which, e.pkg); saveDock(dock, e); })
-                .show();
+        GlassMenu.list((android.app.Activity) ctx, e.label, ctx.getString(R.string.dock_replace_title), names, which -> {
+            dock.set(which, e.pkg);
+            saveDock(dock, e);
+        });
     }
 
     private String labelOf(String pkg) {

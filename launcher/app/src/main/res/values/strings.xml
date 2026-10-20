@@ -163,4 +163,13 @@
     <string name="limit_near_title">Data running low</string>
     <string name="limit_reached_title">Data limit reached</string>
     <string name="limit_message">This month the box has used %1$s of your %2$d GB limit (%3$d%%). HD streaming uses about 3 GB an hour; lower the video quality in the app to make it last.</string>
+    <string name="menu_kicker">Settings</string>
+    <string name="app_kicker">App</string>
+    <string name="still_value">After %1$d hours</string>
+    <string name="net_tile_value">Wi-Fi QR, data used</string>
+    <string name="apps_value">SmartTube, movie apps</string>
+    <string name="apps_value_done">SmartTube installed</string>
+    <string name="updates_value">Build %1$s</string>
+    <string name="setup_value_done">All set</string>
+    <string name="setup_value_todo">A step is left</string>
 </resources>

@@ -79,15 +79,16 @@ final class StillWatching {
                 (BLACK.equals(a) ? "✓  " : "     ") + act.getString(R.string.still_action_black),
                 act.getString(R.string.still_try),
         };
-        new AlertDialog.Builder(act, Updater.DIALOG_THEME)
-                .setTitle(R.string.menu_still)
-                .setItems(labels, (d, which) -> {
-                    if (which <= 3) prefs(act).edit().putString(KEY_HOURS, HOURS[which]).apply();
-                    else if (which == 4) prefs(act).edit().putString(KEY_ACTION, SLEEP).apply();
-                    else if (which == 5) prefs(act).edit().putString(KEY_ACTION, BLACK).apply();
-                    else ask(act, 10);
-                })
-                .show();
+        GlassMenu.list(act, act.getString(R.string.menu_title), act.getString(R.string.menu_still), labels, which -> {
+            if (which == 6) {
+                ask(act, 10);
+                return;
+            }
+            if (which <= 3) prefs(act).edit().putString(KEY_HOURS, HOURS[which]).apply();
+            else if (which == 4) prefs(act).edit().putString(KEY_ACTION, SLEEP).apply();
+            else prefs(act).edit().putString(KEY_ACTION, BLACK).apply();
+            showSettings(act);   // show the new choice ticked
+        });
     }
 
     static void ask(Context ctx, int seconds) {

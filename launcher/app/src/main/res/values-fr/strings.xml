@@ -164,4 +164,13 @@
     <string name="limit_near_title">Données bientôt épuisées</string>
     <string name="limit_reached_title">Limite de données atteinte</string>
     <string name="limit_message">Ce mois-ci, le boîtier a utilisé %1$s sur votre limite de %2$d Go (%3$d %%). Le streaming HD consomme environ 3 Go par heure ; baissez la qualité vidéo dans l\'appli pour tenir plus longtemps.</string>
+    <string name="menu_kicker">Réglages</string>
+    <string name="app_kicker">Appli</string>
+    <string name="still_value">Après %1$d heures</string>
+    <string name="net_tile_value">QR Wi-Fi, données</string>
+    <string name="apps_value">SmartTube, films</string>
+    <string name="apps_value_done">SmartTube installé</string>
+    <string name="updates_value">Version %1$s</string>
+    <string name="setup_value_done">Tout est prêt</string>
+    <string name="setup_value_todo">Il reste une étape</string>
 </resources>
