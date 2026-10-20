@@ -235,4 +235,7 @@
     <string name="tv_date_zone">Fuseau horaire, date et heure</string>
     <string name="tv_storage_of">sur %1$s · %2$d %% utilisés</string>
     <string name="tv_storage_more">Réglages de stockage Android</string>
+    <string name="tv_vol_style">Affichage du volume</string>
+    <string name="tv_vol_style_home">TV Home</string>
+    <string name="tv_vol_style_android">Android</string>
 </resources>
