@@ -52,13 +52,10 @@ final class DataLimit {
                     : act.getString(R.string.limit_gb, OPTIONS_GB[i]);
             labels[i] = (OPTIONS_GB[i] == cur ? "✓  " : "     ") + name;
         }
-        new AlertDialog.Builder(act, Updater.DIALOG_THEME)
-                .setTitle(R.string.limit_title)
-                .setItems(labels, (d, which) -> {
-                    prefs(act).edit().putString(KEY_GB, String.valueOf(OPTIONS_GB[which])).remove(KEY_WARNED).apply();
-                    if (after != null) after.run();
-                })
-                .show();
+        GlassMenu.list(act, act.getString(R.string.net_title), act.getString(R.string.limit_title), labels, which -> {
+            prefs(act).edit().putString(KEY_GB, String.valueOf(OPTIONS_GB[which])).remove(KEY_WARNED).apply();
+            if (after != null) after.run();
+        });
     }
 
     /** On Home: one warning at 80% and one at 100% each month. */
@@ -73,10 +70,8 @@ final class DataLimit {
         String warned = prefs(act).getString(KEY_WARNED, "");
         if (warned.equals(month + ":" + level) || warned.equals(month + ":100")) return;
         prefs(act).edit().putString(KEY_WARNED, month + ":" + level).apply();
-        new AlertDialog.Builder(act, Updater.DIALOG_THEME)
-                .setTitle(level >= 100 ? R.string.limit_reached_title : R.string.limit_near_title)
-                .setMessage(act.getString(R.string.limit_message, DataUsage.format(used), gb, pct))
-                .setPositiveButton(android.R.string.ok, null)
-                .show();
+        GlassMenu.message(act, act.getString(level >= 100 ? R.string.limit_reached_title : R.string.limit_near_title),
+                act.getString(R.string.limit_message, DataUsage.format(used), gb, pct),
+                new String[]{act.getString(android.R.string.ok)}, null);
     }
 }

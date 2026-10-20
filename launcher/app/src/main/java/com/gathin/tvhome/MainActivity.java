@@ -465,17 +465,15 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         labels.add(mark(current, Weather.OFF, getString(R.string.weather_off)));
         keys.add(Weather.OFF);
-        new AlertDialog.Builder(this, Updater.DIALOG_THEME)
-                .setTitle(R.string.menu_weather)
-                .setItems(labels.toArray(new String[0]), (d, which) -> {
+        GlassMenu.list(this, getString(R.string.menu_title), getString(R.string.menu_weather),
+                labels.toArray(new String[0]), which -> {
                     weather.setPlace(keys.get(which));
                     showWeather(null);
                     weather.refresh(true, this::showWeather);
-                })
-                .show();
+                });
     }
     private PhoneServer phoneServer;
-    private AlertDialog phoneDialog;
+    private android.app.Dialog phoneDialog;
 
     private File customWallpaper() {
         return new File(getFilesDir(), Profiles.key(this, "custom_wallpaper") + ".jpg");
@@ -505,21 +503,29 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private void showHomeMenu() {
-        String[] items = {getString(R.string.menu_wallpaper), getString(R.string.menu_weather),
-                getString(R.string.menu_profiles), getString(R.string.menu_still),
-                getString(R.string.menu_apps), getString(R.string.menu_updates), getString(R.string.menu_setup)};
-        new AlertDialog.Builder(this, Updater.DIALOG_THEME)
-                .setTitle(R.string.menu_title)
-                .setItems(items, (d, which) -> {
-                    if (which == 0) showWallpaperMenu();
-                    else if (which == 1) showWeatherMenu();
-                    else if (which == 2) showProfilesMenu();
-                    else if (which == 3) StillWatching.showSettings(this);
-                    else if (which == 4) AppPack.show(this, updater);
-                    else if (which == 5) updater.check(true);
-                    else setupPanel.show();
-                })
-                .show();
+        int still = StillWatching.hours(this);
+        GlassMenu.Tile[] tiles = {
+                new GlassMenu.Tile(R.drawable.ic_m_wallpaper, getString(R.string.menu_wallpaper), wallpaperName(),
+                        this::showWallpaperMenu),
+                new GlassMenu.Tile(R.drawable.ic_m_weather, getString(R.string.menu_weather), weatherName(),
+                        this::showWeatherMenu),
+                new GlassMenu.Tile(R.drawable.ic_m_profile, getString(R.string.menu_profiles), Profiles.activeName(this),
+                        this::showProfilesMenu),
+                new GlassMenu.Tile(R.drawable.ic_m_moon, getString(R.string.menu_still),
+                        still <= 0 ? getString(R.string.still_off) : getString(R.string.still_value, still),
+                        () -> StillWatching.showSettings(this)),
+                new GlassMenu.Tile(R.drawable.ic_wifi, getString(R.string.net_title), getString(R.string.net_tile_value),
+                        this::showNetworkPanel),
+                new GlassMenu.Tile(R.drawable.ic_m_apps, getString(R.string.menu_apps),
+                        getString(AppPack.smartTubeInstalled(this) ? R.string.apps_value_done : R.string.apps_value),
+                        () -> AppPack.show(this, updater)),
+                new GlassMenu.Tile(R.drawable.ic_m_update, getString(R.string.menu_updates),
+                        getString(R.string.updates_value, String.valueOf(installedBuild())), () -> updater.check(true)),
+                new GlassMenu.Tile(R.drawable.ic_m_setup, getString(R.string.menu_setup),
+                        getString(setupPanel.allDone() ? R.string.setup_value_done : R.string.setup_value_todo),
+                        setupPanel::show),
+        };
+        GlassMenu.grid(this, getString(R.string.menu_kicker), getString(R.string.menu_title), tiles, 4);
     }
 
     // ---- profiles ----------------------------------------------------------------------------------
@@ -531,17 +537,41 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         recreate();
     }
 
+    private long installedBuild() {
+        try {
+            return getPackageManager().getPackageInfo(getPackageName(), 0).getLongVersionCode();
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private String wallpaperName() {
+        String c = getSharedPreferences(LOOK_PREFS, MODE_PRIVATE).getString(Profiles.key(this, KEY_WALLPAPER), WP_THEME);
+        if (WP_BLACK.equals(c)) return getString(R.string.wp_black);
+        if (WP_PHOTO.equals(c)) return getString(R.string.wp_photo);
+        for (int i = 0; i < BUILT_IN.length; i++) if (BUILT_IN[i].equals(c)) return getString(BUILT_IN_NAMES[i]);
+        return config != null && config.wallpaper != null ? getString(R.string.wp_theme) : getString(R.string.wp_black);
+    }
+
+    private String weatherName() {
+        String p = weather.place();
+        if (Weather.OFF.equals(p)) return getString(R.string.weather_off);
+        if (Weather.AUTO.equals(p)) {
+            String found = weather.autoCity();
+            return found != null && !found.isEmpty() ? found : getString(R.string.weather_auto);
+        }
+        return p;
+    }
+
     /** "Who's watching?": after the box starts, or after Still watching? turned it off. */
     private void showWhoIsWatching() {
         List<String[]> people = Profiles.list(this);
         String current = Profiles.active(this);
         String[] names = new String[people.size()];
         for (int i = 0; i < names.length; i++) names[i] = mark(current, people.get(i)[0], people.get(i)[1]);
-        new AlertDialog.Builder(this, Updater.DIALOG_THEME)
-                .setTitle(R.string.profile_who)
-                .setItems(names, (d, which) -> switchProfile(people.get(which)[0]))
-                .setOnCancelListener(d -> Profiles.asked(this))
-                .show();
+        GlassMenu.list(this, getString(R.string.menu_title), getString(R.string.profile_who), names,
+                which -> switchProfile(people.get(which)[0]))
+                .setOnCancelListener(d -> Profiles.asked(this));
     }
 
     private void showProfilesMenu() {
@@ -570,10 +600,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             labels.add(getString(ask ? R.string.profile_ask_on : R.string.profile_ask_off));
             actions.add(() -> Profiles.setAsk(this, !ask));
         }
-        new AlertDialog.Builder(this, Updater.DIALOG_THEME)
-                .setTitle(R.string.menu_profiles)
-                .setItems(labels.toArray(new String[0]), (d, which) -> actions.get(which).run())
-                .show();
+        GlassMenu.list(this, getString(R.string.menu_title), getString(R.string.menu_profiles),
+                labels.toArray(new String[0]), which -> actions.get(which).run());
     }
 
     private void showRemoveProfile() {
@@ -581,15 +609,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         others.remove(0);   // the main profile stays
         String[] names = new String[others.size()];
         for (int i = 0; i < names.length; i++) names[i] = others.get(i)[1];
-        new AlertDialog.Builder(this, Updater.DIALOG_THEME)
-                .setTitle(R.string.profile_remove)
-                .setItems(names, (d, which) -> {
-                    String id = others.get(which)[0];
-                    boolean wasActive = id.equals(Profiles.active(this));
-                    Profiles.remove(this, id);
-                    if (wasActive) recreate();
-                })
-                .show();
+        GlassMenu.list(this, getString(R.string.menu_profiles), getString(R.string.profile_remove), names, which -> {
+            String id = others.get(which)[0];
+            boolean wasActive = id.equals(Profiles.active(this));
+            Profiles.remove(this, id);
+            if (wasActive) recreate();
+        });
     }
 
     private interface NameListener {
@@ -597,24 +622,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     private void askName(String title, String initial, NameListener l) {
-        android.widget.EditText input = new android.widget.EditText(this);
-        input.setSingleLine(true);
-        input.setText(initial);
-        input.setSelection(initial.length());
-        input.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS);
-        FrameLayout box = new FrameLayout(this);
-        int pad = (int) (24 * density);
-        box.setPadding(pad, pad / 2, pad, 0);
-        box.addView(input);
-        new AlertDialog.Builder(this, Updater.DIALOG_THEME)
-                .setTitle(title)
-                .setView(box)
-                .setPositiveButton(android.R.string.ok, (d, w) -> {
-                    String name = input.getText().toString().trim();
-                    if (!name.isEmpty()) l.onName(name.length() > 24 ? name.substring(0, 24) : name);
-                })
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
+        GlassMenu.input(this, title, initial, name -> l.onName(name.length() > 24 ? name.substring(0, 24) : name));
     }
 
     private void showWallpaperMenu() {
@@ -638,10 +646,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         labels.add(getString(R.string.wp_send));
         actions.add(this::showPhotoReceiver);
-        new AlertDialog.Builder(this, Updater.DIALOG_THEME)
-                .setTitle(R.string.menu_wallpaper)
-                .setItems(labels.toArray(new String[0]), (d, which) -> actions.get(which).run())
-                .show();
+        GlassMenu.list(this, getString(R.string.menu_title), getString(R.string.menu_wallpaper),
+                labels.toArray(new String[0]), which -> actions.get(which).run());
     }
 
     private static String mark(String current, String key, String label) {
@@ -693,13 +699,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             urls.append("http://").append(ip).append(':').append(phoneServer.port).append('/').append(phoneServer.pin);
         }
         final PhoneServer running = phoneServer;
-        phoneDialog = new AlertDialog.Builder(this, Updater.DIALOG_THEME)
-                .setTitle(titleRes)
-                .setMessage(getString(messageRes, urls.toString()))
-                .setNegativeButton(android.R.string.cancel, null)
-                .create();
+        phoneDialog = GlassMenu.message(this, getString(titleRes), getString(messageRes, urls.toString()),
+                new String[]{getString(android.R.string.cancel)}, null);
         phoneDialog.setOnDismissListener(d -> running.stop());
-        phoneDialog.show();
     }
 
     // ---- Network panel: guest Wi-Fi QR code and data used (hold OK on the network pill) ----------

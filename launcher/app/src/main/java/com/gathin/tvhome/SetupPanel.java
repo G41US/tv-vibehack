@@ -68,6 +68,11 @@ final class SetupPanel {
         return null;
     }
 
+    /** True when the required steps are done (the optional ones don't count). */
+    boolean allDone() {
+        return serviceOn(act) && installsAllowed(act) && (!BackupStore.supported() || BackupStore.canRead(act));
+    }
+
     // ---- showing -----------------------------------------------------------------------------------
 
     /** On resume: refresh an open panel, or open it when the Home button service is off. */

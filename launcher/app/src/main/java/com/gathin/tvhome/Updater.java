@@ -114,12 +114,11 @@ public final class Updater {
         if (notes != null && !notes.isEmpty()) {
             message = act.getString(R.string.update_whats_new, notes) + "\n\n" + message;
         }
-        new AlertDialog.Builder(act, DIALOG_THEME)
-                .setTitle(R.string.update_available)
-                .setMessage(message)
-                .setPositiveButton(R.string.update_install, (d, w) -> install(base))
-                .setNegativeButton(R.string.update_later, (d, w) -> prefs().edit().putLong(KEY_SKIPPED, latest).apply())
-                .show();
+        GlassMenu.message(act, act.getString(R.string.update_available), message,
+                new String[]{act.getString(R.string.update_install), act.getString(R.string.update_later)}, which -> {
+                    if (which == 0) install(base);
+                    else prefs().edit().putLong(KEY_SKIPPED, latest).apply();
+                });
     }
 
     private void install(String base) {
@@ -145,11 +144,7 @@ public final class Updater {
         }
         if (busy) return;
         busy = true;
-        AlertDialog progress = new AlertDialog.Builder(act, DIALOG_THEME)
-                .setTitle(title)
-                .setMessage("0%")
-                .setCancelable(false)
-                .show();
+        GlassMenu.Progress progress = GlassMenu.progress(act, title);
         new Thread(() -> {
             String error = null;
             PackageInstaller pi = pm.getPackageInstaller();
@@ -180,7 +175,7 @@ public final class Updater {
                                 int pct = (int) (done * 100 / total);
                                 if (pct != shown) {
                                     shown = pct;
-                                    main.post(() -> progress.setMessage(pct + "%"));
+                                    main.post(() -> progress.set(pct + "%"));
                                 }
                             }
                         }
@@ -206,10 +201,7 @@ public final class Updater {
             final String err = error;
             main.post(() -> {
                 busy = false;
-                try {
-                    progress.dismiss();
-                } catch (Exception ignored) {
-                }
+                progress.dismiss();
                 if (err != null) toast(act.getString(R.string.update_failed, err));
             });
         }, "update-download").start();

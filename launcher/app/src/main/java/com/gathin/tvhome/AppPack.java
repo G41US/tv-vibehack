@@ -73,10 +73,8 @@ final class AppPack {
         });
         labels.add(act.getString(R.string.apps_movies));
         actions.add(() -> showStoreApps(act));
-        new AlertDialog.Builder(act, Updater.DIALOG_THEME)
-                .setTitle(R.string.apps_title)
-                .setItems(labels.toArray(new String[0]), (d, which) -> actions.get(which).run())
-                .show();
+        GlassMenu.list(act, act.getString(R.string.menu_title), act.getString(R.string.apps_title),
+                labels.toArray(new String[0]), which -> actions.get(which).run());
     }
 
     private static void swapYouTubeInDock(Activity act) {
@@ -91,10 +89,8 @@ final class AppPack {
         for (int i = 0; i < STORE_APPS.length; i++) {
             labels[i] = STORE_APPS[i] + "  ·  " + act.getString(STORE_APP_DESC[i]);
         }
-        new AlertDialog.Builder(act, Updater.DIALOG_THEME)
-                .setTitle(R.string.apps_movies_title)
-                .setItems(labels, (d, which) -> openStore(act, STORE_APPS[which]))
-                .show();
+        GlassMenu.list(act, act.getString(R.string.apps_title), act.getString(R.string.apps_movies_title),
+                labels, which -> openStore(act, STORE_APPS[which]));
     }
 
     private static void openStore(Activity act, String name) {
