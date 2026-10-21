@@ -104,11 +104,16 @@ final class NowPlaying {
         }
     }
 
-    private boolean small() {
+    boolean small() {
         return act.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_MINI, false);
     }
 
-    private void setSmall(boolean on) {
+    /** Settings changed elsewhere (TV Home > Music): redraw the card. */
+    void refreshView() {
+        if (card != null) render();
+    }
+
+    void setSmall(boolean on) {
         act.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_MINI, on).apply();
         render();
         (on ? mini : playPause).requestFocus();
@@ -565,7 +570,7 @@ final class NowPlaying {
             if (!started) return;
             PlaybackState st = current != null ? current.getPlaybackState() : null;
             boolean playing = st != null && st.getState() == PlaybackState.STATE_PLAYING;
-            if (playing && full == null && !small() && act.hasWindowFocus()
+            if (playing && full == null && !small() && HomeSettings.autoPlayerOn(act) && act.hasWindowFocus()
                     && android.os.SystemClock.uptimeMillis() - lastInput > AMBIENT_AFTER_MS) {
                 openFull();
             }
@@ -655,6 +660,11 @@ final class NowPlaying {
             if (key.equals(songKey)) return;
             songKey = key;
             song = null;
+            if (!HomeSettings.lyricsOn(act)) {   // switched off in TV Home > Music
+                searching = false;
+                showLyricsOrCover();
+                return;
+            }
             searching = true;
             lit = -2;
             showLyricsOrCover();

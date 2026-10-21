@@ -149,6 +149,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SafeStart.begin(this);   // counts crashes; two in a row: safe mode (effects off)
         setContentView(R.layout.activity_main);
         density = getResources().getDisplayMetrics().density;
         // config.xml, overlaid by config.json from a pushed theme (see Config and tools/theme.sh).
@@ -322,7 +323,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         mood.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
         root.addView(mood, Math.max(0, root.indexOfChild(ambient)), new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        nowPlaying.setMood((a, b, playing) -> mood.set(a, b, playing));
+        nowPlaying.setMood((a, b, playing) -> mood.set(a, b, playing && HomeSettings.moodOn(this)));
 
         // Hide the glass when focus leaves the tiles.
         getWindow().getDecorView().getViewTreeObserver().addOnGlobalFocusChangeListener((oldF, newF) -> {
@@ -388,7 +389,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 // Live weather: rain, storms, snow, harmattan haze or fog at the weather's place.
                 weatherFx = new WeatherFx(this, density);
                 layer.addView(weatherFx, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                weatherFx.setMode(WeatherFx.modeFor(Weather.code(this), Weather.visibility(this)));
+                weatherFx.setMode(HomeSettings.weatherFxOn(this) ? WeatherFx.modeFor(Weather.code(this), Weather.visibility(this)) : WeatherFx.NONE);
                 final LiveWallpaper.Twinkle tw = twinkle;
                 new Thread(() -> {
                     float[][] stars;
@@ -428,10 +429,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     protected void onResume() {
         super.onResume();
-        if (TvSettings.reopenPicture >= 0) {
-            int row = TvSettings.reopenPicture;
-            TvSettings.reopenPicture = -1;
-            root.post(() -> tvSettings.picture(row));
+        if (HomeSettings.reopenLook >= 0) {
+            int row = HomeSettings.reopenLook;
+            HomeSettings.reopenLook = -1;
+            root.post(() -> new HomeSettings(this).look(row));
         }
         glassShown = false;
         glass.setAlpha(0f);
@@ -468,6 +469,21 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             else if (!driftAnim.isStarted()) driftAnim.start();
         }
         handler.postDelayed(minuteTick, MINUTE_MS);
+        SafeStart.started(this);
+        if (SafeStart.shouldTell(this)) {
+            SafeStart.told(this);
+            String last = SafeStart.lastProblem(this);
+            GlassMenu.message(this, getString(R.string.safe_title),
+                    getString(R.string.safe_message) + (last != null ? "\n\n" + last : ""),
+                    new String[]{getString(R.string.safe_update), getString(R.string.safe_effects), getString(android.R.string.ok)},
+                    w -> {
+                        if (w == 0) updater.check(true);
+                        else if (w == 1) {
+                            SafeStart.leave(this);
+                            recreate();
+                        }
+                    });
+        }
 
         // Return to the app we left from, or the same slot if that app is gone. Always refocus: after
         // reload() the view that holds focus may no longer show the app it had.
@@ -567,8 +583,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             R.string.wp_ember, R.string.wp_ocean, R.string.wp_dusk};
 
     private Config config;
-    private Updater updater;
-    private SetupPanel setupPanel;
+    Updater updater;
+    SetupPanel setupPanel;
 
     private boolean restoring;
 
@@ -616,7 +632,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         ((android.widget.TextClock) dateView).setFormat12Hour(fmt);
         ((android.widget.TextClock) dateView).setFormat24Hour(fmt);
         weatherView.setText(on ? line : "");
-        if (weatherFx != null) weatherFx.setMode(on ? WeatherFx.modeFor(Weather.code(this), Weather.visibility(this)) : WeatherFx.NONE);
+        if (weatherFx != null) weatherFx.setMode(on && HomeSettings.weatherFxOn(this)
+                ? WeatherFx.modeFor(Weather.code(this), Weather.visibility(this)) : WeatherFx.NONE);
         weatherView.setVisibility(on ? View.VISIBLE : View.GONE);
         if (weatherBlock != null) weatherBlock.setFocusable(on);
         boolean small = on || shamsi;
@@ -626,7 +643,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         else if (shamsi) shamsiDate.setVisibility(View.VISIBLE);
     }
 
-    private void showWeatherMenu() {
+    void showWeatherMenu() {
         String current = weather.place();
         List<String> labels = new ArrayList<>();
         List<String> keys = new ArrayList<>();
@@ -677,36 +694,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         recreate();
     }
 
-    private void showHomeMenu() {
-        int still = StillWatching.hours(this);
-        GlassMenu.Tile[] tiles = {
-                new GlassMenu.Tile(R.drawable.ic_m_wallpaper, getString(R.string.menu_wallpaper), wallpaperName(),
-                        this::showWallpaperMenu),
-                new GlassMenu.Tile(R.drawable.ic_m_weather, getString(R.string.menu_weather), weatherName(),
-                        this::showWeatherMenu),
-                new GlassMenu.Tile(R.drawable.ic_m_profile, getString(R.string.menu_profiles), Profiles.activeName(this),
-                        this::showProfilesMenu),
-                new GlassMenu.Tile(R.drawable.ic_m_moon, getString(R.string.menu_still),
-                        still <= 0 ? getString(R.string.still_off) : getString(R.string.still_value, still),
-                        () -> StillWatching.showSettings(this)),
-                new GlassMenu.Tile(R.drawable.ic_wifi, getString(R.string.net_title), getString(R.string.net_tile_value),
-                        this::showNetworkPanel),
-                new GlassMenu.Tile(R.drawable.ic_m_apps, getString(R.string.menu_apps),
-                        getString(AppPack.smartTubeInstalled(this) ? R.string.apps_value_done : R.string.apps_value),
-                        () -> AppPack.show(this, updater)),
-                new GlassMenu.Tile(R.drawable.ic_m_update, getString(R.string.menu_updates),
-                        getString(R.string.updates_value, String.valueOf(installedBuild())), () -> updater.check(true)),
-                new GlassMenu.Tile(R.drawable.ic_m_setup, getString(R.string.menu_setup),
-                        getString(setupPanel.allDone() ? R.string.setup_value_done : R.string.setup_value_todo),
-                        () -> GlassMenu.list(this, getString(R.string.menu_title), getString(R.string.menu_setup),
-                                new String[]{getString(R.string.ss_menu_quick), getString(R.string.ss_menu_self),
-                                        getString(R.string.chk_title)}, which -> {
-                                    if (which == 0) setupPanel.show();
-                                    else if (which == 1) SelfSetup.show(this);
-                                    else TvCheck.show(this, false);
-                                })),
-        };
-        GlassMenu.grid(this, getString(R.string.menu_kicker), getString(R.string.menu_title), tiles, 4);
+    void refreshNowPlaying() {
+        if (nowPlaying != null) nowPlaying.refreshView();
+    }
+
+    void showHomeMenu() {
+        new HomeSettings(this).grid();
     }
 
     // ---- TV settings (press OK on Settings): see TvSettings ---------------------------------------
@@ -755,7 +748,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         recreate();
     }
 
-    private long installedBuild() {
+    long installedBuild() {
         try {
             return getPackageManager().getPackageInfo(getPackageName(), 0).getLongVersionCode();
         } catch (Exception e) {
@@ -763,7 +756,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
     }
 
-    private String wallpaperName() {
+    String wallpaperName() {
         String c = getSharedPreferences(LOOK_PREFS, MODE_PRIVATE).getString(Profiles.key(this, KEY_WALLPAPER), WP_THEME);
         if (WP_BLACK.equals(c)) return getString(R.string.wp_black);
         if (WP_PHOTO.equals(c)) return getString(R.string.wp_photo);
@@ -771,7 +764,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         return config != null && config.wallpaper != null ? getString(R.string.wp_theme) : getString(R.string.wp_black);
     }
 
-    private String weatherName() {
+    String weatherName() {
         String p = weather.place();
         if (Weather.OFF.equals(p)) return getString(R.string.weather_off);
         if (Weather.AUTO.equals(p)) {
@@ -792,7 +785,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 .setOnCancelListener(d -> Profiles.asked(this));
     }
 
-    private void showProfilesMenu() {
+    void showProfilesMenu() {
         List<String[]> people = Profiles.list(this);
         String current = Profiles.active(this);
         List<String> labels = new ArrayList<>();
@@ -843,7 +836,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         GlassMenu.input(this, title, initial, name -> l.onName(name.length() > 24 ? name.substring(0, 24) : name));
     }
 
-    private void showWallpaperMenu() {
+    void showWallpaperMenu() {
         String current = getSharedPreferences(LOOK_PREFS, MODE_PRIVATE).getString(Profiles.key(this, KEY_WALLPAPER), WP_THEME);
         List<String> labels = new ArrayList<>();
         List<Runnable> actions = new ArrayList<>();
@@ -864,12 +857,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         labels.add(getString(R.string.wp_send));
         actions.add(this::showPhotoReceiver);
-        boolean motion = LiveWallpaper.enabled(this);
-        labels.add(getString(motion ? R.string.wp_motion_on : R.string.wp_motion_off));
-        actions.add(() -> {
-            LiveWallpaper.setEnabled(this, !motion);
-            recreate();
-        });
+
         GlassMenu.list(this, getString(R.string.menu_title), getString(R.string.menu_wallpaper),
                 labels.toArray(new String[0]), which -> actions.get(which).run());
     }

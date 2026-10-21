@@ -116,7 +116,8 @@ final class TvCheck {
         LinearLayout hero = GlassMenu.hero(a, Build.MANUFACTURER + " " + Build.MODEL,
                 a.getString(R.string.chk_hero, Build.VERSION.RELEASE, build,
                         String.format(java.util.Locale.US, "%.1f", mi.totalMem / 1073741824.0)),
-                afterSetup ? a.getString(R.string.chk_after_setup) : null);
+                afterSetup ? a.getString(R.string.chk_after_setup)
+                        : SafeStart.lastProblem(a) != null ? a.getString(R.string.chk_last_problem, SafeStart.lastProblem(a)) : null);
         GlassMenu.page(a, a.getString(R.string.menu_setup), a.getString(R.string.chk_title), hero, rows, null, 0);
     }
 }

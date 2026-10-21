@@ -178,7 +178,7 @@
     <string name="tv_title">Ce téléviseur</string>
     <string name="tv_network">Réseau</string>
     <string name="tv_picture">Image et son</string>
-    <string name="tv_picture_value">Texte, mode nuit</string>
+    <string name="tv_picture_value">Volume, économiseur</string>
     <string name="tv_remotes">Télécommandes</string>
     <string name="tv_remotes_value">Télécommandes associées</string>
     <string name="tv_apps">Applications</string>
@@ -317,4 +317,25 @@
     <string name="tv_night_sunset">Coucher du soleil (%1$s)</string>
     <string name="np_no_lyrics">Pas de paroles pour ce titre</string>
     <string name="np_finding_lyrics">Recherche des paroles…</string>
+    <string name="hs_look">Apparence</string>
+    <string name="hs_night">Nuit et veille</string>
+    <string name="hs_music">Musique</string>
+    <string name="hs_music_value">Carte, lecteur, paroles</string>
+    <string name="hs_sound">Son et télécommande</string>
+    <string name="hs_sound_value">Sons, panneau rapide</string>
+    <string name="hs_setup">Mises à jour et configuration</string>
+    <string name="hs_motion">Fond d\'écran animé</string>
+    <string name="hs_weather_fx">Météo sur le fond d\'écran</string>
+    <string name="hs_np_size">Carte En lecture</string>
+    <string name="hs_np_full">Grande</string>
+    <string name="hs_np_small">Petite</string>
+    <string name="hs_np_auto">Lecteur plein écran automatique</string>
+    <string name="hs_lyrics">Paroles</string>
+    <string name="hs_mood">Lumière aux couleurs de l\'album</string>
+    <string name="hs_check_updates">Rechercher une mise à jour</string>
+    <string name="safe_title">Démarré en mode sans échec</string>
+    <string name="safe_message">TV Home a eu du mal à démarrer : il fonctionne sans le fond animé, la météo et la lumière d\'album. Le reste fonctionne. Une mise à jour corrigée suit en général rapidement.</string>
+    <string name="safe_update">Rechercher une mise à jour</string>
+    <string name="safe_effects">Réactiver les effets</string>
+    <string name="chk_last_problem">Dernier problème : %1$s</string>
 </resources>

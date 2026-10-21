@@ -177,7 +177,7 @@
     <string name="tv_title">This TV</string>
     <string name="tv_network">Network</string>
     <string name="tv_picture">Picture &amp; sound</string>
-    <string name="tv_picture_value">Text size, night mode</string>
+    <string name="tv_picture_value">Volume, screensaver</string>
     <string name="tv_remotes">Remotes</string>
     <string name="tv_remotes_value">Paired remotes</string>
     <string name="tv_apps">Apps</string>
@@ -316,4 +316,25 @@
     <string name="tv_night_sunset">Sunset (%1$s)</string>
     <string name="np_no_lyrics">No lyrics for this song</string>
     <string name="np_finding_lyrics">Finding the lyrics…</string>
+    <string name="hs_look">Look</string>
+    <string name="hs_night">Night &amp; sleep</string>
+    <string name="hs_music">Music</string>
+    <string name="hs_music_value">Card, player, lyrics</string>
+    <string name="hs_sound">Sound &amp; remote</string>
+    <string name="hs_sound_value">Sounds, Quick panel</string>
+    <string name="hs_setup">Updates &amp; setup</string>
+    <string name="hs_motion">Moving wallpaper</string>
+    <string name="hs_weather_fx">Weather on the wallpaper</string>
+    <string name="hs_np_size">Now playing card</string>
+    <string name="hs_np_full">Full</string>
+    <string name="hs_np_small">Small</string>
+    <string name="hs_np_auto">Full-screen player by itself</string>
+    <string name="hs_lyrics">Lyrics</string>
+    <string name="hs_mood">Album colour lighting</string>
+    <string name="hs_check_updates">Check for updates</string>
+    <string name="safe_title">Started in safe mode</string>
+    <string name="safe_message">TV Home had trouble starting, so it\'s running with the moving wallpaper, weather and album lighting off. Everything else works. A fixed update usually follows soon.</string>
+    <string name="safe_update">Check for an update</string>
+    <string name="safe_effects">Effects back on</string>
+    <string name="chk_last_problem">Last problem: %1$s</string>
 </resources>
