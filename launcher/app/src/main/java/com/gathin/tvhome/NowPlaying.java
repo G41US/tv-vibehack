@@ -632,30 +632,10 @@ final class NowPlaying {
         private android.widget.ScrollView lyricsScroll;
         private LinearLayout lyricsLines;
         private TextView lyricsStatus;
-        private ImageView lyricsButton;
         private Lyrics.Song song;
         private String songKey = "";
         private boolean searching;
         private int lit = -2;
-
-        private boolean lyricsOn() {
-            return act.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean("lyrics_on", true);
-        }
-
-        private void toggleLyrics() {
-            if (song == null && !searching) {
-                hint.setText(act.getString(R.string.np_no_lyrics));
-                hint.setAlpha(1f);
-                handler.removeCallbacks(resetHint);
-                handler.postDelayed(() -> {
-                    resetHint.run();
-                    if (!bar.isFocused()) hint.setAlpha(0f);
-                }, 2000);
-                return;
-            }
-            act.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean("lyrics_on", !lyricsOn()).apply();
-            showLyricsOrCover();
-        }
 
         private void findLyrics(MediaMetadata md) {
             String t = String.valueOf(md.getText(MediaMetadata.METADATA_KEY_TITLE));
@@ -696,8 +676,8 @@ final class NowPlaying {
         }
 
         private void showLyricsOrCover() {
-            boolean want = lyricsOn() && (song != null || searching);
-            lyricsButton.setAlpha(song != null || searching ? 1f : 0.45f);
+            // Lyrics whenever the song has them (the big cover moves beside the name); otherwise the cover.
+            boolean want = song != null;
             lyricsScroll.setVisibility(want ? View.VISIBLE : View.GONE);
             cover.setVisibility(want ? View.GONE : View.VISIBLE);
             if (want != (smallCover.getVisibility() == View.VISIBLE)) {
@@ -709,7 +689,7 @@ final class NowPlaying {
                     smallCover.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(320).start();
                 }
             }
-            lyricsStatus.setVisibility(want && song == null ? View.VISIBLE : View.GONE);
+            lyricsStatus.setVisibility(View.GONE);
             lyricsLines.setVisibility(song != null ? View.VISIBLE : View.GONE);
             if (want && song != null) followLyrics();
         }
@@ -902,11 +882,7 @@ final class NowPlaying {
             controls.addView(prev);
             controls.addView(play);
             controls.addView(next);
-            lyricsButton = bigButton(R.drawable.ic_np_lyrics, 48, this::toggleLyrics);
-            LinearLayout.LayoutParams llp = (LinearLayout.LayoutParams) lyricsButton.getLayoutParams();
-            llp.leftMargin = dp(14);
-            controls.addView(lyricsButton);
-            lyricsButton.setOnKeyListener((v, kc, e) -> kc == KeyEvent.KEYCODE_DPAD_RIGHT && e.getAction() == KeyEvent.ACTION_DOWN);
+            next.setOnKeyListener((v, kc, e) -> kc == KeyEvent.KEYCODE_DPAD_RIGHT && e.getAction() == KeyEvent.ACTION_DOWN);
             prev.setOnKeyListener((v, kc, e) -> kc == KeyEvent.KEYCODE_DPAD_LEFT && e.getAction() == KeyEvent.ACTION_DOWN);
 
             LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
