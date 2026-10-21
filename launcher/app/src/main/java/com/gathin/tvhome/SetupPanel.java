@@ -135,6 +135,13 @@ final class SetupPanel {
             }
             dialog.dismiss();
         });
+        // Everything above in one go, on the TV itself (no phone): see SelfSetup.
+        TextView auto = pill(act.getString(R.string.ss_do_it_all));
+        auto.setOnClickListener(v -> {
+            dialog.dismiss();
+            SelfSetup.show(act);
+        });
+        bar.addView(auto);
         bar.addView(done);
         box.addView(bar, barLp);
 

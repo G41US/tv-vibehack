@@ -665,7 +665,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                         getString(R.string.updates_value, String.valueOf(installedBuild())), () -> updater.check(true)),
                 new GlassMenu.Tile(R.drawable.ic_m_setup, getString(R.string.menu_setup),
                         getString(setupPanel.allDone() ? R.string.setup_value_done : R.string.setup_value_todo),
-                        setupPanel::show),
+                        () -> GlassMenu.list(this, getString(R.string.menu_title), getString(R.string.menu_setup),
+                                new String[]{getString(R.string.ss_menu_quick), getString(R.string.ss_menu_self),
+                                        getString(R.string.chk_title)}, which -> {
+                                    if (which == 0) setupPanel.show();
+                                    else if (which == 1) SelfSetup.show(this);
+                                    else TvCheck.show(this, false);
+                                })),
         };
         GlassMenu.grid(this, getString(R.string.menu_kicker), getString(R.string.menu_title), tiles, 4);
     }
