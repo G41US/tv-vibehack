@@ -518,6 +518,72 @@ final class GlassMenu {
         return d;
     }
 
+    // ---- dropdown ----------------------------------------------------------------------------------
+
+    /** A small glass menu hanging under {@code anchor}, right-aligned with it: icon and name per row. */
+    static Dialog dropdown(Activity a, View anchor, int[] icons, CharSequence[] labels, OnPick pick) {
+        LinearLayout content = column(a);
+        ColorStateList ink = a.getColorStateList(R.color.menu_ink);
+        final Dialog[] holder = new Dialog[1];
+        View first = null;
+        for (int i = 0; i < labels.length; i++) {
+            LinearLayout row = new LinearLayout(a);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            row.setFocusable(true);
+            row.setClickable(true);
+            row.setBackgroundResource(R.drawable.menu_row_bg);
+            row.setPadding(dp(a, 16), 0, dp(a, 18), 0);
+            ImageView icon = new ImageView(a);
+            icon.setImageResource(icons[i]);
+            icon.setImageTintList(ink);
+            icon.setDuplicateParentStateEnabled(true);
+            LinearLayout.LayoutParams ilp = new LinearLayout.LayoutParams(dp(a, 22), dp(a, 22));
+            ilp.rightMargin = dp(a, 14);
+            row.addView(icon, ilp);
+            row.addView(text(a, labels[i], 17, ink));
+            final int which = i;
+            row.setOnClickListener(v -> {
+                holder[0].dismiss();
+                pick.onPick(which);
+            });
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(a, 50));
+            lp.topMargin = i == 0 ? 0 : dp(a, 4);
+            content.addView(row, lp);
+            if (first == null) first = row;
+        }
+        Dialog d = new Dialog(a);
+        d.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        LinearLayout card = new LinearLayout(a);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setBackgroundResource(R.drawable.glass_panel);
+        card.setPadding(dp(a, 10), dp(a, 10), dp(a, 10), dp(a, 10));
+        card.addView(content);
+        d.setContentView(card, new ViewGroup.LayoutParams(dp(a, 250), ViewGroup.LayoutParams.WRAP_CONTENT));
+        Sounds.attach(d);
+        Window w = d.getWindow();
+        if (w != null) {
+            w.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            w.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            w.setDimAmount(0.35f);
+            int[] at = new int[2];
+            anchor.getLocationOnScreen(at);
+            int screenW = a.getResources().getDisplayMetrics().widthPixels;
+            w.setGravity(Gravity.TOP | Gravity.END);
+            WindowManager.LayoutParams lp = w.getAttributes();
+            lp.x = Math.max(0, screenW - (at[0] + anchor.getWidth()));
+            lp.y = at[1] + anchor.getHeight() + dp(a, 10);
+            w.setAttributes(lp);
+        }
+        holder[0] = d;
+        final View f = first;
+        d.setOnShowListener(x -> {
+            if (f != null) f.requestFocus();
+        });
+        d.show();
+        return d;
+    }
+
     // ---- message -----------------------------------------------------------------------------------
 
     /**

@@ -58,7 +58,7 @@ final class StillWatching {
         return prefs(ctx).getString(KEY_ACTION, def);
     }
 
-    private static boolean isRouterBox(Context ctx) {
+    static boolean isRouterBox(Context ctx) {
         try {
             ctx.getPackageManager().getPackageInfo("com.nes.hometv", 0);
             return true;

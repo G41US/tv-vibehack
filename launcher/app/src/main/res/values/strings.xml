@@ -303,4 +303,14 @@
     <string name="chk_hero">Android %1$s  ·  TV Home build %2$s  ·  %3$s GB memory</string>
     <string name="chk_after_setup">Setup finished. You can turn USB debugging off again if you like.</string>
     <string name="np_seek_hint">◀ 10 seconds ▶</string>
+    <string name="pw_title">Power</string>
+    <string name="pw_sleep">Sleep</string>
+    <string name="pw_restart">Restart</string>
+    <string name="pw_off">Shut down</string>
+    <string name="pw_restart_q">Restart the TV box now? TV Home opens again by itself when it\'s back.</string>
+    <string name="pw_off_q">Switch the TV box off? Turn it on again with the remote\'s power button or at the plug.</string>
+    <string name="pw_off_router">This box is also your Wi-Fi router. Shutting it down turns off the internet for everyone in the house until you switch it back on at the plug.</string>
+    <string name="pw_restart_now">Restarting…</string>
+    <string name="pw_off_now">Shutting down…</string>
+    <string name="pw_need_setup">To restart or shut down from TV Home, it needs the TV\'s debugging connection. Set it up once with "Set up on this TV", and keep USB debugging on.</string>
 </resources>

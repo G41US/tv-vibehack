@@ -304,4 +304,14 @@
     <string name="chk_hero">Android %1$s  ·  TV Home version %2$s  ·  %3$s Go de mémoire</string>
     <string name="chk_after_setup">Configuration terminée. Vous pouvez désactiver le débogage USB si vous le souhaitez.</string>
     <string name="np_seek_hint">◀ 10 secondes ▶</string>
+    <string name="pw_title">Alimentation</string>
+    <string name="pw_sleep">Veille</string>
+    <string name="pw_restart">Redémarrer</string>
+    <string name="pw_off">Éteindre</string>
+    <string name="pw_restart_q">Redémarrer le boîtier maintenant ? TV Home se rouvre tout seul ensuite.</string>
+    <string name="pw_off_q">Éteindre le boîtier ? Rallumez-le avec le bouton d\'alimentation de la télécommande ou à la prise.</string>
+    <string name="pw_off_router">Ce boîtier est aussi votre routeur Wi-Fi. L\'éteindre coupe Internet pour toute la maison jusqu\'à ce que vous le rallumiez à la prise.</string>
+    <string name="pw_restart_now">Redémarrage…</string>
+    <string name="pw_off_now">Arrêt…</string>
+    <string name="pw_need_setup">Pour redémarrer ou éteindre depuis TV Home, il faut la connexion de débogage du téléviseur. Configurez-la une fois avec « Configurer sur ce téléviseur » et laissez le débogage USB activé.</string>
 </resources>
