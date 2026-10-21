@@ -70,9 +70,9 @@ final class NowPlaying {
         card.setOrientation(LinearLayout.HORIZONTAL);
         card.setGravity(Gravity.CENTER_VERTICAL);
         bg = new android.graphics.drawable.GradientDrawable(android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT,
-                new int[]{0xF22A2A2E, 0xF5161618});
+                new int[]{0xA62A2A2E, 0x8C161618});   // see-through: the wallpaper shows under it
         bg.setCornerRadius(dp(20));
-        bg.setStroke(dp(1), 0x33FFFFFF);
+        bg.setStroke(dp(1), 0x4DFFFFFF);
         card.setBackground(bg);
         card.setPadding(dp(12), dp(12), dp(14), dp(12));
         card.setElevation(dp(8));
@@ -88,11 +88,11 @@ final class NowPlaying {
         });
         art.setClipToOutline(true);
         art.setElevation(dp(4));
-        card.addView(art, new LinearLayout.LayoutParams(dp(68), dp(68)));
+        card.addView(art, new LinearLayout.LayoutParams(dp(60), dp(60)));
 
         LinearLayout text = new LinearLayout(act);
         text.setOrientation(LinearLayout.VERTICAL);
-        text.setPadding(dp(14), 0, dp(10), 0);
+        text.setPadding(dp(12), 0, dp(8), 0);
         title = label(17, 0xFFFFFFFF, 620);
         // Long titles scroll slowly instead of being cut off.
         title.setEllipsize(TextUtils.TruncateAt.MARQUEE);
@@ -126,7 +126,7 @@ final class NowPlaying {
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         plp.topMargin = dp(8);
         text.addView(prow, plp);
-        card.addView(text, new LinearLayout.LayoutParams(dp(250), ViewGroup.LayoutParams.WRAP_CONTENT));
+        card.addView(text, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
         ImageView prev = button(R.drawable.ic_np_prev, () -> transport(KeyEvent.KEYCODE_MEDIA_PREVIOUS));
         playPause = button(R.drawable.ic_np_pause, () -> transport(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE));
@@ -150,9 +150,14 @@ final class NowPlaying {
         topBar.getLocationInWindow(a);
         root.getLocationInWindow(c);
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) card.getLayoutParams();
-        int top = a[1] - c[1] + topBar.getHeight() + dp(22);
-        if (lp.topMargin != top) {
+        int top = a[1] - c[1] + topBar.getHeight() + dp(16);
+        // Exactly as wide as the top bar, from the left of Search to the right of Settings.
+        int width = Math.max(topBar.getWidth(), dp(400));
+        int right = root.getWidth() - (a[0] - c[0] + topBar.getWidth());
+        if (lp.topMargin != top || lp.width != width || lp.rightMargin != right) {
             lp.topMargin = top;
+            lp.width = width;
+            lp.rightMargin = Math.max(0, right);
             card.setLayoutParams(lp);
         }
     }
@@ -166,6 +171,7 @@ final class NowPlaying {
         } catch (Exception ignored) {
         }
         t.setFontVariationSettings("'wght' " + weight);
+        t.setShadowLayer(6 * density, 0, density, 0x99000000);
         t.setSingleLine(true);
         t.setEllipsize(TextUtils.TruncateAt.END);
         return t;
@@ -180,8 +186,8 @@ final class NowPlaying {
         b.setFocusable(true);
         b.setClickable(true);
         b.setOnClickListener(v -> action.run());
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(44), dp(44));
-        lp.leftMargin = dp(6);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(40), dp(40));
+        lp.leftMargin = dp(5);
         b.setLayoutParams(lp);
         return b;
     }
@@ -277,7 +283,7 @@ final class NowPlaying {
 
     /** The card takes on the cover's colour, fading into the dark glass. */
     private void tint(Bitmap cover) {
-        int c = 0xFF2A2A2E;
+        int c = 0xA62A2A2E;
         if (cover != null) {
             try {
                 Bitmap small = Bitmap.createScaledBitmap(cover, 16, 16, true);
@@ -304,11 +310,11 @@ final class NowPlaying {
                 android.graphics.Color.colorToHSV(pick, hsv);
                 hsv[1] = Math.min(hsv[1], 0.7f);
                 hsv[2] = 0.36f;
-                c = android.graphics.Color.HSVToColor(0xF2, hsv);
+                c = android.graphics.Color.HSVToColor(0xB8, hsv);
             } catch (Exception ignored) {
             }
         }
-        bg.setColors(new int[]{c, 0xF5161618});
+        bg.setColors(new int[]{c, 0x8C161618});
         progress.setColor(0xFFFFFFFF);
     }
 
