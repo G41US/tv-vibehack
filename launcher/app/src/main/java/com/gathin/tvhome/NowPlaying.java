@@ -635,6 +635,7 @@ final class NowPlaying {
             total.setText("-" + fmt(dur - pos));
         }
         private Bitmap shown;
+        private String fullTitle;
         private ImageView smallCover;
 
         // ---- lyrics: in the cover's place, the current line lit, scrolling with the song ----
@@ -679,6 +680,7 @@ final class NowPlaying {
                 t.setAlpha(song.synced ? 0.32f : 0.85f);
                 t.setPivotX(0);
                 t.setPadding(0, dp(8), dp(24), dp(8));
+                t.setShadowLayer(0, 0, 0, 0);   // shadows on every line cost frames; only the lit one glows
                 lyricsLines.addView(t);
             }
             lyricsLines.setPadding(0, dp(130), 0, dp(200));
@@ -687,8 +689,14 @@ final class NowPlaying {
         private void showLyricsOrCover() {
             // Lyrics whenever the song has them (the big cover moves beside the name); otherwise the cover.
             boolean want = song != null;
+            boolean was = lyricsScroll.getVisibility() == View.VISIBLE;
             lyricsScroll.setVisibility(want ? View.VISIBLE : View.GONE);
             cover.setVisibility(want ? View.GONE : View.VISIBLE);
+            if (want != was) {
+                View in = want ? lyricsScroll : cover;
+                in.setAlpha(0f);
+                in.animate().alpha(1f).setDuration(260).start();
+            }
             if (want != (smallCover.getVisibility() == View.VISIBLE)) {
                 smallCover.setVisibility(want ? View.VISIBLE : View.GONE);
                 if (want) {
@@ -734,8 +742,8 @@ final class NowPlaying {
                 if (song.synced) {
                     // The sung line lights up with a soft glow in the song's colour; sung lines fade back.
                     v.animate().alpha(on ? 1f : (i < idx ? 0.24f : 0.42f)).setDuration(320).start();
-                    ((TextView) v).setShadowLayer(on ? 18 * density : 6 * density, 0, on ? 0 : density,
-                            on ? (glowColor & 0x00FFFFFF) | 0xCC000000 : 0x99000000);
+                    if (on) ((TextView) v).setShadowLayer(16 * density, 0, 0, (glowColor & 0x00FFFFFF) | 0xCC000000);
+                    else ((TextView) v).setShadowLayer(0, 0, 0, 0);
                 }
             }
             View target = lyricsLines.getChildAt(Math.max(0, idx));
@@ -949,7 +957,7 @@ final class NowPlaying {
             root.setAlpha(0f);
             d.setOnShowListener(x -> {
                 play.requestFocus();
-                root.animate().alpha(1f).setDuration(350).start();
+                root.animate().alpha(1f).setDuration(200).start();
             });
             d.show();
             update(true);
@@ -984,6 +992,51 @@ final class NowPlaying {
             }
         }
 
+        /** A soft blur of the cover, made once: shrink, box-blur a few times. */
+        private Bitmap softBlur(Bitmap src) {
+            int n = 36;
+            Bitmap small = Bitmap.createScaledBitmap(src, n, n, true).copy(Bitmap.Config.ARGB_8888, true);
+            int[] p = new int[n * n], q = new int[n * n];
+            small.getPixels(p, 0, n, 0, 0, n, n);
+            for (int pass = 0; pass < 3; pass++) {
+                for (int y = 0; y < n; y++) {
+                    for (int x = 0; x < n; x++) {
+                        int r = 0, g = 0, b = 0, cnt = 0;
+                        for (int dy = -1; dy <= 1; dy++) {
+                            for (int dx = -1; dx <= 1; dx++) {
+                                int xx = Math.min(n - 1, Math.max(0, x + dx)), yy = Math.min(n - 1, Math.max(0, y + dy));
+                                int c = p[yy * n + xx];
+                                r += (c >> 16) & 255;
+                                g += (c >> 8) & 255;
+                                b += c & 255;
+                                cnt++;
+                            }
+                        }
+                        q[y * n + x] = 0xFF000000 | ((r / cnt) << 16) | ((g / cnt) << 8) | (b / cnt);
+                    }
+                }
+                int[] t = p;
+                p = q;
+                q = t;
+            }
+            small.setPixels(p, 0, n, 0, 0, n, n);
+            return small;
+        }
+
+        /** Swaps a picture with a short fade instead of a cut. */
+        private void crossfade(ImageView v, android.graphics.drawable.Drawable next) {
+            android.graphics.drawable.Drawable prev = v.getDrawable();
+            if (prev == null) {
+                v.setImageDrawable(next);
+                return;
+            }
+            android.graphics.drawable.TransitionDrawable td =
+                    new android.graphics.drawable.TransitionDrawable(new android.graphics.drawable.Drawable[]{prev, next});
+            td.setCrossFadeEnabled(true);
+            v.setImageDrawable(td);
+            td.startTransition(400);
+        }
+
         /** Refreshes from the session; {@code all} also redoes the pictures. */
         void update(boolean all) {
             if (d == null || current == null) return;
@@ -991,7 +1044,17 @@ final class NowPlaying {
             PlaybackState st = current.getPlaybackState();
             if (md == null) return;
             boolean playing = st != null && st.getState() == PlaybackState.STATE_PLAYING;
-            title.setText(String.valueOf(md.getText(MediaMetadata.METADATA_KEY_TITLE)));
+            String newTitle = String.valueOf(md.getText(MediaMetadata.METADATA_KEY_TITLE));
+            if (!newTitle.equals(fullTitle)) {
+                if (fullTitle != null) {   // a new song: its name and artist fade in
+                    for (View v : new View[]{title, artist, album}) {
+                        v.setAlpha(0f);
+                        v.animate().alpha(1f).setDuration(320).start();
+                    }
+                }
+                fullTitle = newTitle;
+            }
+            title.setText(newTitle);
             title.setRunning(true);
             findLyrics(md);
             CharSequence who = md.getText(MediaMetadata.METADATA_KEY_ARTIST);
@@ -1009,11 +1072,12 @@ final class NowPlaying {
                 if (c != null) {
                     cover.setImageBitmap(c);
                     smallCover.setImageBitmap(c);
-                    backdrop.setImageBitmap(Bitmap.createScaledBitmap(c, 48, 48, true));
-                    if (android.os.Build.VERSION.SDK_INT >= 31) {
-                        backdrop.setRenderEffect(android.graphics.RenderEffect.createBlurEffect(
-                                dp(24), dp(24), android.graphics.Shader.TileMode.CLAMP));
-                    }
+                    // Blurred once on the CPU (a tiny picture, softened, then stretched): a live blur
+                    // effect was redone on every frame and made the player stutter on TV boxes.
+                    android.graphics.drawable.BitmapDrawable bd = new android.graphics.drawable.BitmapDrawable(
+                            act.getResources(), softBlur(c));
+                    bd.setFilterBitmap(true);
+                    crossfade(backdrop, bd);
                 } else {
                     cover.setImageDrawable(appIcon(current.getPackageName()));
                     smallCover.setImageDrawable(appIcon(current.getPackageName()));
