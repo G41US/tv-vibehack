@@ -60,6 +60,23 @@ final class Weather {
         this.ctx = ctx.getApplicationContext();
     }
 
+    static final String KEY_CODE = "code", KEY_VIS = "visibility", KEY_SUNSET = "sunset";
+
+    /** The current WMO weather code (-1 unknown) and visibility in metres, as last fetched. */
+    static int code(Context ctx) {
+        return ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getInt(KEY_CODE, -1);
+    }
+
+    static float visibility(Context ctx) {
+        return ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getFloat(KEY_VIS, 99999f);
+    }
+
+    /** Today's sunset "18:21" for the place, or null if not known yet. */
+    static String sunset(Context ctx) {
+        String s = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_SUNSET, "");
+        return s.matches("\\d{1,2}:\\d{2}") ? s : null;
+    }
+
     private SharedPreferences prefs() {
         return ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
@@ -215,7 +232,7 @@ final class Weather {
         String city = (String) where[0];
         double lat = (Double) where[1], lon = (Double) where[2];
         String url = String.format(Locale.US, "https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f"
-                + "&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min"
+                + "&current=temperature_2m,weather_code,visibility&daily=temperature_2m_max,temperature_2m_min,sunset"
                 + "&timezone=auto&forecast_days=1", lat, lon);
         JSONObject j = new JSONObject(get(url));
         JSONObject cur = j.getJSONObject("current");
@@ -224,6 +241,11 @@ final class Weather {
         long hi = Math.round(daily.getJSONArray("temperature_2m_max").getDouble(0));
         long lo = Math.round(daily.getJSONArray("temperature_2m_min").getDouble(0));
         String sky = describe(ctx, cur.getInt("weather_code"));
+        // Kept for the wallpaper's weather effects and Night mode from sunset.
+        String sunset = daily.has("sunset") ? timeOf(daily.getJSONArray("sunset").optString(0, "")) : "";
+        prefs().edit().putInt(KEY_CODE, cur.getInt("weather_code"))
+                .putFloat(KEY_VIS, (float) cur.optDouble("visibility", 99999))
+                .putString(KEY_SUNSET, sunset).apply();
         StringBuilder s = new StringBuilder();
         s.append(now).append("°  ").append(sky).append("  ·  ")
                 .append(ctx.getString(R.string.weather_hilo, (int) hi, (int) lo));

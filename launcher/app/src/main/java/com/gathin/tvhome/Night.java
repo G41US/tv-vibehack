@@ -14,7 +14,8 @@ import java.util.Calendar;
 final class Night {
 
     static final String PREFS = "night", KEY_START = "start", KEY_CAP = "cap";
-    static final int[] STARTS = {0, 21, 22, 23};      // 0 = off
+    static final int[] STARTS = {0, SUNSET, 21, 22, 23};   // 0 = off
+    static final int SUNSET = -1;                        // starts at today's sunset (from the weather)
     static final int[] CAPS = {40, 30, 50, 0};        // percent; 0 = no limit
     static final int END = 6;
 
@@ -43,9 +44,19 @@ final class Night {
 
     static boolean active(Context ctx) {
         int s = start(ctx);
-        if (s <= 0) return false;
-        int h = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        return h >= s || h < END;
+        if (s == 0) return false;
+        Calendar now = Calendar.getInstance();
+        int minutes = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
+        int from = s == SUNSET ? sunsetMinutes(ctx) : s * 60;
+        return minutes >= from || minutes < END * 60;
+    }
+
+    /** Today's sunset in minutes after midnight; 18:30 until the weather has said. */
+    static int sunsetMinutes(Context ctx) {
+        String t = Weather.sunset(ctx);
+        if (t == null) return 18 * 60 + 30;
+        String[] p = t.split(":");
+        return Integer.parseInt(p[0]) * 60 + Integer.parseInt(p[1]);
     }
 
     /** At night, brings the volume down to the limit if it's above it. True if it changed it. */

@@ -314,4 +314,7 @@
     <string name="pw_restart_now">Redémarrage…</string>
     <string name="pw_off_now">Arrêt…</string>
     <string name="pw_need_setup">Pour redémarrer ou éteindre depuis TV Home, il faut la connexion de débogage du téléviseur. Configurez-la une fois avec « Configurer sur ce téléviseur » et laissez le débogage USB activé.</string>
+    <string name="tv_night_sunset">Coucher du soleil (%1$s)</string>
+    <string name="np_no_lyrics">Pas de paroles pour ce titre</string>
+    <string name="np_finding_lyrics">Recherche des paroles…</string>
 </resources>

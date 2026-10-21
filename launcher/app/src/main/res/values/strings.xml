@@ -313,4 +313,7 @@
     <string name="pw_restart_now">Restarting…</string>
     <string name="pw_off_now">Shutting down…</string>
     <string name="pw_need_setup">To restart or shut down from TV Home, it needs the TV\'s debugging connection. Set it up once with "Set up on this TV", and keep USB debugging on.</string>
+    <string name="tv_night_sunset">Sunset (%1$s)</string>
+    <string name="np_no_lyrics">No lyrics for this song</string>
+    <string name="np_finding_lyrics">Finding the lyrics…</string>
 </resources>

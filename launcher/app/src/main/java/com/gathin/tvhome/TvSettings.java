@@ -251,8 +251,18 @@ final class TvSettings {
 
         int start = Night.start(act);
         String nightName;
-        if (start <= 0) {
+        if (start == 0) {
             nightName = s(R.string.tv_off);
+        } else if (start == Night.SUNSET) {
+            java.text.DateFormat tf = DateFormat.getTimeFormat(act);
+            java.util.Calendar c = java.util.Calendar.getInstance();
+            c.set(java.util.Calendar.MINUTE, 0);
+            c.set(java.util.Calendar.HOUR_OF_DAY, Night.END);
+            int ss = Night.sunsetMinutes(act);
+            java.util.Calendar sc = java.util.Calendar.getInstance();
+            sc.set(java.util.Calendar.HOUR_OF_DAY, ss / 60);
+            sc.set(java.util.Calendar.MINUTE, ss % 60);
+            nightName = s(R.string.tv_night_sunset, tf.format(sc.getTime())) + " – " + tf.format(c.getTime());
         } else {
             java.text.DateFormat tf = DateFormat.getTimeFormat(act);
             java.util.Calendar c = java.util.Calendar.getInstance();
