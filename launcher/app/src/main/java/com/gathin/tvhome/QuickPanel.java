@@ -33,6 +33,8 @@ public class QuickPanel extends Activity {
     static volatile boolean showing;
 
     private Dialog dialog;
+    /** A row is about to redraw the panel: closing the old card must not close the panel. */
+    private boolean reopening;
 
     static boolean enabled(Context ctx) {
         return ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY, true);
@@ -114,6 +116,7 @@ public class QuickPanel extends Activity {
             rows.add(new GlassMenu.Row(playing ? R.drawable.ic_np_pause : R.drawable.ic_np_play,
                     TextUtils.isEmpty(title) ? getString(R.string.qp_media) : title,
                     TextUtils.isEmpty(artist) ? getString(R.string.qp_skip) : artist, () -> {
+                reopening = true;
                 if (playing) mc.getTransportControls().pause();
                 else mc.getTransportControls().play();
                 getWindow().getDecorView().postDelayed(() -> render(0), 350);
@@ -139,6 +142,7 @@ public class QuickPanel extends Activity {
         int at = rows.size();
         rows.add(new GlassMenu.Row(R.drawable.ic_m_moon, getString(R.string.tv_night),
                 getString(start > 0 ? R.string.tv_on : R.string.tv_off), () -> {
+            reopening = true;
             int last = getSharedPreferences(Night.PREFS, MODE_PRIVATE).getInt("last_start", 22);
             if (start > 0) {
                 getSharedPreferences(Night.PREFS, MODE_PRIVATE).edit().putInt("last_start", start).apply();
@@ -162,7 +166,10 @@ public class QuickPanel extends Activity {
 
         String now = DateFormat.getTimeFormat(this).format(new Date());
         dialog = GlassMenu.page(this, getString(R.string.qp_kicker), now, null, rows, null, focus);
-        dialog.setOnDismissListener(d -> finish());
+        dialog.setOnDismissListener(d -> {
+            if (reopening) reopening = false;
+            else finish();
+        });
         Window w = dialog.getWindow();
         if (w != null) {
             w.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
