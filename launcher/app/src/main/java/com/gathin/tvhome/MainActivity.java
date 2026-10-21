@@ -141,6 +141,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             checkNet();
             weather.refresh(false, MainActivity.this::showWeather);
             DataUsage.sample(MainActivity.this);
+            updateNight();
             handler.postDelayed(this, MINUTE_MS);
         }
     };
@@ -163,6 +164,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         updater = new Updater(this);
         setupPanel = new SetupPanel(this, updater);
         tvSettings = new TvSettings(this);
+        Sounds.init(this);
         applyWallpaper(cfg);
         glass = findViewById(R.id.glass);
         ambient = findViewById(R.id.ambient);
@@ -287,10 +289,15 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         btnWifi.setOnKeyListener(pillKeys);
         btnSettings.setOnKeyListener(pillKeys);
 
+        // Now playing card under the top bar (music or video playing in another app).
+        nowPlaying = new NowPlaying(this);
+        nowPlaying.attach(root, findViewById(R.id.topButtons));
+
         // Hide the glass when focus leaves the tiles.
         getWindow().getDecorView().getViewTreeObserver().addOnGlobalFocusChangeListener((oldF, newF) -> {
             boolean onTile = newF != null && newF.getId() == R.id.card;
             if (!onTile) hideGlass();
+            if (oldF != null && newF != null) Sounds.move(this);
         });
 
         ConnectivityManager cm = getSystemService(ConnectivityManager.class);
@@ -334,7 +341,30 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             android.widget.ImageView wall = new android.widget.ImageView(this);
             wall.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
             wall.setImageBitmap(bmp);
-            root.addView(wall, 0, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            FrameLayout layer = new FrameLayout(this);
+            layer.addView(wall, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            root.addView(layer, 0, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            if (LiveWallpaper.enabled(this)) {
+                // Moving wallpaper: a slow drift, and the picture's own stars twinkle.
+                twinkle = new LiveWallpaper.Twinkle(this, density);
+                layer.addView(twinkle, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                layer.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+                driftAnim = LiveWallpaper.drift(layer, density);
+                final LiveWallpaper.Twinkle tw = twinkle;
+                new Thread(() -> {
+                    float[][] stars;
+                    try {
+                        stars = LiveWallpaper.findStars(bmp, 90);
+                    } catch (Exception | OutOfMemoryError err) {
+                        return;
+                    }
+                    final float[][] found = stars;
+                    runOnUiThread(() -> {
+                        tw.setStars(found, bmp.getWidth(), bmp.getHeight());
+                        if (hasWindowFocus() || isResumedNow()) tw.start();
+                    });
+                }).start();
+            }
         } catch (Exception | OutOfMemoryError e) {
             // A bad or huge picture must never take the home screen down; the plain colour stays.
         }
@@ -377,6 +407,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         updateWifiLabel();
         checkNet();
         updateInputsButton();
+        updateNight();
+        resumed = true;
+        nowPlaying.start();
+        if (twinkle != null) twinkle.start();
+        if (driftAnim != null) {
+            if (driftAnim.isPaused()) driftAnim.resume();
+            else if (!driftAnim.isStarted()) driftAnim.start();
+        }
         handler.postDelayed(minuteTick, MINUTE_MS);
 
         // Return to the app we left from, or the same slot if that app is gone. Always refocus: after
@@ -392,6 +430,46 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         super.onPause();
         BackupStore.saveAsync(this);
         handler.removeCallbacks(minuteTick);
+        resumed = false;
+        nowPlaying.stop();
+        if (twinkle != null) twinkle.stop();
+        if (driftAnim != null) driftAnim.pause();
+    }
+
+    // ---- night mode, moving wallpaper, sounds --------------------------------------------------
+
+    private View nightShade;
+    private LiveWallpaper.Twinkle twinkle;
+    private android.animation.ValueAnimator driftAnim;
+    private NowPlaying nowPlaying;
+
+    /** Night mode: a warm, dimming veil over the home screen between the night hours. */
+    private boolean resumed;
+
+    private boolean isResumedNow() {
+        return resumed;
+    }
+
+    void refreshNight() {
+        updateNight();
+    }
+
+    private void updateNight() {
+        boolean on = Night.active(this);
+        if (on && nightShade == null) {
+            nightShade = new View(this);
+            nightShade.setBackgroundColor(0x5A1A0C00);   // dark amber: dimmer and warmer
+            nightShade.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+            root.addView(nightShade, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT));
+        }
+        if (nightShade != null) nightShade.setVisibility(on ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent e) {
+        Sounds.onKey(this, e);
+        return super.dispatchKeyEvent(e);
     }
 
     @Override
@@ -711,6 +789,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         labels.add(getString(R.string.wp_send));
         actions.add(this::showPhotoReceiver);
+        boolean motion = LiveWallpaper.enabled(this);
+        labels.add(getString(motion ? R.string.wp_motion_on : R.string.wp_motion_off));
+        actions.add(() -> {
+            LiveWallpaper.setEnabled(this, !motion);
+            recreate();
+        });
         GlassMenu.list(this, getString(R.string.menu_title), getString(R.string.menu_wallpaper),
                 labels.toArray(new String[0]), which -> actions.get(which).run());
     }
@@ -783,6 +867,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         android.app.Dialog dlg = new android.app.Dialog(this);
         dlg.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
         dlg.setContentView(R.layout.dialog_network);
+        Sounds.attach(dlg);
         android.view.Window w = dlg.getWindow();
         if (w != null) {
             w.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));

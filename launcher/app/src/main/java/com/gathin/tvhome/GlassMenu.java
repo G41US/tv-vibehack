@@ -165,6 +165,7 @@ final class GlassMenu {
         card.setPadding(pad, dp(a, 26), pad, dp(a, 26));
         card.addView(content);
         d.setContentView(card, new ViewGroup.LayoutParams(dp(a, widthDp), ViewGroup.LayoutParams.WRAP_CONTENT));
+        Sounds.attach(d);
         Window w = d.getWindow();
         if (w != null) {
             w.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
