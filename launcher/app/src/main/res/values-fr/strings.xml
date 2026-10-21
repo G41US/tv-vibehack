@@ -261,4 +261,7 @@
     <string name="fc_today">Aujourd\'hui</string>
     <string name="qp_skip">◀ ▶ pour passer</string>
     <string name="np_now_playing">En lecture</string>
+    <string name="setup_manual_home">Ce téléviseur n\'a pas de raccourci vers cette page. Avec la télécommande : Paramètres → Système (ou Préférences de l\'appareil) → Accessibilité → TV Home → activer. Ou lancez une fois le script de configuration depuis un téléphone.</string>
+    <string name="setup_manual_updates">Ce téléviseur n\'a pas de raccourci vers cette page. Avec la télécommande : Paramètres → Applications → Sécurité et restrictions → Sources inconnues → TV Home → autoriser. Ou lancez une fois le script de configuration depuis un téléphone.</string>
+    <string name="setup_manual_default">Ce téléviseur ne permet pas de choisir l\'écran d\'accueil. Ce n\'est pas grave : l\'étape du bouton Accueil fait déjà s\'ouvrir TV Home.</string>
 </resources>

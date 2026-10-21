@@ -64,8 +64,21 @@ final class SetupPanel {
     /** True/false when the box has a home picker; null when it has none (the service covers Home). */
     private Boolean defaultHome() {
         RoleManager rm = act.getSystemService(RoleManager.class);
-        if (rm != null && rm.isRoleAvailable(RoleManager.ROLE_HOME)) return rm.isRoleHeld(RoleManager.ROLE_HOME);
-        return null;
+        if (rm == null || !rm.isRoleAvailable(RoleManager.ROLE_HOME)) return null;
+        if (rm.isRoleHeld(RoleManager.ROLE_HOME)) return true;
+        // Some TVs (TCL among them) have the role but no screen to choose it: then skip the step,
+        // the Home button service covers it.
+        boolean canAsk = canOpen(rm.createRequestRoleIntent(RoleManager.ROLE_HOME))
+                || canOpen(new Intent(Settings.ACTION_HOME_SETTINGS));
+        return canAsk ? false : null;
+    }
+
+    private boolean canOpen(Intent i) {
+        try {
+            return i.resolveActivity(act.getPackageManager()) != null;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /** True when the required steps are done (the optional ones don't count). */
@@ -210,27 +223,50 @@ final class SetupPanel {
 
     private void openAccessibility() {
         Toast.makeText(act, R.string.setup_home_toast, Toast.LENGTH_LONG).show();
-        Intent i = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-        if (android.os.Build.VERSION.SDK_INT >= 33) {
-            Intent details = new Intent("android.settings.ACCESSIBILITY_DETAILS_SETTINGS")
-                    .putExtra(Intent.EXTRA_COMPONENT_NAME,
-                            new ComponentName(act, HomeKeyService.class).flattenToString());
-            if (details.resolveActivity(act.getPackageManager()) != null) i = details;
-        }
-        start(i);
+        Intent details = new Intent("android.settings.ACCESSIBILITY_DETAILS_SETTINGS")
+                .putExtra(Intent.EXTRA_COMPONENT_NAME, new ComponentName(act, HomeKeyService.class).flattenToString());
+        startFirst(R.string.setup_home_title, R.string.setup_manual_home,
+                android.os.Build.VERSION.SDK_INT >= 33 ? details : null,
+                new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
     }
 
     private void openInstallSettings() {
-        start(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + act.getPackageName())));
+        startFirst(R.string.setup_updates_title, R.string.setup_manual_updates,
+                new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:" + act.getPackageName())),
+                new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES),
+                new Intent(Settings.ACTION_SECURITY_SETTINGS));
+    }
+
+    /**
+     * Opens the first of these settings pages this TV really has. If it has none, TV Home's own glass
+     * message says where to find the setting with the remote, and that the setup script does it too:
+     * never Android's "No application can handle this action".
+     */
+    private void startFirst(int titleRes, int manualRes, Intent... options) {
+        for (Intent i : options) {
+            if (i == null || !canOpen(i)) continue;
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            try {
+                act.startActivity(i);
+                return;
+            } catch (Exception ignored) {
+            }
+        }
+        GlassMenu.message(act, act.getString(titleRes), act.getString(manualRes),
+                new String[]{act.getString(android.R.string.ok)}, null);
     }
 
     private void requestHomeRole() {
         RoleManager rm = act.getSystemService(RoleManager.class);
-        try {
-            act.startActivityForResult(rm.createRequestRoleIntent(RoleManager.ROLE_HOME), REQUEST_HOME_ROLE);
-        } catch (Exception e) {
-            start(new Intent(Settings.ACTION_HOME_SETTINGS));
+        Intent ask = rm != null ? rm.createRequestRoleIntent(RoleManager.ROLE_HOME) : null;
+        if (ask != null && canOpen(ask)) {
+            try {
+                act.startActivityForResult(ask, REQUEST_HOME_ROLE);
+                return;
+            } catch (Exception ignored) {
+            }
         }
+        startFirst(R.string.setup_default_title, R.string.setup_manual_default, new Intent(Settings.ACTION_HOME_SETTINGS));
     }
 
     private void start(Intent i) {
