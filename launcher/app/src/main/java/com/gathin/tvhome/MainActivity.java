@@ -317,6 +317,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         // Now playing card under the top bar (music or video playing in another app).
         nowPlaying = new NowPlaying(this);
         nowPlaying.attach(root, findViewById(R.id.topButtons));
+        // Album colour lighting, over the wallpaper and under everything else.
+        mood = new MoodLight(this, density);
+        mood.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO);
+        root.addView(mood, Math.max(0, root.indexOfChild(ambient)), new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        nowPlaying.setMood((a, b, playing) -> mood.set(a, b, playing));
 
         // Hide the glass when focus leaves the tiles.
         getWindow().getDecorView().getViewTreeObserver().addOnGlobalFocusChangeListener((oldF, newF) -> {
@@ -378,6 +384,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 twinkle = new LiveWallpaper.Twinkle(this, density);
                 layer.addView(twinkle, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 driftAnim = LiveWallpaper.drift(layer, density);
+                // Live weather: rain, storms, snow, harmattan haze or fog at the weather's place.
+                weatherFx = new WeatherFx(this, density);
+                layer.addView(weatherFx, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                weatherFx.setMode(WeatherFx.modeFor(Weather.code(this), Weather.visibility(this)));
                 final LiveWallpaper.Twinkle tw = twinkle;
                 new Thread(() -> {
                     float[][] stars;
@@ -438,6 +448,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         updateNight();
         resumed = true;
         nowPlaying.start();
+        if (weatherFx != null) weatherFx.start();
+        if (mood != null) mood.resume();
         if (twinkle != null) twinkle.start();
         if (driftAnim != null) {
             if (driftAnim.isPaused()) driftAnim.resume();
@@ -460,6 +472,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         handler.removeCallbacks(minuteTick);
         resumed = false;
         nowPlaying.stop();
+        if (weatherFx != null) weatherFx.stop();
+        if (mood != null) mood.pause();
         if (twinkle != null) twinkle.stop();
         if (driftAnim != null) driftAnim.pause();
     }
@@ -467,6 +481,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     // ---- night mode, moving wallpaper, sounds --------------------------------------------------
 
     private View nightShade;
+    private MoodLight mood;
+    private WeatherFx weatherFx;
     private LiveWallpaper.Twinkle twinkle;
     private android.animation.ValueAnimator driftAnim;
     private NowPlaying nowPlaying;
@@ -588,6 +604,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         ((android.widget.TextClock) dateView).setFormat12Hour(fmt);
         ((android.widget.TextClock) dateView).setFormat24Hour(fmt);
         weatherView.setText(on ? line : "");
+        if (weatherFx != null) weatherFx.setMode(on ? WeatherFx.modeFor(Weather.code(this), Weather.visibility(this)) : WeatherFx.NONE);
         weatherView.setVisibility(on ? View.VISIBLE : View.GONE);
         if (weatherBlock != null) weatherBlock.setFocusable(on);
         boolean small = on || shamsi;

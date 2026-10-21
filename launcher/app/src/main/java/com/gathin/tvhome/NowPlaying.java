@@ -56,7 +56,18 @@ final class NowPlaying {
     private Ticker ticker, subTicker;
     private ImageView playPause;
     private LinearLayout info, textCol;
-    private int accent = 0xFFFFFFFF, glowColor = 0xFF000000;
+    private int accent = 0xFFFFFFFF, glowColor = 0xFF000000, secondColor = 0;
+
+    /** Album colour lighting (MoodLight on Home): the cover's two colours, and whether music plays. */
+    interface Mood {
+        void on(int a, int b, boolean playing);
+    }
+
+    private Mood mood;
+
+    void setMood(Mood m) {
+        mood = m;
+    }
     private String lastTitle = "";
     private android.animation.ValueAnimator breathe;
     private long lastInput = android.os.SystemClock.uptimeMillis();
@@ -446,6 +457,7 @@ final class NowPlaying {
     /** The card takes on the cover's colour, fading into the dark glass. */
     private void tint(Bitmap cover) {
         int c = 0xA62A2A2E;
+        secondColor = 0;
         if (cover != null) {
             try {
                 Bitmap small = Bitmap.createScaledBitmap(cover, 16, 16, true);
@@ -468,7 +480,13 @@ final class NowPlaying {
                     }
                 }
                 if (small != cover) small.recycle();
-                if (best < 0.2f) pick = android.graphics.Color.rgb((int) (r / 256), (int) (g / 256), (int) (b / 256));
+                int avg = android.graphics.Color.rgb((int) (r / 256), (int) (g / 256), (int) (b / 256));
+                float[] h2 = new float[3];
+                android.graphics.Color.colorToHSV(avg, h2);
+                h2[1] = Math.min(0.85f, h2[1] * 1.3f + 0.1f);
+                h2[2] = 0.85f;
+                secondColor = android.graphics.Color.HSVToColor(h2);
+                if (best < 0.2f) pick = avg;
                 android.graphics.Color.colorToHSV(pick, hsv);
                 hsv[1] = Math.min(hsv[1], 0.7f);
                 hsv[2] = 0.36f;
@@ -609,6 +627,122 @@ final class NowPlaying {
         }
         private Bitmap shown;
 
+        // ---- lyrics: in the cover's place, the current line lit, scrolling with the song ----
+        private android.widget.ScrollView lyricsScroll;
+        private LinearLayout lyricsLines;
+        private TextView lyricsStatus;
+        private ImageView lyricsButton;
+        private Lyrics.Song song;
+        private String songKey = "";
+        private boolean searching;
+        private int lit = -2;
+
+        private boolean lyricsOn() {
+            return act.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean("lyrics_on", true);
+        }
+
+        private void toggleLyrics() {
+            if (song == null && !searching) {
+                hint.setText(act.getString(R.string.np_no_lyrics));
+                hint.setAlpha(1f);
+                handler.removeCallbacks(resetHint);
+                handler.postDelayed(() -> {
+                    resetHint.run();
+                    if (!bar.isFocused()) hint.setAlpha(0f);
+                }, 2000);
+                return;
+            }
+            act.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean("lyrics_on", !lyricsOn()).apply();
+            showLyricsOrCover();
+        }
+
+        private void findLyrics(MediaMetadata md) {
+            String t = String.valueOf(md.getText(MediaMetadata.METADATA_KEY_TITLE));
+            CharSequence who = md.getText(MediaMetadata.METADATA_KEY_ARTIST);
+            String a = who == null ? "" : who.toString();
+            String key = t + "|" + a;
+            if (key.equals(songKey)) return;
+            songKey = key;
+            song = null;
+            searching = true;
+            lit = -2;
+            showLyricsOrCover();
+            CharSequence alb = md.getText(MediaMetadata.METADATA_KEY_ALBUM);
+            Lyrics.find(t, a, alb == null ? "" : alb.toString(), md.getLong(MediaMetadata.METADATA_KEY_DURATION), s -> {
+                if (!key.equals(songKey) || d == null) return;
+                searching = false;
+                song = s;
+                buildLines();
+                showLyricsOrCover();
+            });
+        }
+
+        private void buildLines() {
+            lyricsLines.removeAllViews();
+            if (song == null) return;
+            for (String line : song.lines) {
+                TextView t = label(23, 0xFFFFFFFF, 700);
+                t.setSingleLine(false);
+                t.setMaxLines(3);
+                t.setEllipsize(null);
+                t.setText(line.isEmpty() ? " " : line);
+                t.setAlpha(song.synced ? 0.32f : 0.85f);
+                t.setPivotX(0);
+                t.setPadding(0, dp(7), 0, dp(7));
+                lyricsLines.addView(t);
+            }
+            lyricsLines.setPadding(0, dp(130), 0, dp(200));
+        }
+
+        private void showLyricsOrCover() {
+            boolean want = lyricsOn() && (song != null || searching);
+            lyricsButton.setAlpha(song != null || searching ? 1f : 0.45f);
+            lyricsScroll.setVisibility(want ? View.VISIBLE : View.GONE);
+            cover.setVisibility(want ? View.GONE : View.VISIBLE);
+            lyricsStatus.setVisibility(want && song == null ? View.VISIBLE : View.GONE);
+            lyricsLines.setVisibility(song != null ? View.VISIBLE : View.GONE);
+            if (want && song != null) followLyrics();
+        }
+
+        private final Runnable lyricsTick = new Runnable() {
+            @Override
+            public void run() {
+                if (d == null) return;
+                followLyrics();
+                handler.postDelayed(this, 250);
+            }
+        };
+
+        /** Lights the line being sung and keeps it in the upper third. */
+        private void followLyrics() {
+            if (song == null || lyricsScroll.getVisibility() != View.VISIBLE || current == null) return;
+            long[] pd = position();
+            if (pd == null) return;
+            int n = song.lines.size();
+            int idx;
+            if (song.synced) {
+                long pos = seekTarget >= 0 && android.os.SystemClock.uptimeMillis() < seekUntil ? seekTarget : pd[0];
+                idx = song.lineAt(pos + 250);   // a hair early, as music apps do
+            } else {
+                idx = (int) (pd[0] * n / Math.max(1, pd[1]));
+            }
+            idx = Math.max(-1, Math.min(n - 1, idx));
+            if (idx == lit) return;
+            lit = idx;
+            for (int i = 0; i < lyricsLines.getChildCount(); i++) {
+                View v = lyricsLines.getChildAt(i);
+                boolean on = i == idx;
+                if (song.synced) {
+                    v.animate().alpha(on ? 1f : (i < idx ? 0.22f : 0.38f)).scaleX(on ? 1.06f : 1f).scaleY(on ? 1.06f : 1f)
+                            .setDuration(300).start();
+                }
+            }
+            View target = lyricsLines.getChildAt(Math.max(0, idx));
+            if (target != null) {
+                lyricsScroll.smoothScrollTo(0, Math.max(0, target.getTop() - lyricsScroll.getHeight() / 3));
+            }
+        }
+
         void show() {
             d = new android.app.Dialog(act, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
             FrameLayout root = new FrameLayout(act);
@@ -637,7 +771,27 @@ final class NowPlaying {
             });
             cover.setClipToOutline(true);
             cover.setElevation(dp(30));
-            row.addView(cover, new LinearLayout.LayoutParams(dp(300), dp(300)));
+            FrameLayout left = new FrameLayout(act);
+            left.addView(cover, new FrameLayout.LayoutParams(dp(300), dp(300), Gravity.CENTER_VERTICAL));
+            lyricsScroll = new android.widget.ScrollView(act);
+            lyricsScroll.setVerticalScrollBarEnabled(false);
+            lyricsScroll.setFocusable(false);
+            lyricsScroll.setVerticalFadingEdgeEnabled(true);
+            lyricsScroll.setFadingEdgeLength(dp(70));
+            FrameLayout lyricsBox = new FrameLayout(act);
+            lyricsLines = new LinearLayout(act);
+            lyricsLines.setOrientation(LinearLayout.VERTICAL);
+            lyricsBox.addView(lyricsLines, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            lyricsStatus = label(18, 0xB3FFFFFF, 560);
+            lyricsStatus.setText(act.getString(R.string.np_finding_lyrics));
+            lyricsStatus.setPadding(0, dp(150), 0, 0);
+            lyricsBox.addView(lyricsStatus, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            lyricsScroll.addView(lyricsBox);
+            lyricsScroll.setVisibility(View.GONE);
+            left.addView(lyricsScroll, new FrameLayout.LayoutParams(dp(400), dp(380), Gravity.CENTER_VERTICAL));
+            row.addView(left, new LinearLayout.LayoutParams(dp(400), dp(380)));
 
             LinearLayout col = new LinearLayout(act);
             col.setOrientation(LinearLayout.VERTICAL);
@@ -713,8 +867,13 @@ final class NowPlaying {
             controls.addView(prev);
             controls.addView(play);
             controls.addView(next);
+            lyricsButton = bigButton(R.drawable.ic_np_lyrics, 48, this::toggleLyrics);
+            LinearLayout.LayoutParams llp = (LinearLayout.LayoutParams) lyricsButton.getLayoutParams();
+            llp.leftMargin = dp(14);
+            controls.addView(lyricsButton);
+            lyricsButton.setOnKeyListener((v, kc, e) -> kc == KeyEvent.KEYCODE_DPAD_RIGHT && e.getAction() == KeyEvent.ACTION_DOWN);
             prev.setOnKeyListener((v, kc, e) -> kc == KeyEvent.KEYCODE_DPAD_LEFT && e.getAction() == KeyEvent.ACTION_DOWN);
-            next.setOnKeyListener((v, kc, e) -> kc == KeyEvent.KEYCODE_DPAD_RIGHT && e.getAction() == KeyEvent.ACTION_DOWN);
+
             LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             clp.topMargin = dp(26);
@@ -727,6 +886,7 @@ final class NowPlaying {
             d.setContentView(root);
             Sounds.attach(d);
             d.setOnDismissListener(x -> {
+                handler.removeCallbacks(lyricsTick);
                 if (drift != null) drift.cancel();
                 if (pulse != null) pulse.cancel();
                 title.setRunning(false);
@@ -746,6 +906,7 @@ final class NowPlaying {
             });
             d.show();
             update(true);
+            handler.post(lyricsTick);
         }
 
         private ImageView bigButton(int icon, int size, Runnable action) {
@@ -783,6 +944,7 @@ final class NowPlaying {
             boolean playing = st != null && st.getState() == PlaybackState.STATE_PLAYING;
             title.setText(String.valueOf(md.getText(MediaMetadata.METADATA_KEY_TITLE)));
             title.setRunning(true);
+            findLyrics(md);
             CharSequence who = md.getText(MediaMetadata.METADATA_KEY_ARTIST);
             if (TextUtils.isEmpty(who)) who = md.getText(MediaMetadata.METADATA_KEY_ALBUM_ARTIST);
             artist.setText(TextUtils.isEmpty(who) ? " " : who);
@@ -1090,6 +1252,7 @@ final class NowPlaying {
                 && (state == PlaybackState.STATE_PLAYING || state == PlaybackState.STATE_PAUSED
                 || state == PlaybackState.STATE_BUFFERING);
         if (!show) {
+            if (mood != null) mood.on(glowColor, secondColor, false);
             if (full != null && full.d != null) full.d.dismiss();
             setBreathing(false);
             lastTitle = "";
@@ -1155,6 +1318,8 @@ final class NowPlaying {
         eq.setPlaying(state == PlaybackState.STATE_PLAYING);
         miniEq.setPlaying(state == PlaybackState.STATE_PLAYING);
         setBreathing(state == PlaybackState.STATE_PLAYING && !small());
+        if (mood != null && lastCover != null) mood.on(glowColor, secondColor != 0 ? secondColor : glowColor,
+                state == PlaybackState.STATE_PLAYING);
         if (full != null) full.update(false);
         updateProgress();
         if (!ticking) {

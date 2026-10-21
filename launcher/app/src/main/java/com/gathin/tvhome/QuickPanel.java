@@ -141,10 +141,10 @@ public class QuickPanel extends Activity {
         int start = Night.start(this);
         int at = rows.size();
         rows.add(new GlassMenu.Row(R.drawable.ic_m_moon, getString(R.string.tv_night),
-                getString(start > 0 ? R.string.tv_on : R.string.tv_off), () -> {
+                getString(start != 0 ? R.string.tv_on : R.string.tv_off), () -> {
             reopening = true;
             int last = getSharedPreferences(Night.PREFS, MODE_PRIVATE).getInt("last_start", 22);
-            if (start > 0) {
+            if (start != 0) {
                 getSharedPreferences(Night.PREFS, MODE_PRIVATE).edit().putInt("last_start", start).apply();
                 Night.setStart(this, 0);
             } else {
