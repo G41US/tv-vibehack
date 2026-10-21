@@ -303,5 +303,4 @@
     <string name="chk_inputs_none">Aucune (un boîtier)</string>
     <string name="chk_hero">Android %1$s  ·  TV Home version %2$s  ·  %3$s Go de mémoire</string>
     <string name="chk_after_setup">Configuration terminée. Vous pouvez désactiver le débogage USB si vous le souhaitez.</string>
-    <string name="tv_np_card">Carte En lecture</string>
 </resources>
