@@ -626,6 +626,7 @@ final class NowPlaying {
             total.setText("-" + fmt(dur - pos));
         }
         private Bitmap shown;
+        private ImageView smallCover;
 
         // ---- lyrics: in the cover's place, the current line lit, scrolling with the song ----
         private android.widget.ScrollView lyricsScroll;
@@ -699,6 +700,15 @@ final class NowPlaying {
             lyricsButton.setAlpha(song != null || searching ? 1f : 0.45f);
             lyricsScroll.setVisibility(want ? View.VISIBLE : View.GONE);
             cover.setVisibility(want ? View.GONE : View.VISIBLE);
+            if (want != (smallCover.getVisibility() == View.VISIBLE)) {
+                smallCover.setVisibility(want ? View.VISIBLE : View.GONE);
+                if (want) {
+                    smallCover.setAlpha(0f);
+                    smallCover.setScaleX(0.85f);
+                    smallCover.setScaleY(0.85f);
+                    smallCover.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(320).start();
+                }
+            }
             lyricsStatus.setVisibility(want && song == null ? View.VISIBLE : View.GONE);
             lyricsLines.setVisibility(song != null ? View.VISIBLE : View.GONE);
             if (want && song != null) followLyrics();
@@ -815,8 +825,33 @@ final class NowPlaying {
             title = new Ticker(act, t1, t2, density);
             LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
-            tlp.topMargin = dp(14);
-            col.addView(title, tlp);
+            // Title block: when the lyrics take the big cover's place, a small cover sits beside the name.
+            LinearLayout head = new LinearLayout(act);
+            head.setOrientation(LinearLayout.HORIZONTAL);
+            head.setGravity(Gravity.CENTER_VERTICAL);
+            smallCover = new ImageView(act);
+            smallCover.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            smallCover.setOutlineProvider(new ViewOutlineProvider() {
+                @Override
+                public void getOutline(View v, Outline o) {
+                    o.setRoundRect(0, 0, v.getWidth(), v.getHeight(), dp(14));
+                }
+            });
+            smallCover.setClipToOutline(true);
+            smallCover.setElevation(dp(16));
+            smallCover.setVisibility(View.GONE);
+            LinearLayout.LayoutParams sclp = new LinearLayout.LayoutParams(dp(104), dp(104));
+            sclp.rightMargin = dp(20);
+            head.addView(smallCover, sclp);
+            LinearLayout texts = new LinearLayout(act);
+            texts.setOrientation(LinearLayout.VERTICAL);
+            head.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+            LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            hlp.topMargin = dp(14);
+            col.addView(head, hlp);
+            texts.addView(title, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
             TextView a1 = label(21, 0xE6FFFFFF, 560), a2 = label(21, 0xE6FFFFFF, 560);
             a1.setEllipsize(null);
             a2.setEllipsize(null);
@@ -824,10 +859,10 @@ final class NowPlaying {
             LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             alp.topMargin = dp(4);
-            col.addView(artist, alp);
+            texts.addView(artist, alp);
             album = label(15, 0xA6FFFFFF, 520);
             album.setPadding(0, dp(4), 0, 0);
-            col.addView(album);
+            texts.addView(album);
 
             bar = new Progress(act, density, 6);
             // Up from the buttons: the bar. Left / Right jump 10 seconds back / forward.
@@ -932,6 +967,8 @@ final class NowPlaying {
             if (android.os.Build.VERSION.SDK_INT >= 28) {
                 cover.setOutlineSpotShadowColor(glowColor);
                 cover.setOutlineAmbientShadowColor(glowColor);
+                smallCover.setOutlineSpotShadowColor(glowColor);
+                smallCover.setOutlineAmbientShadowColor(glowColor);
             }
         }
 
@@ -959,6 +996,7 @@ final class NowPlaying {
                 shown = c;
                 if (c != null) {
                     cover.setImageBitmap(c);
+                    smallCover.setImageBitmap(c);
                     backdrop.setImageBitmap(Bitmap.createScaledBitmap(c, 48, 48, true));
                     if (android.os.Build.VERSION.SDK_INT >= 31) {
                         backdrop.setRenderEffect(android.graphics.RenderEffect.createBlurEffect(
@@ -966,6 +1004,7 @@ final class NowPlaying {
                     }
                 } else {
                     cover.setImageDrawable(appIcon(current.getPackageName()));
+                    smallCover.setImageDrawable(appIcon(current.getPackageName()));
                     backdrop.setImageDrawable(null);
                 }
                 tint();
