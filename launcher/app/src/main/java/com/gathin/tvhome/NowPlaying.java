@@ -96,7 +96,9 @@ final class NowPlaying {
         text.setPadding(dp(12), 0, dp(8), 0);
         title = label(17, 0xFFFFFFFF, 620);
         title.setEllipsize(null);
-        ticker = new Ticker(act, title, density);   // long titles glide to the end and back
+        TextView follow = label(17, 0xFFFFFFFF, 620);
+        follow.setEllipsize(null);
+        ticker = new Ticker(act, title, follow, density);   // long titles scroll round, like a music app
         subtitle = label(14, 0xC7FFFFFF, 520);
         eq = new Equalizer(act, density);
         LinearLayout who = new LinearLayout(act);
@@ -332,31 +334,45 @@ final class NowPlaying {
     }
 
     /**
-     * A title that doesn't fit glides slowly to its end, rests, then fades back to the start and goes
-     * again. Setting the same title again (sessions report often) doesn't restart it.
+     * A title that doesn't fit scrolls round like a music app: it rests, scrolls left with a copy
+     * following a gap behind, and when the copy reaches the start it rests again, then carries on.
+     * Setting the same title again (sessions report often) doesn't restart it.
      */
     private static final class Ticker extends android.widget.HorizontalScrollView {
-        private final TextView text;
+        private final TextView text, copy;
         private final float density;
+        private final int gap;
         private android.animation.Animator anim;
         private boolean running;
 
-        Ticker(Context c, TextView text, float density) {
+        Ticker(Context c, TextView text, TextView copy, float density) {
             super(c);
             this.text = text;
+            this.copy = copy;
             this.density = density;
+            this.gap = (int) (56 * density);
             setHorizontalScrollBarEnabled(false);
             setFocusable(false);
             setHorizontalFadingEdgeEnabled(true);
             setFadingEdgeLength((int) (20 * density));
             setOverScrollMode(OVER_SCROLL_NEVER);
-            addView(text, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+            LinearLayout row = new LinearLayout(c);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.addView(text, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            clp.leftMargin = gap;
+            copy.setVisibility(GONE);
+            row.addView(copy, clp);
+            addView(row, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT));
         }
 
         void setText(CharSequence t) {
             if (t.toString().contentEquals(text.getText())) return;
             text.setText(t);
+            copy.setText(t);
             restart();
         }
 
@@ -385,39 +401,35 @@ final class NowPlaying {
                 anim = null;
             }
             setScrollX(0);
-            text.animate().cancel();
-            text.setAlpha(1f);
-            loop();
+            copy.setVisibility(GONE);
+            if (!running) return;
+            // Measure the title alone first; only a title that doesn't fit gets the following copy.
+            post(() -> {
+                if (!running || anim != null) return;
+                if (text.getWidth() <= getWidth()) return;
+                copy.setVisibility(VISIBLE);
+                post(this::loop);
+            });
         }
 
         private void loop() {
-            if (!running) return;
-            post(() -> {
-                int overflow = text.getWidth() - getWidth();
-                if (!running || overflow <= 0 || anim != null) return;
-                long glide = (long) (overflow / (32 * density) * 1000);   // 32 dp a second
-                android.animation.ObjectAnimator go = android.animation.ObjectAnimator.ofInt(this, "scrollX", 0, overflow);
-                go.setStartDelay(2000);
-                go.setDuration(Math.max(800, glide));
-                go.setInterpolator(new android.view.animation.LinearInterpolator());
-                android.animation.ObjectAnimator out = android.animation.ObjectAnimator.ofFloat(text, "alpha", 1f, 0f);
-                out.setStartDelay(2200);
-                out.setDuration(300);
-                android.animation.AnimatorSet set = new android.animation.AnimatorSet();
-                set.playSequentially(go, out);
-                set.addListener(new android.animation.AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(android.animation.Animator a) {
-                        if (anim != a) return;
-                        anim = null;
-                        setScrollX(0);
-                        text.animate().alpha(1f).setDuration(300).start();
-                        loop();
-                    }
-                });
-                anim = set;
-                set.start();
+            if (!running || anim != null || copy.getVisibility() != VISIBLE) return;
+            int distance = text.getWidth() + gap;   // the copy then sits exactly where the title began
+            android.animation.ObjectAnimator go = android.animation.ObjectAnimator.ofInt(this, "scrollX", 0, distance);
+            go.setStartDelay(2500);
+            go.setDuration(Math.max(1000, (long) (distance / (34 * density) * 1000)));   // 34 dp a second
+            go.setInterpolator(new android.view.animation.LinearInterpolator());
+            go.addListener(new android.animation.AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(android.animation.Animator a) {
+                    if (anim != a) return;
+                    anim = null;
+                    setScrollX(0);   // seamless: the copy was showing exactly this
+                    loop();
+                }
             });
+            anim = go;
+            go.start();
         }
     }
 
