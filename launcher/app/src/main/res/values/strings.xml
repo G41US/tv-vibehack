@@ -302,5 +302,4 @@
     <string name="chk_inputs_none">None (a box)</string>
     <string name="chk_hero">Android %1$s  ·  TV Home build %2$s  ·  %3$s GB memory</string>
     <string name="chk_after_setup">Setup finished. You can turn USB debugging off again if you like.</string>
-    <string name="tv_np_card">Now playing card</string>
 </resources>

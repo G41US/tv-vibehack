@@ -62,29 +62,22 @@ final class NowPlaying {
     private long lastInput = android.os.SystemClock.uptimeMillis();
     private boolean started;
     private Full full;
-    /** The song the person closed the card on: it stays hidden until something else plays. */
-    private String dismissed;
 
-    static final String PREFS = "look", KEY_ON = "now_playing";
+    // Small mode: the card shrinks to a little pill (cover and bars); OK on it opens the card again.
+    static final String PREFS = "look", KEY_MINI = "now_playing_small";
+    private LinearLayout mini;
+    private ImageView miniArt;
+    private Equalizer miniEq;
+    private android.graphics.drawable.GradientDrawable miniBg;
 
-    static boolean enabled(Context ctx) {
-        return ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_ON, true);
+    private boolean small() {
+        return act.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_MINI, false);
     }
 
-    static void setEnabled(Context ctx, boolean on) {
-        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_ON, on).apply();
-    }
-
-    private String key() {
-        if (current == null) return null;
-        MediaMetadata md = current.getMetadata();
-        CharSequence t = md != null ? md.getText(MediaMetadata.METADATA_KEY_TITLE) : null;
-        return current.getPackageName() + "|" + t;
-    }
-
-    private void dismiss() {
-        dismissed = key();
+    private void setSmall(boolean on) {
+        act.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_MINI, on).apply();
         render();
+        (on ? mini : playPause).requestFocus();
     }
 
     NowPlaying(Activity act) {
@@ -180,14 +173,12 @@ final class NowPlaying {
         card.addView(prev);
         card.addView(playPause);
         card.addView(next);
-        // ✕: hide the card until the next song (or another app) starts playing.
-        ImageView close = button(R.drawable.ic_np_close, this::dismiss);
-        LinearLayout.LayoutParams xlp = new LinearLayout.LayoutParams(dp(32), dp(32));
-        xlp.leftMargin = dp(10);
-        close.setLayoutParams(xlp);
-        close.setAlpha(0.85f);
-        card.addView(close);
-        close.setOnKeyListener((v, k, e) -> k == KeyEvent.KEYCODE_DPAD_RIGHT && e.getAction() == KeyEvent.ACTION_DOWN);
+        ImageView shrink = button(R.drawable.ic_np_small, () -> setSmall(true));
+        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(dp(32), dp(32));
+        slp.leftMargin = dp(10);
+        shrink.setLayoutParams(slp);
+        card.addView(shrink);
+        shrink.setOnKeyListener((v, k, e) -> k == KeyEvent.KEYCODE_DPAD_RIGHT && e.getAction() == KeyEvent.ACTION_DOWN);
         // Left/Right stay inside the three buttons instead of jumping to the top bar or the dock.
         prev.setOnKeyListener((v, k, e) -> {
             if (k != KeyEvent.KEYCODE_DPAD_LEFT || e.getAction() != KeyEvent.ACTION_DOWN) return false;
@@ -199,6 +190,52 @@ final class NowPlaying {
                 ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.END);
         lp.rightMargin = dp(56);
         root.addView(card, lp);
+
+        mini = new LinearLayout(act);
+        mini.setOrientation(LinearLayout.HORIZONTAL);
+        mini.setGravity(Gravity.CENTER_VERTICAL);
+        miniBg = new android.graphics.drawable.GradientDrawable(android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT,
+                new int[]{0xA62A2A2E, 0x8C161618});
+        miniBg.setCornerRadius(dp(26));
+        miniBg.setStroke(dp(1), 0x4DFFFFFF);
+        android.graphics.drawable.StateListDrawable miniSel = new android.graphics.drawable.StateListDrawable();
+        android.graphics.drawable.GradientDrawable ring = new android.graphics.drawable.GradientDrawable();
+        ring.setCornerRadius(dp(26));
+        ring.setColor(0x33FFFFFF);
+        ring.setStroke(dp(2), 0xE6FFFFFF);
+        miniSel.addState(new int[]{android.R.attr.state_focused}, ring);
+        miniSel.addState(new int[]{}, miniBg);
+        mini.setBackground(miniSel);
+        mini.setPadding(dp(6), dp(6), dp(16), dp(6));
+        mini.setFocusable(true);
+        mini.setClickable(true);
+        mini.setElevation(dp(8));
+        mini.setVisibility(View.GONE);
+        mini.setOnClickListener(v -> setSmall(false));
+        miniArt = new ImageView(act);
+        miniArt.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        miniArt.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View v, Outline o) {
+                o.setRoundRect(0, 0, v.getWidth(), v.getHeight(), dp(20));
+            }
+        });
+        miniArt.setClipToOutline(true);
+        mini.addView(miniArt, new LinearLayout.LayoutParams(dp(40), dp(40)));
+        miniEq = new Equalizer(act, density);
+        LinearLayout.LayoutParams mel = new LinearLayout.LayoutParams(dp(16), dp(14));
+        mel.leftMargin = dp(12);
+        mini.addView(miniEq, mel);
+        ImageView grow = new ImageView(act);
+        grow.setImageResource(R.drawable.ic_np_big);
+        grow.setImageTintList(android.content.res.ColorStateList.valueOf(0xE6FFFFFF));
+        LinearLayout.LayoutParams gl = new LinearLayout.LayoutParams(dp(16), dp(16));
+        gl.leftMargin = dp(12);
+        mini.addView(grow, gl);
+        FrameLayout.LayoutParams mlp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.END);
+        mlp.rightMargin = dp(56);
+        root.addView(mini, mlp);
         topBar.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) -> place(root, topBar));
     }
 
@@ -216,6 +253,12 @@ final class NowPlaying {
             lp.width = width;
             lp.rightMargin = Math.max(0, right);
             card.setLayoutParams(lp);
+        }
+        FrameLayout.LayoutParams ml = (FrameLayout.LayoutParams) mini.getLayoutParams();
+        if (ml.topMargin != top || ml.rightMargin != Math.max(0, right)) {
+            ml.topMargin = top;
+            ml.rightMargin = Math.max(0, right);
+            mini.setLayoutParams(ml);
         }
     }
 
@@ -377,6 +420,7 @@ final class NowPlaying {
             }
         }
         bg.setColors(new int[]{c, 0x8C161618});
+        miniBg.setColors(new int[]{c, 0x8C161618});
         float[] h = new float[3];
         android.graphics.Color.colorToHSV(c, h);
         accent = cover == null ? 0xFFFFFFFF : android.graphics.Color.HSVToColor(new float[]{h[0], Math.min(h[1], 0.45f), 1f});
@@ -442,7 +486,7 @@ final class NowPlaying {
             if (!started) return;
             PlaybackState st = current != null ? current.getPlaybackState() : null;
             boolean playing = st != null && st.getState() == PlaybackState.STATE_PLAYING;
-            if (playing && full == null && act.hasWindowFocus() && card.getVisibility() == View.VISIBLE
+            if (playing && full == null && !small() && act.hasWindowFocus()
                     && android.os.SystemClock.uptimeMillis() - lastInput > AMBIENT_AFTER_MS) {
                 openFull();
             }
@@ -927,8 +971,7 @@ final class NowPlaying {
         CharSequence t = md != null ? md.getText(MediaMetadata.METADATA_KEY_TITLE) : null;
         boolean show = current != null && !TextUtils.isEmpty(t)
                 && (state == PlaybackState.STATE_PLAYING || state == PlaybackState.STATE_PAUSED
-                || state == PlaybackState.STATE_BUFFERING)
-                && enabled(act) && !String.valueOf(key()).equals(dismissed);
+                || state == PlaybackState.STATE_BUFFERING);
         if (!show) {
             if (full != null && full.d != null) full.d.dismiss();
             setBreathing(false);
@@ -938,6 +981,11 @@ final class NowPlaying {
             ticking = false;
             handler.removeCallbacks(tick);
             eq.setPlaying(false);
+            miniEq.setPlaying(false);
+            if (mini.getVisibility() == View.VISIBLE) {
+                if (mini.hasFocus()) act.findViewById(R.id.btnSettings).requestFocus();
+                mini.animate().alpha(0f).setDuration(200).withEndAction(() -> mini.setVisibility(View.GONE)).start();
+            }
             if (card.getVisibility() == View.VISIBLE) {
                 if (card.hasFocus()) act.findViewById(R.id.btnSettings).requestFocus();
                 card.animate().alpha(0f).setDuration(200).withEndAction(() -> card.setVisibility(View.GONE)).start();
@@ -956,8 +1004,14 @@ final class NowPlaying {
             ticker.setRunning(true);
             subTicker.setText(line);
             subTicker.setRunning(true);
-            if (pic != null) art.setImageBitmap(pic);
-            else art.setImageDrawable(appIcon(current != null ? current.getPackageName() : act.getPackageName()));
+            if (pic != null) {
+                art.setImageBitmap(pic);
+                miniArt.setImageBitmap(pic);
+            } else {
+                Drawable icon = appIcon(current != null ? current.getPackageName() : act.getPackageName());
+                art.setImageDrawable(icon);
+                miniArt.setImageDrawable(icon);
+            }
         };
         boolean changed = !song.toString().equals(lastTitle);
         lastTitle = song.toString();
@@ -980,7 +1034,8 @@ final class NowPlaying {
             tint(cover);
         }
         eq.setPlaying(state == PlaybackState.STATE_PLAYING);
-        setBreathing(state == PlaybackState.STATE_PLAYING);
+        miniEq.setPlaying(state == PlaybackState.STATE_PLAYING);
+        setBreathing(state == PlaybackState.STATE_PLAYING && !small());
         if (full != null) full.update(false);
         updateProgress();
         if (!ticking) {
@@ -988,11 +1043,19 @@ final class NowPlaying {
             handler.postDelayed(tick, 1000);
         }
         playPause.setImageResource(state == PlaybackState.STATE_PLAYING ? R.drawable.ic_np_pause : R.drawable.ic_np_play);
-        if (card.getVisibility() != View.VISIBLE) {
-            card.setAlpha(0f);
-            card.setTranslationY(-dp(8));
-            card.setVisibility(View.VISIBLE);
-            card.animate().alpha(1f).translationY(0f).setDuration(260).start();
+        View showView = small() ? mini : card, hideView = small() ? card : mini;
+        if (hideView.getVisibility() == View.VISIBLE) {
+            hideView.animate().cancel();
+            hideView.setVisibility(View.GONE);
+        }
+        if (showView.getVisibility() != View.VISIBLE) {
+            showView.setAlpha(0f);
+            showView.setScaleX(0.92f);
+            showView.setScaleY(0.92f);
+            showView.setPivotX(showView.getWidth() > 0 ? showView.getWidth() : dp(400));
+            showView.setPivotY(0);
+            showView.setVisibility(View.VISIBLE);
+            showView.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(260).start();
         }
     }
 
