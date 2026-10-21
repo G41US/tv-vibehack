@@ -551,7 +551,44 @@ final class NowPlaying {
         private Progress bar;
         private Equalizer bigEq;
         private ImageView play;
+        private TextView hint;
         private android.animation.ValueAnimator drift, pulse;
+        /** Where a seek just sent the song, shown until the app reports it (sessions lag a moment). */
+        private long seekTarget = -1, seekUntil;
+
+        /** Jumps by {@code delta} ms (repeats add up while the button is held). */
+        void seek(long delta) {
+            if (current == null) return;
+            long[] pd = position();
+            if (pd == null) return;
+            long from = seekTarget >= 0 && android.os.SystemClock.uptimeMillis() < seekUntil ? seekTarget : pd[0];
+            long to = Math.max(0, Math.min(pd[1] - 1000, from + delta));
+            PlaybackState st = current.getPlaybackState();
+            if (st != null && (st.getActions() & PlaybackState.ACTION_SEEK_TO) != 0) {
+                current.getTransportControls().seekTo(to);
+            } else if (delta > 0) {
+                current.getTransportControls().fastForward();
+            } else {
+                current.getTransportControls().rewind();
+            }
+            seekTarget = to;
+            seekUntil = android.os.SystemClock.uptimeMillis() + 1500;
+            hint.setText(delta > 0 ? "+10s" : "−10s");
+            hint.setAlpha(1f);
+            handler.removeCallbacks(resetHint);
+            handler.postDelayed(resetHint, 1200);
+            show(to, pd[1]);
+        }
+
+        private final Runnable resetHint = () -> {
+            if (hint != null) hint.setText(act.getString(R.string.np_seek_hint));
+        };
+
+        private void show(long pos, long dur) {
+            bar.set(pos / (float) dur);
+            elapsed.setText(fmt(pos));
+            total.setText("-" + fmt(dur - pos));
+        }
         private Bitmap shown;
 
         void show() {
@@ -621,7 +658,15 @@ final class NowPlaying {
             col.addView(album);
 
             bar = new Progress(act, density, 6);
-            LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(22));
+            // Up from the buttons: the bar. Left / Right jump 10 seconds back / forward.
+            bar.setFocusable(true);
+            bar.setOnKeyListener((v, kc, e) -> {
+                if (kc != KeyEvent.KEYCODE_DPAD_LEFT && kc != KeyEvent.KEYCODE_DPAD_RIGHT) return false;
+                if (e.getAction() == KeyEvent.ACTION_DOWN) seek(kc == KeyEvent.KEYCODE_DPAD_RIGHT ? 10_000 : -10_000);
+                return true;
+            });
+            bar.setOnFocusChangeListener((v, has) -> hint.animate().alpha(has ? 1f : 0f).setDuration(200).start());
+            LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(26));
             blp.topMargin = dp(30);
             col.addView(bar, blp);
             FrameLayout times = new FrameLayout(act);
@@ -631,6 +676,11 @@ final class NowPlaying {
                     ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.START));
             times.addView(total, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.END));
+            hint = label(13, 0xFFFFFFFF, 620);
+            hint.setText(act.getString(R.string.np_seek_hint));
+            hint.setAlpha(0f);
+            times.addView(hint, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL));
             LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             mlp.topMargin = dp(6);
@@ -777,9 +827,12 @@ final class NowPlaying {
                 return;
             }
             bar.setVisibility(View.VISIBLE);
-            bar.set(pd[0] / (float) pd[1]);
-            elapsed.setText(fmt(pd[0]));
-            total.setText("-" + fmt(pd[1] - pd[0]));
+            if (seekTarget >= 0 && android.os.SystemClock.uptimeMillis() < seekUntil) {
+                show(seekTarget, pd[1]);   // the app hasn't caught up with the jump yet
+                return;
+            }
+            seekTarget = -1;
+            show(pd[0], pd[1]);
         }
     }
 
@@ -960,8 +1013,15 @@ final class NowPlaying {
         }
 
         @Override
+        protected void onFocusChanged(boolean gain, int direction, android.graphics.Rect previous) {
+            super.onFocusChanged(gain, direction, previous);
+            track.setColor(gain ? 0x59FFFFFF : 0x33FFFFFF);
+            invalidate();
+        }
+
+        @Override
         protected void onDraw(android.graphics.Canvas c) {
-            float w = getWidth(), cy = getHeight() / 2f, t = thick, head = t * 1.6f;
+            float w = getWidth(), cy = getHeight() / 2f, t = isFocused() ? thick * 1.7f : thick, head = t * 1.6f;
             c.drawRoundRect(head, cy - t / 2, w - head, cy + t / 2, t / 2, t / 2, track);
             if (f <= 0) return;
             float x = head + Math.max(t, (w - 2 * head) * f);
