@@ -28,8 +28,18 @@ final class LiveWallpaper {
     private LiveWallpaper() {
     }
 
+    /** On by default, except on low-memory TVs and boxes (many budget TVs), where it starts off. */
     static boolean enabled(Context ctx) {
-        return ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY, true);
+        return ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY, !lowEnd(ctx));
+    }
+
+    static boolean lowEnd(Context ctx) {
+        android.app.ActivityManager am = (android.app.ActivityManager) ctx.getSystemService(Context.ACTIVITY_SERVICE);
+        if (am == null) return false;
+        if (am.isLowRamDevice()) return true;
+        android.app.ActivityManager.MemoryInfo mi = new android.app.ActivityManager.MemoryInfo();
+        am.getMemoryInfo(mi);
+        return mi.totalMem > 0 && mi.totalMem < 1600L * 1024 * 1024;   // under ~1.5 GB
     }
 
     static void setEnabled(Context ctx, boolean on) {

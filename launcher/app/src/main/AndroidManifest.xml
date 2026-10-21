@@ -91,6 +91,15 @@
         <intent>
             <action android:name="android.settings.MANAGE_APPLICATIONS_SETTINGS" />
         </intent>
+        <!-- TV makers' own TV and picture-settings apps (TCL, Hisense, Xiaomi). -->
+        <package android:name="com.nes.hometv" />
+        <package android:name="com.tcl.tv" />
+        <package android:name="com.tcl.settings" />
+        <package android:name="com.hisense.tv.settings" />
+        <package android:name="com.mitv.settings" />
+        <intent>
+            <action android:name="android.intent.action.TV" />
+        </intent>
     </queries>
 
     <application
