@@ -119,7 +119,7 @@ final class NowPlaying {
         bg.setCornerRadius(dp(20));
         bg.setStroke(dp(1), 0x4DFFFFFF);
         card.setBackground(bg);
-        card.setPadding(dp(8), dp(8), dp(14), dp(8));
+        card.setPadding(dp(8), dp(8), dp(10), dp(8));
         card.setElevation(dp(8));
         card.setVisibility(View.GONE);
 
@@ -142,12 +142,12 @@ final class NowPlaying {
         info.setPadding(dp(4), dp(4), dp(4), dp(4));
         info.setOnClickListener(v -> openFull());   // OK on the song: the full-screen player
         info.setOnKeyListener((v, k, e) -> k == KeyEvent.KEYCODE_DPAD_LEFT && e.getAction() == KeyEvent.ACTION_DOWN);
-        info.addView(art, new LinearLayout.LayoutParams(dp(60), dp(60)));
+        info.addView(art, new LinearLayout.LayoutParams(dp(56), dp(56)));
 
         LinearLayout text = new LinearLayout(act);
         textCol = text;
         text.setOrientation(LinearLayout.VERTICAL);
-        text.setPadding(dp(12), 0, dp(8), 0);
+        text.setPadding(dp(10), 0, dp(6), 0);
         title = label(17, 0xFFFFFFFF, 620);
         title.setEllipsize(null);
         TextView follow = label(17, 0xFFFFFFFF, 620);
@@ -294,7 +294,7 @@ final class NowPlaying {
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) card.getLayoutParams();
         int top = a[1] - c[1] + topBar.getHeight() + dp(16);
         // Exactly as wide as the top bar, from the left of Search to the right of Settings.
-        int width = Math.max(topBar.getWidth(), dp(400));
+        int width = Math.max(topBar.getWidth(), dp(420));   // room for the song even with a short top bar
         int right = root.getWidth() - (a[0] - c[0] + topBar.getWidth());
         if (lp.topMargin != top || lp.width != width || lp.rightMargin != right) {
             lp.topMargin = top;
@@ -341,8 +341,8 @@ final class NowPlaying {
         b.setFocusable(true);
         b.setClickable(true);
         b.setOnClickListener(v -> action.run());
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(40), dp(40));
-        lp.leftMargin = dp(5);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(36), dp(36));
+        lp.leftMargin = dp(4);
         b.setLayoutParams(lp);
         return b;
     }
