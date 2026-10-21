@@ -48,7 +48,7 @@ final class NowPlaying {
     private android.graphics.drawable.GradientDrawable bg;
     private Equalizer eq;
     private Progress progress;
-    private TextView time;
+    private TextView time, timeLeft;
     private Bitmap lastCover;
     private boolean ticking;
     private ImageView art;
@@ -149,13 +149,19 @@ final class NowPlaying {
         who.addView(eq, elp);
         who.addView(subTicker, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         progress = new Progress(act, density, 4);
-        time = label(12, 0xB3FFFFFF, 520);
+        // The bar uses the whole width; the times sit under it, played on the left, length on the right.
+        time = label(11, 0xB3FFFFFF, 540);
+        timeLeft = label(11, 0xB3FFFFFF, 540);
         LinearLayout prow = new LinearLayout(act);
-        prow.setOrientation(LinearLayout.HORIZONTAL);
-        prow.setGravity(Gravity.CENTER_VERTICAL);
-        prow.addView(progress, new LinearLayout.LayoutParams(0, dp(14), 1f));
-        time.setPadding(dp(8), 0, 0, 0);
-        prow.addView(time);
+        prow.setOrientation(LinearLayout.VERTICAL);
+        prow.addView(progress, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(14)));
+        FrameLayout times = new FrameLayout(act);
+        times.addView(timeLeft, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.START));
+        times.addView(time, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.END));
+        times.setPadding(dp(5), 0, dp(5), 0);
+        prow.addView(times);
         text.addView(ticker, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
         LinearLayout.LayoutParams wlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -397,6 +403,7 @@ final class NowPlaying {
         if (st == null || dur <= 0) {
             progress.setVisibility(View.INVISIBLE);
             time.setText("");
+            timeLeft.setText("");
             return;
         }
         long pos = st.getPosition();
@@ -407,7 +414,8 @@ final class NowPlaying {
         pos = Math.max(0, Math.min(dur, pos));
         progress.setVisibility(View.VISIBLE);
         progress.set(pos / (float) dur);
-        time.setText(fmt(pos) + " / " + fmt(dur));
+        timeLeft.setText(fmt(pos));
+        time.setText(fmt(dur));
         if (full != null) full.progress();
     }
 

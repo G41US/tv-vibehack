@@ -9,7 +9,7 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-/** Draws the tvOS style lighter band behind the first (dock) row and adds a gap below it. */
+/** Draws the see-through glass shelf behind the first (dock) row and adds a gap below it. */
 public class DockDecoration extends RecyclerView.ItemDecoration {
 
     private final int dockSize;
@@ -21,10 +21,9 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
     DockDecoration(int dockSize, float density) {
         this.dockSize = dockSize;
         this.density = density;
-        band.setColor(0xFF141416);
         edge.setStyle(Paint.Style.STROKE);
         edge.setStrokeWidth(density);
-        edge.setColor(0x1FFFFFFF);
+        edge.setColor(0x47FFFFFF);
     }
 
     @Override
@@ -61,6 +60,9 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
         float pad = 14 * density;
         rect.inset(-pad, -pad);
         float radius = 26 * density;
+        // Glass: lighter at the top, a little deeper at the bottom, the wallpaper showing through.
+        band.setShader(new android.graphics.LinearGradient(0, rect.top, 0, rect.bottom,
+                0x4D3A3A44, 0x6614141A, android.graphics.Shader.TileMode.CLAMP));
         c.drawRoundRect(rect, radius, radius, band);
         c.drawRoundRect(rect, radius, radius, edge);
     }
