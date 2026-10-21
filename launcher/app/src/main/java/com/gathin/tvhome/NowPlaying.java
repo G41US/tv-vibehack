@@ -66,6 +66,8 @@ final class NowPlaying {
     // Small mode: the card shrinks to a little pill (cover and bars); OK on it opens the card again.
     static final String PREFS = "look", KEY_MINI = "now_playing_small";
     private LinearLayout mini;
+    private ImageView shrink;
+    private static final int NEXT_ID = 0x7f0a7001;
     private ImageView miniArt;
     private Equalizer miniEq;
     private android.graphics.drawable.GradientDrawable miniBg;
@@ -173,12 +175,11 @@ final class NowPlaying {
         card.addView(prev);
         card.addView(playPause);
         card.addView(next);
-        ImageView shrink = button(R.drawable.ic_np_small, () -> setSmall(true));
-        LinearLayout.LayoutParams slp = new LinearLayout.LayoutParams(dp(32), dp(32));
-        slp.leftMargin = dp(10);
-        shrink.setLayoutParams(slp);
-        card.addView(shrink);
-        shrink.setOnKeyListener((v, k, e) -> k == KeyEvent.KEYCODE_DPAD_RIGHT && e.getAction() == KeyEvent.ACTION_DOWN);
+        next.setOnKeyListener((v, k, e) -> {
+            if (k != KeyEvent.KEYCODE_DPAD_RIGHT) return false;
+            if (e.getAction() == KeyEvent.ACTION_DOWN) shrink.requestFocus();   // Right from ⏭: the shrink button
+            return true;
+        });
         // Left/Right stay inside the three buttons instead of jumping to the top bar or the dock.
         prev.setOnKeyListener((v, k, e) -> {
             if (k != KeyEvent.KEYCODE_DPAD_LEFT || e.getAction() != KeyEvent.ACTION_DOWN) return false;
@@ -190,6 +191,29 @@ final class NowPlaying {
                 ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.END);
         lp.rightMargin = dp(56);
         root.addView(card, lp);
+
+        // The shrink button sits on the card's top-right corner, so the song keeps the card's full width.
+        shrink = new ImageView(act);
+        shrink.setImageResource(R.drawable.ic_np_small);
+        shrink.setImageTintList(act.getColorStateList(R.color.menu_ink));
+        shrink.setBackgroundResource(R.drawable.np_corner_bg);
+        shrink.setScaleType(ImageView.ScaleType.CENTER);
+        shrink.setFocusable(true);
+        shrink.setClickable(true);
+        shrink.setElevation(dp(24));
+        shrink.setVisibility(View.GONE);
+        shrink.setOnClickListener(v -> setSmall(true));
+        shrink.setOnKeyListener((v, k, e) -> {
+            if (e.getAction() != KeyEvent.ACTION_DOWN) return false;
+            if (k == KeyEvent.KEYCODE_DPAD_LEFT || k == KeyEvent.KEYCODE_DPAD_DOWN) {
+                card.findViewById(NEXT_ID).requestFocus();
+                return true;
+            }
+            return k == KeyEvent.KEYCODE_DPAD_RIGHT;
+        });
+        next.setId(NEXT_ID);
+        FrameLayout.LayoutParams xlp = new FrameLayout.LayoutParams(dp(30), dp(30), Gravity.TOP | Gravity.END);
+        root.addView(shrink, xlp);
 
         mini = new LinearLayout(act);
         mini.setOrientation(LinearLayout.HORIZONTAL);
@@ -253,6 +277,13 @@ final class NowPlaying {
             lp.width = width;
             lp.rightMargin = Math.max(0, right);
             card.setLayoutParams(lp);
+        }
+        FrameLayout.LayoutParams xl = (FrameLayout.LayoutParams) shrink.getLayoutParams();
+        int xt = top - dp(11), xr = Math.max(0, right - dp(11));
+        if (xl.topMargin != xt || xl.rightMargin != xr) {
+            xl.topMargin = xt;
+            xl.rightMargin = xr;
+            shrink.setLayoutParams(xl);
         }
         FrameLayout.LayoutParams ml = (FrameLayout.LayoutParams) mini.getLayoutParams();
         if (ml.topMargin != top || ml.rightMargin != Math.max(0, right)) {
@@ -986,6 +1017,8 @@ final class NowPlaying {
                 if (mini.hasFocus()) act.findViewById(R.id.btnSettings).requestFocus();
                 mini.animate().alpha(0f).setDuration(200).withEndAction(() -> mini.setVisibility(View.GONE)).start();
             }
+            if (shrink.hasFocus()) act.findViewById(R.id.btnSettings).requestFocus();
+            shrink.setVisibility(View.GONE);
             if (card.getVisibility() == View.VISIBLE) {
                 if (card.hasFocus()) act.findViewById(R.id.btnSettings).requestFocus();
                 card.animate().alpha(0f).setDuration(200).withEndAction(() -> card.setVisibility(View.GONE)).start();
@@ -1044,6 +1077,7 @@ final class NowPlaying {
         }
         playPause.setImageResource(state == PlaybackState.STATE_PLAYING ? R.drawable.ic_np_pause : R.drawable.ic_np_play);
         View showView = small() ? mini : card, hideView = small() ? card : mini;
+        shrink.setVisibility(small() ? View.GONE : View.VISIBLE);
         if (hideView.getVisibility() == View.VISIBLE) {
             hideView.animate().cancel();
             hideView.setVisibility(View.GONE);
