@@ -14,8 +14,8 @@ import java.util.Calendar;
 final class Night {
 
     static final String PREFS = "night", KEY_START = "start", KEY_CAP = "cap";
-    static final int[] STARTS = {0, SUNSET, 21, 22, 23};   // 0 = off
     static final int SUNSET = -1;                        // starts at today's sunset (from the weather)
+    static final int[] STARTS = {0, SUNSET, 21, 22, 23};   // 0 = off
     static final int[] CAPS = {40, 30, 50, 0};        // percent; 0 = no limit
     static final int END = 6;
 
