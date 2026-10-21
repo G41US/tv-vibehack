@@ -30,7 +30,17 @@ final class SelfSetup {
     }
 
     private static void show(Activity act, int focus) {
-        boolean ready = AdbSelf.reachable(PORT);
+        // Checking the debugging port is network work: off the main thread, then the page.
+        Handler main = new Handler(Looper.getMainLooper());
+        new Thread(() -> {
+            boolean ready = AdbSelf.reachable(PORT);
+            main.post(() -> {
+                if (!act.isFinishing() && !act.isDestroyed()) build(act, focus, ready);
+            });
+        }, "adb-check").start();
+    }
+
+    private static void build(Activity act, int focus, boolean ready) {
         List<GlassMenu.Row> rows = new ArrayList<>();
         rows.add(new GlassMenu.Row(R.drawable.ic_m_setup, act.getString(R.string.ss_step_dev),
                 act.getString(R.string.ss_step_dev_value), () -> open(act, Settings.ACTION_DEVICE_INFO_SETTINGS))
