@@ -142,6 +142,8 @@ final class GlassMenu {
         v.setTextSize(sp);
         v.setTextColor(color);
         v.setTypeface(font(a));
+        // Heavier than the font's regular weight so it reads well from the sofa.
+        v.setFontVariationSettings("'wght' " + (sp >= 24 ? 650 : sp >= 17 ? 580 : 540));
         return v;
     }
 
@@ -180,7 +182,7 @@ final class GlassMenu {
 
     private static void header(Activity a, LinearLayout into, CharSequence kicker, CharSequence title) {
         if (kicker != null) {
-            TextView k = text(a, kicker, 12, 0x8CFFFFFF);
+            TextView k = text(a, kicker, 13, 0xCCFFFFFF);
             k.setAllCaps(true);
             k.setLetterSpacing(0.14f);
             into.addView(k);
@@ -201,6 +203,7 @@ final class GlassMenu {
     static TextView pill(Activity a, CharSequence label, View.OnClickListener click) {
         TextView v = new TextView(a, null, 0, R.style.TopButton);
         v.setText(label);
+        v.setFontVariationSettings("'wght' 600");
         v.setPadding(dp(a, 22), 0, dp(a, 22), 0);
         v.setOnClickListener(click);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(a, 42));
@@ -360,7 +363,7 @@ final class GlassMenu {
         h.addView(b);
         for (CharSequence l : lines) {
             if (l == null || l.length() == 0) continue;
-            TextView t = text(a, l, 15, 0xA6FFFFFF);
+            TextView t = text(a, l, 16, 0xE0FFFFFF);
             t.setPadding(0, dp(a, 3), 0, 0);
             h.addView(t);
         }
@@ -505,7 +508,7 @@ final class GlassMenu {
     static Dialog message(Activity a, CharSequence title, CharSequence message, CharSequence[] buttons, OnPick pick) {
         LinearLayout content = column(a);
         header(a, content, null, title);
-        TextView body = text(a, message, 16, 0xC8FFFFFF);
+        TextView body = text(a, message, 17, 0xF0FFFFFF);
         body.setLineSpacing(0, 1.2f);
         content.addView(body);
         LinearLayout bar = buttonRow(a);
@@ -534,7 +537,7 @@ final class GlassMenu {
     static Progress progress(Activity a, CharSequence title) {
         LinearLayout content = column(a);
         header(a, content, null, title);
-        TextView line = text(a, "0%", 20, 0xC8FFFFFF);
+        TextView line = text(a, "0%", 20, 0xF0FFFFFF);
         content.addView(line);
         Dialog d = dialog(a, content, 480);
         d.setCancelable(false);

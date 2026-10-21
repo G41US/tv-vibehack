@@ -35,6 +35,7 @@
                 android:padding="16dp"
                 android:text="@string/net_qr_empty"
                 android:textColor="#FF333333"
+                android:fontVariationSettings="'wght' 560"
                 android:textSize="16sp"
                 android:fontFamily="@font/outfit"
                 android:visibility="gone" />
@@ -52,7 +53,8 @@
                 android:text="@string/net_title"
                 android:textAllCaps="true"
                 android:letterSpacing="0.14"
-                android:textColor="#8CFFFFFF"
+                android:textColor="#CCFFFFFF"
+                android:fontVariationSettings="'wght' 560"
                 android:textSize="12sp"
                 android:fontFamily="@font/outfit" />
 
@@ -61,7 +63,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:textColor="#B3FFFFFF"
+                android:textColor="#E6FFFFFF"
+                android:fontVariationSettings="'wght' 560"
                 android:textSize="15sp"
                 android:fontFamily="@font/outfit" />
 
@@ -73,6 +76,7 @@
                 android:singleLine="true"
                 android:ellipsize="end"
                 android:textColor="#FFFFFFFF"
+                android:fontVariationSettings="'wght' 650"
                 android:textSize="26sp"
                 android:fontFamily="@font/outfit" />
 
@@ -82,7 +86,8 @@
                 android:layout_marginTop="28dp"
                 android:text="@string/net_data_title"
                 android:letterSpacing="0.14"
-                android:textColor="#8CFFFFFF"
+                android:textColor="#CCFFFFFF"
+                android:fontVariationSettings="'wght' 560"
                 android:textSize="12sp"
                 android:fontFamily="@font/outfit" />
 
@@ -102,15 +107,17 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="#FFFFFFFF"
-                        android:textSize="24sp"
+                        android:fontVariationSettings="'wght' 650"
+                android:textSize="24sp"
                         android:fontFamily="@font/outfit" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/net_today"
-                        android:textColor="#99FFFFFF"
-                        android:textSize="13sp"
+                        android:textColor="#D9FFFFFF"
+                        android:fontVariationSettings="'wght' 560"
+                android:textSize="13sp"
                         android:fontFamily="@font/outfit" />
                 </LinearLayout>
 
@@ -125,15 +132,17 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="#FFFFFFFF"
-                        android:textSize="24sp"
+                        android:fontVariationSettings="'wght' 650"
+                android:textSize="24sp"
                         android:fontFamily="@font/outfit" />
 
                     <TextView
                         android:id="@+id/dataMonthLabel"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textColor="#99FFFFFF"
-                        android:textSize="13sp"
+                        android:textColor="#D9FFFFFF"
+                        android:fontVariationSettings="'wght' 560"
+                android:textSize="13sp"
                         android:fontFamily="@font/outfit" />
                 </LinearLayout>
             </LinearLayout>
@@ -143,7 +152,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:textColor="#80FFFFFF"
+                android:textColor="#C7FFFFFF"
+                android:fontVariationSettings="'wght' 560"
                 android:textSize="12sp"
                 android:fontFamily="@font/outfit" />
         </LinearLayout>
@@ -159,23 +169,27 @@
         <TextView
             android:id="@+id/btnDataLimit"
             style="@style/TopButton"
+            android:fontVariationSettings="'wght' 600"
             android:paddingStart="20dp"
             android:text="@string/limit_button" />
 
         <TextView
             android:id="@+id/btnWifiDetails"
             style="@style/TopButton"
+            android:fontVariationSettings="'wght' 600"
             android:paddingStart="20dp" />
 
         <TextView
             android:id="@+id/btnWifiSettings"
             style="@style/TopButton"
+            android:fontVariationSettings="'wght' 600"
             android:paddingStart="20dp"
             android:text="@string/net_settings" />
 
         <TextView
             android:id="@+id/btnClose"
             style="@style/TopButton"
+            android:fontVariationSettings="'wght' 600"
             android:paddingStart="20dp"
             android:text="@string/net_close" />
     </LinearLayout>

@@ -99,7 +99,7 @@ final class SetupPanel {
         box.setBackgroundResource(R.drawable.glass_panel);
         box.setMinimumWidth(dp(640));
 
-        box.addView(text(act.getString(R.string.setup_kicker), 12, 0x8CFFFFFF, 0, 0.14f));
+        box.addView(text(act.getString(R.string.setup_kicker), 12, 0xCCFFFFFF, 0, 0.14f));
         box.addView(text(act.getString(R.string.setup_title), 28, 0xFFFFFFFF, dp(6), 0));
         box.addView(text(act.getString(R.string.setup_intro), 15, 0xB3FFFFFF, dp(6), 0));
 
@@ -188,7 +188,7 @@ final class SetupPanel {
         colLp.leftMargin = dp(18);
         colLp.rightMargin = dp(18);
         col.addView(text(act.getString(titleRes), 18, done ? 0xB3FFFFFF : 0xFFFFFFFF, 0, 0));
-        col.addView(text(act.getString(descRes), 13, 0x8CFFFFFF, dp(3), 0));
+        col.addView(text(act.getString(descRes), 13, 0xCCFFFFFF, dp(3), 0));
         row.addView(col, colLp);
 
         if (actionRes != 0) {
@@ -249,6 +249,7 @@ final class SetupPanel {
         v.setTextSize(sp);
         v.setTextColor(color);
         v.setTypeface(act.getResources().getFont(R.font.outfit));
+        v.setFontVariationSettings("'wght' " + (sp >= 24 ? 650 : sp >= 16 ? 580 : 540));
         if (letterSpacing > 0) {
             v.setLetterSpacing(letterSpacing);
             v.setAllCaps(true);
