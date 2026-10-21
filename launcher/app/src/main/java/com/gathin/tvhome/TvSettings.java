@@ -312,6 +312,11 @@ final class TvSettings {
             QuickPanel.setEnabled(act, !quick);
             picture(8);
         }));
+        boolean card = NowPlaying.enabled(act);
+        rows.add(new GlassMenu.Row(R.drawable.ic_s_sound, s(R.string.tv_np_card), onOff(card), () -> {
+            NowPlaying.setEnabled(act, !card);
+            picture(9);
+        }));
         rows.add(new GlassMenu.Row(R.drawable.ic_s_display, s(R.string.tv_resolution), null,
                 () -> openPictureSettings(Settings.ACTION_DISPLAY_SETTINGS)).external());
         rows.add(new GlassMenu.Row(R.drawable.ic_s_volume, s(R.string.tv_sound_out), null,
