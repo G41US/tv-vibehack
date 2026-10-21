@@ -71,7 +71,10 @@ final class TvSettings {
 
     void show() {
         GlassMenu.Tile[] tiles = {
-                new GlassMenu.Tile(R.drawable.ic_wifi, s(R.string.tv_network), act.netText, () -> network(0)),
+                new GlassMenu.Tile(R.drawable.ic_wifi, s(R.string.tv_network), act.netText, () -> {
+                    networkBack = this::show;
+                    network(0);
+                }),
                 new GlassMenu.Tile(R.drawable.ic_s_display, s(R.string.tv_picture), s(R.string.tv_picture_value),
                         () -> picture(0)),
                 new GlassMenu.Tile(R.drawable.ic_s_remote, s(R.string.tv_remotes), s(R.string.tv_remotes_value),
@@ -130,6 +133,15 @@ final class TvSettings {
 
     // ---- network ----------------------------------------------------------------------------------
 
+    /** Where Back goes from the Network page: the grid, or nowhere when it came from the network pill. */
+    private Runnable networkBack;
+
+    /** Pressing OK on the network pill. */
+    void networkFromPill() {
+        networkBack = null;
+        network(0);
+    }
+
     void network(int focus) {
         NetHealth.State st = act.netState();
         String health = st == NetHealth.State.GOOD ? s(R.string.tv_net_good)
@@ -161,7 +173,7 @@ final class TvSettings {
                 () -> DataLimit.showSettings(act, () -> network(2))));
         rows.add(new GlassMenu.Row(R.drawable.ic_s_tune, s(R.string.tv_net_join), null,
                 () -> openSettings(Settings.ACTION_WIFI_SETTINGS)).external());
-        page(R.string.tv_network, hero, rows, focus);
+        GlassMenu.page(act, s(R.string.tv_title), s(R.string.tv_network), hero, rows, networkBack, focus);
     }
 
     private String ipAddress() {

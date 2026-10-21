@@ -200,7 +200,7 @@
     <string name="tv_net_ip">Adresse IP %1$s</string>
     <string name="tv_net_guest">QR Wi-Fi invités et données utilisées</string>
     <string name="tv_net_adblock">DNS anti-pub</string>
-    <string name="tv_net_join">Rejoindre ou changer de Wi-Fi</string>
+    <string name="tv_net_join">Wi-Fi, IP et proxy</string>
     <string name="tv_volume">Volume</string>
     <string name="tv_volume_tv">Réglé avec la télécommande du téléviseur</string>
     <string name="tv_anim">Animations</string>
