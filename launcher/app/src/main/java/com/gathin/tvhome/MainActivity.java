@@ -502,6 +502,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     public boolean dispatchKeyEvent(KeyEvent e) {
         Sounds.onKey(this, e);
+        if (nowPlaying != null) nowPlaying.noteInput();
         return super.dispatchKeyEvent(e);
     }
 

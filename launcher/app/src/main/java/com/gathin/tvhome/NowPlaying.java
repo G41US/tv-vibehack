@@ -53,8 +53,15 @@ final class NowPlaying {
     private boolean ticking;
     private ImageView art;
     private TextView title, subtitle;
-    private Ticker ticker;
+    private Ticker ticker, subTicker;
     private ImageView playPause;
+    private LinearLayout info, textCol;
+    private int accent = 0xFFFFFFFF, glowColor = 0xFF000000;
+    private String lastTitle = "";
+    private android.animation.ValueAnimator breathe;
+    private long lastInput = android.os.SystemClock.uptimeMillis();
+    private boolean started;
+    private Full full;
 
     NowPlaying(Activity act) {
         this.act = act;
@@ -75,7 +82,7 @@ final class NowPlaying {
         bg.setCornerRadius(dp(20));
         bg.setStroke(dp(1), 0x4DFFFFFF);
         card.setBackground(bg);
-        card.setPadding(dp(12), dp(12), dp(14), dp(12));
+        card.setPadding(dp(8), dp(8), dp(14), dp(8));
         card.setElevation(dp(8));
         card.setVisibility(View.GONE);
 
@@ -89,9 +96,19 @@ final class NowPlaying {
         });
         art.setClipToOutline(true);
         art.setElevation(dp(4));
-        card.addView(art, new LinearLayout.LayoutParams(dp(60), dp(60)));
+        info = new LinearLayout(act);
+        info.setOrientation(LinearLayout.HORIZONTAL);
+        info.setGravity(Gravity.CENTER_VERTICAL);
+        info.setFocusable(true);
+        info.setClickable(true);
+        info.setBackgroundResource(R.drawable.np_info_bg);
+        info.setPadding(dp(4), dp(4), dp(4), dp(4));
+        info.setOnClickListener(v -> openFull());   // OK on the song: the full-screen player
+        info.setOnKeyListener((v, k, e) -> k == KeyEvent.KEYCODE_DPAD_LEFT && e.getAction() == KeyEvent.ACTION_DOWN);
+        info.addView(art, new LinearLayout.LayoutParams(dp(60), dp(60)));
 
         LinearLayout text = new LinearLayout(act);
+        textCol = text;
         text.setOrientation(LinearLayout.VERTICAL);
         text.setPadding(dp(12), 0, dp(8), 0);
         title = label(17, 0xFFFFFFFF, 620);
@@ -100,6 +117,10 @@ final class NowPlaying {
         follow.setEllipsize(null);
         ticker = new Ticker(act, title, follow, density);   // long titles scroll round, like a music app
         subtitle = label(14, 0xC7FFFFFF, 520);
+        subtitle.setEllipsize(null);
+        TextView subFollow = label(14, 0xC7FFFFFF, 520);
+        subFollow.setEllipsize(null);
+        subTicker = new Ticker(act, subtitle, subFollow, density);   // long artist names scroll too
         eq = new Equalizer(act, density);
         LinearLayout who = new LinearLayout(act);
         who.setOrientation(LinearLayout.HORIZONTAL);
@@ -107,13 +128,13 @@ final class NowPlaying {
         LinearLayout.LayoutParams elp = new LinearLayout.LayoutParams(dp(14), dp(12));
         elp.rightMargin = dp(7);
         who.addView(eq, elp);
-        who.addView(subtitle, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-        progress = new Progress(act, density);
+        who.addView(subTicker, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        progress = new Progress(act, density, 4);
         time = label(12, 0xB3FFFFFF, 520);
         LinearLayout prow = new LinearLayout(act);
         prow.setOrientation(LinearLayout.HORIZONTAL);
         prow.setGravity(Gravity.CENTER_VERTICAL);
-        prow.addView(progress, new LinearLayout.LayoutParams(0, dp(4), 1f));
+        prow.addView(progress, new LinearLayout.LayoutParams(0, dp(14), 1f));
         time.setPadding(dp(8), 0, 0, 0);
         prow.addView(time);
         text.addView(ticker, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -124,9 +145,10 @@ final class NowPlaying {
         text.addView(who, wlp);
         LinearLayout.LayoutParams plp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        plp.topMargin = dp(8);
+        plp.topMargin = dp(3);
         text.addView(prow, plp);
-        card.addView(text, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        info.addView(text, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        card.addView(info, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
         ImageView prev = button(R.drawable.ic_np_prev, () -> transport(KeyEvent.KEYCODE_MEDIA_PREVIOUS));
         playPause = button(R.drawable.ic_np_pause, () -> transport(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE));
@@ -135,7 +157,11 @@ final class NowPlaying {
         card.addView(playPause);
         card.addView(next);
         // Left/Right stay inside the three buttons instead of jumping to the top bar or the dock.
-        prev.setOnKeyListener((v, k, e) -> k == KeyEvent.KEYCODE_DPAD_LEFT && e.getAction() == KeyEvent.ACTION_DOWN);
+        prev.setOnKeyListener((v, k, e) -> {
+            if (k != KeyEvent.KEYCODE_DPAD_LEFT || e.getAction() != KeyEvent.ACTION_DOWN) return false;
+            info.requestFocus();
+            return true;
+        });
         next.setOnKeyListener((v, k, e) -> k == KeyEvent.KEYCODE_DPAD_RIGHT && e.getAction() == KeyEvent.ACTION_DOWN);
 
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -241,6 +267,10 @@ final class NowPlaying {
         } catch (SecurityException e) {
             msm = null;   // no notification access: no card
         }
+        started = true;
+        noteInput();
+        handler.removeCallbacks(idleCheck);
+        handler.postDelayed(idleCheck, 10_000);
         refresh();
     }
 
@@ -273,6 +303,7 @@ final class NowPlaying {
         progress.setVisibility(View.VISIBLE);
         progress.set(pos / (float) dur);
         time.setText(fmt(pos) + " / " + fmt(dur));
+        if (full != null) full.progress();
     }
 
     private static String fmt(long ms) {
@@ -315,7 +346,16 @@ final class NowPlaying {
             }
         }
         bg.setColors(new int[]{c, 0x8C161618});
-        progress.setColor(0xFFFFFFFF);
+        float[] h = new float[3];
+        android.graphics.Color.colorToHSV(c, h);
+        accent = cover == null ? 0xFFFFFFFF : android.graphics.Color.HSVToColor(new float[]{h[0], Math.min(h[1], 0.45f), 1f});
+        glowColor = cover == null ? 0xFF000000 : android.graphics.Color.HSVToColor(new float[]{h[0], Math.min(1f, h[1] + 0.2f), 0.9f});
+        progress.setColor(accent);
+        if (android.os.Build.VERSION.SDK_INT >= 28) {
+            card.setOutlineSpotShadowColor(glowColor);
+            card.setOutlineAmbientShadowColor(glowColor);
+        }
+        if (full != null) full.tint();
     }
 
     void stop() {
@@ -331,6 +371,323 @@ final class NowPlaying {
         handler.removeCallbacks(tick);
         if (eq != null) eq.setPlaying(false);
         if (ticker != null) ticker.setRunning(false);
+        if (subTicker != null) subTicker.setRunning(false);
+        setBreathing(false);
+        started = false;
+        handler.removeCallbacks(idleCheck);
+    }
+
+    /** While music plays, the card's coloured glow slowly swells and settles, like breathing. */
+    private void setBreathing(boolean on) {
+        if (!on) {
+            if (breathe != null) breathe.cancel();
+            breathe = null;
+            if (card != null) card.setElevation(dp(8));
+            return;
+        }
+        if (breathe != null) return;
+        breathe = android.animation.ValueAnimator.ofFloat(dp(8), dp(22));
+        breathe.setDuration(2600);
+        breathe.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+        breathe.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+        breathe.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
+        breathe.addUpdateListener(a -> card.setElevation((float) a.getAnimatedValue()));
+        breathe.start();
+    }
+
+    // ---- full-screen player -----------------------------------------------------------------------
+
+    /** Any key on Home (MainActivity): resets the wait before the player fills the screen by itself. */
+    void noteInput() {
+        lastInput = android.os.SystemClock.uptimeMillis();
+    }
+
+    private static final long AMBIENT_AFTER_MS = 60_000;
+
+    /** Music playing and nobody touching the remote on Home for a minute: the full-screen player. */
+    private final Runnable idleCheck = new Runnable() {
+        @Override
+        public void run() {
+            if (!started) return;
+            PlaybackState st = current != null ? current.getPlaybackState() : null;
+            boolean playing = st != null && st.getState() == PlaybackState.STATE_PLAYING;
+            if (playing && full == null && act.hasWindowFocus()
+                    && android.os.SystemClock.uptimeMillis() - lastInput > AMBIENT_AFTER_MS) {
+                openFull();
+            }
+            handler.postDelayed(this, 10_000);
+        }
+    };
+
+    void openFull() {
+        if (current == null || full != null) return;
+        full = new Full();
+        full.show();
+    }
+
+    /**
+     * The full-screen player: the cover blurred and drifting behind everything, the cover itself large
+     * with a glow in its colour, the title and artist big, a progress bar, and the controls.
+     */
+    private final class Full {
+        private android.app.Dialog d;
+        private ImageView backdrop, cover;
+        private TextView kicker, album, elapsed, total;
+        private Ticker title, artist;
+        private Progress bar;
+        private Equalizer bigEq;
+        private ImageView play;
+        private android.animation.ValueAnimator drift, pulse;
+        private Bitmap shown;
+
+        void show() {
+            d = new android.app.Dialog(act, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+            FrameLayout root = new FrameLayout(act);
+            root.setBackgroundColor(0xFF000000);
+            backdrop = new ImageView(act);
+            backdrop.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            root.addView(backdrop, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT));
+            View shade = new View(act);
+            shade.setBackground(new android.graphics.drawable.GradientDrawable(
+                    android.graphics.drawable.GradientDrawable.Orientation.LEFT_RIGHT,
+                    new int[]{0x8C000000, 0x59000000, 0xA6000000}));
+            root.addView(shade, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT));
+
+            LinearLayout row = new LinearLayout(act);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            cover = new ImageView(act);
+            cover.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            cover.setOutlineProvider(new ViewOutlineProvider() {
+                @Override
+                public void getOutline(View v, Outline o) {
+                    o.setRoundRect(0, 0, v.getWidth(), v.getHeight(), dp(22));
+                }
+            });
+            cover.setClipToOutline(true);
+            cover.setElevation(dp(30));
+            row.addView(cover, new LinearLayout.LayoutParams(dp(300), dp(300)));
+
+            LinearLayout col = new LinearLayout(act);
+            col.setOrientation(LinearLayout.VERTICAL);
+            col.setPadding(dp(48), 0, 0, 0);
+            LinearLayout k = new LinearLayout(act);
+            k.setOrientation(LinearLayout.HORIZONTAL);
+            k.setGravity(Gravity.CENTER_VERTICAL);
+            bigEq = new Equalizer(act, density);
+            LinearLayout.LayoutParams elp = new LinearLayout.LayoutParams(dp(18), dp(16));
+            elp.rightMargin = dp(10);
+            k.addView(bigEq, elp);
+            kicker = label(13, 0xD9FFFFFF, 620);
+            kicker.setAllCaps(true);
+            kicker.setLetterSpacing(0.18f);
+            k.addView(kicker);
+            col.addView(k);
+
+            TextView t1 = label(36, 0xFFFFFFFF, 700), t2 = label(36, 0xFFFFFFFF, 700);
+            t1.setEllipsize(null);
+            t2.setEllipsize(null);
+            title = new Ticker(act, t1, t2, density);
+            LinearLayout.LayoutParams tlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            tlp.topMargin = dp(14);
+            col.addView(title, tlp);
+            TextView a1 = label(21, 0xE6FFFFFF, 560), a2 = label(21, 0xE6FFFFFF, 560);
+            a1.setEllipsize(null);
+            a2.setEllipsize(null);
+            artist = new Ticker(act, a1, a2, density);
+            LinearLayout.LayoutParams alp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            alp.topMargin = dp(4);
+            col.addView(artist, alp);
+            album = label(15, 0xA6FFFFFF, 520);
+            album.setPadding(0, dp(4), 0, 0);
+            col.addView(album);
+
+            bar = new Progress(act, density, 6);
+            LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(22));
+            blp.topMargin = dp(30);
+            col.addView(bar, blp);
+            FrameLayout times = new FrameLayout(act);
+            elapsed = label(13, 0xCCFFFFFF, 560);
+            total = label(13, 0xCCFFFFFF, 560);
+            times.addView(elapsed, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.START));
+            times.addView(total, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.END));
+            LinearLayout.LayoutParams mlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            mlp.topMargin = dp(6);
+            col.addView(times, mlp);
+
+            LinearLayout controls = new LinearLayout(act);
+            controls.setOrientation(LinearLayout.HORIZONTAL);
+            controls.setGravity(Gravity.CENTER_VERTICAL);
+            ImageView prev = bigButton(R.drawable.ic_np_prev, 56, () -> transport(KeyEvent.KEYCODE_MEDIA_PREVIOUS));
+            play = bigButton(R.drawable.ic_np_pause, 72, () -> transport(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE));
+            ImageView next = bigButton(R.drawable.ic_np_next, 56, () -> transport(KeyEvent.KEYCODE_MEDIA_NEXT));
+            controls.addView(prev);
+            controls.addView(play);
+            controls.addView(next);
+            prev.setOnKeyListener((v, kc, e) -> kc == KeyEvent.KEYCODE_DPAD_LEFT && e.getAction() == KeyEvent.ACTION_DOWN);
+            next.setOnKeyListener((v, kc, e) -> kc == KeyEvent.KEYCODE_DPAD_RIGHT && e.getAction() == KeyEvent.ACTION_DOWN);
+            LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            clp.topMargin = dp(26);
+            col.addView(controls, clp);
+
+            row.addView(col, new LinearLayout.LayoutParams(dp(440), ViewGroup.LayoutParams.WRAP_CONTENT));
+            root.addView(row, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+
+            d.setContentView(root);
+            Sounds.attach(d);
+            d.setOnDismissListener(x -> {
+                if (drift != null) drift.cancel();
+                if (pulse != null) pulse.cancel();
+                title.setRunning(false);
+                artist.setRunning(false);
+                bigEq.setPlaying(false);
+                full = null;
+                noteInput();
+            });
+            drift = LiveWallpaper.drift(backdrop, density);
+            backdrop.setScaleX(1.25f);
+            backdrop.setScaleY(1.25f);
+            drift.start();
+            root.setAlpha(0f);
+            d.setOnShowListener(x -> {
+                play.requestFocus();
+                root.animate().alpha(1f).setDuration(350).start();
+            });
+            d.show();
+            update(true);
+        }
+
+        private ImageView bigButton(int icon, int size, Runnable action) {
+            ImageView b = new ImageView(act);
+            b.setImageResource(icon);
+            b.setImageTintList(act.getColorStateList(R.color.menu_ink));
+            b.setBackgroundResource(R.drawable.np_button_bg);
+            b.setScaleType(ImageView.ScaleType.FIT_CENTER);
+            int pad = dp(size * 0.3f);
+            b.setPadding(pad, pad, pad, pad);
+            b.setFocusable(true);
+            b.setClickable(true);
+            b.setOnClickListener(v -> action.run());
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(size), dp(size));
+            lp.rightMargin = dp(16);
+            b.setLayoutParams(lp);
+            return b;
+        }
+
+        void tint() {
+            if (d == null) return;
+            bar.setColor(accent);
+            if (android.os.Build.VERSION.SDK_INT >= 28) {
+                cover.setOutlineSpotShadowColor(glowColor);
+                cover.setOutlineAmbientShadowColor(glowColor);
+            }
+        }
+
+        /** Refreshes from the session; {@code all} also redoes the pictures. */
+        void update(boolean all) {
+            if (d == null || current == null) return;
+            MediaMetadata md = current.getMetadata();
+            PlaybackState st = current.getPlaybackState();
+            if (md == null) return;
+            boolean playing = st != null && st.getState() == PlaybackState.STATE_PLAYING;
+            title.setText(String.valueOf(md.getText(MediaMetadata.METADATA_KEY_TITLE)));
+            title.setRunning(true);
+            CharSequence who = md.getText(MediaMetadata.METADATA_KEY_ARTIST);
+            if (TextUtils.isEmpty(who)) who = md.getText(MediaMetadata.METADATA_KEY_ALBUM_ARTIST);
+            artist.setText(TextUtils.isEmpty(who) ? " " : who);
+            artist.setRunning(true);
+            CharSequence alb = md.getText(MediaMetadata.METADATA_KEY_ALBUM);
+            album.setText(TextUtils.isEmpty(alb) ? "" : alb);
+            kicker.setText(appName(current.getPackageName()) + "  ·  " + act.getString(R.string.np_now_playing));
+            bigEq.setPlaying(playing);
+            play.setImageResource(playing ? R.drawable.ic_np_pause : R.drawable.ic_np_play);
+            Bitmap c = coverOf(md);
+            if (all || c != shown) {
+                shown = c;
+                if (c != null) {
+                    cover.setImageBitmap(c);
+                    backdrop.setImageBitmap(Bitmap.createScaledBitmap(c, 48, 48, true));
+                    if (android.os.Build.VERSION.SDK_INT >= 31) {
+                        backdrop.setRenderEffect(android.graphics.RenderEffect.createBlurEffect(
+                                dp(24), dp(24), android.graphics.Shader.TileMode.CLAMP));
+                    }
+                } else {
+                    cover.setImageDrawable(appIcon(current.getPackageName()));
+                    backdrop.setImageDrawable(null);
+                }
+                tint();
+            }
+            setPulse(playing);
+            progress();
+        }
+
+        /** The big cover gently breathes while the music plays. */
+        private void setPulse(boolean on) {
+            if (!on) {
+                if (pulse != null) pulse.cancel();
+                pulse = null;
+                cover.animate().scaleX(0.96f).scaleY(0.96f).setDuration(400).start();
+                return;
+            }
+            if (pulse != null) return;
+            cover.animate().cancel();
+            pulse = android.animation.ValueAnimator.ofFloat(1f, 1.025f);
+            pulse.setDuration(2600);
+            pulse.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+            pulse.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+            pulse.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
+            pulse.addUpdateListener(a -> {
+                float v = (float) a.getAnimatedValue();
+                cover.setScaleX(v);
+                cover.setScaleY(v);
+            });
+            pulse.start();
+        }
+
+        void progress() {
+            if (d == null || current == null) return;
+            long[] pd = position();
+            if (pd == null) {
+                bar.setVisibility(View.INVISIBLE);
+                elapsed.setText("");
+                total.setText("");
+                return;
+            }
+            bar.setVisibility(View.VISIBLE);
+            bar.set(pd[0] / (float) pd[1]);
+            elapsed.setText(fmt(pd[0]));
+            total.setText("-" + fmt(pd[1] - pd[0]));
+        }
+    }
+
+    private static Bitmap coverOf(MediaMetadata md) {
+        Bitmap c = md.getBitmap(MediaMetadata.METADATA_KEY_ART);
+        if (c == null) c = md.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART);
+        if (c == null) c = md.getBitmap(MediaMetadata.METADATA_KEY_DISPLAY_ICON);
+        return c;
+    }
+
+    /** {position, duration} in ms now, or null without a duration. */
+    private long[] position() {
+        PlaybackState st = current.getPlaybackState();
+        MediaMetadata md = current.getMetadata();
+        long dur = md != null ? md.getLong(MediaMetadata.METADATA_KEY_DURATION) : 0;
+        if (st == null || dur <= 0) return null;
+        long pos = st.getPosition();
+        if (st.getState() == PlaybackState.STATE_PLAYING && st.getLastPositionUpdateTime() > 0) {
+            pos += (long) ((android.os.SystemClock.elapsedRealtime() - st.getLastPositionUpdateTime())
+                    * st.getPlaybackSpeed());
+        }
+        return new long[]{Math.max(0, Math.min(dur, pos)), dur};
     }
 
     /**
@@ -469,9 +826,11 @@ final class NowPlaying {
         private final android.graphics.Paint track = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
         private final android.graphics.Paint fill = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
         private float f;
+        private final float thick;
 
-        Progress(Context c, float density) {
+        Progress(Context c, float density, float thickDp) {
             super(c);
+            thick = thickDp * density;
             track.setColor(0x33FFFFFF);
             fill.setColor(0xFFFFFFFF);
         }
@@ -488,9 +847,17 @@ final class NowPlaying {
 
         @Override
         protected void onDraw(android.graphics.Canvas c) {
-            float w = getWidth(), h = getHeight();
-            c.drawRoundRect(0, 0, w, h, h / 2, h / 2, track);
-            if (f > 0) c.drawRoundRect(0, 0, Math.max(h, w * f), h, h / 2, h / 2, fill);
+            float w = getWidth(), cy = getHeight() / 2f, t = thick, head = t * 1.6f;
+            c.drawRoundRect(head, cy - t / 2, w - head, cy + t / 2, t / 2, t / 2, track);
+            if (f <= 0) return;
+            float x = head + Math.max(t, (w - 2 * head) * f);
+            c.drawRoundRect(head, cy - t / 2, x, cy + t / 2, t / 2, t / 2, fill);
+            // A small glowing head where the song is now.
+            int a = fill.getAlpha();
+            fill.setAlpha(70);
+            c.drawCircle(x, cy, head, fill);
+            fill.setAlpha(a);
+            c.drawCircle(x, cy, t * 0.95f, fill);
         }
     }
 
@@ -531,6 +898,10 @@ final class NowPlaying {
                 && (state == PlaybackState.STATE_PLAYING || state == PlaybackState.STATE_PAUSED
                 || state == PlaybackState.STATE_BUFFERING);
         if (!show) {
+            if (full != null && full.d != null) full.d.dismiss();
+            setBreathing(false);
+            lastTitle = "";
+            if (subTicker != null) subTicker.setRunning(false);
             if (ticker != null) ticker.setRunning(false);
             ticking = false;
             handler.removeCallbacks(tick);
@@ -541,25 +912,44 @@ final class NowPlaying {
             }
             return;
         }
-        ticker.setText(t);
-        ticker.setRunning(true);
         CharSequence who = md.getText(MediaMetadata.METADATA_KEY_ARTIST);
         if (TextUtils.isEmpty(who)) who = md.getText(MediaMetadata.METADATA_KEY_ALBUM_ARTIST);
         String app = appName(current.getPackageName());
-        subtitle.setText(TextUtils.isEmpty(who) ? app : who + "  ·  " + app);
-        Bitmap cover = md.getBitmap(MediaMetadata.METADATA_KEY_ART);
-        if (cover == null) cover = md.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART);
-        if (cover == null) cover = md.getBitmap(MediaMetadata.METADATA_KEY_DISPLAY_ICON);
-        if (cover != null) {
-            art.setImageBitmap(cover);
+        final CharSequence line = TextUtils.isEmpty(who) ? app : who + "  ·  " + app;
+        final CharSequence song = t;
+        Bitmap cover = coverOf(md);
+        final Bitmap pic = cover;
+        Runnable apply = () -> {
+            ticker.setText(song);
+            ticker.setRunning(true);
+            subTicker.setText(line);
+            subTicker.setRunning(true);
+            if (pic != null) art.setImageBitmap(pic);
+            else art.setImageDrawable(appIcon(current != null ? current.getPackageName() : act.getPackageName()));
+        };
+        boolean changed = !song.toString().equals(lastTitle);
+        lastTitle = song.toString();
+        if (changed && card.getVisibility() == View.VISIBLE) {
+            // New song: the old one slides out to the left, the new one slides in from the right.
+            textCol.animate().cancel();
+            textCol.animate().alpha(0f).translationX(-dp(14)).setDuration(160).withEndAction(() -> {
+                apply.run();
+                textCol.setTranslationX(dp(14));
+                textCol.animate().alpha(1f).translationX(0f).setDuration(260).start();
+            }).start();
+            art.animate().cancel();
+            art.animate().alpha(0f).setDuration(160).withEndAction(() ->
+                    art.animate().alpha(1f).setDuration(300).start()).start();
         } else {
-            art.setImageDrawable(appIcon(current.getPackageName()));
+            apply.run();
         }
         if (cover != lastCover) {
             lastCover = cover;
             tint(cover);
         }
         eq.setPlaying(state == PlaybackState.STATE_PLAYING);
+        setBreathing(state == PlaybackState.STATE_PLAYING);
+        if (full != null) full.update(false);
         updateProgress();
         if (!ticking) {
             ticking = true;

@@ -260,4 +260,5 @@
     <string name="fc_sun">Lever %1$s · Coucher %2$s</string>
     <string name="fc_today">Aujourd\'hui</string>
     <string name="qp_skip">◀ ▶ pour passer</string>
+    <string name="np_now_playing">En lecture</string>
 </resources>
