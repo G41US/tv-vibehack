@@ -62,6 +62,30 @@ final class NowPlaying {
     private long lastInput = android.os.SystemClock.uptimeMillis();
     private boolean started;
     private Full full;
+    /** The song the person closed the card on: it stays hidden until something else plays. */
+    private String dismissed;
+
+    static final String PREFS = "look", KEY_ON = "now_playing";
+
+    static boolean enabled(Context ctx) {
+        return ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_ON, true);
+    }
+
+    static void setEnabled(Context ctx, boolean on) {
+        ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_ON, on).apply();
+    }
+
+    private String key() {
+        if (current == null) return null;
+        MediaMetadata md = current.getMetadata();
+        CharSequence t = md != null ? md.getText(MediaMetadata.METADATA_KEY_TITLE) : null;
+        return current.getPackageName() + "|" + t;
+    }
+
+    private void dismiss() {
+        dismissed = key();
+        render();
+    }
 
     NowPlaying(Activity act) {
         this.act = act;
@@ -156,13 +180,20 @@ final class NowPlaying {
         card.addView(prev);
         card.addView(playPause);
         card.addView(next);
+        // ✕: hide the card until the next song (or another app) starts playing.
+        ImageView close = button(R.drawable.ic_np_close, this::dismiss);
+        LinearLayout.LayoutParams xlp = new LinearLayout.LayoutParams(dp(32), dp(32));
+        xlp.leftMargin = dp(10);
+        close.setLayoutParams(xlp);
+        close.setAlpha(0.85f);
+        card.addView(close);
+        close.setOnKeyListener((v, k, e) -> k == KeyEvent.KEYCODE_DPAD_RIGHT && e.getAction() == KeyEvent.ACTION_DOWN);
         // Left/Right stay inside the three buttons instead of jumping to the top bar or the dock.
         prev.setOnKeyListener((v, k, e) -> {
             if (k != KeyEvent.KEYCODE_DPAD_LEFT || e.getAction() != KeyEvent.ACTION_DOWN) return false;
             info.requestFocus();
             return true;
         });
-        next.setOnKeyListener((v, k, e) -> k == KeyEvent.KEYCODE_DPAD_RIGHT && e.getAction() == KeyEvent.ACTION_DOWN);
 
         FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.END);
@@ -411,7 +442,7 @@ final class NowPlaying {
             if (!started) return;
             PlaybackState st = current != null ? current.getPlaybackState() : null;
             boolean playing = st != null && st.getState() == PlaybackState.STATE_PLAYING;
-            if (playing && full == null && act.hasWindowFocus()
+            if (playing && full == null && act.hasWindowFocus() && card.getVisibility() == View.VISIBLE
                     && android.os.SystemClock.uptimeMillis() - lastInput > AMBIENT_AFTER_MS) {
                 openFull();
             }
@@ -896,7 +927,8 @@ final class NowPlaying {
         CharSequence t = md != null ? md.getText(MediaMetadata.METADATA_KEY_TITLE) : null;
         boolean show = current != null && !TextUtils.isEmpty(t)
                 && (state == PlaybackState.STATE_PLAYING || state == PlaybackState.STATE_PAUSED
-                || state == PlaybackState.STATE_BUFFERING);
+                || state == PlaybackState.STATE_BUFFERING)
+                && enabled(act) && !String.valueOf(key()).equals(dismissed);
         if (!show) {
             if (full != null && full.d != null) full.d.dismiss();
             setBreathing(false);
