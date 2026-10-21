@@ -58,6 +58,9 @@ final class NowPlaying {
     private LinearLayout info, textCol;
     private int accent = 0xFFFFFFFF, glowColor = 0xFF000000, secondColor = 0;
 
+    /** The playing song's colour for the volume capsule (VolumeOverlay); 0 with no music. */
+    static volatile int musicAccent;
+
     /** Album colour lighting (MoodLight on Home): the cover's two colours, and whether music plays. */
     interface Mood {
         void on(int a, int b, boolean playing);
@@ -499,6 +502,7 @@ final class NowPlaying {
         float[] h = new float[3];
         android.graphics.Color.colorToHSV(c, h);
         accent = cover == null ? 0xFFFFFFFF : android.graphics.Color.HSVToColor(new float[]{h[0], Math.min(h[1], 0.45f), 1f});
+        musicAccent = cover == null ? 0 : android.graphics.Color.HSVToColor(new float[]{h[0], Math.min(1f, h[1] + 0.25f), 1f});
         glowColor = cover == null ? 0xFF000000 : android.graphics.Color.HSVToColor(new float[]{h[0], Math.min(1f, h[1] + 0.2f), 0.9f});
         progress.setColor(accent);
         if (android.os.Build.VERSION.SDK_INT >= 28) {
@@ -938,10 +942,10 @@ final class NowPlaying {
                 full = null;
                 noteInput();
             });
-            drift = LiveWallpaper.drift(backdrop, density);
+            drift = null;   // the blurred cover stays still: a moving blur is heavy for TV boxes
             backdrop.setScaleX(1.25f);
             backdrop.setScaleY(1.25f);
-            drift.start();
+
             root.setAlpha(0f);
             d.setOnShowListener(x -> {
                 play.requestFocus();
@@ -1017,7 +1021,8 @@ final class NowPlaying {
                 }
                 tint();
             }
-            setPulse(playing);
+            cover.setScaleX(1f);
+            cover.setScaleY(1f);
             progress();
         }
 
@@ -1211,7 +1216,7 @@ final class NowPlaying {
                 float x = i * bw * 2;
                 c.drawRoundRect(x, h * (1 - f), x + bw, h, bw / 2, bw / 2, p);
             }
-            if (playing) postInvalidateDelayed(50);
+            if (playing) postInvalidateDelayed(90);
         }
     }
 
@@ -1299,6 +1304,7 @@ final class NowPlaying {
                 && (state == PlaybackState.STATE_PLAYING || state == PlaybackState.STATE_PAUSED
                 || state == PlaybackState.STATE_BUFFERING);
         if (!show) {
+            musicAccent = 0;
             if (mood != null) mood.on(glowColor, secondColor, false);
             if (full != null && full.d != null) full.d.dismiss();
             setBreathing(false);
@@ -1364,7 +1370,7 @@ final class NowPlaying {
         }
         eq.setPlaying(state == PlaybackState.STATE_PLAYING);
         miniEq.setPlaying(state == PlaybackState.STATE_PLAYING);
-        setBreathing(state == PlaybackState.STATE_PLAYING && !small());
+        setBreathing(false);   // the animated shadow re-rendered the card every frame: kept still
         if (mood != null && lastCover != null) mood.on(glowColor, secondColor != 0 ? secondColor : glowColor,
                 state == PlaybackState.STATE_PLAYING);
         if (full != null) full.update(false);

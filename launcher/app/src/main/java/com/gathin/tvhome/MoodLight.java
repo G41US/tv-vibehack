@@ -42,8 +42,7 @@ final class MoodLight extends View {
         on = playing;
         animate().cancel();
         animate().alpha(on ? 1f : 0f).setDuration(on ? 1500 : 900).start();
-        if (on) startSway();
-        else if (sway != null) sway.pause();
+        // Static glow (fade in and out only): a moving full-screen layer cost smoothness on TV boxes.
     }
 
     private void startSway() {
@@ -68,7 +67,6 @@ final class MoodLight extends View {
     }
 
     void resume() {
-        if (on) startSway();
     }
 
     @Override

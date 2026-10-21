@@ -49,6 +49,31 @@ final class VolumeOverlay {
     private final float density;
 
     private LinearLayout panel;
+    private ValueAnimator count;
+    private int shownNumber = -2;
+
+    /** The number rolls up or down to the new level instead of jumping. */
+    private void countTo(int target) {
+        if (count != null) count.cancel();
+        if (target < 0) {
+            shownNumber = -1;
+            pct.setText("—");
+            return;
+        }
+        int from = shownNumber < 0 ? target : shownNumber;
+        if (from == target) {
+            shownNumber = target;
+            pct.setText(String.valueOf(target));
+            return;
+        }
+        count = ValueAnimator.ofInt(from, target);
+        count.setDuration(180);
+        count.addUpdateListener(v -> {
+            shownNumber = (int) v.getAnimatedValue();
+            pct.setText(String.valueOf(shownNumber));
+        });
+        count.start();
+    }
     private GradientDrawable bg;
     private Boolean shapedUpright;
     private static final String KEY_RECT = "volume_rect";
@@ -114,15 +139,16 @@ final class VolumeOverlay {
         }
         panel = new LinearLayout(service);
         bg = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                new int[]{0xFF2A2A2E, 0xFF161618});   // opaque: nothing of the slider below shows
-        bg.setStroke(dp(1), 0x33FFFFFF);
+                new int[]{0xFF26262E, 0xFF111116});   // opaque: nothing of the slider below shows
+        bg.setStroke(dp(1), 0x40FFFFFF);
         panel.setBackground(bg);
         panel.setElevation(dp(12));
 
         pct = new TextView(service);
         pct.setTextColor(Color.WHITE);
-        pct.setTextSize(17);
+        pct.setTextSize(19);
         pct.setTypeface(font);
+        pct.setFontVariationSettings("'wght' 700");
         pct.setGravity(Gravity.CENTER);
         bar = new Bar(service, density);
         icon = new ImageView(service);
@@ -140,8 +166,8 @@ final class VolumeOverlay {
             panel.setOrientation(LinearLayout.VERTICAL);
             panel.setGravity(Gravity.CENTER_HORIZONTAL);
             panel.setPadding(0, dp(16), 0, dp(16));
-            panel.addView(pct, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(24)));
-            LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(dp(14), 0, 1f);
+            panel.addView(pct, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(26)));
+            LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(dp(22), 0, 1f);
             blp.topMargin = dp(12);
             blp.bottomMargin = dp(14);
             panel.addView(bar, blp);
@@ -151,7 +177,7 @@ final class VolumeOverlay {
             panel.setGravity(Gravity.CENTER_VERTICAL);
             panel.setPadding(dp(18), 0, dp(18), 0);
             panel.addView(icon, new LinearLayout.LayoutParams(dp(24), dp(24)));
-            LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(0, dp(14), 1f);
+            LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(0, dp(22), 1f);
             blp.leftMargin = dp(14);
             blp.rightMargin = dp(12);
             panel.addView(bar, blp);
@@ -247,10 +273,26 @@ final class VolumeOverlay {
         int cur = am.getStreamVolume(AudioManager.STREAM_MUSIC);
         boolean muted = am.isStreamMute(AudioManager.STREAM_MUSIC) || cur == 0;
         float level = muted ? 0f : cur / (float) max;
-        pct.setText(muted ? "—" : String.valueOf(Math.round(level * 100)));
-        pct.setTextSize(17 * TextScale.factor(service));
-        icon.setImageResource(muted ? R.drawable.ic_s_mute : R.drawable.ic_s_volume);
+        int target = muted ? -1 : Math.round(level * 100);
+        countTo(target);
+        pct.setTextSize(19 * TextScale.factor(service));
+        // Speaker with more sound waves as it gets louder.
+        icon.setImageResource(muted ? R.drawable.ic_s_mute : level < 0.34f ? R.drawable.ic_vol_quiet
+                : level < 0.67f ? R.drawable.ic_vol_low : R.drawable.ic_s_volume);
         bar.setMuted(muted);
+        // During music the fill takes the song's colour; Night mode's limit shows as a small mark.
+        bar.setAccent(NowPlaying.musicAccent);
+        bar.setCap(Night.active(service) && Night.cap(service) > 0 ? Night.cap(service) / 100f : -1f);
+        int a = NowPlaying.musicAccent;
+        if (a != 0) {
+            float[] h = new float[3];
+            Color.colorToHSV(a, h);
+            h[1] = Math.min(h[1], 0.5f);
+            h[2] = 0.22f;
+            bg.setColors(new int[]{Color.HSVToColor(h), 0xFF111116});
+        } else {
+            bg.setColors(new int[]{0xFF26262E, 0xFF111116});
+        }
 
         if (!attached) {
             try {
@@ -265,13 +307,15 @@ final class VolumeOverlay {
             handler.postDelayed(seek, 500);
             bar.setLevel(level, false);
             panel.setAlpha(0f);
-            panel.setTranslationX(dp(28));
-            panel.animate().alpha(1f).translationX(0f).setDuration(200)
+            panel.setScaleX(0.9f);
+            panel.setScaleY(0.9f);
+            panel.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(160)
                     .setInterpolator(new DecelerateInterpolator()).start();
         } else {
             panel.animate().cancel();
             panel.setAlpha(1f);
-            panel.setTranslationX(0f);
+            panel.setScaleX(1f);
+            panel.setScaleY(1f);
             bar.setLevel(level, true);
         }
         handler.removeCallbacks(hide);
@@ -282,7 +326,7 @@ final class VolumeOverlay {
         @Override
         public void run() {
             if (!attached) return;
-            panel.animate().alpha(0f).translationX(dp(28)).setDuration(220).withEndAction(() -> {
+            panel.animate().alpha(0f).scaleX(0.94f).scaleY(0.94f).setDuration(200).withEndAction(() -> {
                 try {
                     wm.removeView(panel);
                 } catch (Exception ignored) {
@@ -317,16 +361,43 @@ final class VolumeOverlay {
         Bar(Context ctx, float density) {
             super(ctx);
             this.density = density;
-            setLayerType(LAYER_TYPE_SOFTWARE, null);   // for the glow
             track.setColor(0x2EFFFFFF);
             fill.setColor(0xF2FFFFFF);
-            glow.setColor(0x66FFFFFF);
-            glow.setMaskFilter(new android.graphics.BlurMaskFilter(6 * density, android.graphics.BlurMaskFilter.Blur.NORMAL));
+            glow.setColor(0x33FFFFFF);
+            mark.setColor(0xFFFFC46B);
         }
 
-        void setMuted(boolean muted) {
-            fill.setColor(muted ? 0x66FFFFFF : 0xF2FFFFFF);
+        private final Paint mark = new Paint(Paint.ANTI_ALIAS_FLAG);
+        private int accent;
+        private boolean muted;
+        private float cap = -1f;
+
+        void setMuted(boolean m) {
+            muted = m;
             invalidate();
+        }
+
+        void setAccent(int a) {
+            accent = a;
+            invalidate();
+        }
+
+        void setCap(float c) {
+            cap = c;
+            invalidate();
+        }
+
+        /** White at the loud end, the song's colour (or soft white) at the quiet end. */
+        private void shade(float x0, float y0, float x1, float y1) {
+            int base = accent != 0 ? accent : 0xFFBFC6DA;
+            int top = 0xFFFFFFFF;
+            if (muted) {
+                base = 0x66FFFFFF;
+                top = 0x66FFFFFF;
+            }
+            fill.setShader(new android.graphics.LinearGradient(x0, y0, x1, y1, base, top,
+                    android.graphics.Shader.TileMode.CLAMP));
+            glow.setColor((accent != 0 ? accent : 0xFFFFFFFF) & 0x00FFFFFF | 0x38000000);
         }
 
         void setLevel(float to, boolean animate) {
@@ -348,24 +419,39 @@ final class VolumeOverlay {
         @Override
         protected void onDraw(Canvas c) {
             float w = getWidth(), h = getHeight();
-            float inset = 3 * density;   // room for the glow
+            float inset = 5 * density;   // room for the glow
             if (vertical) {
                 float bw = w - 2 * inset, rad = bw / 2;
                 r.set(inset, 0, w - inset, h);
                 c.drawRoundRect(r, rad, rad, track);
-                if (level <= 0f) return;
                 float top = h - Math.max(bw, h * level);
-                r.set(inset, top, w - inset, h);
-                c.drawRoundRect(r, rad, rad, glow);
-                c.drawRoundRect(r, rad, rad, fill);
+                if (level > 0f) {
+                    shade(0, h, 0, top);
+                    r.set(0, top - inset, w, h);
+                    c.drawRoundRect(r, w / 2, w / 2, glow);
+                    r.set(inset, top, w - inset, h);
+                    c.drawRoundRect(r, rad, rad, fill);
+                }
+                if (cap > 0f) {
+                    float y = h - h * cap;
+                    c.drawRoundRect(0, y - density, w, y + density, density, density, mark);
+                }
             } else {
                 float bh = h - 2 * inset, rad = bh / 2;
                 r.set(0, inset, w, h - inset);
                 c.drawRoundRect(r, rad, rad, track);
-                if (level <= 0f) return;
-                r.set(0, inset, Math.max(bh, w * level), h - inset);
-                c.drawRoundRect(r, rad, rad, glow);
-                c.drawRoundRect(r, rad, rad, fill);
+                float end = Math.max(bh, w * level);
+                if (level > 0f) {
+                    shade(0, 0, end, 0);
+                    r.set(0, 0, end + inset, h);
+                    c.drawRoundRect(r, h / 2, h / 2, glow);
+                    r.set(0, inset, end, h - inset);
+                    c.drawRoundRect(r, rad, rad, fill);
+                }
+                if (cap > 0f) {
+                    float x = w * cap;
+                    c.drawRoundRect(x - density, 0, x + density, h, density, density, mark);
+                }
             }
         }
     }

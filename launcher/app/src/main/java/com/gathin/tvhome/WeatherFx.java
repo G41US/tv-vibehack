@@ -57,7 +57,7 @@ final class WeatherFx extends View {
     void setMode(int m) {
         if (m == mode) return;
         mode = m;
-        int n = m == RAIN ? 90 : m == STORM ? 120 : m == SNOW ? 70 : 0;
+        int n = m == RAIN ? 55 : m == STORM ? 70 : m == SNOW ? 45 : 0;
         x = new float[n];
         y = new float[n];
         speed = new float[n];
@@ -155,7 +155,7 @@ final class WeatherFx extends View {
                 c.drawRect(0, 0, w, h, flash);
             }
         }
-        if (running) postInvalidateDelayed(33);
+        if (running) postInvalidateDelayed(50);
     }
 
     @Override
