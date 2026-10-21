@@ -383,7 +383,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 // Moving wallpaper: a slow drift, and the picture's own stars twinkle.
                 twinkle = new LiveWallpaper.Twinkle(this, density);
                 layer.addView(twinkle, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                driftAnim = LiveWallpaper.drift(layer, density);
+                // No continuous drift: moving the full-screen picture every frame slowed the whole home
+                // screen on TV boxes. The stars still twinkle (a few at a time, ~12 times a second).
                 // Live weather: rain, storms, snow, harmattan haze or fog at the weather's place.
                 weatherFx = new WeatherFx(this, density);
                 layer.addView(weatherFx, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -392,7 +393,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 new Thread(() -> {
                     float[][] stars;
                     try {
-                        stars = LiveWallpaper.findStars(bmp, 90);
+                        stars = LiveWallpaper.findStars(bmp, 45);
                     } catch (Exception | OutOfMemoryError err) {
                         return;
                     }
