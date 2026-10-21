@@ -177,7 +177,7 @@
     <string name="tv_title">This TV</string>
     <string name="tv_network">Network</string>
     <string name="tv_picture">Picture &amp; sound</string>
-    <string name="tv_picture_value">Volume, screensaver</string>
+    <string name="tv_picture_value">Text size, volume</string>
     <string name="tv_remotes">Remotes</string>
     <string name="tv_remotes_value">Paired remotes</string>
     <string name="tv_apps">Apps</string>
@@ -237,4 +237,8 @@
     <string name="tv_vol_style">Volume display</string>
     <string name="tv_vol_style_home">TV Home</string>
     <string name="tv_vol_style_android">Android</string>
+    <string name="tv_text">Text size</string>
+    <string name="tv_text_normal">Normal</string>
+    <string name="tv_text_large">Large</string>
+    <string name="tv_text_xlarge">Extra large</string>
 </resources>

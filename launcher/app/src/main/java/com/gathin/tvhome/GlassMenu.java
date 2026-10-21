@@ -300,7 +300,7 @@ final class GlassMenu {
         LinearLayout line = null;
         View first = null;
         int tileDp = columns >= 4 ? 190 : 214;
-        int tileW = dp(a, tileDp), tileH = dp(a, 100), gap = dp(a, 12);
+        int tileW = dp(a, tileDp), tileH = dp(a, 100 * Math.max(1f, a.getResources().getConfiguration().fontScale * 0.95f)), gap = dp(a, 12);
         for (int i = 0; i < tiles.length; i++) {
             if (i % columns == 0) {
                 line = new LinearLayout(a);

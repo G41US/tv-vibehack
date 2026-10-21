@@ -178,7 +178,7 @@
     <string name="tv_title">Ce téléviseur</string>
     <string name="tv_network">Réseau</string>
     <string name="tv_picture">Image et son</string>
-    <string name="tv_picture_value">Volume, économiseur</string>
+    <string name="tv_picture_value">Texte, volume</string>
     <string name="tv_remotes">Télécommandes</string>
     <string name="tv_remotes_value">Télécommandes associées</string>
     <string name="tv_apps">Applications</string>
@@ -238,4 +238,8 @@
     <string name="tv_vol_style">Affichage du volume</string>
     <string name="tv_vol_style_home">TV Home</string>
     <string name="tv_vol_style_android">Android</string>
+    <string name="tv_text">Taille du texte</string>
+    <string name="tv_text_normal">Normale</string>
+    <string name="tv_text_large">Grande</string>
+    <string name="tv_text_xlarge">Très grande</string>
 </resources>

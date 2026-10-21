@@ -91,7 +91,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
 
     /** Height of one grid item: the tile, the name label under it and the item's own padding. */
     static int itemHeightPx(int tileHeightPx, float density) {
-        return tileHeightPx + Math.round(45 * density);
+        return tileHeightPx + Math.round((23 + 22 * TextScale.current) * density);
     }
 
     private final Context ctx;
@@ -185,6 +185,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         View name = v.findViewById(R.id.name);
         ViewGroup.MarginLayoutParams nameLp = (ViewGroup.MarginLayoutParams) name.getLayoutParams();
         nameLp.width = w;
+        nameLp.height = Math.round(22 * density * TextScale.current);
         nameLp.topMargin = h + Math.round(7 * density);
         name.setLayoutParams(nameLp);
         return new Holder(v, listener);

@@ -119,6 +119,11 @@ final class StillWatching {
     /** The "Still watching?" question with its countdown. Any key answers yes. */
     public static class Prompt extends Activity {
         static volatile boolean showing;
+
+        @Override
+        protected void attachBaseContext(Context base) {
+            super.attachBaseContext(TextScale.wrap(base));
+        }
         private final Handler handler = new Handler(Looper.getMainLooper());
         private int left;
         private TextView count;
