@@ -124,7 +124,7 @@ final class GlassMenu {
 
     // ---- building blocks ---------------------------------------------------------------------------
 
-    private static int dp(Activity a, float v) {
+    static int dp(Activity a, float v) {
         return Math.round(v * a.getResources().getDisplayMetrics().density);
     }
 
@@ -136,7 +136,7 @@ final class GlassMenu {
         }
     }
 
-    private static TextView text(Activity a, CharSequence s, float sp, int color) {
+    static TextView text(Activity a, CharSequence s, float sp, int color) {
         TextView v = new TextView(a);
         v.setText(s);
         v.setTextSize(sp);
@@ -147,7 +147,7 @@ final class GlassMenu {
         return v;
     }
 
-    private static TextView text(Activity a, CharSequence s, float sp, ColorStateList colors) {
+    static TextView text(Activity a, CharSequence s, float sp, ColorStateList colors) {
         TextView v = text(a, s, sp, Color.WHITE);
         v.setTextColor(colors);
         v.setDuplicateParentStateEnabled(true);
@@ -495,6 +495,24 @@ final class GlassMenu {
         final View f = focus;
         d.setOnShowListener(x -> {
             if (f != null) f.requestFocus();
+        });
+        d.show();
+        return d;
+    }
+
+    /** A glass card with a header and any content (the forecast); Back goes to {@code back}. */
+    static Dialog panel(Activity a, CharSequence kicker, CharSequence title, View body, int widthDp, Runnable back) {
+        LinearLayout content = column(a);
+        header(a, content, kicker, title);
+        content.addView(body);
+        Dialog d = dialog(a, content, widthDp);
+        if (back != null) d.setOnCancelListener(x -> back.run());
+        d.setOnShowListener(x -> {
+            View f = body.findFocus();
+            if (f == null) {
+                java.util.ArrayList<View> all = body.getFocusables(View.FOCUS_FORWARD);
+                if (!all.isEmpty()) all.get(0).requestFocus();
+            }
         });
         d.show();
         return d;

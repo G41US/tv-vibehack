@@ -106,12 +106,22 @@
                         android:layout_marginBottom="8dp"
                         android:background="#33FFFFFF" />
 
+                    <!-- Weather and date. Left from the top bar reaches it; OK opens the forecast. -->
                     <LinearLayout
+                        android:id="@+id/weatherBlock"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:layout_gravity="bottom"
-                        android:layout_marginBottom="9dp"
+                        android:layout_marginBottom="3dp"
+                        android:layout_marginStart="-12dp"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:paddingTop="6dp"
+                        android:paddingBottom="6dp"
+                        android:background="@drawable/weather_focus_bg"
+                        android:focusable="true"
+                        android:clickable="true"
                         android:orientation="vertical">
 
                         <!-- Shamsi date ("27 Mehr 1405"), shown when shamsi_date is on. -->

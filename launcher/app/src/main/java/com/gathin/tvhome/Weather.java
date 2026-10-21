@@ -108,7 +108,76 @@ final class Weather {
         }, "weather").start();
     }
 
-    private String fetch(String place) throws Exception {
+    /** The forecast page: now, and the next days. */
+    static final class Forecast {
+        String city;
+        int now, feels, humidity, code;
+        double wind;
+        String sunrise, sunset;   // "06:32"
+        final java.util.List<Day> days = new java.util.ArrayList<>();
+    }
+
+    static final class Day {
+        String date;   // "2026-10-21"
+        int code, hi, lo, rain;
+    }
+
+    interface ForecastCallback {
+        void onForecast(Forecast f);   // null when it couldn't be fetched
+    }
+
+    void forecast(ForecastCallback cb) {
+        final String place = OFF.equals(place()) ? AUTO : place();
+        new Thread(() -> {
+            Forecast f = null;
+            try {
+                f = fetchForecast(place);
+            } catch (Exception ignored) {
+            }
+            final Forecast result = f;
+            main.post(() -> cb.onForecast(result));
+        }, "forecast").start();
+    }
+
+    private Forecast fetchForecast(String place) throws Exception {
+        Object[] where = locate(place);
+        String url = String.format(Locale.US, "https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f"
+                + "&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code"
+                + "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset"
+                + "&timezone=auto&forecast_days=6", (Double) where[1], (Double) where[2]);
+        JSONObject j = new JSONObject(get(url));
+        JSONObject cur = j.getJSONObject("current");
+        JSONObject d = j.getJSONObject("daily");
+        Forecast f = new Forecast();
+        f.city = (String) where[0];
+        f.now = (int) Math.round(cur.getDouble("temperature_2m"));
+        f.feels = (int) Math.round(cur.optDouble("apparent_temperature", cur.getDouble("temperature_2m")));
+        f.humidity = (int) Math.round(cur.optDouble("relative_humidity_2m", 0));
+        f.wind = cur.optDouble("wind_speed_10m", 0);
+        f.code = cur.getInt("weather_code");
+        f.sunrise = timeOf(d.getJSONArray("sunrise").optString(0, ""));
+        f.sunset = timeOf(d.getJSONArray("sunset").optString(0, ""));
+        org.json.JSONArray dates = d.getJSONArray("time");
+        for (int i = 0; i < dates.length(); i++) {
+            Day day = new Day();
+            day.date = dates.getString(i);
+            day.code = d.getJSONArray("weather_code").optInt(i, 0);
+            day.hi = (int) Math.round(d.getJSONArray("temperature_2m_max").optDouble(i, 0));
+            day.lo = (int) Math.round(d.getJSONArray("temperature_2m_min").optDouble(i, 0));
+            day.rain = d.has("precipitation_probability_max")
+                    ? (int) Math.round(d.getJSONArray("precipitation_probability_max").optDouble(i, 0)) : 0;
+            f.days.add(day);
+        }
+        return f;
+    }
+
+    private static String timeOf(String iso) {
+        int t = iso.indexOf('T');
+        return t >= 0 ? iso.substring(t + 1) : iso;
+    }
+
+    /** {city, lat, lon} for a place from CITIES, or found from the connection. */
+    private Object[] locate(String place) throws Exception {
         String city;
         double lat, lon;
         String[] picked = null;
@@ -138,6 +207,13 @@ final class Weather {
             lat = Double.parseDouble(p.getString(KEY_AUTO_LAT, "0"));
             lon = Double.parseDouble(p.getString(KEY_AUTO_LON, "0"));
         }
+        return new Object[]{city, lat, lon};
+    }
+
+    private String fetch(String place) throws Exception {
+        Object[] where = locate(place);
+        String city = (String) where[0];
+        double lat = (Double) where[1], lon = (Double) where[2];
         String url = String.format(Locale.US, "https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f"
                 + "&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min"
                 + "&timezone=auto&forecast_days=1", lat, lon);
@@ -153,6 +229,19 @@ final class Weather {
                 .append(ctx.getString(R.string.weather_hilo, (int) hi, (int) lo));
         if (!city.isEmpty()) s.append("  ·  ").append(city);
         return s.toString();
+    }
+
+    /** A picture for a WMO weather code (the forecast page). */
+    static String emoji(int code) {
+        if (code == 0 || code == 1) return "☀️";
+        if (code == 2) return "⛅";
+        if (code == 3) return "☁️";
+        if (code == 45 || code == 48) return "🌫️";
+        if (code >= 95) return "⛈️";
+        if (code >= 71 && code <= 77 || code == 85 || code == 86) return "❄️";
+        if (code >= 80) return "🌦️";
+        if (code >= 51) return "🌧️";
+        return "🌤️";
     }
 
     /** WMO weather codes, as Open-Meteo reports them. */

@@ -93,6 +93,7 @@ final class VolumeOverlay {
     /** Volume changed (the remote's buttons, handled by Android): show over Android's slider. */
     void onVolumeChanged() {
         if (am == null || am.isVolumeFixed() || !enabled(service)) return;
+        if (QuickPanel.showing) return;   // the Quick panel shows the volume itself
         show();
     }
 
