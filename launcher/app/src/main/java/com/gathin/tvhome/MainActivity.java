@@ -348,7 +348,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 // Moving wallpaper: a slow drift, and the picture's own stars twinkle.
                 twinkle = new LiveWallpaper.Twinkle(this, density);
                 layer.addView(twinkle, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-                layer.setLayerType(View.LAYER_TYPE_HARDWARE, null);
                 driftAnim = LiveWallpaper.drift(layer, density);
                 final LiveWallpaper.Twinkle tw = twinkle;
                 new Thread(() -> {
