@@ -185,6 +185,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         vpnApp = cfg.vpnApp;
         weatherView = findViewById(R.id.weather);
+        weatherView.getLayoutParams().height = Math.round(22 * density * TextScale.current);
         dateView = findViewById(R.id.date);
         weather = new Weather(this);
         showWeather(weather.cached());
@@ -340,8 +341,18 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(TextScale.wrap(base));   // ⚙ Settings > Picture & sound > Text size
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
+        if (TvSettings.reopenPicture >= 0) {
+            int row = TvSettings.reopenPicture;
+            TvSettings.reopenPicture = -1;
+            root.post(() -> tvSettings.picture(row));
+        }
         glassShown = false;
         glass.setAlpha(0f);
         heroShown = false;

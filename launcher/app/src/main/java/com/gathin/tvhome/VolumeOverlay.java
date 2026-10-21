@@ -143,6 +143,7 @@ final class VolumeOverlay {
         boolean muted = am.isStreamMute(AudioManager.STREAM_MUSIC) || cur == 0;
         float level = muted ? 0f : cur / (float) max;
         pct.setText(muted ? "—" : String.valueOf(Math.round(level * 100)));
+        pct.setTextSize(17 * TextScale.factor(service));
         icon.setImageResource(muted ? R.drawable.ic_s_mute : R.drawable.ic_s_volume);
         bar.setMuted(muted);
 

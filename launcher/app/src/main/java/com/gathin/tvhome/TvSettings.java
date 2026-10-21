@@ -199,9 +199,19 @@ final class TvSettings {
             Settings.Global.WINDOW_ANIMATION_SCALE, Settings.Global.TRANSITION_ANIMATION_SCALE,
             Settings.Global.ANIMATOR_DURATION_SCALE};
 
+    /** Row of the Picture & sound page to reopen once TV Home has redrawn at a new text size; -1 none. */
+    static int reopenPicture = -1;
+
     void picture(int focus) {
         AudioManager am = (AudioManager) act.getSystemService(Context.AUDIO_SERVICE);
         List<GlassMenu.Row> rows = new ArrayList<>();
+
+        int text = TextScale.level(act);
+        rows.add(new GlassMenu.Row(R.drawable.ic_s_text, s(R.string.tv_text), s(TextScale.NAMES[text]), () -> {
+            TextScale.setLevel(act, (text + 1) % TextScale.LEVELS.length);
+            reopenPicture = 0;   // TV Home redraws at the new size, then this page comes back
+            act.recreate();
+        }));
 
         if (am != null && !am.isVolumeFixed()) {
             rows.add(new GlassMenu.Row(R.drawable.ic_s_volume, s(R.string.tv_volume), volume(am), null)
@@ -219,7 +229,7 @@ final class TvSettings {
                 s(homeStyle ? R.string.tv_vol_style_home : R.string.tv_vol_style_android), () -> {
             act.getSharedPreferences(VolumeOverlay.PREFS, Context.MODE_PRIVATE).edit()
                     .putString(VolumeOverlay.KEY_STYLE, homeStyle ? "android" : "").apply();
-            picture(1);
+            picture(2);
         }));
 
         float scale = Settings.Global.getFloat(cr(), Settings.Global.ANIMATOR_DURATION_SCALE, 1f);
@@ -228,7 +238,7 @@ final class TvSettings {
         rows.add(new GlassMenu.Row(R.drawable.ic_s_speed, s(R.string.tv_anim), animNames[anim], () -> change(() -> {
             float next = anim == 0 ? 0.5f : anim == 1 ? 0f : 1f;
             for (String k : SCALE_KEYS) Settings.Global.putFloat(cr(), k, next);
-        }, () -> picture(2))));
+        }, () -> picture(3))));
 
         String mine = act.getPackageName() + "/" + ClockDream.class.getName();
         String comp = Settings.Secure.getString(cr(), "screensaver_components");
@@ -242,7 +252,7 @@ final class TvSettings {
                 Settings.Secure.putString(cr(), "screensaver_components", mine);
                 Settings.Secure.putInt(cr(), "screensaver_enabled", 1);
             }
-        }, () -> picture(3))));
+        }, () -> picture(4))));
 
         rows.add(new GlassMenu.Row(R.drawable.ic_s_display, s(R.string.tv_resolution), null,
                 () -> openSettings(Settings.ACTION_DISPLAY_SETTINGS)).external());
