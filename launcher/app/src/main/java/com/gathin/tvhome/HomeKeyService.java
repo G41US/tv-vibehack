@@ -44,7 +44,9 @@ public class HomeKeyService extends AccessibilityService {
         @Override
         public void onReceive(android.content.Context c, Intent i) {
             int stream = i.getIntExtra("android.media.EXTRA_VOLUME_STREAM_TYPE", android.media.AudioManager.STREAM_MUSIC);
-            if (stream == android.media.AudioManager.STREAM_MUSIC && volume != null) volume.onVolumeChanged();
+            if (stream != android.media.AudioManager.STREAM_MUSIC) return;
+            if (Night.enforceCap(c)) return;   // brought down to the night limit; the next change shows it
+            if (volume != null) volume.onVolumeChanged();
         }
     };
     private String[] takeover = new String[0];
@@ -134,6 +136,7 @@ public class HomeKeyService extends AccessibilityService {
     };
 
     private void checkIdle() {
+        Night.enforceCap(this);   // night started while the volume was up
         int hours = StillWatching.hours(this);
         long now = SystemClock.elapsedRealtime();
         android.os.PowerManager pm = (android.os.PowerManager) getSystemService(POWER_SERVICE);

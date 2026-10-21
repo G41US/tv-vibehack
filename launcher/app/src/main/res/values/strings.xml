@@ -177,7 +177,7 @@
     <string name="tv_title">This TV</string>
     <string name="tv_network">Network</string>
     <string name="tv_picture">Picture &amp; sound</string>
-    <string name="tv_picture_value">Text size, volume</string>
+    <string name="tv_picture_value">Text size, night mode</string>
     <string name="tv_remotes">Remotes</string>
     <string name="tv_remotes_value">Paired remotes</string>
     <string name="tv_apps">Apps</string>
@@ -241,4 +241,10 @@
     <string name="tv_text_normal">Normal</string>
     <string name="tv_text_large">Large</string>
     <string name="tv_text_xlarge">Extra large</string>
+    <string name="tv_night">Night mode</string>
+    <string name="tv_night_cap">Night volume limit</string>
+    <string name="tv_night_cap_none">No limit</string>
+    <string name="tv_sounds">Navigation sounds</string>
+    <string name="wp_motion_on">Moving wallpaper: On</string>
+    <string name="wp_motion_off">Moving wallpaper: Off</string>
 </resources>
