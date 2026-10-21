@@ -296,7 +296,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         // Hide the glass when focus leaves the tiles.
         getWindow().getDecorView().getViewTreeObserver().addOnGlobalFocusChangeListener((oldF, newF) -> {
             boolean onTile = newF != null && newF.getId() == R.id.card;
-            if (!onTile) hideGlass();
+            if (!onTile) {
+                hideGlass();
+                hideHero();   // the app name and its glow belong to a focused tile only
+            }
             if (oldF != null && newF != null) Sounds.move(this);
         });
 
