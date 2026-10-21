@@ -290,12 +290,15 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 if (leftEnd && weatherView.getVisibility() == View.VISIBLE) weatherBlock.requestFocus();
                 return leftEnd;
             }
-            return keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v.getId() == R.id.btnSettings;
+            return keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v.getId() == R.id.btnPower;
         };
         btnInputs.setOnKeyListener(pillKeys);
         btnSearch.setOnKeyListener(pillKeys);
         btnWifi.setOnKeyListener(pillKeys);
         btnSettings.setOnKeyListener(pillKeys);
+        View btnPower = findViewById(R.id.btnPower);
+        btnPower.setOnKeyListener(pillKeys);
+        btnPower.setOnClickListener(v -> PowerMenu.show(this, v));
 
         weatherBlock = findViewById(R.id.weatherBlock);
         weatherBlock.setOnClickListener(v -> ForecastPage.show(this, weather));
