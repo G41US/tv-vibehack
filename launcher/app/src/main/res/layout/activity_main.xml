@@ -187,11 +187,18 @@
                 android:orientation="horizontal">
 
                 <!-- Voice search: the box's assistant or Google search. Hidden when the box has none. -->
-                <TextView
+                <!-- Icon only, round like the power button, so the weather line keeps its room. -->
+                <ImageView
                     android:id="@+id/btnSearch"
-                    style="@style/TopButton"
-                    android:text="@string/search"
-                    android:drawableStart="@drawable/ic_mic"
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_mic"
+                    android:tint="@color/menu_ink"
+                    android:background="@drawable/pill_bg"
+                    android:focusable="true"
+                    android:clickable="true"
+                    android:contentDescription="@string/search"
                     android:visibility="gone"
                     android:nextFocusDown="@+id/grid" />
 
