@@ -216,19 +216,9 @@ final class TvSettings {
             Settings.Global.WINDOW_ANIMATION_SCALE, Settings.Global.TRANSITION_ANIMATION_SCALE,
             Settings.Global.ANIMATOR_DURATION_SCALE};
 
-    /** Row of the Picture & sound page to reopen once TV Home has redrawn at a new text size; -1 none. */
-    static int reopenPicture = -1;
-
     void picture(int focus) {
         AudioManager am = (AudioManager) act.getSystemService(Context.AUDIO_SERVICE);
         List<GlassMenu.Row> rows = new ArrayList<>();
-
-        int text = TextScale.level(act);
-        rows.add(new GlassMenu.Row(R.drawable.ic_s_text, s(R.string.tv_text), s(TextScale.NAMES[text]), () -> {
-            TextScale.setLevel(act, (text + 1) % TextScale.LEVELS.length);
-            reopenPicture = 0;   // TV Home redraws at the new size, then this page comes back
-            act.recreate();
-        }));
 
         if (am != null && !am.isVolumeFixed()) {
             rows.add(new GlassMenu.Row(R.drawable.ic_s_volume, s(R.string.tv_volume), volume(am), null)
@@ -241,67 +231,13 @@ final class TvSettings {
             rows.add(new GlassMenu.Row(R.drawable.ic_s_volume, s(R.string.tv_volume), s(R.string.tv_volume_tv), null));
         }
 
-        boolean homeStyle = VolumeOverlay.enabled(act);
-        rows.add(new GlassMenu.Row(R.drawable.ic_s_volume, s(R.string.tv_vol_style),
-                s(homeStyle ? R.string.tv_vol_style_home : R.string.tv_vol_style_android), () -> {
-            act.getSharedPreferences(VolumeOverlay.PREFS, Context.MODE_PRIVATE).edit()
-                    .putString(VolumeOverlay.KEY_STYLE, homeStyle ? "android" : "").apply();
-            picture(2);
-        }));
-
-        int start = Night.start(act);
-        String nightName;
-        if (start == 0) {
-            nightName = s(R.string.tv_off);
-        } else if (start == Night.SUNSET) {
-            java.text.DateFormat tf = DateFormat.getTimeFormat(act);
-            java.util.Calendar c = java.util.Calendar.getInstance();
-            c.set(java.util.Calendar.MINUTE, 0);
-            c.set(java.util.Calendar.HOUR_OF_DAY, Night.END);
-            int ss = Night.sunsetMinutes(act);
-            java.util.Calendar sc = java.util.Calendar.getInstance();
-            sc.set(java.util.Calendar.HOUR_OF_DAY, ss / 60);
-            sc.set(java.util.Calendar.MINUTE, ss % 60);
-            nightName = s(R.string.tv_night_sunset, tf.format(sc.getTime())) + " – " + tf.format(c.getTime());
-        } else {
-            java.text.DateFormat tf = DateFormat.getTimeFormat(act);
-            java.util.Calendar c = java.util.Calendar.getInstance();
-            c.set(java.util.Calendar.MINUTE, 0);
-            c.set(java.util.Calendar.HOUR_OF_DAY, start);
-            String from = tf.format(c.getTime());
-            c.set(java.util.Calendar.HOUR_OF_DAY, Night.END);
-            nightName = from + " – " + tf.format(c.getTime());
-        }
-        rows.add(new GlassMenu.Row(R.drawable.ic_m_moon, s(R.string.tv_night), nightName, () -> {
-            int i = 0;
-            for (int k = 0; k < Night.STARTS.length; k++) if (Night.STARTS[k] == start) i = k;
-            Night.setStart(act, Night.STARTS[(i + 1) % Night.STARTS.length]);
-            act.refreshNight();
-            picture(3);
-        }));
-        int cap = Night.cap(act);
-        rows.add(new GlassMenu.Row(R.drawable.ic_s_volume, s(R.string.tv_night_cap),
-                cap <= 0 ? s(R.string.tv_night_cap_none) : cap + "%", () -> {
-            int i = 0;
-            for (int k = 0; k < Night.CAPS.length; k++) if (Night.CAPS[k] == cap) i = k;
-            Night.setCap(act, Night.CAPS[(i + 1) % Night.CAPS.length]);
-            Night.enforceCap(act);
-            picture(4);
-        }));
-        boolean snd = Sounds.enabled(act);
-        rows.add(new GlassMenu.Row(R.drawable.ic_s_sound, s(R.string.tv_sounds), onOff(snd), () -> {
-            Sounds.setEnabled(act, !snd);
-            if (!snd) Sounds.select(act);   // a sample of what they sound like
-            picture(5);
-        }));
-
         float scale = Settings.Global.getFloat(cr(), Settings.Global.ANIMATOR_DURATION_SCALE, 1f);
         int anim = scale <= 0.01f ? 2 : scale < 0.9f ? 1 : 0;
         String[] animNames = {s(R.string.tv_anim_normal), s(R.string.tv_anim_fast), s(R.string.tv_off)};
         rows.add(new GlassMenu.Row(R.drawable.ic_s_speed, s(R.string.tv_anim), animNames[anim], () -> change(() -> {
             float next = anim == 0 ? 0.5f : anim == 1 ? 0f : 1f;
             for (String k : SCALE_KEYS) Settings.Global.putFloat(cr(), k, next);
-        }, () -> picture(6))));
+        }, () -> picture(1))));
 
         String mine = act.getPackageName() + "/" + ClockDream.class.getName();
         String comp = Settings.Secure.getString(cr(), "screensaver_components");
@@ -315,13 +251,8 @@ final class TvSettings {
                 Settings.Secure.putString(cr(), "screensaver_components", mine);
                 Settings.Secure.putInt(cr(), "screensaver_enabled", 1);
             }
-        }, () -> picture(7))));
+        }, () -> picture(2))));
 
-        boolean quick = QuickPanel.enabled(act);
-        rows.add(new GlassMenu.Row(R.drawable.ic_s_tune, s(R.string.tv_quick), onOff(quick), () -> {
-            QuickPanel.setEnabled(act, !quick);
-            picture(8);
-        }));
         rows.add(new GlassMenu.Row(R.drawable.ic_s_display, s(R.string.tv_resolution), null,
                 () -> openPictureSettings(Settings.ACTION_DISPLAY_SETTINGS)).external());
         rows.add(new GlassMenu.Row(R.drawable.ic_s_volume, s(R.string.tv_sound_out), null,

@@ -30,6 +30,7 @@ final class LiveWallpaper {
 
     /** On by default, except on low-memory TVs and boxes (many budget TVs), where it starts off. */
     static boolean enabled(Context ctx) {
+        if (SafeStart.on(ctx)) return false;
         return ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY, !lowEnd(ctx));
     }
 
