@@ -72,6 +72,24 @@ final class NowPlaying {
     private Equalizer miniEq;
     private android.graphics.drawable.GradientDrawable miniBg;
 
+    /** Out of the way while the app rows below the dock are browsed (they scroll up under it). */
+    private boolean suppressed;
+
+    void setSuppressed(boolean on) {
+        if (suppressed == on) return;
+        suppressed = on;
+        if (card == null) return;
+        if (on) {
+            for (View v : new View[]{card, mini, shrink}) {
+                if (v.getVisibility() != View.VISIBLE) continue;
+                v.animate().cancel();
+                v.animate().alpha(0f).setDuration(180).withEndAction(() -> v.setVisibility(View.GONE)).start();
+            }
+        } else {
+            render();
+        }
+    }
+
     private boolean small() {
         return act.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_MINI, false);
     }
@@ -1144,11 +1162,19 @@ final class NowPlaying {
             handler.postDelayed(tick, 1000);
         }
         playPause.setImageResource(state == PlaybackState.STATE_PLAYING ? R.drawable.ic_np_pause : R.drawable.ic_np_play);
+        if (suppressed) return;
         View showView = small() ? mini : card, hideView = small() ? card : mini;
+        shrink.animate().cancel();
+        shrink.setAlpha(1f);
         shrink.setVisibility(small() ? View.GONE : View.VISIBLE);
         if (hideView.getVisibility() == View.VISIBLE) {
             hideView.animate().cancel();
             hideView.setVisibility(View.GONE);
+        }
+        if (showView.getVisibility() == View.VISIBLE && showView.getAlpha() < 1f) {
+            // A step-aside fade was under way: bring it straight back.
+            showView.animate().cancel();
+            showView.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(200).start();
         }
         if (showView.getVisibility() != View.VISIBLE) {
             showView.setAlpha(0f);
