@@ -199,7 +199,7 @@
     <string name="tv_net_ip">IP address %1$s</string>
     <string name="tv_net_guest">Guest Wi-Fi QR and data used</string>
     <string name="tv_net_adblock">Ad-blocking DNS</string>
-    <string name="tv_net_join">Join or change Wi-Fi</string>
+    <string name="tv_net_join">Wi-Fi, IP and proxy settings</string>
     <string name="tv_volume">Volume</string>
     <string name="tv_volume_tv">Set with your TV remote</string>
     <string name="tv_anim">Animations</string>
