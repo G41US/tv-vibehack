@@ -25,9 +25,13 @@ import android.widget.TextView;
 
 /**
  * TV Home's volume display, in place of Android's: a slim frosted capsule at the right edge with the
- * level as a glowing bar, the percentage above it and a speaker (or muted speaker) below. The remote's
- * volume buttons reach HomeKeyService first; it changes the volume without Android's panel and shows
- * this instead.
+ * level as a glowing bar, the percentage above it and a speaker (or muted speaker) below.
+ *
+ * On Android TV the system handles the volume buttons before any app sees them, and shows its own
+ * slider (a vertical bar, centred at the right edge). So this listens for volume changes and draws the
+ * capsule as an accessibility overlay, which sits above the system's volume window, exactly over that
+ * slider and a little larger, so only this one is seen. Where the buttons do reach HomeKeyService, it
+ * changes the volume itself without Android's slider.
  *
  * Left alone (Android's own panel, or the TV's) when the box's volume is fixed, i.e. the TV itself
  * controls the volume over HDMI, or when the person picked Android's style in TV settings.
@@ -35,7 +39,7 @@ import android.widget.TextView;
 final class VolumeOverlay {
 
     static final String PREFS = "look", KEY_STYLE = "volume_style";   // "" = TV Home, "android"
-    private static final long HIDE_MS = 2200;
+    private static final long HIDE_MS = 3600;   // outlasts Android's slider underneath
 
     private final AccessibilityService service;
     private final AudioManager am;
@@ -86,6 +90,12 @@ final class VolumeOverlay {
         return true;
     }
 
+    /** Volume changed (the remote's buttons, handled by Android): show over Android's slider. */
+    void onVolumeChanged() {
+        if (am == null || am.isVolumeFixed() || !enabled(service)) return;
+        show();
+    }
+
     private int dp(float v) {
         return Math.round(v * density);
     }
@@ -102,8 +112,8 @@ final class VolumeOverlay {
         panel.setGravity(Gravity.CENTER_HORIZONTAL);
         panel.setPadding(0, dp(16), 0, dp(16));
         GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                new int[]{0xEB2A2A2E, 0xF0161618});
-        bg.setCornerRadius(dp(36));
+                new int[]{0xFF2A2A2E, 0xFF161618});   // opaque: nothing of the slider below shows
+        bg.setCornerRadius(dp(38));
         bg.setStroke(dp(1), 0x33FFFFFF);
         panel.setBackground(bg);
         panel.setElevation(dp(12));
@@ -137,13 +147,14 @@ final class VolumeOverlay {
         bar.setMuted(muted);
 
         if (!attached) {
-            WindowManager.LayoutParams lp = new WindowManager.LayoutParams(dp(68), dp(300),
+            // Covers Android TV's slider (about 54 x 270dp, 26dp from the right edge) with room to spare.
+            WindowManager.LayoutParams lp = new WindowManager.LayoutParams(dp(76), dp(304),
                     WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
                             | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
                     PixelFormat.TRANSLUCENT);
             lp.gravity = Gravity.END | Gravity.CENTER_VERTICAL;
-            lp.x = dp(44);
+            lp.x = dp(16);
             try {
                 wm.addView(panel, lp);
                 attached = true;
