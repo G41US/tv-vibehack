@@ -261,6 +261,6 @@
     <string name="qp_skip">◀ ▶ to skip</string>
     <string name="np_now_playing">Now playing</string>
     <string name="setup_manual_home">This TV has no shortcut to that page. With the remote: Settings → System (or Device Preferences) → Accessibility → TV Home → turn it on. Or run the setup script from a phone once, which does it for you.</string>
-    <string name="setup_manual_updates">This TV has no shortcut to that page. With the remote: Settings → Apps → Security & restrictions → Unknown sources → TV Home → allow. Or run the setup script from a phone once, which does it for you.</string>
+    <string name="setup_manual_updates">This TV has no shortcut to that page. With the remote: Settings → Apps → Security &amp; restrictions → Unknown sources → TV Home → allow. Or run the setup script from a phone once, which does it for you.</string>
     <string name="setup_manual_default">This TV doesn\'t let you choose a home screen. That\'s fine: the Home button step already makes TV Home open on Home and at start-up.</string>
 </resources>
