@@ -40,13 +40,26 @@ public class HomeKeyService extends AccessibilityService {
     }
 
     private VolumeOverlay volume;
+    private final android.content.BroadcastReceiver volumeReceiver = new android.content.BroadcastReceiver() {
+        @Override
+        public void onReceive(android.content.Context c, Intent i) {
+            int stream = i.getIntExtra("android.media.EXTRA_VOLUME_STREAM_TYPE", android.media.AudioManager.STREAM_MUSIC);
+            if (stream == android.media.AudioManager.STREAM_MUSIC && volume != null) volume.onVolumeChanged();
+        }
+    };
     private String[] takeover = new String[0];
     private long lastTakeover;
 
     @Override
     protected void onServiceConnected() {
         takeover = getResources().getStringArray(R.array.takeover_packages);
-        if (volume == null) volume = new VolumeOverlay(this);
+        if (volume == null) {
+            volume = new VolumeOverlay(this);
+            android.content.IntentFilter f = new android.content.IntentFilter("android.media.VOLUME_CHANGED_ACTION");
+            f.addAction("android.media.STREAM_MUTE_CHANGED_ACTION");
+            if (android.os.Build.VERSION.SDK_INT >= 33) registerReceiver(volumeReceiver, f, RECEIVER_EXPORTED);
+            else registerReceiver(volumeReceiver, f);
+        }
         live = this;
         lastInput = SystemClock.elapsedRealtime();
         idleHandler.removeCallbacks(idleCheck);
@@ -144,7 +157,13 @@ public class HomeKeyService extends AccessibilityService {
     @Override
     public void onDestroy() {
         if (live == this) live = null;
-        if (volume != null) volume.release();
+        if (volume != null) {
+            volume.release();
+            try {
+                unregisterReceiver(volumeReceiver);
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
         super.onDestroy();
     }
 
