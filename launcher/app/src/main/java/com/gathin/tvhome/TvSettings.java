@@ -109,6 +109,23 @@ final class TvSettings {
         act.open(new Intent(Settings.ACTION_SETTINGS));
     }
 
+    /**
+     * Picture and sound pages: the TV maker's own picture menu where there is one (TCL's settings app),
+     * else Android's display or sound page.
+     */
+    private void openPictureSettings(String androidAction) {
+        PackageManager pm = act.getPackageManager();
+        for (String maker : new String[]{"com.tcl.settings", "com.hisense.tv.settings", "com.mitv.settings"}) {
+            Intent i = pm.getLeanbackLaunchIntentForPackage(maker);
+            if (i == null) i = pm.getLaunchIntentForPackage(maker);
+            if (i != null && pm.resolveActivity(new Intent(androidAction), 0) == null) {
+                act.open(i);
+                return;
+            }
+        }
+        openSettings(androidAction, Settings.ACTION_DISPLAY_SETTINGS);
+    }
+
     private boolean canWrite() {
         return SelfHeal.canHeal(act);
     }
@@ -296,9 +313,9 @@ final class TvSettings {
             picture(8);
         }));
         rows.add(new GlassMenu.Row(R.drawable.ic_s_display, s(R.string.tv_resolution), null,
-                () -> openSettings(Settings.ACTION_DISPLAY_SETTINGS)).external());
+                () -> openPictureSettings(Settings.ACTION_DISPLAY_SETTINGS)).external());
         rows.add(new GlassMenu.Row(R.drawable.ic_s_volume, s(R.string.tv_sound_out), null,
-                () -> openSettings(Settings.ACTION_SOUND_SETTINGS, Settings.ACTION_DISPLAY_SETTINGS)).external());
+                () -> openPictureSettings(Settings.ACTION_SOUND_SETTINGS)).external());
         page(R.string.tv_picture, null, rows, focus);
     }
 

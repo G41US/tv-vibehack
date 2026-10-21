@@ -156,6 +156,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         COLUMNS = cfg.columns;
         liveTvPkg = cfg.liveTvPackage;
         liveTvAction = cfg.liveTvAction;
+        if (liveTvPkg.isEmpty() && installed("com.tcl.tv")) {
+            // TCL TVs: their TV app (aerial and last input) has no leanback entry; the TV action opens it.
+            liveTvPkg = "com.tcl.tv";
+            if (liveTvAction.isEmpty()) liveTvAction = "android.intent.action.TV";
+        }
         sourcePanelService = cfg.sourcePanelService;
         sourcePanelAction = cfg.sourcePanelAction;
 
@@ -467,6 +472,15 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     private boolean isResumedNow() {
         return resumed;
+    }
+
+    private boolean installed(String pkg) {
+        try {
+            getPackageManager().getPackageInfo(pkg, 0);
+            return true;
+        } catch (android.content.pm.PackageManager.NameNotFoundException e) {
+            return false;
+        }
     }
 
     void refreshNight() {

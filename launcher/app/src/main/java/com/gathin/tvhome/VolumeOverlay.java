@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
@@ -48,6 +49,9 @@ final class VolumeOverlay {
     private final float density;
 
     private LinearLayout panel;
+    private GradientDrawable bg;
+    private Boolean shapedUpright;
+    private static final String KEY_RECT = "volume_rect";
     private Bar bar;
     private TextView pct;
     private ImageView icon;
@@ -109,12 +113,8 @@ final class VolumeOverlay {
             font = Typeface.DEFAULT;
         }
         panel = new LinearLayout(service);
-        panel.setOrientation(LinearLayout.VERTICAL);
-        panel.setGravity(Gravity.CENTER_HORIZONTAL);
-        panel.setPadding(0, dp(16), 0, dp(16));
-        GradientDrawable bg = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+        bg = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
                 new int[]{0xFF2A2A2E, 0xFF161618});   // opaque: nothing of the slider below shows
-        bg.setCornerRadius(dp(38));
         bg.setStroke(dp(1), 0x33FFFFFF);
         panel.setBackground(bg);
         panel.setElevation(dp(12));
@@ -124,17 +124,118 @@ final class VolumeOverlay {
         pct.setTextSize(17);
         pct.setTypeface(font);
         pct.setGravity(Gravity.CENTER);
-        panel.addView(pct, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(24)));
-
         bar = new Bar(service, density);
-        LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(dp(14), 0, 1f);
-        blp.topMargin = dp(12);
-        blp.bottomMargin = dp(14);
-        panel.addView(bar, blp);
-
         icon = new ImageView(service);
         icon.setColorFilter(0xE6FFFFFF);
-        panel.addView(icon, new LinearLayout.LayoutParams(dp(24), dp(24)));
+        shape(true);
+    }
+
+    /** Lays the capsule out upright (level number, bar, speaker) or lying down (speaker, bar, number). */
+    private void shape(boolean upright) {
+        if (shapedUpright != null && shapedUpright == upright) return;
+        shapedUpright = upright;
+        panel.removeAllViews();
+        bar.vertical = upright;
+        if (upright) {
+            panel.setOrientation(LinearLayout.VERTICAL);
+            panel.setGravity(Gravity.CENTER_HORIZONTAL);
+            panel.setPadding(0, dp(16), 0, dp(16));
+            panel.addView(pct, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(24)));
+            LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(dp(14), 0, 1f);
+            blp.topMargin = dp(12);
+            blp.bottomMargin = dp(14);
+            panel.addView(bar, blp);
+            panel.addView(icon, new LinearLayout.LayoutParams(dp(24), dp(24)));
+        } else {
+            panel.setOrientation(LinearLayout.HORIZONTAL);
+            panel.setGravity(Gravity.CENTER_VERTICAL);
+            panel.setPadding(dp(18), 0, dp(18), 0);
+            panel.addView(icon, new LinearLayout.LayoutParams(dp(24), dp(24)));
+            LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(0, dp(14), 1f);
+            blp.leftMargin = dp(14);
+            blp.rightMargin = dp(12);
+            panel.addView(bar, blp);
+            panel.addView(pct, new LinearLayout.LayoutParams(dp(40), LinearLayout.LayoutParams.MATCH_PARENT));
+        }
+    }
+
+    // ---- where the TV's own volume bar is ---------------------------------------------------------
+
+    /**
+     * The screen area to cover: where this TV's own volume bar was last seen (found through the
+     * accessibility window list and remembered), else Google TV's slider at the right edge.
+     */
+    private Rect target() {
+        String saved = service.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString(KEY_RECT, null);
+        if (saved != null) {
+            Rect r = Rect.unflattenFromString(saved);
+            if (r != null && !r.isEmpty()) return r;
+        }
+        android.util.DisplayMetrics dm = new android.util.DisplayMetrics();
+        wm.getDefaultDisplay().getRealMetrics(dm);
+        int w = dp(56), h = dp(284);
+        int right = dm.widthPixels - dp(26);
+        int top = (dm.heightPixels - h) / 2;
+        return new Rect(right - w, top, right, top + h);
+    }
+
+    /** The system's volume window, if the box reports it: a small system window from System UI or the maker's framework. */
+    private Rect findSystemBar() {
+        try {
+            android.util.DisplayMetrics dm = new android.util.DisplayMetrics();
+            wm.getDefaultDisplay().getRealMetrics(dm);
+            long screen = (long) dm.widthPixels * dm.heightPixels;
+            for (android.view.accessibility.AccessibilityWindowInfo w : service.getWindows()) {
+                if (w.getType() != android.view.accessibility.AccessibilityWindowInfo.TYPE_SYSTEM) continue;
+                Rect b = new Rect();
+                w.getBoundsInScreen(b);
+                if (b.isEmpty() || (long) b.width() * b.height() > screen * 0.3) continue;
+                android.view.accessibility.AccessibilityNodeInfo root = w.getRoot();
+                String pkg = root != null && root.getPackageName() != null ? root.getPackageName().toString() : "";
+                if (pkg.equals(service.getPackageName())) continue;
+                if (pkg.contains("systemui") || pkg.contains("volume") || pkg.startsWith("com.tcl.framework")
+                        || pkg.startsWith("com.hisense") || pkg.startsWith("com.mitv") || pkg.contains("tvsystem")) {
+                    return b;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    private final Runnable seek = () -> {
+        Rect found = findSystemBar();
+        if (found == null || !attached) return;
+        String flat = found.flattenToString();
+        android.content.SharedPreferences p = service.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        if (flat.equals(p.getString(KEY_RECT, null))) return;
+        p.edit().putString(KEY_RECT, flat).apply();
+        place(found, true);
+    };
+
+    /** Puts the capsule over {@code r} with room to spare, upright or lying down to match it. */
+    private void place(Rect r, boolean update) {
+        int pad = dp(10);
+        boolean upright = r.height() >= r.width();
+        shape(upright);
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams(r.width() + 2 * pad, r.height() + 2 * pad,
+                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+                        | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN | WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                PixelFormat.TRANSLUCENT);
+        lp.gravity = Gravity.TOP | Gravity.LEFT;
+        lp.x = r.left - pad;
+        lp.y = r.top - pad;
+        bg.setCornerRadius(Math.min(lp.width, lp.height) / 2f);
+        bg.setOrientation(upright ? GradientDrawable.Orientation.TOP_BOTTOM : GradientDrawable.Orientation.LEFT_RIGHT);
+        if (update) {
+            try {
+                wm.updateViewLayout(panel, lp);
+            } catch (Exception ignored) {
+            }
+        } else {
+            wm.addView(panel, lp);
+        }
     }
 
     private void show() {
@@ -149,20 +250,16 @@ final class VolumeOverlay {
         bar.setMuted(muted);
 
         if (!attached) {
-            // Covers Android TV's slider (about 54 x 270dp, 26dp from the right edge) with room to spare.
-            WindowManager.LayoutParams lp = new WindowManager.LayoutParams(dp(76), dp(304),
-                    WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-                            | WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-                    PixelFormat.TRANSLUCENT);
-            lp.gravity = Gravity.END | Gravity.CENTER_VERTICAL;
-            lp.x = dp(16);
             try {
-                wm.addView(panel, lp);
+                place(target(), false);
                 attached = true;
             } catch (Exception ex) {
                 return;
             }
+            // The TV's own bar may appear a moment after the change: look for it and move over it.
+            handler.removeCallbacks(seek);
+            handler.postDelayed(seek, 150);
+            handler.postDelayed(seek, 500);
             bar.setLevel(level, false);
             panel.setAlpha(0f);
             panel.setTranslationX(dp(28));
@@ -212,6 +309,7 @@ final class VolumeOverlay {
         private final float density;
         private float level;
         private ValueAnimator anim;
+        boolean vertical = true;
 
         Bar(Context ctx, float density) {
             super(ctx);
@@ -248,14 +346,24 @@ final class VolumeOverlay {
         protected void onDraw(Canvas c) {
             float w = getWidth(), h = getHeight();
             float inset = 3 * density;   // room for the glow
-            float bw = w - 2 * inset, rad = bw / 2;
-            r.set(inset, 0, w - inset, h);
-            c.drawRoundRect(r, rad, rad, track);
-            if (level <= 0f) return;
-            float top = h - Math.max(bw, h * level);
-            r.set(inset, top, w - inset, h);
-            c.drawRoundRect(r, rad, rad, glow);
-            c.drawRoundRect(r, rad, rad, fill);
+            if (vertical) {
+                float bw = w - 2 * inset, rad = bw / 2;
+                r.set(inset, 0, w - inset, h);
+                c.drawRoundRect(r, rad, rad, track);
+                if (level <= 0f) return;
+                float top = h - Math.max(bw, h * level);
+                r.set(inset, top, w - inset, h);
+                c.drawRoundRect(r, rad, rad, glow);
+                c.drawRoundRect(r, rad, rad, fill);
+            } else {
+                float bh = h - 2 * inset, rad = bh / 2;
+                r.set(0, inset, w, h - inset);
+                c.drawRoundRect(r, rad, rad, track);
+                if (level <= 0f) return;
+                r.set(0, inset, Math.max(bh, w * level), h - inset);
+                c.drawRoundRect(r, rad, rad, glow);
+                c.drawRoundRect(r, rad, rad, fill);
+            }
         }
     }
 }
