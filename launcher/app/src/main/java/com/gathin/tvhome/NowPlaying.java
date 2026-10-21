@@ -53,6 +53,7 @@ final class NowPlaying {
     private boolean ticking;
     private ImageView art;
     private TextView title, subtitle;
+    private Ticker ticker;
     private ImageView playPause;
 
     NowPlaying(Activity act) {
@@ -94,12 +95,8 @@ final class NowPlaying {
         text.setOrientation(LinearLayout.VERTICAL);
         text.setPadding(dp(12), 0, dp(8), 0);
         title = label(17, 0xFFFFFFFF, 620);
-        // Long titles scroll slowly instead of being cut off.
-        title.setEllipsize(TextUtils.TruncateAt.MARQUEE);
-        title.setMarqueeRepeatLimit(-1);
-        title.setHorizontalFadingEdgeEnabled(true);
-        title.setFadingEdgeLength(dp(18));
-        title.setSelected(true);
+        title.setEllipsize(null);
+        ticker = new Ticker(act, title, density);   // long titles glide to the end and back
         subtitle = label(14, 0xC7FFFFFF, 520);
         eq = new Equalizer(act, density);
         LinearLayout who = new LinearLayout(act);
@@ -117,7 +114,8 @@ final class NowPlaying {
         prow.addView(progress, new LinearLayout.LayoutParams(0, dp(4), 1f));
         time.setPadding(dp(8), 0, 0, 0);
         prow.addView(time);
-        text.addView(title);
+        text.addView(ticker, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
         LinearLayout.LayoutParams wlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         wlp.topMargin = dp(2);
@@ -330,6 +328,97 @@ final class NowPlaying {
         ticking = false;
         handler.removeCallbacks(tick);
         if (eq != null) eq.setPlaying(false);
+        if (ticker != null) ticker.setRunning(false);
+    }
+
+    /**
+     * A title that doesn't fit glides slowly to its end, rests, then fades back to the start and goes
+     * again. Setting the same title again (sessions report often) doesn't restart it.
+     */
+    private static final class Ticker extends android.widget.HorizontalScrollView {
+        private final TextView text;
+        private final float density;
+        private android.animation.Animator anim;
+        private boolean running;
+
+        Ticker(Context c, TextView text, float density) {
+            super(c);
+            this.text = text;
+            this.density = density;
+            setHorizontalScrollBarEnabled(false);
+            setFocusable(false);
+            setHorizontalFadingEdgeEnabled(true);
+            setFadingEdgeLength((int) (20 * density));
+            setOverScrollMode(OVER_SCROLL_NEVER);
+            addView(text, new android.widget.FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+        }
+
+        void setText(CharSequence t) {
+            if (t.toString().contentEquals(text.getText())) return;
+            text.setText(t);
+            restart();
+        }
+
+        void setRunning(boolean on) {
+            if (running == on) return;
+            running = on;
+            restart();
+        }
+
+        @Override
+        protected void onSizeChanged(int w, int h, int ow, int oh) {
+            super.onSizeChanged(w, h, ow, oh);
+            restart();
+        }
+
+        @Override
+        protected void onDetachedFromWindow() {
+            if (anim != null) anim.cancel();
+            super.onDetachedFromWindow();
+        }
+
+        private void restart() {
+            if (anim != null) {
+                anim.removeAllListeners();
+                anim.cancel();
+                anim = null;
+            }
+            setScrollX(0);
+            text.animate().cancel();
+            text.setAlpha(1f);
+            loop();
+        }
+
+        private void loop() {
+            if (!running) return;
+            post(() -> {
+                int overflow = text.getWidth() - getWidth();
+                if (!running || overflow <= 0 || anim != null) return;
+                long glide = (long) (overflow / (32 * density) * 1000);   // 32 dp a second
+                android.animation.ObjectAnimator go = android.animation.ObjectAnimator.ofInt(this, "scrollX", 0, overflow);
+                go.setStartDelay(2000);
+                go.setDuration(Math.max(800, glide));
+                go.setInterpolator(new android.view.animation.LinearInterpolator());
+                android.animation.ObjectAnimator out = android.animation.ObjectAnimator.ofFloat(text, "alpha", 1f, 0f);
+                out.setStartDelay(2200);
+                out.setDuration(300);
+                android.animation.AnimatorSet set = new android.animation.AnimatorSet();
+                set.playSequentially(go, out);
+                set.addListener(new android.animation.AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(android.animation.Animator a) {
+                        if (anim != a) return;
+                        anim = null;
+                        setScrollX(0);
+                        text.animate().alpha(1f).setDuration(300).start();
+                        loop();
+                    }
+                });
+                anim = set;
+                set.start();
+            });
+        }
     }
 
     /** Three little bars that dance while playing. */
@@ -430,6 +519,7 @@ final class NowPlaying {
                 && (state == PlaybackState.STATE_PLAYING || state == PlaybackState.STATE_PAUSED
                 || state == PlaybackState.STATE_BUFFERING);
         if (!show) {
+            if (ticker != null) ticker.setRunning(false);
             ticking = false;
             handler.removeCallbacks(tick);
             eq.setPlaying(false);
@@ -439,7 +529,8 @@ final class NowPlaying {
             }
             return;
         }
-        title.setText(t);
+        ticker.setText(t);
+        ticker.setRunning(true);
         CharSequence who = md.getText(MediaMetadata.METADATA_KEY_ARTIST);
         if (TextUtils.isEmpty(who)) who = md.getText(MediaMetadata.METADATA_KEY_ALBUM_ARTIST);
         String app = appName(current.getPackageName());
