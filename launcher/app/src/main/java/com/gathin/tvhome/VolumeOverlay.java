@@ -203,14 +203,17 @@ final class VolumeOverlay {
         return null;
     }
 
-    private final Runnable seek = () -> {
-        Rect found = findSystemBar();
-        if (found == null || !attached) return;
-        String flat = found.flattenToString();
-        android.content.SharedPreferences p = service.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-        if (flat.equals(p.getString(KEY_RECT, null))) return;
-        p.edit().putString(KEY_RECT, flat).apply();
-        place(found, true);
+    private final Runnable seek = new Runnable() {
+        @Override
+        public void run() {
+            Rect found = findSystemBar();
+            if (found == null || !attached) return;
+            String flat = found.flattenToString();
+            SharedPreferences p = service.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+            if (flat.equals(p.getString(KEY_RECT, null))) return;
+            p.edit().putString(KEY_RECT, flat).apply();
+            place(found, true);
+        }
     };
 
     /** Puts the capsule over {@code r} with room to spare, upright or lying down to match it. */
