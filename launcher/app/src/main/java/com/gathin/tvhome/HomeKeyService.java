@@ -33,11 +33,30 @@ public class HomeKeyService extends AccessibilityService {
         if (volume != null && volume.onKey(event)) return true;   // TV Home's volume display
         int code = event.getKeyCode();
         if (code != KeyEvent.KEYCODE_ALL_APPS && code != KeyEvent.KEYCODE_HOME) return false;
+        if (code == KeyEvent.KEYCODE_HOME && QuickPanel.enabled(this)) {
+            // Hold Home: the Quick panel. A short press still goes Home.
+            if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
+                homeHeld = false;
+                idleHandler.postDelayed(holdHome, HOLD_MS);
+            } else if (event.getAction() == KeyEvent.ACTION_UP) {
+                idleHandler.removeCallbacks(holdHome);
+                if (!homeHeld && !event.isCanceled()) goHome();
+                homeHeld = false;
+            }
+            return true;
+        }
         if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
             goHome();
         }
         return true;
     }
+
+    private static final long HOLD_MS = 550;
+    private boolean homeHeld;
+    private final Runnable holdHome = () -> {
+        homeHeld = true;
+        QuickPanel.open(this);
+    };
 
     private VolumeOverlay volume;
     private final android.content.BroadcastReceiver volumeReceiver = new android.content.BroadcastReceiver() {

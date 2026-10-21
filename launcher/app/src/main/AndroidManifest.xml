@@ -152,6 +152,14 @@
             </intent-filter>
         </receiver>
         <activity
+            android:name=".QuickPanel"
+            android:exported="false"
+            android:theme="@style/Theme.TvHome.Overlay"
+            android:launchMode="singleInstance"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:screenOrientation="landscape" />
+        <activity
             android:name=".StillWatching$Prompt"
             android:exported="false"
             android:theme="@style/Theme.TvHome.Overlay"

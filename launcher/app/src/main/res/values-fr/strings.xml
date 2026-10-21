@@ -248,4 +248,16 @@
     <string name="tv_sounds">Sons de navigation</string>
     <string name="wp_motion_on">Fond d\'écran animé : activé</string>
     <string name="wp_motion_off">Fond d\'écran animé : désactivé</string>
+    <string name="qp_kicker">Panneau rapide</string>
+    <string name="qp_media">En cours de lecture</string>
+    <string name="qp_sleep">Mettre en veille</string>
+    <string name="qp_home">Aller à l\'accueil</string>
+    <string name="tv_quick">Panneau rapide (maintenir Accueil)</string>
+    <string name="fc_loading">Chargement des prévisions…</string>
+    <string name="fc_title">Météo</string>
+    <string name="fc_failed">Impossible d\'obtenir les prévisions. Vérifiez la connexion Internet et réessayez.</string>
+    <string name="fc_details">Ressenti %1$d° · Humidité %2$d %% · Vent %3$d km/h</string>
+    <string name="fc_sun">Lever %1$s · Coucher %2$s</string>
+    <string name="fc_today">Aujourd\'hui</string>
+    <string name="qp_skip">◀ ▶ pour passer</string>
 </resources>

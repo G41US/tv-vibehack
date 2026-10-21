@@ -290,6 +290,11 @@ final class TvSettings {
             }
         }, () -> picture(7))));
 
+        boolean quick = QuickPanel.enabled(act);
+        rows.add(new GlassMenu.Row(R.drawable.ic_s_tune, s(R.string.tv_quick), onOff(quick), () -> {
+            QuickPanel.setEnabled(act, !quick);
+            picture(8);
+        }));
         rows.add(new GlassMenu.Row(R.drawable.ic_s_display, s(R.string.tv_resolution), null,
                 () -> openSettings(Settings.ACTION_DISPLAY_SETTINGS)).external());
         rows.add(new GlassMenu.Row(R.drawable.ic_s_volume, s(R.string.tv_sound_out), null,

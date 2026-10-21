@@ -277,10 +277,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
             if (keyCode == KeyEvent.KEYCODE_DPAD_UP) return true;
             if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-                // The left end is Search, else Inputs, else Wi-Fi on a box without inputs.
-                if (btnSearch.getVisibility() == View.VISIBLE) return v.getId() == R.id.btnSearch;
-                return v.getId() == R.id.btnInputs
+                // The left end is Search, else Inputs, else Wi-Fi on a box without inputs. Left from
+                // there goes to the weather (OK opens the forecast) when it's showing.
+                boolean leftEnd = btnSearch.getVisibility() == View.VISIBLE ? v.getId() == R.id.btnSearch
+                        : v.getId() == R.id.btnInputs
                         || (v.getId() == R.id.btnWifi && btnInputs.getVisibility() != View.VISIBLE);
+                if (leftEnd && weatherView.getVisibility() == View.VISIBLE) weatherBlock.requestFocus();
+                return leftEnd;
             }
             return keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v.getId() == R.id.btnSettings;
         };
@@ -288,6 +291,20 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         btnSearch.setOnKeyListener(pillKeys);
         btnWifi.setOnKeyListener(pillKeys);
         btnSettings.setOnKeyListener(pillKeys);
+
+        weatherBlock = findViewById(R.id.weatherBlock);
+        weatherBlock.setOnClickListener(v -> ForecastPage.show(this, weather));
+        weatherBlock.setOnKeyListener((v, keyCode, event) -> {
+            if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
+            if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+                View first = btnSearch.getVisibility() == View.VISIBLE ? btnSearch
+                        : btnInputs.getVisibility() == View.VISIBLE ? btnInputs : btnWifi;
+                first.requestFocus();
+                return true;
+            }
+            return keyCode == KeyEvent.KEYCODE_DPAD_LEFT || keyCode == KeyEvent.KEYCODE_DPAD_UP;
+        });
+        weatherBlock.setFocusable(weatherView.getVisibility() == View.VISIBLE);
 
         // Now playing card under the top bar (music or video playing in another app).
         nowPlaying = new NowPlaying(this);
@@ -530,6 +547,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
     private Weather weather;
     private TextView weatherView;
+    private View weatherBlock;
     private TextView dateView;
 
     /** The weather line above the date; with it showing, the date steps down a size like the Shamsi date. */
@@ -552,6 +570,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         ((android.widget.TextClock) dateView).setFormat24Hour(fmt);
         weatherView.setText(on ? line : "");
         weatherView.setVisibility(on ? View.VISIBLE : View.GONE);
+        if (weatherBlock != null) weatherBlock.setFocusable(on);
         boolean small = on || shamsi;
         dateView.setTextSize(small ? 11f : 14f);
         dateView.setPadding(0, small ? (int) (4 * density) : 0, 0, 0);

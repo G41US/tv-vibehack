@@ -221,7 +221,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
             h.label.setText(e.label);
             h.label.setVisibility(View.VISIBLE);
         }
-        h.card.setOnClickListener(v -> launch(e));
+        h.card.setOnClickListener(v -> launch(e, v));
         h.card.setOnLongClickListener(v -> {
             showTileMenu(e);
             return true;
@@ -326,6 +326,11 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
     }
 
     private void launch(Entry e) {
+        launch(e, null);
+    }
+
+    /** Opens the app; from a tile, its window grows out of the tile to full screen. */
+    private void launch(Entry e, View from) {
         if (e.component.equals(new ComponentName(ctx, HomeSettingsActivity.class))) {
             ctx.startActivity(new Intent(ctx, HomeSettingsActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
@@ -335,8 +340,12 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
                 .addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER)
                 .setComponent(e.component)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        android.os.Bundle opts = null;
+        if (from != null && from.getWidth() > 0) {
+            opts = android.app.ActivityOptions.makeScaleUpAnimation(from, 0, 0, from.getWidth(), from.getHeight()).toBundle();
+        }
         try {
-            ctx.startActivity(i);
+            ctx.startActivity(i, opts);
         } catch (Exception ex) {
             Toast.makeText(ctx, ctx.getString(R.string.cant_open, e.label), Toast.LENGTH_SHORT).show();
         }
