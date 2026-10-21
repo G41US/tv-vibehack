@@ -36,6 +36,16 @@ final class TvCheck {
     }
 
     static void show(Activity a, boolean afterSetup) {
+        android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
+        new Thread(() -> {
+            boolean debug = AdbSelf.reachable(SelfSetup.PORT);   // network work: off the main thread
+            main.post(() -> {
+                if (!a.isFinishing() && !a.isDestroyed()) build(a, afterSetup, debug);
+            });
+        }, "tv-check").start();
+    }
+
+    private static void build(Activity a, boolean afterSetup, boolean debug) {
         PackageManager pm = a.getPackageManager();
         List<GlassMenu.Row> rows = new ArrayList<>();
         Runnable fix = () -> SelfSetup.show(a);
@@ -92,7 +102,6 @@ final class TvCheck {
         rows.add(new GlassMenu.Row(R.drawable.ic_s_remote, a.getString(R.string.tv_remotes),
                 bt ? ok(a.getString(R.string.chk_on)) : no(a.getString(R.string.chk_off)), bt ? null : fix));
 
-        boolean debug = AdbSelf.reachable(SelfSetup.PORT);
         rows.add(new GlassMenu.Row(R.drawable.ic_s_tune, a.getString(R.string.ss_step_debug),
                 debug ? ok(a.getString(R.string.chk_on)) : "–  " + a.getString(R.string.chk_off), fix));
 
