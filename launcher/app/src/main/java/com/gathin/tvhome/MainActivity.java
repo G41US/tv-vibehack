@@ -319,6 +319,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         getWindow().getDecorView().getViewTreeObserver().addOnGlobalFocusChangeListener((oldF, newF) -> {
             boolean onTile = newF != null && newF.getId() == R.id.card;
             if (!onTile) {
+                if (nowPlaying != null && newF != null) nowPlaying.setSuppressed(false);
                 hideGlass();
                 hideHero();   // the app name and its glow belong to a focused tile only
             }
@@ -1047,6 +1048,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     public void onTileFocused(int position, View card) {
         lastFocused = position;
         lastFocusedKey = adapter.keyAt(position);
+        // Below the dock the app rows scroll up under the card's spot: the card steps aside.
+        if (nowPlaying != null) nowPlaying.setSuppressed(position >= COLUMNS);
         // Tile rect in root coordinates, using layout positions (ignores the scale animation).
         Rect r = new Rect(0, 0, card.getWidth(), card.getHeight());
         root.offsetDescendantRectToMyCoords(card, r);
