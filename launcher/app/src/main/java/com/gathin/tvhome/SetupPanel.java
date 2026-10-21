@@ -105,6 +105,7 @@ final class SetupPanel {
         dialog = new Dialog(act);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         Sounds.attach(dialog);
+        GlassMenu.track(dialog);
         int pad = dp(32);
 
         LinearLayout box = new LinearLayout(act);

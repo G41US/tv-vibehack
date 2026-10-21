@@ -569,6 +569,11 @@ final class NowPlaying {
         }
     };
 
+    /** Home pressed: close the full-screen player. */
+    void closeFull() {
+        if (full != null && full.d != null) full.d.dismiss();
+    }
+
     void openFull() {
         if (current == null || full != null) return;
         full = new Full();
@@ -669,7 +674,7 @@ final class NowPlaying {
                 t.setText(line.isEmpty() ? " " : line);
                 t.setAlpha(song.synced ? 0.32f : 0.85f);
                 t.setPivotX(0);
-                t.setPadding(0, dp(7), 0, dp(7));
+                t.setPadding(0, dp(8), dp(24), dp(8));
                 lyricsLines.addView(t);
             }
             lyricsLines.setPadding(0, dp(130), 0, dp(200));
@@ -723,8 +728,10 @@ final class NowPlaying {
                 View v = lyricsLines.getChildAt(i);
                 boolean on = i == idx;
                 if (song.synced) {
-                    v.animate().alpha(on ? 1f : (i < idx ? 0.22f : 0.38f)).scaleX(on ? 1.06f : 1f).scaleY(on ? 1.06f : 1f)
-                            .setDuration(300).start();
+                    // The sung line lights up with a soft glow in the song's colour; sung lines fade back.
+                    v.animate().alpha(on ? 1f : (i < idx ? 0.24f : 0.42f)).setDuration(320).start();
+                    ((TextView) v).setShadowLayer(on ? 18 * density : 6 * density, 0, on ? 0 : density,
+                            on ? (glowColor & 0x00FFFFFF) | 0xCC000000 : 0x99000000);
                 }
             }
             View target = lyricsLines.getChildAt(Math.max(0, idx));
@@ -885,10 +892,35 @@ final class NowPlaying {
             next.setOnKeyListener((v, kc, e) -> kc == KeyEvent.KEYCODE_DPAD_RIGHT && e.getAction() == KeyEvent.ACTION_DOWN);
             prev.setOnKeyListener((v, kc, e) -> kc == KeyEvent.KEYCODE_DPAD_LEFT && e.getAction() == KeyEvent.ACTION_DOWN);
 
-            LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+            // Centred under the progress bar, evenly spaced.
+            controls.setGravity(Gravity.CENTER);
+            for (View b : new View[]{prev, play, next}) {
+                LinearLayout.LayoutParams bl = (LinearLayout.LayoutParams) b.getLayoutParams();
+                bl.leftMargin = dp(12);
+                bl.rightMargin = dp(12);
+            }
+            LinearLayout.LayoutParams clp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
-            clp.topMargin = dp(26);
+            clp.topMargin = dp(28);
             col.addView(controls, clp);
+
+            // A small clock in the corner, for when the player stays up as the room's music screen.
+            android.widget.TextClock clock = new android.widget.TextClock(act);
+            clock.setFormat12Hour("h:mm");
+            clock.setFormat24Hour("HH:mm");
+            clock.setTextColor(0xD9FFFFFF);
+            clock.setTextSize(22);
+            try {
+                clock.setTypeface(act.getResources().getFont(R.font.outfit));
+            } catch (Exception ignored) {
+            }
+            clock.setFontVariationSettings("'wght' 560");
+            clock.setShadowLayer(8 * density, 0, density, 0x99000000);
+            FrameLayout.LayoutParams ck = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.END);
+            ck.topMargin = dp(28);
+            ck.rightMargin = dp(40);
+            root.addView(clock, ck);
 
             row.addView(col, new LinearLayout.LayoutParams(dp(440), ViewGroup.LayoutParams.WRAP_CONTENT));
             root.addView(row, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,

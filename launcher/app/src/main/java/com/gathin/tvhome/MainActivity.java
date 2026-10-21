@@ -408,6 +408,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
     }
 
+    /** Home pressed while TV Home is already showing: close whatever is open over it. */
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent != null && intent.hasCategory(Intent.CATEGORY_HOME)) {
+            if (nowPlaying != null) nowPlaying.closeFull();
+            GlassMenu.closeAll();
+            if (phoneDialog != null && phoneDialog.isShowing()) phoneDialog.dismiss();
+        }
+    }
+
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(TextScale.wrap(base));   // ⚙ Settings > Picture & sound > Text size
@@ -931,6 +942,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         dlg.requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
         dlg.setContentView(R.layout.dialog_network);
         Sounds.attach(dlg);
+        GlassMenu.track(dlg);
         android.view.Window w = dlg.getWindow();
         if (w != null) {
             w.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));

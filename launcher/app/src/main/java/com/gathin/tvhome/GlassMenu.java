@@ -119,6 +119,24 @@ final class GlassMenu {
 
     private static final String CHECK = "✓  ", BLANK = "     ";
 
+    /** Open glass menus, so the Home button can close them all. */
+    private static final java.util.Set<Dialog> OPEN =
+            java.util.Collections.newSetFromMap(new java.util.WeakHashMap<>());
+
+    static void track(Dialog d) {
+        OPEN.add(d);
+    }
+
+    static void closeAll() {
+        for (Dialog d : new java.util.ArrayList<>(OPEN)) {
+            try {
+                if (d.isShowing()) d.dismiss();
+            } catch (Exception ignored) {
+            }
+        }
+        OPEN.clear();
+    }
+
     private GlassMenu() {
     }
 
@@ -166,6 +184,7 @@ final class GlassMenu {
         card.addView(content);
         d.setContentView(card, new ViewGroup.LayoutParams(dp(a, widthDp), ViewGroup.LayoutParams.WRAP_CONTENT));
         Sounds.attach(d);
+        OPEN.add(d);
         Window w = d.getWindow();
         if (w != null) {
             w.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -561,6 +580,7 @@ final class GlassMenu {
         card.addView(content);
         d.setContentView(card, new ViewGroup.LayoutParams(dp(a, 250), ViewGroup.LayoutParams.WRAP_CONTENT));
         Sounds.attach(d);
+        OPEN.add(d);
         Window w = d.getWindow();
         if (w != null) {
             w.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
