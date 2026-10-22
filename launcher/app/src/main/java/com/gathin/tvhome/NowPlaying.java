@@ -385,16 +385,15 @@ final class NowPlaying {
                 // After the box restarts, the app's session is only a leftover: play can stop it
                 // instead. Keep the card while it wakes; if it hasn't started, wake the app's player the
                 // way Android's own "resume" does; as a last resort open the app.
-                holdUntil = android.os.SystemClock.uptimeMillis() + 7000;
+                // Both at once: whichever wakes the player first wins (a second play is harmless).
+                holdUntil = android.os.SystemClock.uptimeMillis() + 12_000;
                 String pkg = current.getPackageName();
                 tc.play();
+                resume(pkg);
                 handler.postDelayed(() -> {
-                    if (!playingNow()) resume(pkg);
-                }, 1500);
-                handler.postDelayed(() -> {
-                    if (!playingNow()) openApp(pkg);
-                }, 5000);
-                handler.postDelayed(this::render, 7100);
+                    if (!playingNow()) openApp(pkg);   // the app's player is slow to start: open it
+                }, 9000);
+                handler.postDelayed(this::render, 12_100);
         }
     }
 
@@ -1440,6 +1439,7 @@ final class NowPlaying {
         boolean show = current != null && !TextUtils.isEmpty(t)
                 && (state == PlaybackState.STATE_PLAYING || state == PlaybackState.STATE_PAUSED
                 || state == PlaybackState.STATE_BUFFERING);
+        if (show && state == PlaybackState.STATE_PLAYING) holdUntil = 0;   // it's playing: back to normal
         if (!show && android.os.SystemClock.uptimeMillis() < holdUntil
                 && (card.getVisibility() == View.VISIBLE || mini.getVisibility() == View.VISIBLE)) {
             return;   // a play is starting up: don't drop the card meanwhile
