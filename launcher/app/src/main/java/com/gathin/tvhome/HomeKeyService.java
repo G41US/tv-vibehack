@@ -62,6 +62,10 @@ public class HomeKeyService extends AccessibilityService {
     private final android.content.BroadcastReceiver volumeReceiver = new android.content.BroadcastReceiver() {
         @Override
         public void onReceive(android.content.Context c, Intent i) {
+            if (Intent.ACTION_SCREEN_OFF.equals(i.getAction())) {
+                NowPlaying.startSmall(c);   // TV off: the music card comes back small
+                return;
+            }
             int stream = i.getIntExtra("android.media.EXTRA_VOLUME_STREAM_TYPE", android.media.AudioManager.STREAM_MUSIC);
             if (stream != android.media.AudioManager.STREAM_MUSIC) return;
             if (Night.enforceCap(c)) return;   // brought down to the night limit; the next change shows it
@@ -78,6 +82,7 @@ public class HomeKeyService extends AccessibilityService {
             volume = new VolumeOverlay(this);
             android.content.IntentFilter f = new android.content.IntentFilter("android.media.VOLUME_CHANGED_ACTION");
             f.addAction("android.media.STREAM_MUTE_CHANGED_ACTION");
+            f.addAction(Intent.ACTION_SCREEN_OFF);
             if (android.os.Build.VERSION.SDK_INT >= 33) registerReceiver(volumeReceiver, f, RECEIVER_EXPORTED);
             else registerReceiver(volumeReceiver, f);
         }

@@ -378,9 +378,72 @@ final class NowPlaying {
                 tc.skipToNext();
                 break;
             default:
-                if (st != null && st.getState() == PlaybackState.STATE_PLAYING) tc.pause();
-                else tc.play();
+                if (st != null && st.getState() == PlaybackState.STATE_PLAYING) {
+                    tc.pause();
+                    return;
+                }
+                // After the box restarts, the app's session is only a leftover: play can stop it
+                // instead. Keep the card while it wakes; if it hasn't started, wake the app's player the
+                // way Android's own "resume" does; as a last resort open the app.
+                holdUntil = android.os.SystemClock.uptimeMillis() + 7000;
+                String pkg = current.getPackageName();
+                tc.play();
+                handler.postDelayed(() -> {
+                    if (!playingNow()) resume(pkg);
+                }, 1500);
+                handler.postDelayed(() -> {
+                    if (!playingNow()) openApp(pkg);
+                }, 5000);
+                handler.postDelayed(this::render, 7100);
         }
+    }
+
+    /** Until then a play is on its way: the card stays even if the session blinks out. */
+    private long holdUntil;
+
+    private boolean playingNow() {
+        PlaybackState st = current != null ? current.getPlaybackState() : null;
+        return st != null && (st.getState() == PlaybackState.STATE_PLAYING || st.getState() == PlaybackState.STATE_BUFFERING);
+    }
+
+    /** Media resumption: connect to the app's media browser asking for its recent media, then play. */
+    private void resume(String pkg) {
+        try {
+            List<android.content.pm.ResolveInfo> svc = act.getPackageManager().queryIntentServices(
+                    new android.content.Intent("android.media.browse.MediaBrowserService").setPackage(pkg), 0);
+            if (svc.isEmpty()) return;
+            ComponentName c = new ComponentName(pkg, svc.get(0).serviceInfo.name);
+            android.os.Bundle hints = new android.os.Bundle();
+            hints.putBoolean("android.service.media.extra.RECENT", true);
+            final android.media.browse.MediaBrowser[] b = new android.media.browse.MediaBrowser[1];
+            b[0] = new android.media.browse.MediaBrowser(act, c, new android.media.browse.MediaBrowser.ConnectionCallback() {
+                @Override
+                public void onConnected() {
+                    try {
+                        new MediaController(act, b[0].getSessionToken()).getTransportControls().play();
+                    } catch (Exception ignored) {
+                    }
+                    handler.postDelayed(() -> b[0].disconnect(), 4000);
+                }
+            }, hints);
+            b[0].connect();
+        } catch (Exception ignored) {
+        }
+    }
+
+    private void openApp(String pkg) {
+        android.content.Intent i = act.getPackageManager().getLeanbackLaunchIntentForPackage(pkg);
+        if (i == null) i = act.getPackageManager().getLaunchIntentForPackage(pkg);
+        if (i == null) return;
+        try {
+            act.startActivity(i.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK));
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** The TV went off or the box restarted: the card comes back small (the person can open it again). */
+    static void startSmall(Context c) {
+        c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_MINI, true).apply();
     }
 
     // ---- sessions ---------------------------------------------------------------------------------
@@ -1377,6 +1440,10 @@ final class NowPlaying {
         boolean show = current != null && !TextUtils.isEmpty(t)
                 && (state == PlaybackState.STATE_PLAYING || state == PlaybackState.STATE_PAUSED
                 || state == PlaybackState.STATE_BUFFERING);
+        if (!show && android.os.SystemClock.uptimeMillis() < holdUntil
+                && (card.getVisibility() == View.VISIBLE || mini.getVisibility() == View.VISIBLE)) {
+            return;   // a play is starting up: don't drop the card meanwhile
+        }
         if (!show) {
             musicAccent = 0;
             if (mood != null) mood.on(glowColor, secondColor, false);

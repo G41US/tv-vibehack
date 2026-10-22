@@ -123,6 +123,10 @@
         <intent>
             <action android:name="android.app.role.action.REQUEST_ROLE" />
         </intent>
+        <!-- Now playing: resuming an app's music after a restart (its media browser). -->
+        <intent>
+            <action android:name="android.media.browse.MediaBrowserService" />
+        </intent>
     </queries>
 
     <application

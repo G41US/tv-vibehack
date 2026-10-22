@@ -72,6 +72,7 @@ public final class SelfHeal {
             ensureService(app);
             if (!updated) {
                 Profiles.markPending(app);   // box started: ask who's watching
+                NowPlaying.startSmall(app);  // and the music card starts small
                 return;
             }
             PendingResult pending = goAsync();
