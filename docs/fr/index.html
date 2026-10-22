@@ -59,7 +59,7 @@
   <h1>Un écran d'accueil propre pour votre boîtier Airtel.</h1>
   <p>TV Home remplace l'écran d'accueil plein de publicités par un écran simple et élégant : vos applis préférées dans
     un dock, une grande horloge, la météo et quelques fonds d'écran. <strong>S'installe avec la télécommande en trois
-    minutes environ.</strong> Pas besoin de téléphone, d'ordinateur ni d'options pour développeurs. Gratuit et open source.</p>
+    minutes environ.</strong> Pas besoin de téléphone ni d'ordinateur. Gratuit et open source.</p>
 
   <img class="hero" src="../focus-2-up-netflix.png" alt="TV Home : une grande horloge et la date en haut, le nom de l'appli sélectionnée en grand, et un dock de quatre applis">
   <div class="cap">L'apparence de TV Home. Votre dock affiche les applis que vous choisissez.</div>
@@ -77,11 +77,13 @@
       <strong>Paramètres</strong>, activez-la et appuyez sur Retour.
       <br><span style="font-size:14px;color:var(--faint)">Le code ne marche pas ? Tapez plutôt <code>g41us.github.io/tv-vibehack/get</code>.</span></li>
     <li><b>Installez et ouvrez</b>Choisissez <strong>Installer</strong>, puis <strong>Ouvrir</strong>.</li>
-    <li><b>Configuration rapide</b>TV Home affiche un court écran de configuration :
-      <br>• <strong>Bouton Accueil et démarrage → Activer.</strong> Dans Accessibilité, choisissez <strong>TV Home</strong>, activez-le, appuyez sur Retour.
-      <br>• <strong>Mises à jour depuis le téléviseur → Autoriser.</strong>
-      <br>• <strong>Protéger vos réglages → Autoriser.</strong>
-      <br>C'est tout. Appuyez sur Accueil : TV Home s'ouvre, et le boîtier démarre dessus désormais.</li>
+    <li><b>Tout faire pour moi</b>TV Home affiche un court écran de configuration. Appuyez sur <strong>Tout faire pour moi</strong> et suivez les trois étapes à l'écran :
+      <br>• Activez les <strong>Options pour les développeurs</strong> : Paramètres → Système → À propos → appuyez 7 fois sur OK sur <strong>Build Android TV OS</strong>.
+      <br>• Activez le <strong>Débogage USB</strong> dans les Options pour les développeurs (sur certains téléviseurs : débogage réseau ou ADB).
+      <br>• Appuyez sur <strong>Tout configurer</strong>. Quand le téléviseur demande <strong>« Autoriser le débogage USB ? »</strong>, cochez Toujours autoriser et choisissez OK.
+      <br>C'est tout. Appuyez sur Accueil : TV Home s'ouvre, et le boîtier démarre dessus désormais.
+      <br><span style="font-size:14px;color:var(--faint)">Vous préférez ne pas activer le débogage ? Utilisez les autres boutons du même écran :
+      Bouton Accueil et démarrage → Activer (choisissez TV Home dans Accessibilité), puis Autoriser et Autoriser.</span></li>
   </ol>
 
   <h2>Ce que vous obtenez</h2>
@@ -106,8 +108,8 @@
     Chromecast avec Google TV, Nvidia Shield et la plupart des boîtiers Android. L'installation est la même, avec Downloader.</p>
   <p><strong>Amazon Fire TV</strong> (Fire OS 7 et 8, donc la plupart des Fire TV Stick et téléviseurs Fire TV) : fonctionne
     aussi. Downloader est dans la boutique d'Amazon. L'accueil d'Amazon s'affiche un bref instant quand vous appuyez sur
-    Accueil, et sur Fire OS 7 il faut attendre quelques secondes. Si la page Accessibilité de votre Fire TV est vide, la
-    configuration demande une fois un téléphone ou un ordinateur. Les Fire TV récents sous Vega OS n'acceptent pas
+    Accueil, et sur Fire OS 7 il faut attendre quelques secondes. Si la page Accessibilité de votre Fire TV est vide, utilisez
+    <strong>Tout faire pour moi</strong> : sur Fire TV, appuyez 7 fois sur OK sur le nom de l'appareil dans À propos, puis activez le débogage ADB. Les Fire TV récents sous Vega OS n'acceptent pas
     d'applis hors de la boutique d'Amazon.</p>
   <p><strong>Impossible sur</strong> Samsung (Tizen), LG (webOS), Roku, Hisense VIDAA et Apple TV : ils n'exécutent pas
     les applis Android et ne laissent aucune appli remplacer l'écran d'accueil. La solution simple pour ces téléviseurs :
@@ -129,7 +131,10 @@
     <p>Paramètres → Accessibilité → TV Home → désactiver. Pour le supprimer complètement : Paramètres → Applis → TV Home → Désinstaller.
       Le boîtier redevient exactement comme avant.</p></details>
   <details><summary>Une mise à jour Airtel a ramené leur écran d'accueil.</summary>
-    <p>Ouvrez TV Home depuis la liste des applis et refaites la configuration (maintenez OK sur Paramètres → Configuration).</p></details>
+    <p>Ouvrez TV Home depuis la liste des applis et refaites la configuration (maintenez OK sur Paramètres → Mises à jour et configuration).</p></details>
+  <details><summary>Quelque chose ne marche pas.</summary>
+    <p>Maintenez OK sur Paramètres → Mises à jour et configuration → <strong>Vérification du téléviseur</strong>. Elle affiche
+      un ✓ ou un ✗ pour chaque partie de TV Home, et sur quoi appuyer pour corriger.</p></details>
   <details><summary>Est-ce sûr ?</summary>
     <p>Oui. Le code est public sur GitHub, rien n'est flashé ni rooté, et les mises à jour ne s'installent que si elles sont
       signées avec la clé de TV Home : personne d'autre ne peut envoyer une fausse mise à jour sur votre boîtier.</p></details>
