@@ -130,6 +130,13 @@ final class NowPlaying {
 
     /** Adds the (hidden) card to the home screen, just under the top bar on the right. */
     void attach(FrameLayout root, View topBar) {
+        // A fresh start of the box: the card starts small. (Checked here, before the first draw; the
+        // system's "booted" message comes too late and made the card shrink a few seconds in.)
+        long bootAt = System.currentTimeMillis() - android.os.SystemClock.elapsedRealtime();
+        android.content.SharedPreferences p = act.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        if (Math.abs(bootAt - p.getLong("boot_at", 0)) > 60_000) {
+            p.edit().putLong("boot_at", bootAt).putBoolean(KEY_MINI, true).apply();
+        }
         card = new LinearLayout(act);
         card.setOrientation(LinearLayout.HORIZONTAL);
         card.setGravity(Gravity.CENTER_VERTICAL);
@@ -402,12 +409,36 @@ final class NowPlaying {
      * playing after 15 seconds does it open the app.
      */
     private void wake(String pkg) {
-        holdUntil = android.os.SystemClock.uptimeMillis() + 18_000;
-        resume(pkg);
+        holdUntil = android.os.SystemClock.uptimeMillis() + 15_000;
+        // 1. A Play key, as a headset's would be: Android hands it to the last music app (it remembers
+        //    which across restarts), which starts in the background without opening.
+        android.media.AudioManager am = (android.media.AudioManager) act.getSystemService(Context.AUDIO_SERVICE);
+        long t = android.os.SystemClock.uptimeMillis();
+        try {
+            am.dispatchMediaKeyEvent(new KeyEvent(t, t, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY, 0));
+            am.dispatchMediaKeyEvent(new KeyEvent(t, t, KeyEvent.ACTION_UP, KeyEvent.KEYCODE_MEDIA_PLAY, 0));
+        } catch (Exception ignored) {
+        }
+        // 2. Then connect to the app's player so the card can follow it (and play it, if 1 didn't).
         handler.postDelayed(() -> {
-            if (!musicPlaying(pkg)) openApp(pkg);
-        }, 15_000);
-        handler.postDelayed(this::render, 18_100);
+            if (!musicPlaying(pkg)) mediaButton(pkg);
+            resume(pkg);
+        }, 1200);
+        handler.postDelayed(this::refresh, 3000);
+        handler.postDelayed(this::render, 15_100);
+        // Never opens the app on its own: it stays in the background until the person opens it.
+    }
+
+    /** The Play key sent straight to the app's own media-button receiver. */
+    private void mediaButton(String pkg) {
+        long t = android.os.SystemClock.uptimeMillis();
+        for (int action : new int[]{KeyEvent.ACTION_DOWN, KeyEvent.ACTION_UP}) {
+            try {
+                act.sendBroadcast(new android.content.Intent(android.content.Intent.ACTION_MEDIA_BUTTON).setPackage(pkg)
+                        .putExtra(android.content.Intent.EXTRA_KEY_EVENT, new KeyEvent(t, t, action, KeyEvent.KEYCODE_MEDIA_PLAY, 0)));
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     /** Is music actually coming out? (Any app's sound, or that app's session playing.) */
@@ -452,7 +483,8 @@ final class NowPlaying {
                         // A session woken this way isn't always in Android's list of active sessions
                         // (Spotify's isn't until its app opens), so the card follows it directly.
                         MediaController mc = new MediaController(act, b[0].getSessionToken());
-                        mc.getTransportControls().play();
+                        android.media.AudioManager am = (android.media.AudioManager) act.getSystemService(Context.AUDIO_SERVICE);
+                        if (am == null || !am.isMusicActive()) mc.getTransportControls().play();
                         adopted = mc.getSessionToken();
                         if (current != null) current.unregisterCallback(callback);
                         current = mc;
@@ -471,15 +503,6 @@ final class NowPlaying {
     private android.media.browse.MediaBrowser browser;
     private android.media.session.MediaSession.Token adopted;
 
-    private void openApp(String pkg) {
-        android.content.Intent i = act.getPackageManager().getLeanbackLaunchIntentForPackage(pkg);
-        if (i == null) i = act.getPackageManager().getLaunchIntentForPackage(pkg);
-        if (i == null) return;
-        try {
-            act.startActivity(i.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK));
-        } catch (Exception ignored) {
-        }
-    }
 
     /** The TV went off or the box restarted: the card comes back small (the person can open it again). */
     static void startSmall(Context c) {
