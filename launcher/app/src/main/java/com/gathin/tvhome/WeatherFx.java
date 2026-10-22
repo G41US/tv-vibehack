@@ -155,7 +155,10 @@ final class WeatherFx extends View {
                 c.drawRect(0, 0, w, h, flash);
             }
         }
-        if (running) postInvalidateDelayed(50);
+        if (running) {
+            if (LiveWallpaper.busy()) postDelayed(this::invalidate, 300);   // the remote is in use: wait
+            else postInvalidateDelayed(50);
+        }
     }
 
     @Override

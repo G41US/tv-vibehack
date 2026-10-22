@@ -188,6 +188,7 @@ final class GlassMenu {
         Window w = d.getWindow();
         if (w != null) {
             w.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            w.setWindowAnimations(R.style.GlassDialogAnim);
             w.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
             w.setDimAmount(0.6f);
         }
@@ -584,6 +585,7 @@ final class GlassMenu {
         Window w = d.getWindow();
         if (w != null) {
             w.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            w.setWindowAnimations(R.style.GlassDialogAnim);
             w.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
             w.setDimAmount(0.35f);
             int[] at = new int[2];

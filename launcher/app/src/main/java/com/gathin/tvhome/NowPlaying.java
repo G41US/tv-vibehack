@@ -371,11 +371,7 @@ final class NowPlaying {
             // The last song from before a restart: wake its app's player (or open the app).
             String pkg = act.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("last_pkg", null);
             if (pkg == null || keyCode != KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE) return;
-            holdUntil = android.os.SystemClock.uptimeMillis() + 12_000;
-            resume(pkg);
-            handler.postDelayed(() -> {
-                if (!playingNow()) openApp(pkg);
-            }, 9000);
+            wake(pkg);
             return;
         }
         MediaController.TransportControls tc = current.getTransportControls();
@@ -396,15 +392,38 @@ final class NowPlaying {
                 // instead. Keep the card while it wakes; if it hasn't started, wake the app's player the
                 // way Android's own "resume" does; as a last resort open the app.
                 // Both at once: whichever wakes the player first wins (a second play is harmless).
-                holdUntil = android.os.SystemClock.uptimeMillis() + 12_000;
-                String pkg = current.getPackageName();
                 tc.play();
-                resume(pkg);
-                handler.postDelayed(() -> {
-                    if (!playingNow()) openApp(pkg);   // the app's player is slow to start: open it
-                }, 9000);
-                handler.postDelayed(this::render, 12_100);
+                wake(current.getPackageName());
         }
+    }
+
+    /**
+     * Wakes the app's player for its last song; keeps the card meanwhile. Only if nothing at all is
+     * playing after 15 seconds does it open the app.
+     */
+    private void wake(String pkg) {
+        holdUntil = android.os.SystemClock.uptimeMillis() + 18_000;
+        resume(pkg);
+        handler.postDelayed(() -> {
+            if (!musicPlaying(pkg)) openApp(pkg);
+        }, 15_000);
+        handler.postDelayed(this::render, 18_100);
+    }
+
+    /** Is music actually coming out? (Any app's sound, or that app's session playing.) */
+    private boolean musicPlaying(String pkg) {
+        android.media.AudioManager am = (android.media.AudioManager) act.getSystemService(Context.AUDIO_SERVICE);
+        if (am != null && am.isMusicActive()) return true;
+        if (playingNow()) return true;
+        try {
+            for (MediaController c : msm.getActiveSessions(listener)) {
+                PlaybackState st = c.getPlaybackState();
+                if (c.getPackageName().equals(pkg) && st != null && (st.getState() == PlaybackState.STATE_PLAYING
+                        || st.getState() == PlaybackState.STATE_BUFFERING)) return true;
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
     }
 
     /** Until then a play is on its way: the card stays even if the session blinks out. */
@@ -432,6 +451,7 @@ final class NowPlaying {
                         new MediaController(act, b[0].getSessionToken()).getTransportControls().play();
                     } catch (Exception ignored) {
                     }
+                    handler.postDelayed(NowPlaying.this::refresh, 900);   // pick up the woken session
                     handler.postDelayed(() -> b[0].disconnect(), 4000);
                 }
             }, hints);

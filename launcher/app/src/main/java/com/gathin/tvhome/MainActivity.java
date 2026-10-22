@@ -250,7 +250,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             }
         });
         for (SpringAnimation s : new SpringAnimation[]{springX, springY}) {
-            s.setSpring(new SpringForce().setStiffness(260f).setDampingRatio(0.58f));
+            s.setSpring(new SpringForce().setStiffness(720f).setDampingRatio(0.78f));   // quick and crisp, little wobble
         }
 
         btnInputs = findViewById(R.id.btnInputs);
@@ -550,6 +550,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     public boolean dispatchKeyEvent(KeyEvent e) {
         Sounds.onKey(this, e);
+        LiveWallpaper.touched();
         if (nowPlaying != null) nowPlaying.noteInput();
         return super.dispatchKeyEvent(e);
     }
