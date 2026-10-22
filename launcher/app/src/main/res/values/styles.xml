@@ -32,6 +32,12 @@
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowAnimationStyle">@null</item>
     </style>
+    <!-- Glass menus: a quick, light pop in and out. -->
+    <style name="GlassDialogAnim">
+        <item name="android:windowEnterAnimation">@anim/glass_in</item>
+        <item name="android:windowExitAnimation">@anim/glass_out</item>
+    </style>
+
     <!-- Quick panel slides in from the right edge. -->
     <style name="QuickPanelAnim">
         <item name="android:windowEnterAnimation">@anim/qp_in</item>
