@@ -443,22 +443,33 @@ final class NowPlaying {
             ComponentName c = new ComponentName(pkg, svc.get(0).serviceInfo.name);
             android.os.Bundle hints = new android.os.Bundle();
             hints.putBoolean("android.service.media.extra.RECENT", true);
+            if (browser != null) browser.disconnect();
             final android.media.browse.MediaBrowser[] b = new android.media.browse.MediaBrowser[1];
             b[0] = new android.media.browse.MediaBrowser(act, c, new android.media.browse.MediaBrowser.ConnectionCallback() {
                 @Override
                 public void onConnected() {
                     try {
-                        new MediaController(act, b[0].getSessionToken()).getTransportControls().play();
+                        // A session woken this way isn't always in Android's list of active sessions
+                        // (Spotify's isn't until its app opens), so the card follows it directly.
+                        MediaController mc = new MediaController(act, b[0].getSessionToken());
+                        mc.getTransportControls().play();
+                        adopted = mc.getSessionToken();
+                        if (current != null) current.unregisterCallback(callback);
+                        current = mc;
+                        current.registerCallback(callback, handler);
+                        render();
                     } catch (Exception ignored) {
                     }
-                    handler.postDelayed(NowPlaying.this::refresh, 900);   // pick up the woken session
-                    handler.postDelayed(() -> b[0].disconnect(), 4000);
                 }
             }, hints);
+            browser = b[0];   // stays connected: the card keeps following the music
             b[0].connect();
         } catch (Exception ignored) {
         }
     }
+
+    private android.media.browse.MediaBrowser browser;
+    private android.media.session.MediaSession.Token adopted;
 
     private void openApp(String pkg) {
         android.content.Intent i = act.getPackageManager().getLeanbackLaunchIntentForPackage(pkg);
@@ -1449,6 +1460,10 @@ final class NowPlaying {
                 }
             } catch (SecurityException ignored) {
             }
+        }
+        if (pick == null && current != null && current.getSessionToken().equals(adopted)) {
+            render();   // the woken session isn't listed: keep following it
+            return;
         }
         if (current != null && (pick == null || !pick.getSessionToken().equals(current.getSessionToken()))) {
             current.unregisterCallback(callback);
