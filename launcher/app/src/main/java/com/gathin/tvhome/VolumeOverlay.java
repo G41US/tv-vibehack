@@ -76,7 +76,8 @@ final class VolumeOverlay {
     }
     private GradientDrawable bg;
     private Boolean shapedUpright;
-    private static final String KEY_RECT = "volume_rect";
+    // New name: drops any badly measured spot saved by older builds.
+    static final String KEY_RECT = "volume_bar";
     private Bar bar;
     private TextView pct;
     private ImageView icon;
@@ -229,11 +230,27 @@ final class VolumeOverlay {
         return null;
     }
 
+    /**
+     * Only a slim bar near a screen edge counts as the TV's volume bar. Anything else (a whole
+     * System UI window with its margins, a notice) is ignored, so the capsule never jumps to a wrong,
+     * oversized spot.
+     */
+    private boolean plausible(Rect r) {
+        android.util.DisplayMetrics dm = new android.util.DisplayMetrics();
+        wm.getDefaultDisplay().getRealMetrics(dm);
+        float w = r.width() / density, h = r.height() / density;
+        boolean upright = h >= w && w >= 28 && w <= 100 && h >= 140 && h <= 420;
+        boolean lying = w > h && h >= 28 && h <= 100 && w >= 140 && w <= 700;
+        int edge = Math.round(140 * density);
+        boolean nearEdge = r.left < edge || dm.widthPixels - r.right < edge || r.top < edge || dm.heightPixels - r.bottom < edge;
+        return (upright || lying) && nearEdge;
+    }
+
     private final Runnable seek = new Runnable() {
         @Override
         public void run() {
             Rect found = findSystemBar();
-            if (found == null || !attached) return;
+            if (found == null || !attached || !plausible(found)) return;
             String flat = found.flattenToString();
             SharedPreferences p = service.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
             if (flat.equals(p.getString(KEY_RECT, null))) return;

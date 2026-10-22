@@ -79,7 +79,7 @@ final class TvCheck {
         AudioManager am = (AudioManager) a.getSystemService(Context.AUDIO_SERVICE);
         String vol;
         if (am != null && am.isVolumeFixed()) vol = "–  " + a.getString(R.string.chk_vol_tv);
-        else if (a.getSharedPreferences(VolumeOverlay.PREFS, Context.MODE_PRIVATE).getString("volume_rect", null) != null)
+        else if (a.getSharedPreferences(VolumeOverlay.PREFS, Context.MODE_PRIVATE).getString(VolumeOverlay.KEY_RECT, null) != null)
             vol = ok(a.getString(R.string.chk_vol_found));
         else vol = ok(a.getString(R.string.chk_vol_default));
         rows.add(new GlassMenu.Row(R.drawable.ic_s_volume, a.getString(R.string.tv_volume), vol, null));
