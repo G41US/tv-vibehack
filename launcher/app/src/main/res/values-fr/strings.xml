@@ -252,7 +252,7 @@
     <string name="qp_media">En cours de lecture</string>
     <string name="qp_sleep">Mettre en veille</string>
     <string name="qp_home">Aller à l\'accueil</string>
-    <string name="tv_quick">Panneau rapide (Accueil deux fois)</string>
+    <string name="tv_quick">Panneau rapide (maintenir Retour)</string>
     <string name="fc_loading">Chargement des prévisions…</string>
     <string name="fc_title">Météo</string>
     <string name="fc_failed">Impossible d\'obtenir les prévisions. Vérifiez la connexion Internet et réessayez.</string>

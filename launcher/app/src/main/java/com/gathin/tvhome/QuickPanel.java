@@ -23,9 +23,9 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Quick panel: press Home twice (or hold it) anywhere, even inside an app, for a glass panel at the right edge with what's
+ * Quick panel: hold Back anywhere, even inside an app, for a glass panel at the right edge with what's
  * playing (◀ ▶ skip, OK play/pause), the volume, Night mode, Sleep now and Home. Switched off in
- * ⚙ Settings > Picture & sound > Quick panel, after which Home just goes Home.
+ * ⚙ Settings > Picture & sound > Quick panel, after which Back is just Back.
  */
 public class QuickPanel extends Activity {
 
