@@ -261,7 +261,7 @@ final class VolumeOverlay {
 
     /** Puts the capsule over {@code r} with room to spare, upright or lying down to match it. */
     private void place(Rect r, boolean update) {
-        int pad = dp(10);
+        int pad = dp(2);   // the same size as the TV's own bar (just covering its soft edge), not hugging the screen edge
         boolean upright = r.height() >= r.width();
         shape(upright);
         WindowManager.LayoutParams lp = new WindowManager.LayoutParams(r.width() + 2 * pad, r.height() + 2 * pad,
@@ -290,7 +290,7 @@ final class VolumeOverlay {
         int cur = am.getStreamVolume(AudioManager.STREAM_MUSIC);
         boolean muted = am.isStreamMute(AudioManager.STREAM_MUSIC) || cur == 0;
         float level = muted ? 0f : cur / (float) max;
-        int target = muted ? -1 : Math.round(level * 100);
+        int target = muted ? -1 : cur;   // the same number the TV's own bar shows (its volume step)
         countTo(target);
         pct.setTextSize(19 * TextScale.factor(service));
         // Speaker with more sound waves as it gets louder.
