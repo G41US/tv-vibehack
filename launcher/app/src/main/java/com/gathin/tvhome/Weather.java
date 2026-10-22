@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -13,6 +14,9 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -81,7 +85,43 @@ final class Weather {
         return ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
     }
 
-    /** "auto", "off", or a city name from CITIES. */
+    /** A city found with Search is kept as "name|lat|lon". */
+    static String cityName(String place) {
+        int bar = place.indexOf('|');
+        return bar >= 0 ? place.substring(0, bar) : place;
+    }
+
+    /** Cities anywhere in the world matching {@code name}: {label shown, place to keep}. */
+    static List<String[]> search(String name) throws Exception {
+        JSONObject j = new JSONObject(get("https://geocoding-api.open-meteo.com/v1/search?count=8&format=json&name="
+                + URLEncoder.encode(name, "UTF-8") + "&language=" + Locale.getDefault().getLanguage()));
+        List<String[]> out = new ArrayList<>();
+        JSONArray rs = j.optJSONArray("results");
+        for (int i = 0; rs != null && i < rs.length(); i++) {
+            JSONObject r = rs.getJSONObject(i);
+            String city = r.optString("name", "").replace("|", " ");
+            if (city.isEmpty()) continue;
+            StringBuilder label = new StringBuilder(city);
+            String region = r.optString("admin1", ""), country = r.optString("country", "");
+            if (!region.isEmpty() && !region.equals(city)) label.append(", ").append(region);
+            if (!country.isEmpty()) label.append(", ").append(country);
+            out.add(new String[]{label.toString(), String.format(Locale.US, "%s|%.4f|%.4f", city,
+                    r.getDouble("latitude"), r.getDouble("longitude"))});
+        }
+        return out;
+    }
+
+    /** °F where people use it (US and a few others); °C everywhere else. */
+    private static String units() {
+        switch (Locale.getDefault().getCountry()) {
+            case "US": case "LR": case "MM": case "BS": case "BZ": case "KY": case "PW":
+                return "&temperature_unit=fahrenheit";
+            default:
+                return "";
+        }
+    }
+
+    /** "auto", "off", a city name from CITIES, or a searched city ("name|lat|lon"). */
     String place() {
         return prefs().getString(KEY_PLACE, AUTO);
     }
@@ -161,7 +201,7 @@ final class Weather {
         String url = String.format(Locale.US, "https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f"
                 + "&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code"
                 + "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset"
-                + "&timezone=auto&forecast_days=6", (Double) where[1], (Double) where[2]);
+                + "&timezone=auto&forecast_days=6" + units(), (Double) where[1], (Double) where[2]);
         JSONObject j = new JSONObject(get(url));
         JSONObject cur = j.getJSONObject("current");
         JSONObject d = j.getJSONObject("daily");
@@ -199,6 +239,7 @@ final class Weather {
         double lat, lon;
         String[] picked = null;
         for (String[] c : CITIES) if (c[0].equals(place)) picked = c;
+        if (place.indexOf('|') > 0) picked = place.split("\\|");
         if (picked != null) {
             city = picked[0];
             lat = Double.parseDouble(picked[1]);
@@ -233,7 +274,7 @@ final class Weather {
         double lat = (Double) where[1], lon = (Double) where[2];
         String url = String.format(Locale.US, "https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f"
                 + "&current=temperature_2m,weather_code,visibility&daily=temperature_2m_max,temperature_2m_min,sunset"
-                + "&timezone=auto&forecast_days=1", lat, lon);
+                + "&timezone=auto&forecast_days=1" + units(), lat, lon);
         JSONObject j = new JSONObject(get(url));
         JSONObject cur = j.getJSONObject("current");
         JSONObject daily = j.getJSONObject("daily");

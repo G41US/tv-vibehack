@@ -342,4 +342,8 @@
     <string name="su_working">Speeding up…</string>
     <string name="su_done">Freed %1$s of space and %2$s of memory. Closed %3$d background apps. Music that\'s playing keeps going.</string>
     <string name="su_need">Speed up needs the TV\'s debugging connection. Turn it on once: hold OK on ⚙ → Updates &amp; setup → Set up on this TV, and keep USB debugging on.</string>
+    <string name="weather_search">Search for a city…</string>
+    <string name="weather_search_none">No city called “%1$s” found. Check the spelling, or try a bigger city nearby.</string>
+    <string name="weather_search_offline">Couldn\'t search just now. Check the internet connection and try again.</string>
+    <string name="weather_search_again">Search again</string>
 </resources>

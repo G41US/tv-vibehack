@@ -343,4 +343,8 @@
     <string name="su_working">Accélération…</string>
     <string name="su_done">%1$s d\'espace et %2$s de mémoire libérés. %3$d applis en arrière-plan fermées. La musique en cours continue.</string>
     <string name="su_need">Accélérer a besoin de la connexion de débogage du téléviseur. Activez-la une fois : maintenez OK sur ⚙ → Mises à jour et configuration → Configurer sur ce téléviseur, et laissez le débogage USB activé.</string>
+    <string name="weather_search">Rechercher une ville…</string>
+    <string name="weather_search_none">Aucune ville nommée « %1$s ». Vérifiez l\'orthographe, ou essayez une grande ville proche.</string>
+    <string name="weather_search_offline">Recherche impossible pour le moment. Vérifiez la connexion Internet et réessayez.</string>
+    <string name="weather_search_again">Rechercher à nouveau</string>
 </resources>
