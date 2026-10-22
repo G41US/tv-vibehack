@@ -367,7 +367,17 @@ final class NowPlaying {
     }
 
     private void transport(int keyCode) {
-        if (current == null) return;
+        if (current == null) {
+            // The last song from before a restart: wake its app's player (or open the app).
+            String pkg = act.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("last_pkg", null);
+            if (pkg == null || keyCode != KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE) return;
+            holdUntil = android.os.SystemClock.uptimeMillis() + 12_000;
+            resume(pkg);
+            handler.postDelayed(() -> {
+                if (!playingNow()) openApp(pkg);
+            }, 9000);
+            return;
+        }
         MediaController.TransportControls tc = current.getTransportControls();
         PlaybackState st = current.getPlaybackState();
         switch (keyCode) {
@@ -1444,6 +1454,7 @@ final class NowPlaying {
                 && (card.getVisibility() == View.VISIBLE || mini.getVisibility() == View.VISIBLE)) {
             return;   // a play is starting up: don't drop the card meanwhile
         }
+        if (!show && showSaved()) return;   // no live session: the last song, ready to play again
         if (!show) {
             musicAccent = 0;
             if (mood != null) mood.on(glowColor, secondColor, false);
@@ -1491,6 +1502,14 @@ final class NowPlaying {
         };
         boolean changed = !song.toString().equals(lastTitle);
         lastTitle = song.toString();
+        if (changed) {
+            act.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putString("last_title", song.toString())
+                    .putString("last_line", line.toString()).putString("last_pkg", current.getPackageName())
+                    .putLong("last_time", System.currentTimeMillis()).apply();
+        }
+        if (state == PlaybackState.STATE_PLAYING) {
+            act.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putLong("last_time", System.currentTimeMillis()).apply();
+        }
         if (changed && card.getVisibility() == View.VISIBLE) {
             // New song: the old one slides out to the left, the new one slides in from the right.
             textCol.animate().cancel();
@@ -1508,6 +1527,7 @@ final class NowPlaying {
         if (cover != lastCover) {
             lastCover = cover;
             tint(cover);
+            saveCover(cover);
         }
         eq.setPlaying(state == PlaybackState.STATE_PLAYING);
         miniEq.setPlaying(state == PlaybackState.STATE_PLAYING);
@@ -1521,6 +1541,72 @@ final class NowPlaying {
             handler.postDelayed(tick, 1000);
         }
         playPause.setImageResource(state == PlaybackState.STATE_PLAYING ? R.drawable.ic_np_pause : R.drawable.ic_np_play);
+        reveal();
+    }
+
+    private static final long SAVED_FOR_MS = 24 * 60 * 60 * 1000L;
+    private Bitmap savedCover;
+    private boolean savedCoverLoaded;
+
+    /** The last song played (kept a day): shown, paused, when its app has no live session. */
+    private boolean showSaved() {
+        android.content.SharedPreferences p = act.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        String title = p.getString("last_title", null);
+        if (title == null || System.currentTimeMillis() - p.getLong("last_time", 0) > SAVED_FOR_MS) return false;
+        musicAccent = 0;
+        if (mood != null) mood.on(glowColor, secondColor, false);
+        if (full != null && full.d != null) full.d.dismiss();
+        ticking = false;
+        handler.removeCallbacks(tick);
+        eq.setPlaying(false);
+        miniEq.setPlaying(false);
+        ticker.setText(title);
+        ticker.setRunning(true);
+        subTicker.setText(p.getString("last_line", ""));
+        subTicker.setRunning(true);
+        lastTitle = title;
+        if (!savedCoverLoaded) {
+            savedCoverLoaded = true;
+            savedCover = android.graphics.BitmapFactory.decodeFile(new java.io.File(act.getFilesDir(), "np_last.png").getPath());
+        }
+        Bitmap c = lastCover != null ? lastCover : savedCover;
+        if (c != null) {
+            art.setImageBitmap(c);
+            miniArt.setImageBitmap(c);
+            if (lastCover == null) {
+                lastCover = c;
+                tint(c);
+                musicAccent = 0;
+            }
+        } else {
+            Drawable icon = appIcon(p.getString("last_pkg", act.getPackageName()));
+            art.setImageDrawable(icon);
+            miniArt.setImageDrawable(icon);
+        }
+        progress.setVisibility(View.INVISIBLE);
+        time.setText("");
+        timeLeft.setText("");
+        playPause.setImageResource(R.drawable.ic_np_play);
+        reveal();
+        return true;
+    }
+
+    private void saveCover(Bitmap cover) {
+        if (cover == null) return;
+        Bitmap b = cover;
+        new Thread(() -> {
+            try (java.io.FileOutputStream out = new java.io.FileOutputStream(new java.io.File(act.getFilesDir(), "np_last.png"))) {
+                Bitmap small = Bitmap.createScaledBitmap(b, 240, 240, true);
+                small.compress(Bitmap.CompressFormat.PNG, 100, out);
+            } catch (Exception ignored) {
+            }
+        }, "np-cover").start();
+        savedCover = cover;
+        savedCoverLoaded = true;
+    }
+
+    /** Shows the card (or the small pill), whichever the person chose. */
+    private void reveal() {
         if (suppressed) return;
         View showView = small() ? mini : card, hideView = small() ? card : mini;
         shrink.animate().cancel();
