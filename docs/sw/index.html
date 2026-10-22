@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="sw" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- Made by tools/site/build.py from tools/site/lang/sw.json: edit those, not this file. -->
+<title>TV Home: skrini kuu safi kwa Android TV na Google TV</title>
+<meta name="description" content="Skrini kuu safi isiyo na matangazo kwa Android TV, Google TV na Fire TV. Inasakinishwa kwa rimoti kwa dakika chache. Bure na ya chanzo huria.">
+<meta property="og:title" content="TV Home: skrini kuu safi kwa Android TV na Google TV">
+<meta property="og:description" content="Skrini kuu safi isiyo na matangazo kwa Android TV, Google TV na Fire TV. Inasakinishwa kwa rimoti kwa dakika chache. Bure na ya chanzo huria.">
+<meta property="og:image" content="https://g41us.github.io/tv-vibehack/focus-2-up-netflix.png">
+<link rel="alternate" hreflang="en" href="https://g41us.github.io/tv-vibehack/">
+<link rel="alternate" hreflang="fr" href="https://g41us.github.io/tv-vibehack/fr/">
+<link rel="alternate" hreflang="es" href="https://g41us.github.io/tv-vibehack/es/">
+<link rel="alternate" hreflang="pt" href="https://g41us.github.io/tv-vibehack/pt/">
+<link rel="alternate" hreflang="de" href="https://g41us.github.io/tv-vibehack/de/">
+<link rel="alternate" hreflang="ca" href="https://g41us.github.io/tv-vibehack/ca/">
+<link rel="alternate" hreflang="ar" href="https://g41us.github.io/tv-vibehack/ar/">
+<link rel="alternate" hreflang="hi" href="https://g41us.github.io/tv-vibehack/hi/">
+<link rel="alternate" hreflang="sw" href="https://g41us.github.io/tv-vibehack/sw/">
+<link rel="alternate" hreflang="id" href="https://g41us.github.io/tv-vibehack/id/">
+<link rel="alternate" hreflang="th" href="https://g41us.github.io/tv-vibehack/th/">
+<link rel="alternate" hreflang="zh" href="https://g41us.github.io/tv-vibehack/zh/">
+<style>
+  :root {
+    --bg: #0a0b10; --panel: #13151d; --line: #262a37; --text: #eceef4; --dim: #a3a8b8; --faint: #6f7587;
+    --accent: #3d6bff; --ok: #5bd68a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 40px 18px 64px; }
+  .kicker { color: var(--dim); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
+  .langs { margin-top: 10px; font-size: 14px; line-height: 2; }
+  .langs a, .langs span { margin-inline-end: 12px; white-space: nowrap; }
+  .langs a { color: #9db3ff; }
+  .langs span { color: var(--text); font-weight: 600; }
+  h1 { font-size: 38px; line-height: 1.12; margin: 18px 0 14px; font-weight: 700; letter-spacing: -.01em; }
+  h2 { font-size: 24px; margin: 52px 0 14px; }
+  p { margin: 0 0 14px; color: var(--dim); }
+  strong { color: var(--text); }
+  .hero { width: 100%; border-radius: 14px; border: 1px solid var(--line); display: block; margin: 26px 0 10px; }
+  .cap { font-size: 13px; color: var(--faint); }
+  .get { display: block; margin: 22px 0 6px; padding: 18px 20px; border-radius: 14px; background: var(--accent);
+         color: #fff; text-decoration: none; font-weight: 700; font-size: 19px; text-align: center; }
+  .small { font-size: 14px; color: var(--faint); text-align: center; }
+  .note { font-size: 14px; color: var(--faint); }
+  ol.steps { list-style: none; padding: 0; margin: 0; counter-reset: s; }
+  ol.steps li { counter-increment: s; position: relative; background: var(--panel); border: 1px solid var(--line);
+                border-radius: 14px; padding-block: 18px 16px; padding-inline: 66px 18px; margin-bottom: 12px; color: var(--dim); }
+  ol.steps li::before { content: counter(s); position: absolute; inset-inline-start: 18px; top: 16px; width: 32px; height: 32px;
+                border-radius: 50%; border: 1px solid #4a5063; color: var(--text); text-align: center;
+                line-height: 30px; font-weight: 600; }
+  ol.steps li b { display: block; color: var(--text); font-size: 18px; margin-bottom: 3px; }
+  code, .addr { font-family: ui-monospace, Menlo, Consolas, monospace; background: #1c2030; border: 1px solid var(--line);
+         border-radius: 7px; padding: 2px 7px; color: #fff; font-size: 15px; overflow-wrap: anywhere; direction: ltr; unicode-bidi: isolate; }
+  .addr.code { font-size: 30px; letter-spacing: .12em; padding: 8px 18px; }
+  .addr { display: inline-block; font-size: 19px; padding: 6px 12px; margin: 6px 0; max-width: 100%;
+          white-space: normal; overflow-wrap: anywhere; }
+  ul.feat { padding-inline-start: 20px; color: var(--dim); }
+  ul.feat li { margin-bottom: 8px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid img { width: 100%; border-radius: 10px; border: 1px solid var(--line); display: block; }
+  .tip { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; margin-bottom: 10px; color: var(--dim); }
+  .tip b { color: var(--text); }
+  details { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; margin-bottom: 10px; }
+  summary { cursor: pointer; font-weight: 600; color: var(--text); }
+  details p { margin-top: 10px; }
+  footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 14px; color: var(--faint); }
+  footer a, p a, li a { color: #9db3ff; }
+  @media (max-width: 520px) { h1 { font-size: 30px; } .grid { grid-template-columns: 1fr; } .addr { font-size: 16px; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="kicker">Kwa Android TV, Google TV na Fire TV</div>
+  <div class="langs"><a href="../" hreflang="en" lang="en">English</a> <a href="../fr/" hreflang="fr" lang="fr">Français</a> <a href="../es/" hreflang="es" lang="es">Español</a> <a href="../pt/" hreflang="pt" lang="pt">Português</a> <a href="../de/" hreflang="de" lang="de">Deutsch</a> <a href="../ca/" hreflang="ca" lang="ca">Català</a> <a href="../ar/" hreflang="ar" lang="ar">العربية</a> <a href="../hi/" hreflang="hi" lang="hi">हिन्दी</a> <span>Kiswahili</span> <a href="../id/" hreflang="id" lang="id">Bahasa Indonesia</a> <a href="../th/" hreflang="th" lang="th">ไทย</a> <a href="../zh/" hreflang="zh" lang="zh">中文</a></div>
+  <h1>Skrini kuu safi kwa TV yako.</h1>
+  <p>TV Home inachukua nafasi ya skrini kuu iliyojaa matangazo na kuweka skrini rahisi na nzuri: programu unazopenda kwenye dock, saa kubwa, hali ya hewa na kinachocheza sasa. <strong>Inasakinishwa kwa rimoti kwa dakika chache.</strong> Huhitaji simu wala kompyuta. Bure na ya chanzo huria, kwa lugha 12.</p>
+
+  <img class="hero" src="../focus-2-up-netflix.png" alt="TV Home: saa kubwa na tarehe juu, jina la programu iliyochaguliwa kwa herufi kubwa, na dock yenye programu nne">
+  <div class="cap">Mwonekano wa TV Home. Dock yako inaonyesha programu unazochagua.</div>
+
+  <a class="get" href="https://github.com/G41US/tv-vibehack/releases/latest/download/tvhome.apk">Pakua TV Home (APK)</a>
+  <p class="small">Kwenye TV: fungua Downloader na uandike <strong>2960939</strong>. Hatua kamili ziko hapa chini.</p>
+
+  <h2>Isakinishe kwa rimoti</h2>
+  <ol class="steps">
+    <li><b>Pata Downloader</b>Kwenye TV, fungua <strong>Play Store</strong> (kwenye Fire TV: duka la programu la Amazon), tafuta <strong>Downloader</strong> ya AFTVnews na uisakinishe.</li>
+    <li><b>Andika msimbo</b>Fungua Downloader. Kwenye kisanduku, andika msimbo<br>
+      <span class="addr code">2960939</span><br>
+      na ubonyeze <strong>Go</strong>. Downloader ikiomba ruhusa ya kusakinisha programu, chagua <strong>Mipangilio</strong>, iwashe, na ubonyeze Rudi.
+      <br><span class="note">Msimbo haufanyi kazi? Andika hiki badala yake: <code>g41us.github.io/tv-vibehack/get</code></span></li>
+    <li><b>Sakinisha na ufungue</b>Chagua <strong>Sakinisha</strong>, kisha <strong>Fungua</strong>.</li>
+    <li><b>Nifanyie yote</b>TV Home inaonyesha skrini fupi ya kuweka. Bonyeza <strong>Nifanyie yote</strong> na ufuate hatua tatu zilizo kwenye skrini:<br>• Washa <strong>Chaguo za wasanidi programu</strong>: Mipangilio → Mfumo (au Mapendeleo ya kifaa) → Kuhusu → bonyeza OK mara 7 kwenye <strong>Toleo</strong>.<br>• Washa <strong>utatuzi wa USB</strong> kwenye Chaguo za wasanidi programu (TV nyingine huuita utatuzi wa mtandao au ADB).<br>• Bonyeza <strong>Weka kila kitu</strong>. TV ikiuliza <strong>"Ruhusu utatuzi wa USB?"</strong>, weka alama kwenye Ruhusu kila wakati na uchague Sawa.<br>Basi. Bonyeza Home: TV Home inafunguka, na kuanzia sasa TV inaanza nayo.
+      <br><span class="note">Hutaki kuwasha utatuzi? Tumia vitufe vingine kwenye skrini hiyo hiyo: Kitufe cha Home na kuwasha → Washa (chagua TV Home kwenye Ufikivu), kisha Ruhusu na Ruhusu.</span></li>
+  </ol>
+
+  <h2>Unachopata</h2>
+  <ul class="feat">
+    <li><strong>Hakuna matangazo wala safu za udhamini.</strong> Programu zako tu, nne unazopenda zaidi kwenye dock.</li>
+    <li><strong>TV inaanza na TV Home</strong>, na kitufe cha Home kinarudi kwake kila wakati.</li>
+    <li><strong>Saa, tarehe na hali ya hewa</strong> ya mji wowote duniani, pamoja na utabiri wa wiki.</li>
+    <li><strong>Inacheza sasa:</strong> kinachocheza kwenye Spotify au YouTube Music, na kicheza cha skrini nzima na maneno ya nyimbo.</li>
+    <li><strong>Paneli ya haraka:</strong> shikilia Rudi popote kwa muziki, sauti, hali ya usiku, kulala na Ongeza kasi.</li>
+    <li><strong>Hali ya usiku:</strong> skrini laini zaidi na kikomo cha sauti usiku sana.</li>
+    <li><strong>Mandhari:</strong> zilizomo, zinazosonga taratibu, au picha kutoka kwa simu yako.</li>
+    <li><strong>Msimbo wa QR wa Wi-Fi ya wageni</strong> na data iliyotumika leo na mwezi huu.</li>
+    <li><strong>Inajisasisha yenyewe:</strong> matoleo mapya yanasakinishwa kwa kubonyeza mara moja.</li>
+    <li><strong>Kwa lugha yako:</strong> Kiingereza, Kifaransa, Kihispania, Kireno, Kijerumani, Kikatalani, Kiarabu, Kihindi, Kiswahili, Kiindonesia, Kithai na Kichina.</li>
+  </ul>
+  <div class="grid">
+    <img src="../focus-1-fancode.png" alt="Skrini kuu ikiwa na programu iliyochaguliwa kwenye dock">
+    <img src="../clock-screensaver.png" alt="Kiokoa skrini cha saa: saa kubwa nyembamba na tarehe juu ya mng'ao mweusi">
+  </div>
+
+  <h2>Inafanya kazi kwenye TV zipi</h2>
+  <p><strong>TV na visanduku vinavyotumia Android TV au Google TV:</strong> Sony, TCL, Hisense (miundo ya Android), Xiaomi, Philips (miundo ya Android), Chromecast yenye Google TV, Nvidia Shield, Airtel Smart Router na visanduku vingi vya Android. Kitu kisipofanya kazi kwenye yako, fungua <strong>Ukaguzi wa TV</strong> ndani ya TV Home na utume ripoti: inaonyesha cha kurekebisha.</p>
+  <p><strong>Amazon Fire TV</strong> (Fire OS 7 na 8, yaani Fire TV Stick nyingi na TV za Fire TV): inafanya kazi pia. Ukibonyeza Home utaona skrini kuu ya Amazon kwa muda mfupi, na kwenye Fire OS 7 utasubiri sekunde chache. Kwa Nifanyie yote kwenye Fire TV, bonyeza OK mara 7 kwenye jina la kifaa katika Kuhusu, kisha washa utatuzi wa ADB. Fire TV mpya zenye Vega OS hazisakinishi programu kutoka nje ya duka la Amazon.</p>
+  <p><strong>Haiwezi kufanya kazi kwenye</strong> Samsung (Tizen), LG (webOS), Roku, Hisense VIDAA wala Apple TV: haziendeshi programu za Android wala haziruhusu programu yoyote kuchukua nafasi ya skrini kuu. Suluhisho rahisi kwa TV hizo: chomeka kijiti cha Android TV au Google TV na utumie TV Home juu yake.</p>
+
+  <h2>Jinsi ya kuitumia</h2>
+  <div class="tip"><b>Shikilia OK kwenye programu</b> ili kuisogeza kwenye dock, kuiongeza au kuiondoa. Dock inabeba nne.</div>
+  <div class="tip"><b>Shikilia OK kwenye Mipangilio</b> (juu kulia) kwa mandhari, mji wa hali ya hewa, muziki, hali ya usiku, masasisho na kuweka.</div>
+  <div class="tip"><b>Shikilia Rudi</b>, popote, kwa paneli ya haraka.</div>
+  <div class="tip"><b>Bonyeza OK kwenye hali ya hewa</b> kwa utabiri wa wiki.</div>
+
+  <h2>Maswali</h2>
+  <details><summary>Kwa nini inahitaji Ufikivu?</summary>
+    <p>TV nyingi hufungua skrini kuu yao zinapowashwa na kwa kitufe cha Home, haijalishi umechagua programu gani. Kipengele cha Ufikivu cha TV Home kinaangalia skrini hiyo na vitufe vichache tu, na kufungua TV Home badala yake. Hakisomi, hakirekodi wala hakitumi chochote kilicho kwenye skrini yako. Android huonyesha onyo la jumla kwa kila programu inayoomba.</p></details>
+  <details><summary>Je, inafuta au kuharibu programu za TV yangu?</summary>
+    <p>Hapana. Hakuna kinachoondolewa wala kuzimwa. Chaneli, programu na mipangilio yako inabaki kama ilivyokuwa.</p></details>
+  <details><summary>Nitarudije kwenye skrini kuu ya zamani?</summary>
+    <p>Mipangilio → Ufikivu → TV Home → zima. Kuiondoa kabisa: Mipangilio → Programu → TV Home → Ondoa. TV inarudi kama ilivyokuwa mara moja.</p></details>
+  <details><summary>Sasisho la mfumo limerudisha skrini kuu ya zamani.</summary>
+    <p>Fungua TV Home kutoka orodha ya programu na urudie kuweka (shikilia OK kwenye Mipangilio → Masasisho na kuweka).</p></details>
+  <details><summary>Kuna kitu hakifanyi kazi.</summary>
+    <p>Shikilia OK kwenye Mipangilio → Masasisho na kuweka → <strong>Ukaguzi wa TV</strong>. Unaonyesha ✓ au ✗ kwa kila sehemu ya TV Home na cha kubonyeza ili kurekebisha. <strong>Tuma ripoti</strong> hapo inaonyesha msimbo wa QR: uchanganue kwa simu yako ili kutuma maelezo ya TV yako, ili usaidizi wake uongezwe.</p></details>
+  <details><summary>Je, ni salama?</summary>
+    <p>Ndiyo. Msimbo uko wazi kwenye GitHub, hakuna kinachofleshiwa wala kufanyiwa root, na masasisho husakinishwa tu yakiwa yametiwa sahihi kwa ufunguo wa TV Home wenyewe, kwa hiyo hakuna mtu mwingine anayeweza kutuma sasisho bandia kwenye TV yako.</p></details>
+  <details><summary>Nimesakinisha upya TV Home. Mipangilio yangu imepotea?</summary>
+    <p>Hapana. TV Home huhifadhi nakala iliyosimbwa ya dock, mandhari, hali ya hewa na QR ya Wi-Fi kwenye TV. Baada ya kusakinisha upya, bonyeza <strong>Ruhusu</strong> karibu na "Linda mipangilio yako" kwenye skrini ya kuweka na itarudi.</p></details>
+  <details><summary>Ziada kwa wenye simu au kompyuta</summary>
+    <p>Ukiwa na ADB (Termux kwenye Android, au kompyuta), hati ya <a href="https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh">airtel-fix.sh</a> inafanya uwekaji huo huo kutoka kwa simu, pamoja na uhuishaji wa haraka zaidi na SmartTube. Ongeza <code>ADBLOCK=1</code> kwa DNS ya kuzuia matangazo kwenye kisanduku kizima (inaweza kukata intaneti kwa baadhi ya visanduku). Haihitajiki kwa TV Home yenyewe.</p></details>
+
+  <footer>TV Home imejengwa juu ya <a href="https://github.com/Gathin23/tv-vibehack">tv-vibehack</a> ya Gathin23 (leseni ya MIT), na inatengenezwa na <a href="https://github.com/G41US/tv-vibehack">G41US</a>. Haijatengenezwa na Google, Amazon, Airtel wala kampuni yoyote ya TV, wala haihusiani nazo. Itumie kwa hatari yako mwenyewe.</footer>
+</main>
+</body>
+</html>

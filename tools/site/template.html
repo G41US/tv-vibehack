@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- Made by tools/site/build.py from tools/site/lang/{{lang}}.json: edit those, not this file. -->
+<title>{{title}}</title>
+<meta name="description" content="{{desc}}">
+<meta property="og:title" content="{{title}}">
+<meta property="og:description" content="{{desc}}">
+<meta property="og:image" content="https://g41us.github.io/tv-vibehack/focus-2-up-netflix.png">
+{{alternates}}
+<style>
+  :root {
+    --bg: #0a0b10; --panel: #13151d; --line: #262a37; --text: #eceef4; --dim: #a3a8b8; --faint: #6f7587;
+    --accent: #3d6bff; --ok: #5bd68a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 40px 18px 64px; }
+  .kicker { color: var(--dim); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
+  .langs { margin-top: 10px; font-size: 14px; line-height: 2; }
+  .langs a, .langs span { margin-inline-end: 12px; white-space: nowrap; }
+  .langs a { color: #9db3ff; }
+  .langs span { color: var(--text); font-weight: 600; }
+  h1 { font-size: 38px; line-height: 1.12; margin: 18px 0 14px; font-weight: 700; letter-spacing: -.01em; }
+  h2 { font-size: 24px; margin: 52px 0 14px; }
+  p { margin: 0 0 14px; color: var(--dim); }
+  strong { color: var(--text); }
+  .hero { width: 100%; border-radius: 14px; border: 1px solid var(--line); display: block; margin: 26px 0 10px; }
+  .cap { font-size: 13px; color: var(--faint); }
+  .get { display: block; margin: 22px 0 6px; padding: 18px 20px; border-radius: 14px; background: var(--accent);
+         color: #fff; text-decoration: none; font-weight: 700; font-size: 19px; text-align: center; }
+  .small { font-size: 14px; color: var(--faint); text-align: center; }
+  .note { font-size: 14px; color: var(--faint); }
+  ol.steps { list-style: none; padding: 0; margin: 0; counter-reset: s; }
+  ol.steps li { counter-increment: s; position: relative; background: var(--panel); border: 1px solid var(--line);
+                border-radius: 14px; padding-block: 18px 16px; padding-inline: 66px 18px; margin-bottom: 12px; color: var(--dim); }
+  ol.steps li::before { content: counter(s); position: absolute; inset-inline-start: 18px; top: 16px; width: 32px; height: 32px;
+                border-radius: 50%; border: 1px solid #4a5063; color: var(--text); text-align: center;
+                line-height: 30px; font-weight: 600; }
+  ol.steps li b { display: block; color: var(--text); font-size: 18px; margin-bottom: 3px; }
+  code, .addr { font-family: ui-monospace, Menlo, Consolas, monospace; background: #1c2030; border: 1px solid var(--line);
+         border-radius: 7px; padding: 2px 7px; color: #fff; font-size: 15px; overflow-wrap: anywhere; direction: ltr; unicode-bidi: isolate; }
+  .addr.code { font-size: 30px; letter-spacing: .12em; padding: 8px 18px; }
+  .addr { display: inline-block; font-size: 19px; padding: 6px 12px; margin: 6px 0; max-width: 100%;
+          white-space: normal; overflow-wrap: anywhere; }
+  ul.feat { padding-inline-start: 20px; color: var(--dim); }
+  ul.feat li { margin-bottom: 8px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid img { width: 100%; border-radius: 10px; border: 1px solid var(--line); display: block; }
+  .tip { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; margin-bottom: 10px; color: var(--dim); }
+  .tip b { color: var(--text); }
+  details { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; margin-bottom: 10px; }
+  summary { cursor: pointer; font-weight: 600; color: var(--text); }
+  details p { margin-top: 10px; }
+  footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 14px; color: var(--faint); }
+  footer a, p a, li a { color: #9db3ff; }
+  @media (max-width: 520px) { h1 { font-size: 30px; } .grid { grid-template-columns: 1fr; } .addr { font-size: 16px; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="kicker">{{kicker}}</div>
+  <div class="langs">{{langs}}</div>
+  <h1>{{h1}}</h1>
+  <p>{{intro}}</p>
+
+  <img class="hero" src="{{root}}focus-2-up-netflix.png" alt="{{hero_alt}}">
+  <div class="cap">{{cap}}</div>
+
+  <a class="get" href="https://github.com/G41US/tv-vibehack/releases/latest/download/tvhome.apk">{{download}}</a>
+  <p class="small">{{small}}</p>
+
+  <h2>{{install_h}}</h2>
+  <ol class="steps">
+    <li><b>{{s1_b}}</b>{{s1}}</li>
+    <li><b>{{s2_b}}</b>{{s2}}<br>
+      <span class="addr code">2960939</span><br>
+      {{s2_after}}
+      <br><span class="note">{{s2_alt}} <code>g41us.github.io/tv-vibehack/get</code></span></li>
+    <li><b>{{s3_b}}</b>{{s3}}</li>
+    <li><b>{{s4_b}}</b>{{s4}}
+      <br><span class="note">{{s4_alt}}</span></li>
+  </ol>
+
+  <h2>{{get_h}}</h2>
+  <ul class="feat">
+{{features}}
+  </ul>
+  <div class="grid">
+    <img src="{{root}}focus-1-fancode.png" alt="{{alt1}}">
+    <img src="{{root}}clock-screensaver.png" alt="{{alt2}}">
+  </div>
+
+  <h2>{{tvs_h}}</h2>
+  <p>{{tvs_android}}</p>
+  <p>{{tvs_fire}}</p>
+  <p>{{tvs_no}}</p>
+
+  <h2>{{use_h}}</h2>
+{{tips}}
+
+  <h2>{{q_h}}</h2>
+{{questions}}
+
+  <footer>{{footer}}</footer>
+</main>
+</body>
+</html>

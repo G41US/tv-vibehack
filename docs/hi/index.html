@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="hi" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- Made by tools/site/build.py from tools/site/lang/hi.json: edit those, not this file. -->
+<title>TV Home: Android TV और Google TV के लिए साफ़-सुथरी होम स्क्रीन</title>
+<meta name="description" content="Android TV, Google TV और Fire TV के लिए साफ़, बिना विज्ञापन वाली होम स्क्रीन। रिमोट से कुछ मिनट में इंस्टॉल। मुफ़्त और ओपन सोर्स।">
+<meta property="og:title" content="TV Home: Android TV और Google TV के लिए साफ़-सुथरी होम स्क्रीन">
+<meta property="og:description" content="Android TV, Google TV और Fire TV के लिए साफ़, बिना विज्ञापन वाली होम स्क्रीन। रिमोट से कुछ मिनट में इंस्टॉल। मुफ़्त और ओपन सोर्स।">
+<meta property="og:image" content="https://g41us.github.io/tv-vibehack/focus-2-up-netflix.png">
+<link rel="alternate" hreflang="en" href="https://g41us.github.io/tv-vibehack/">
+<link rel="alternate" hreflang="fr" href="https://g41us.github.io/tv-vibehack/fr/">
+<link rel="alternate" hreflang="es" href="https://g41us.github.io/tv-vibehack/es/">
+<link rel="alternate" hreflang="pt" href="https://g41us.github.io/tv-vibehack/pt/">
+<link rel="alternate" hreflang="de" href="https://g41us.github.io/tv-vibehack/de/">
+<link rel="alternate" hreflang="ca" href="https://g41us.github.io/tv-vibehack/ca/">
+<link rel="alternate" hreflang="ar" href="https://g41us.github.io/tv-vibehack/ar/">
+<link rel="alternate" hreflang="hi" href="https://g41us.github.io/tv-vibehack/hi/">
+<link rel="alternate" hreflang="sw" href="https://g41us.github.io/tv-vibehack/sw/">
+<link rel="alternate" hreflang="id" href="https://g41us.github.io/tv-vibehack/id/">
+<link rel="alternate" hreflang="th" href="https://g41us.github.io/tv-vibehack/th/">
+<link rel="alternate" hreflang="zh" href="https://g41us.github.io/tv-vibehack/zh/">
+<style>
+  :root {
+    --bg: #0a0b10; --panel: #13151d; --line: #262a37; --text: #eceef4; --dim: #a3a8b8; --faint: #6f7587;
+    --accent: #3d6bff; --ok: #5bd68a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 40px 18px 64px; }
+  .kicker { color: var(--dim); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
+  .langs { margin-top: 10px; font-size: 14px; line-height: 2; }
+  .langs a, .langs span { margin-inline-end: 12px; white-space: nowrap; }
+  .langs a { color: #9db3ff; }
+  .langs span { color: var(--text); font-weight: 600; }
+  h1 { font-size: 38px; line-height: 1.12; margin: 18px 0 14px; font-weight: 700; letter-spacing: -.01em; }
+  h2 { font-size: 24px; margin: 52px 0 14px; }
+  p { margin: 0 0 14px; color: var(--dim); }
+  strong { color: var(--text); }
+  .hero { width: 100%; border-radius: 14px; border: 1px solid var(--line); display: block; margin: 26px 0 10px; }
+  .cap { font-size: 13px; color: var(--faint); }
+  .get { display: block; margin: 22px 0 6px; padding: 18px 20px; border-radius: 14px; background: var(--accent);
+         color: #fff; text-decoration: none; font-weight: 700; font-size: 19px; text-align: center; }
+  .small { font-size: 14px; color: var(--faint); text-align: center; }
+  .note { font-size: 14px; color: var(--faint); }
+  ol.steps { list-style: none; padding: 0; margin: 0; counter-reset: s; }
+  ol.steps li { counter-increment: s; position: relative; background: var(--panel); border: 1px solid var(--line);
+                border-radius: 14px; padding-block: 18px 16px; padding-inline: 66px 18px; margin-bottom: 12px; color: var(--dim); }
+  ol.steps li::before { content: counter(s); position: absolute; inset-inline-start: 18px; top: 16px; width: 32px; height: 32px;
+                border-radius: 50%; border: 1px solid #4a5063; color: var(--text); text-align: center;
+                line-height: 30px; font-weight: 600; }
+  ol.steps li b { display: block; color: var(--text); font-size: 18px; margin-bottom: 3px; }
+  code, .addr { font-family: ui-monospace, Menlo, Consolas, monospace; background: #1c2030; border: 1px solid var(--line);
+         border-radius: 7px; padding: 2px 7px; color: #fff; font-size: 15px; overflow-wrap: anywhere; direction: ltr; unicode-bidi: isolate; }
+  .addr.code { font-size: 30px; letter-spacing: .12em; padding: 8px 18px; }
+  .addr { display: inline-block; font-size: 19px; padding: 6px 12px; margin: 6px 0; max-width: 100%;
+          white-space: normal; overflow-wrap: anywhere; }
+  ul.feat { padding-inline-start: 20px; color: var(--dim); }
+  ul.feat li { margin-bottom: 8px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid img { width: 100%; border-radius: 10px; border: 1px solid var(--line); display: block; }
+  .tip { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; margin-bottom: 10px; color: var(--dim); }
+  .tip b { color: var(--text); }
+  details { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; margin-bottom: 10px; }
+  summary { cursor: pointer; font-weight: 600; color: var(--text); }
+  details p { margin-top: 10px; }
+  footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 14px; color: var(--faint); }
+  footer a, p a, li a { color: #9db3ff; }
+  @media (max-width: 520px) { h1 { font-size: 30px; } .grid { grid-template-columns: 1fr; } .addr { font-size: 16px; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="kicker">Android TV, Google TV और Fire TV के लिए</div>
+  <div class="langs"><a href="../" hreflang="en" lang="en">English</a> <a href="../fr/" hreflang="fr" lang="fr">Français</a> <a href="../es/" hreflang="es" lang="es">Español</a> <a href="../pt/" hreflang="pt" lang="pt">Português</a> <a href="../de/" hreflang="de" lang="de">Deutsch</a> <a href="../ca/" hreflang="ca" lang="ca">Català</a> <a href="../ar/" hreflang="ar" lang="ar">العربية</a> <span>हिन्दी</span> <a href="../sw/" hreflang="sw" lang="sw">Kiswahili</a> <a href="../id/" hreflang="id" lang="id">Bahasa Indonesia</a> <a href="../th/" hreflang="th" lang="th">ไทย</a> <a href="../zh/" hreflang="zh" lang="zh">中文</a></div>
+  <h1>आपके टीवी के लिए एक साफ़-सुथरी होम स्क्रीन।</h1>
+  <p>TV Home विज्ञापनों से भरी होम स्क्रीन की जगह एक सरल, सुंदर स्क्रीन देता है: डॉक में आपके पसंदीदा ऐप, बड़ी घड़ी, मौसम और अभी क्या चल रहा है। <strong>रिमोट से कुछ मिनट में इंस्टॉल।</strong> फ़ोन या कंप्यूटर की ज़रूरत नहीं। मुफ़्त और ओपन सोर्स, 12 भाषाओं में।</p>
+
+  <img class="hero" src="../focus-2-up-netflix.png" alt="TV Home: ऊपर बड़ी घड़ी और तारीख, चुने गए ऐप का नाम बड़े अक्षरों में, और चार ऐप वाला डॉक">
+  <div class="cap">TV Home का रूप। आपका डॉक वही ऐप दिखाता है जो आप चुनते हैं।</div>
+
+  <a class="get" href="https://github.com/G41US/tv-vibehack/releases/latest/download/tvhome.apk">TV Home डाउनलोड करें (APK)</a>
+  <p class="small">टीवी पर: Downloader खोलें और <strong>2960939</strong> लिखें। पूरे कदम नीचे हैं।</p>
+
+  <h2>रिमोट से इंस्टॉल करें</h2>
+  <ol class="steps">
+    <li><b>Downloader लें</b>टीवी पर <strong>Play Store</strong> खोलें (Fire TV पर: Amazon का ऐप स्टोर), AFTVnews का <strong>Downloader</strong> खोजें और इंस्टॉल करें।</li>
+    <li><b>कोड लिखें</b>Downloader खोलें। बॉक्स में यह कोड लिखें<br>
+      <span class="addr code">2960939</span><br>
+      और <strong>Go</strong> दबाएं। अगर Downloader ऐप इंस्टॉल करने की अनुमति मांगे, तो <strong>सेटिंग</strong> चुनें, उसे चालू करें और पीछे दबाएं।
+      <br><span class="note">कोड काम नहीं किया? इसकी जगह यह लिखें: <code>g41us.github.io/tv-vibehack/get</code></span></li>
+    <li><b>इंस्टॉल करें और खोलें</b><strong>इंस्टॉल करें</strong> चुनें, फिर <strong>खोलें</strong>।</li>
+    <li><b>सब मेरे लिए कर दो</b>TV Home एक छोटी सेटअप स्क्रीन दिखाता है। <strong>सब मेरे लिए कर दो</strong> दबाएं और स्क्रीन पर दिए तीन कदम पूरे करें:<br>• <strong>डेवलपर के विकल्प</strong> चालू करें: सेटिंग → सिस्टम (या डिवाइस प्राथमिकताएं) → जानकारी → <strong>बिल्ड</strong> पर 7 बार OK दबाएं।<br>• डेवलपर के विकल्प में <strong>USB डीबगिंग</strong> चालू करें (कुछ टीवी में इसे नेटवर्क या ADB डीबगिंग कहते हैं)।<br>• <strong>सब सेट करें</strong> दबाएं। जब टीवी पूछे <strong>"USB डीबगिंग की अनुमति दें?"</strong>, तो हमेशा अनुमति दें पर टिक करें और OK चुनें।<br>बस हो गया। होम दबाएं: TV Home खुलेगा, और अब से टीवी इसी में शुरू होगा।
+      <br><span class="note">डीबगिंग चालू नहीं करना चाहते? उसी स्क्रीन के दूसरे बटन इस्तेमाल करें: होम बटन और स्टार्ट-अप → चालू करें (सुलभता में TV Home चुनें), फिर अनुमति दें और अनुमति दें।</span></li>
+  </ol>
+
+  <h2>आपको क्या मिलता है</h2>
+  <ul class="feat">
+    <li><strong>कोई विज्ञापन या प्रायोजित पंक्ति नहीं।</strong> सिर्फ़ आपके ऐप, और चार पसंदीदा डॉक में।</li>
+    <li><strong>टीवी TV Home में शुरू होता है</strong>, और होम बटन हमेशा इसी पर लौटता है।</li>
+    <li><strong>घड़ी, तारीख और मौसम</strong> दुनिया के किसी भी शहर का, पूरे हफ़्ते के पूर्वानुमान के साथ।</li>
+    <li><strong>अभी चल रहा है:</strong> Spotify या YouTube Music पर क्या बज रहा है, फ़ुल-स्क्रीन प्लेयर और बोल के साथ।</li>
+    <li><strong>क्विक पैनल:</strong> कहीं भी पीछे बटन दबाकर रखें, संगीत, आवाज़, रात का मोड, स्लीप और तेज़ करें के लिए।</li>
+    <li><strong>रात का मोड:</strong> देर रात हल्की स्क्रीन और आवाज़ की सीमा।</li>
+    <li><strong>वॉलपेपर:</strong> पहले से मौजूद, धीरे-धीरे चलते, या आपके फ़ोन से भेजी फ़ोटो।</li>
+    <li><strong>मेहमानों के लिए वाई-फ़ाई QR कोड</strong> और आज व इस महीने इस्तेमाल हुआ डेटा।</li>
+    <li><strong>खुद अपडेट होता है:</strong> नए वर्शन एक बटन से इंस्टॉल होते हैं।</li>
+    <li><strong>आपकी भाषा में:</strong> अंग्रेज़ी, फ़्रेंच, स्पैनिश, पुर्तगाली, जर्मन, कैटलन, अरबी, हिन्दी, स्वाहिली, इंडोनेशियाई, थाई और चीनी।</li>
+  </ul>
+  <div class="grid">
+    <img src="../focus-1-fancode.png" alt="होम स्क्रीन, जिसमें डॉक का एक ऐप चुना गया है">
+    <img src="../clock-screensaver.png" alt="घड़ी वाला स्क्रीनसेवर: गहरी चमक पर बड़ी पतली घड़ी और तारीख">
+  </div>
+
+  <h2>किन टीवी पर चलता है</h2>
+  <p><strong>Android TV या Google TV वाले टीवी और बॉक्स:</strong> Sony, TCL, Hisense (Android मॉडल), Xiaomi, Philips (Android मॉडल), Google TV वाला Chromecast, Nvidia Shield, Airtel Smart Router और ज़्यादातर Android बॉक्स। अगर आपके टीवी पर कुछ काम न करे, तो TV Home में <strong>टीवी जांच</strong> खोलें और रिपोर्ट भेजें: वह बताती है कि क्या ठीक करना है।</p>
+  <p><strong>Amazon Fire TV</strong> (Fire OS 7 और 8, यानी ज़्यादातर Fire TV Stick और Fire TV टीवी): यहां भी चलता है। होम दबाने पर Amazon की होम स्क्रीन पल भर दिखती है, और Fire OS 7 पर कुछ सेकंड रुकना पड़ता है। Fire TV पर "सब मेरे लिए कर दो" के लिए, जानकारी में डिवाइस के नाम पर 7 बार OK दबाएं, फिर ADB डीबगिंग चालू करें। Vega OS वाले नए Fire TV, Amazon स्टोर के बाहर से ऐप इंस्टॉल नहीं करते।</p>
+  <p><strong>इन पर नहीं चल सकता:</strong> Samsung (Tizen), LG (webOS), Roku, Hisense VIDAA और Apple TV। ये Android ऐप नहीं चलाते और किसी ऐप को होम स्क्रीन बदलने नहीं देते। इन टीवी का आसान उपाय: Android TV या Google TV स्टिक लगाएं और उस पर TV Home इस्तेमाल करें।</p>
+
+  <h2>इस्तेमाल कैसे करें</h2>
+  <div class="tip"><b>किसी ऐप पर OK दबाकर रखें</b> ताकि उसे डॉक में खिसकाएं, जोड़ें या हटाएं। डॉक में चार ऐप आते हैं।</div>
+  <div class="tip"><b>सेटिंग पर OK दबाकर रखें</b> (ऊपर दाईं ओर) वॉलपेपर, मौसम का शहर, संगीत, रात का मोड, अपडेट और सेटअप के लिए।</div>
+  <div class="tip"><b>पीछे बटन दबाकर रखें</b>, कहीं भी, क्विक पैनल के लिए।</div>
+  <div class="tip"><b>मौसम पर OK दबाएं</b> पूरे हफ़्ते का पूर्वानुमान देखने के लिए।</div>
+
+  <h2>सवाल</h2>
+  <details><summary>इसे सुलभता की ज़रूरत क्यों है?</summary>
+    <p>कई टीवी चालू होने पर और होम बटन पर अपनी होम स्क्रीन खोलते हैं, चाहे आप कोई भी ऐप चुनें। TV Home का सुलभता स्विच सिर्फ़ उस स्क्रीन और कुछ बटनों पर नज़र रखता है, और उसकी जगह TV Home खोलता है। यह आपकी स्क्रीन की कोई चीज़ न पढ़ता है, न रिकॉर्ड करता है, न भेजता है। Android ऐसी अनुमति मांगने वाले हर ऐप के लिए एक सामान्य चेतावनी दिखाता है।</p></details>
+  <details><summary>क्या यह मेरे टीवी के ऐप हटाता या बिगाड़ता है?</summary>
+    <p>नहीं। कुछ भी अनइंस्टॉल या बंद नहीं होता। आपके चैनल, ऐप और सेटिंग जैसे थे वैसे ही रहते हैं।</p></details>
+  <details><summary>पुरानी होम स्क्रीन पर कैसे लौटूं?</summary>
+    <p>सेटिंग → सुलभता → TV Home → बंद। पूरी तरह हटाने के लिए: सेटिंग → ऐप → TV Home → अनइंस्टॉल। टीवी तुरंत पहले जैसा हो जाता है।</p></details>
+  <details><summary>सिस्टम अपडेट से पुरानी होम स्क्रीन वापस आ गई।</summary>
+    <p>ऐप सूची से TV Home खोलें और सेटअप दोबारा करें (सेटिंग पर OK दबाकर रखें → अपडेट और सेटअप)।</p></details>
+  <details><summary>कुछ काम नहीं कर रहा।</summary>
+    <p>सेटिंग पर OK दबाकर रखें → अपडेट और सेटअप → <strong>टीवी जांच</strong>। यह TV Home के हर हिस्से के लिए ✓ या ✗ दिखाती है और बताती है कि ठीक करने के लिए क्या दबाएं। वहां <strong>रिपोर्ट भेजें</strong> एक QR कोड दिखाता है: इसे फ़ोन से स्कैन करके अपने टीवी की जानकारी भेजें, ताकि उसका सपोर्ट जोड़ा जा सके।</p></details>
+  <details><summary>क्या यह सुरक्षित है?</summary>
+    <p>हां। कोड GitHub पर खुला है, कुछ भी फ़्लैश या रूट नहीं होता, और अपडेट तभी इंस्टॉल होते हैं जब वे TV Home की अपनी कुंजी से साइन हों, इसलिए कोई और आपके टीवी पर नकली अपडेट नहीं भेज सकता।</p></details>
+  <details><summary>मैंने TV Home दोबारा इंस्टॉल किया। क्या मेरी सेटिंग चली गईं?</summary>
+    <p>नहीं। TV Home आपके डॉक, वॉलपेपर, मौसम और वाई-फ़ाई QR का एन्क्रिप्टेड बैकअप टीवी पर रखता है। दोबारा इंस्टॉल करने के बाद सेटअप स्क्रीन पर "अपनी सेटिंग सुरक्षित रखें" के पास <strong>अनुमति दें</strong> दबाएं, और वे वापस आ जाएंगी।</p></details>
+  <details><summary>फ़ोन या कंप्यूटर वालों के लिए अतिरिक्त</summary>
+    <p>ADB (Android पर Termux, या कंप्यूटर) के साथ <a href="https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh">airtel-fix.sh</a> स्क्रिप्ट फ़ोन से वही सेटअप करती है, साथ में तेज़ एनिमेशन और SmartTube भी। पूरे बॉक्स पर विज्ञापन रोकने वाले DNS के लिए <code>ADBLOCK=1</code> जोड़ें (इससे कुछ बॉक्स इंटरनेट से कट सकते हैं)। TV Home के लिए ज़रूरी नहीं।</p></details>
+
+  <footer>TV Home, Gathin23 के <a href="https://github.com/Gathin23/tv-vibehack">tv-vibehack</a> (MIT लाइसेंस) पर बना है और <a href="https://github.com/G41US/tv-vibehack">G41US</a> इसे विकसित करते हैं। इसे Google, Amazon, Airtel या किसी टीवी कंपनी ने नहीं बनाया है और यह उनसे जुड़ा नहीं है। अपने जोखिम पर इस्तेमाल करें।</footer>
+</main>
+</body>
+</html>
