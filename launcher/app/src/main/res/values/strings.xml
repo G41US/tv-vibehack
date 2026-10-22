@@ -251,7 +251,7 @@
     <string name="qp_media">Now playing</string>
     <string name="qp_sleep">Sleep now</string>
     <string name="qp_home">Go to Home</string>
-    <string name="tv_quick">Quick panel (press Home twice)</string>
+    <string name="tv_quick">Quick panel (hold Back)</string>
     <string name="fc_loading">Getting the forecast…</string>
     <string name="fc_title">Weather</string>
     <string name="fc_failed">Couldn\'t get the forecast. Check the internet connection and try again.</string>

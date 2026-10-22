@@ -32,45 +32,45 @@ public class HomeKeyService extends AccessibilityService {
         lastInput = SystemClock.elapsedRealtime();   // someone's there (Still watching?)
         if (volume != null && volume.onKey(event)) return true;   // TV Home's volume display
         int code = event.getKeyCode();
+        if (code == KeyEvent.KEYCODE_BACK) return onBack(event);
         if (code != KeyEvent.KEYCODE_ALL_APPS && code != KeyEvent.KEYCODE_HOME) return false;
-        if (code == KeyEvent.KEYCODE_HOME && QuickPanel.enabled(this)) {
-            // Press Home twice, or hold it, for the Quick panel. Holding only works on remotes that report
-            // a hold: the Airtel box sends Home only on release, so there it's the double press.
-            if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
-                homeHeld = false;
-                idleHandler.postDelayed(holdHome, HOLD_MS);
-            } else if (event.getAction() == KeyEvent.ACTION_UP) {
-                idleHandler.removeCallbacks(holdHome);
-                if (!homeHeld && !event.isCanceled()) {
-                    if (homePending) {   // second press
-                        homePending = false;
-                        idleHandler.removeCallbacks(singleHome);
-                        QuickPanel.open(this);
-                    } else {
-                        homePending = true;
-                        idleHandler.postDelayed(singleHome, DOUBLE_MS);
-                    }
-                }
-                homeHeld = false;
-            }
-            return true;
-        }
         if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
             goHome();
         }
         return true;
     }
 
-    private static final long HOLD_MS = 550, DOUBLE_MS = 320;
-    private boolean homeHeld, homePending;
-    private final Runnable singleHome = () -> {
-        homePending = false;
-        goHome();
-    };
-    private final Runnable holdHome = () -> {
-        homeHeld = true;
+    /*
+     * Hold Back for the Quick panel. Android 12 keeps Home to itself (it never reaches accessibility
+     * services), so Back it is: TV Home takes every Back press, and a short one is sent on as Android's
+     * own Back when the button comes up.
+     */
+    private static final long HOLD_MS = 550;
+    private boolean backHeld;
+    /** Until then, Back presses are our own re-sent Back (if Android passes them through here): let them go. */
+    private long passBackUntil;
+    private final Runnable holdBack = () -> {
+        backHeld = true;
         QuickPanel.open(this);
     };
+
+    private boolean onBack(KeyEvent event) {
+        if (!QuickPanel.enabled(this) || SystemClock.uptimeMillis() < passBackUntil) return false;
+        if (event.getAction() == KeyEvent.ACTION_DOWN) {
+            if (event.getRepeatCount() == 0) {
+                backHeld = false;
+                idleHandler.postDelayed(holdBack, HOLD_MS);
+            }
+        } else if (event.getAction() == KeyEvent.ACTION_UP) {
+            idleHandler.removeCallbacks(holdBack);
+            if (!backHeld && !event.isCanceled()) {
+                passBackUntil = SystemClock.uptimeMillis() + 400;
+                performGlobalAction(GLOBAL_ACTION_BACK);
+            }
+            backHeld = false;
+        }
+        return true;
+    }
 
     private VolumeOverlay volume;
     private final android.content.BroadcastReceiver volumeReceiver = new android.content.BroadcastReceiver() {
