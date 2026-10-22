@@ -45,7 +45,7 @@ final class ForecastPage {
 
         String sky = Weather.describe(a, f.code);
         LinearLayout hero = GlassMenu.hero(a, f.now + "°   " + Weather.emoji(f.code) + "  " + sky,
-                a.getString(R.string.fc_details, f.feels, f.humidity, (int) Math.round(f.wind)),
+                a.getString(Weather.mph() ? R.string.fc_details_mph : R.string.fc_details, f.feels, f.humidity, (int) Math.round(f.wind)),
                 a.getString(R.string.fc_sun, clock(a, f.sunrise), clock(a, f.sunset)));
         LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);

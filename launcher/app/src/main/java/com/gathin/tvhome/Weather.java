@@ -121,6 +121,16 @@ final class Weather {
         }
     }
 
+    /** Wind in mph where people use it (US, UK and a few others); km/h everywhere else. */
+    static boolean mph() {
+        switch (Locale.getDefault().getCountry()) {
+            case "US": case "GB": case "LR": case "MM":
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /** "auto", "off", a city name from CITIES, or a searched city ("name|lat|lon"). */
     String place() {
         return prefs().getString(KEY_PLACE, AUTO);
@@ -201,7 +211,7 @@ final class Weather {
         String url = String.format(Locale.US, "https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f"
                 + "&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code"
                 + "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset"
-                + "&timezone=auto&forecast_days=6" + units(), (Double) where[1], (Double) where[2]);
+                + "&timezone=auto&forecast_days=6" + units() + (mph() ? "&wind_speed_unit=mph" : ""), (Double) where[1], (Double) where[2]);
         JSONObject j = new JSONObject(get(url));
         JSONObject cur = j.getJSONObject("current");
         JSONObject d = j.getJSONObject("daily");

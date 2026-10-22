@@ -147,8 +147,14 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
             fresh.add(entry);
         }
         swapYouTubeForSmartTube(fresh);
+        // The dock: the first favourites this TV has (the default list is long, popular apps first);
+        // everything else in A–Z order.
+        Set<String> have = new HashSet<>();
+        for (Entry x : fresh) have.add(x.pkg);
+        List<String> dock = new ArrayList<>();
+        for (String p : favourites) if (have.contains(p) && !dock.contains(p) && dock.size() < dockSize) dock.add(p);
         Collections.sort(fresh, (a, b) -> {
-            int fa = favourites.indexOf(a.pkg), fb = favourites.indexOf(b.pkg);
+            int fa = dock.indexOf(a.pkg), fb = dock.indexOf(b.pkg);
             if (fa >= 0 || fb >= 0) {
                 if (fa < 0) return 1;
                 if (fb < 0) return -1;

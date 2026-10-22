@@ -1078,7 +1078,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     /** Black-on-white QR code with a small quiet zone, scaled up without blurring. */
-    private static android.graphics.Bitmap qrBitmap(String text, int sizePx) {
+    static android.graphics.Bitmap qrBitmap(String text, int sizePx) {
         try {
             java.util.Map<com.google.zxing.EncodeHintType, Object> hints = new java.util.EnumMap<>(com.google.zxing.EncodeHintType.class);
             hints.put(com.google.zxing.EncodeHintType.CHARACTER_SET, "UTF-8");
