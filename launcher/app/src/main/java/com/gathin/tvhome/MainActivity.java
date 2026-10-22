@@ -652,6 +652,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         labels.add(mark(current, Weather.AUTO, found != null && !found.isEmpty()
                 ? getString(R.string.weather_auto_found, found) : getString(R.string.weather_auto)));
         keys.add(Weather.AUTO);
+        labels.add("     " + getString(R.string.weather_search));
+        keys.add("");
+        if (current.indexOf('|') > 0) {   // a city found with Search
+            labels.add(mark(current, current, Weather.cityName(current)));
+            keys.add(current);
+        }
         for (String[] c : Weather.CITIES) {
             labels.add(mark(current, c[0], c[0]));
             keys.add(c[0]);
@@ -660,10 +666,48 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         keys.add(Weather.OFF);
         GlassMenu.list(this, getString(R.string.menu_title), getString(R.string.menu_weather),
                 labels.toArray(new String[0]), which -> {
-                    weather.setPlace(keys.get(which));
-                    showWeather(null);
-                    weather.refresh(true, this::showWeather);
+                    if (keys.get(which).isEmpty()) searchCity();
+                    else setWeatherPlace(keys.get(which));
                 });
+    }
+
+    private void setWeatherPlace(String place) {
+        weather.setPlace(place);
+        showWeather(null);
+        weather.refresh(true, this::showWeather);
+    }
+
+    /** Any city in the world: type a name, pick from what Open-Meteo finds. */
+    private void searchCity() {
+        GlassMenu.input(this, getString(R.string.weather_search), "", text -> {
+            String q = text.trim();
+            if (q.isEmpty()) return;
+            new Thread(() -> {
+                List<String[]> found;
+                try {
+                    found = Weather.search(q);
+                } catch (Exception e) {
+                    found = null;   // offline
+                }
+                final List<String[]> f = found;
+                runOnUiThread(() -> {
+                    if (isFinishing()) return;
+                    if (f == null || f.isEmpty()) {
+                        GlassMenu.message(this, getString(R.string.weather_search),
+                                f == null ? getString(R.string.weather_search_offline) : getString(R.string.weather_search_none, q),
+                                new String[]{getString(R.string.weather_search_again), getString(android.R.string.cancel)},
+                                w -> {
+                                    if (w == 0) searchCity();
+                                });
+                        return;
+                    }
+                    String[] labels = new String[f.size()];
+                    for (int i = 0; i < labels.length; i++) labels[i] = f.get(i)[0];
+                    GlassMenu.list(this, getString(R.string.menu_weather), q, labels,
+                            which -> setWeatherPlace(f.get(which)[1]));
+                });
+            }, "city-search").start();
+        });
     }
     private PhoneServer phoneServer;
     private android.app.Dialog phoneDialog;
@@ -772,7 +816,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             String found = weather.autoCity();
             return found != null && !found.isEmpty() ? found : getString(R.string.weather_auto);
         }
-        return p;
+        return Weather.cityName(p);
     }
 
     /** "Who's watching?": after the box starts, or after Still watching? turned it off. */
