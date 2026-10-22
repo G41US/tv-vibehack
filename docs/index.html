@@ -59,7 +59,7 @@
   <h1>A clean home screen for your Airtel box.</h1>
   <p>TV Home replaces the box's ad-filled home screen with a simple, beautiful one: your favourite apps in a dock,
     a big clock, the weather and a few wallpapers. <strong>Installs with the remote in about three minutes.</strong>
-    No phone, computer or developer settings needed. Free and open source.</p>
+    No phone or computer needed. Free and open source.</p>
 
   <img class="hero" src="focus-2-up-netflix.png" alt="TV Home: a large clock and date at the top, the focused app's name in large type, and a dock of four app tiles">
   <div class="cap">The TV Home look. Your dock shows the apps you choose.</div>
@@ -77,11 +77,13 @@
       switch it on, and press Back.
       <br><span style="font-size:14px;color:var(--faint)">No luck with the code? Type <code>g41us.github.io/tv-vibehack/get</code> instead.</span></li>
     <li><b>Install and open</b>Choose <strong>Install</strong>, then <strong>Open</strong>.</li>
-    <li><b>Quick setup</b>TV Home shows a short setup screen:
-      <br>• <strong>Home button and start-up → Turn on.</strong> In Accessibility, choose <strong>TV Home</strong>, turn it on, press Back.
-      <br>• <strong>Updates from the TV → Allow.</strong>
-      <br>• <strong>Keep your settings safe → Allow.</strong>
-      <br>That's it. Press Home: TV Home opens, and the box starts in it from now on.</li>
+    <li><b>Do it all for me</b>TV Home shows a short setup screen. Press <strong>Do it all for me</strong> and follow the three steps on screen:
+      <br>• Turn on <strong>Developer options</strong>: Settings → System → About → press OK 7 times on <strong>Android TV OS build</strong>.
+      <br>• Turn on <strong>USB debugging</strong> in Developer options (some TVs call it Network or ADB debugging).
+      <br>• Press <strong>Set everything up</strong>. When the TV asks <strong>"Allow USB debugging?"</strong>, tick Always allow and choose OK.
+      <br>That's it. Press Home: TV Home opens, and the box starts in it from now on.
+      <br><span style="font-size:14px;color:var(--faint)">Rather not turn on debugging? Use the other buttons on the same screen:
+      Home button and start-up → Turn on (choose TV Home in Accessibility), then Allow and Allow.</span></li>
   </ol>
 
   <h2>What you get</h2>
@@ -106,7 +108,7 @@
     Chromecast with Google TV, Nvidia Shield and most Android boxes. Install it the same way, with Downloader.</p>
   <p><strong>Amazon Fire TV</strong> (Fire OS 7 and 8, so most Fire TV Sticks and Fire TV TVs): works too. Downloader
     is in Amazon's app store. Expect a short flash of Amazon's home when you press Home, and on Fire OS 7 a wait of a few
-    seconds. If the Accessibility page on your Fire TV is empty, the setup needs a phone or computer once (see Extras below).
+    seconds. If the Accessibility page on your Fire TV is empty, use <strong>Do it all for me</strong>: on Fire TV, press OK 7 times on the device name in About, then turn on ADB debugging.
     Newer Fire TVs on Amazon's Vega OS can't install apps from outside Amazon's store.</p>
   <p><strong>It can't work on</strong> Samsung (Tizen), LG (webOS), Roku, Hisense VIDAA or Apple TV. They don't run
     Android apps, and they don't let any app take over the home screen. The easy fix for those TVs is the one this project
@@ -128,7 +130,10 @@
     <p>Settings → Accessibility → TV Home → off. To remove it completely: Settings → Apps → TV Home → Uninstall.
       The box goes straight back to how it was.</p></details>
   <details><summary>An Airtel update brought their home screen back.</summary>
-    <p>Open TV Home from the app list and do the setup again (hold OK on Settings → Setup).</p></details>
+    <p>Open TV Home from the app list and do the setup again (hold OK on Settings → Updates &amp; setup).</p></details>
+  <details><summary>Something isn't working.</summary>
+    <p>Hold OK on Settings → Updates &amp; setup → <strong>TV check</strong>. It shows a ✓ or ✗ for each part of TV Home,
+      and what to press to fix it.</p></details>
   <details><summary>Is it safe?</summary>
     <p>Yes. The code is open on GitHub, nothing is flashed or rooted, and updates only install when they're signed with
       TV Home's own key, so nobody else can push a fake update to your box.</p></details>
@@ -137,7 +142,7 @@
       reinstalling, press <strong>Allow</strong> next to "Keep your settings safe" on the setup screen and they come back.</p></details>
   <details><summary>Extras for people with a phone or computer</summary>
     <p>With ADB (Termux on Android, or a computer) the <a href="https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh">airtel-fix.sh</a>
-      script adds ad-blocking DNS for the whole box, faster animations and SmartTube. Not needed for TV Home itself.</p></details>
+      script does the same setup from a phone, plus faster animations and SmartTube. Add <code>ADBLOCK=1</code> for ad-blocking DNS on the whole box (it can stop some boxes reaching the internet). Not needed for TV Home itself.</p></details>
 
   <footer>
     TV Home is built on <a href="https://github.com/Gathin23/tv-vibehack">tv-vibehack</a> by Gathin23 (MIT licence),
