@@ -34,13 +34,23 @@ public class HomeKeyService extends AccessibilityService {
         int code = event.getKeyCode();
         if (code != KeyEvent.KEYCODE_ALL_APPS && code != KeyEvent.KEYCODE_HOME) return false;
         if (code == KeyEvent.KEYCODE_HOME && QuickPanel.enabled(this)) {
-            // Hold Home: the Quick panel. A short press still goes Home.
+            // Press Home twice, or hold it, for the Quick panel. Holding only works on remotes that report
+            // a hold: the Airtel box sends Home only on release, so there it's the double press.
             if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
                 homeHeld = false;
                 idleHandler.postDelayed(holdHome, HOLD_MS);
             } else if (event.getAction() == KeyEvent.ACTION_UP) {
                 idleHandler.removeCallbacks(holdHome);
-                if (!homeHeld && !event.isCanceled()) goHome();
+                if (!homeHeld && !event.isCanceled()) {
+                    if (homePending) {   // second press
+                        homePending = false;
+                        idleHandler.removeCallbacks(singleHome);
+                        QuickPanel.open(this);
+                    } else {
+                        homePending = true;
+                        idleHandler.postDelayed(singleHome, DOUBLE_MS);
+                    }
+                }
                 homeHeld = false;
             }
             return true;
@@ -51,8 +61,12 @@ public class HomeKeyService extends AccessibilityService {
         return true;
     }
 
-    private static final long HOLD_MS = 550;
-    private boolean homeHeld;
+    private static final long HOLD_MS = 550, DOUBLE_MS = 320;
+    private boolean homeHeld, homePending;
+    private final Runnable singleHome = () -> {
+        homePending = false;
+        goHome();
+    };
     private final Runnable holdHome = () -> {
         homeHeld = true;
         QuickPanel.open(this);
