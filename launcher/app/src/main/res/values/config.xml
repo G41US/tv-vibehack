@@ -7,12 +7,27 @@
 -->
 <resources>
 
-    <!-- Apps pinned to the dock row at the bottom, in this order. Missing apps are skipped. -->
+    <!-- The dock on a fresh install: the first of these the TV has, in this order (popular around the
+         world first). Missing apps are skipped; the rest of the dock fills A–Z. -->
     <string-array name="dock_apps">
         <item>com.google.android.youtube.tv</item>
         <item>com.netflix.ninja</item>
         <item>com.amazon.amazonvideo.livingroom</item>
+        <item>com.disney.disneyplus</item>
         <item>com.spotify.tv.android</item>
+        <item>com.wbd.stream</item>                         <!-- Max -->
+        <item>com.apple.atve.androidtv.appletv</item>
+        <item>com.hulu.livingroomplus</item>
+        <item>com.cbs.ott</item>                            <!-- Paramount+ -->
+        <item>com.peacocktv.peacockandroid</item>
+        <item>in.startv.hotstar</item>
+        <item>com.showmax.app</item>
+        <item>bbc.iplayer.android</item>
+        <item>com.crunchyroll.crunchyroid</item>
+        <item>com.plexapp.android</item>
+        <item>tv.twitch.android.app</item>
+        <item>com.google.android.youtube.tvmusic</item>
+        <item>org.xbmc.kodi</item>
     </string-array>
 
     <!-- Apps never shown as tiles (e.g. the Live TV app, which the Inputs menu already covers). -->

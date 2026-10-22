@@ -256,6 +256,7 @@
     <string name="fc_title">Weather</string>
     <string name="fc_failed">Couldn\'t get the forecast. Check the internet connection and try again.</string>
     <string name="fc_details">Feels like %1$d° · Humidity %2$d%% · Wind %3$d km/h</string>
+    <string name="fc_details_mph">Feels like %1$d° · Humidity %2$d%% · Wind %3$d mph</string>
     <string name="fc_sun">Sunrise %1$s · Sunset %2$s</string>
     <string name="fc_today">Today</string>
     <string name="qp_skip">◀ ▶ to skip</string>
@@ -346,4 +347,7 @@
     <string name="weather_search_none">No city called “%1$s” found. Check the spelling, or try a bigger city nearby.</string>
     <string name="weather_search_offline">Couldn\'t search just now. Check the internet connection and try again.</string>
     <string name="weather_search_again">Search again</string>
+    <string name="chk_report">Send a report</string>
+    <string name="chk_report_value">If something doesn\'t work on this TV</string>
+    <string name="chk_report_hint">Scan with your phone. It opens a report about this TV, already filled in, to send on GitHub. Nothing is sent from the TV itself.</string>
 </resources>

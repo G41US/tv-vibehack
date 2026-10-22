@@ -257,6 +257,7 @@
     <string name="fc_title">Météo</string>
     <string name="fc_failed">Impossible d\'obtenir les prévisions. Vérifiez la connexion Internet et réessayez.</string>
     <string name="fc_details">Ressenti %1$d° · Humidité %2$d %% · Vent %3$d km/h</string>
+    <string name="fc_details_mph">Ressenti %1$d° · Humidité %2$d %% · Vent %3$d mph</string>
     <string name="fc_sun">Lever %1$s · Coucher %2$s</string>
     <string name="fc_today">Aujourd\'hui</string>
     <string name="qp_skip">◀ ▶ pour passer</string>
@@ -347,4 +348,7 @@
     <string name="weather_search_none">Aucune ville nommée « %1$s ». Vérifiez l\'orthographe, ou essayez une grande ville proche.</string>
     <string name="weather_search_offline">Recherche impossible pour le moment. Vérifiez la connexion Internet et réessayez.</string>
     <string name="weather_search_again">Rechercher à nouveau</string>
+    <string name="chk_report">Envoyer un rapport</string>
+    <string name="chk_report_value">Si quelque chose ne marche pas sur ce téléviseur</string>
+    <string name="chk_report_hint">Scannez avec votre téléphone. Un rapport sur ce téléviseur s\'ouvre, déjà rempli, à envoyer sur GitHub. Rien n\'est envoyé depuis le téléviseur.</string>
 </resources>

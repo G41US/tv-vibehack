@@ -11,8 +11,12 @@ import android.media.AudioManager;
 import android.media.tv.TvInputInfo;
 import android.media.tv.TvInputManager;
 import android.os.Build;
+import android.net.Uri;
 import android.provider.Settings;
+import android.view.Gravity;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +24,8 @@ import java.util.List;
 
 /**
  * TV check: tests this TV and shows ✓ or ✗ for each part of TV Home, so a problem on any TV (a TCL,
- * a friend's box) shows at a glance, in one photo. Anything not working opens the fix.
+ * a friend's box) shows at a glance, in one photo. Anything not working opens the fix. "Send a report"
+ * shows a QR code: the phone opens a GitHub issue already filled in, so support for a new TV can be added.
  */
 final class TvCheck {
 
@@ -48,9 +53,11 @@ final class TvCheck {
     private static void build(Activity a, boolean afterSetup, boolean debug) {
         PackageManager pm = a.getPackageManager();
         List<GlassMenu.Row> rows = new ArrayList<>();
+        StringBuilder report = new StringBuilder();
         Runnable fix = () -> SelfSetup.show(a);
 
         boolean service = SetupPanel.serviceOn(a);
+        line(report, "Home button service", service);
         rows.add(new GlassMenu.Row(R.drawable.ic_m_apps, a.getString(R.string.chk_home_button),
                 service ? ok(a.getString(R.string.chk_on)) : no(a.getString(R.string.chk_off)), service ? null : fix));
 
@@ -67,12 +74,16 @@ final class TvCheck {
         else if (homePkg.isEmpty() || "android".equals(homePkg)) homeValue = ok(a.getString(R.string.chk_home_picker));
         else homeValue = no(a.getString(R.string.chk_home_unknown, homePkg));
         rows.add(new GlassMenu.Row(R.drawable.ic_m_setup, a.getString(R.string.chk_home_screen), homeValue, null));
+        report.append("- Home screen: ").append(homePkg.isEmpty() ? "picker" : homePkg)
+                .append(takeover.contains(homePkg) || homePkg.equals(a.getPackageName()) ? " (handled)" : " (NOT HANDLED)").append('\n');
 
         boolean heal = SelfHeal.canHeal(a);
+        line(report, "Self-repair", heal);
         rows.add(new GlassMenu.Row(R.drawable.ic_s_shield, a.getString(R.string.chk_heal),
                 heal ? ok(a.getString(R.string.chk_on)) : no(a.getString(R.string.chk_off)), heal ? null : fix));
 
         boolean installs = SetupPanel.installsAllowed(a);
+        line(report, "Installs", installs);
         rows.add(new GlassMenu.Row(R.drawable.ic_m_update, a.getString(R.string.setup_updates_title),
                 installs ? ok(a.getString(R.string.chk_on)) : no(a.getString(R.string.chk_off)), installs ? null : fix));
 
@@ -83,9 +94,12 @@ final class TvCheck {
             vol = ok(a.getString(R.string.chk_vol_found));
         else vol = ok(a.getString(R.string.chk_vol_default));
         rows.add(new GlassMenu.Row(R.drawable.ic_s_volume, a.getString(R.string.tv_volume), vol, null));
+        report.append("- Volume: ").append(am != null && am.isVolumeFixed() ? "fixed (TV controls it)"
+                : vol.startsWith("✓") && vol.contains(a.getString(R.string.chk_vol_found)) ? "bar found" : "bar not seen yet").append('\n');
 
         String listeners = Settings.Secure.getString(a.getContentResolver(), "enabled_notification_listeners");
         boolean np = listeners != null && listeners.contains(new ComponentName(a, MediaListener.class).flattenToString());
+        line(report, "Now playing", np);
         rows.add(new GlassMenu.Row(R.drawable.ic_s_sound, a.getString(R.string.np_now_playing),
                 np ? ok(a.getString(R.string.chk_on)) : no(a.getString(R.string.chk_off)), np ? null : fix));
 
@@ -97,13 +111,16 @@ final class TvCheck {
         rows.add(new GlassMenu.Row(R.drawable.ic_input, a.getString(R.string.chk_inputs),
                 hdmi > 0 ? ok(a.getString(R.string.chk_inputs_n, hdmi)) : "–  " + a.getString(R.string.chk_inputs_none), null));
 
+        report.append("- HDMI inputs: ").append(hdmi).append('\n');
         boolean bt = Build.VERSION.SDK_INT < 31
                 || a.checkSelfPermission(android.Manifest.permission.BLUETOOTH_CONNECT) == PackageManager.PERMISSION_GRANTED;
         rows.add(new GlassMenu.Row(R.drawable.ic_s_remote, a.getString(R.string.tv_remotes),
                 bt ? ok(a.getString(R.string.chk_on)) : no(a.getString(R.string.chk_off)), bt ? null : fix));
 
+        line(report, "Bluetooth", bt);
         rows.add(new GlassMenu.Row(R.drawable.ic_s_tune, a.getString(R.string.ss_step_debug),
                 debug ? ok(a.getString(R.string.chk_on)) : "–  " + a.getString(R.string.chk_off), fix));
+        line(report, "Debugging (port 5555)", debug);
 
         ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
         ((ActivityManager) a.getSystemService(Context.ACTIVITY_SERVICE)).getMemoryInfo(mi);
@@ -113,11 +130,44 @@ final class TvCheck {
         } catch (Exception e) {
             build = "?";
         }
+        String problem = SafeStart.lastProblem(a);
+        String text = "**" + Build.MANUFACTURER + " " + Build.MODEL + "** (" + Build.DEVICE + ")\n"
+                + "- Android " + Build.VERSION.RELEASE + " (SDK " + Build.VERSION.SDK_INT + "), TV Home build " + build + "\n"
+                + "- Language/region: " + java.util.Locale.getDefault().toLanguageTag() + "\n"
+                + report + (problem != null ? "- Last problem: " + problem + "\n" : "")
+                + "\nWhat isn't working? (write here)\n";
+        rows.add(new GlassMenu.Row(R.drawable.ic_s_open, a.getString(R.string.chk_report), a.getString(R.string.chk_report_value),
+                () -> showReport(a, Build.MANUFACTURER + " " + Build.MODEL, text)));
         LinearLayout hero = GlassMenu.hero(a, Build.MANUFACTURER + " " + Build.MODEL,
                 a.getString(R.string.chk_hero, Build.VERSION.RELEASE, build,
                         String.format(java.util.Locale.US, "%.1f", mi.totalMem / 1073741824.0)),
                 afterSetup ? a.getString(R.string.chk_after_setup)
-                        : SafeStart.lastProblem(a) != null ? a.getString(R.string.chk_last_problem, SafeStart.lastProblem(a)) : null);
+                        : problem != null ? a.getString(R.string.chk_last_problem, problem) : null);
         GlassMenu.page(a, a.getString(R.string.menu_setup), a.getString(R.string.chk_title), hero, rows, null, 0);
+    }
+
+    private static void line(StringBuilder r, String what, boolean on) {
+        r.append("- ").append(what).append(": ").append(on ? "on" : "OFF").append('\n');
+    }
+
+    /** A QR code for the phone: a new GitHub issue with this report filled in. Nothing leaves the TV itself. */
+    private static void showReport(Activity a, String model, String text) {
+        String url = "https://github.com/G41US/tv-vibehack/issues/new?title=" + Uri.encode("TV check: " + model)
+                + "&body=" + Uri.encode(text);
+        LinearLayout body = new LinearLayout(a);
+        body.setOrientation(LinearLayout.VERTICAL);
+        body.setGravity(Gravity.CENTER_HORIZONTAL);
+        ImageView qr = new ImageView(a);
+        qr.setImageBitmap(MainActivity.qrBitmap(url, GlassMenu.dp(a, 300)));
+        body.addView(qr, new LinearLayout.LayoutParams(GlassMenu.dp(a, 300), GlassMenu.dp(a, 300)));
+        TextView hint = new TextView(a);
+        hint.setText(R.string.chk_report_hint);
+        hint.setTextColor(0xE6FFFFFF);
+        hint.setTextSize(16);
+        hint.setGravity(Gravity.CENTER);
+        hint.setPadding(0, GlassMenu.dp(a, 16), 0, 0);
+        body.addView(hint);
+        GlassMenu.panel(a, a.getString(R.string.chk_title), a.getString(R.string.chk_report), body, 520,
+                () -> show(a, false));
     }
 }
