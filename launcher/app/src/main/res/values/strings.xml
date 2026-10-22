@@ -337,4 +337,9 @@
     <string name="safe_update">Check for an update</string>
     <string name="safe_effects">Effects back on</string>
     <string name="chk_last_problem">Last problem: %1$s</string>
+    <string name="su_title">Speed up</string>
+    <string name="su_value">Clear caches, close background apps</string>
+    <string name="su_working">Speeding up…</string>
+    <string name="su_done">Freed %1$s of space and %2$s of memory. Closed %3$d background apps. Music that\'s playing keeps going.</string>
+    <string name="su_need">Speed up needs the TV\'s debugging connection. Turn it on once: hold OK on ⚙ → Updates &amp; setup → Set up on this TV, and keep USB debugging on.</string>
 </resources>

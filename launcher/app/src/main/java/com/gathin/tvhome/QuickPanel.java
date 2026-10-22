@@ -153,6 +153,10 @@ public class QuickPanel extends Activity {
             }
             render(at);
         }));
+        rows.add(new GlassMenu.Row(R.drawable.ic_s_speed, getString(R.string.su_title), getString(R.string.su_value), () -> {
+            reopening = true;
+            SpeedUp.run(this, this::finish);
+        }));
         rows.add(new GlassMenu.Row(R.drawable.ic_m_moon, getString(R.string.qp_sleep), null, () -> {
             finish();
             StillWatching.turnOff(getApplicationContext());

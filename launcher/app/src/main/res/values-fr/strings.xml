@@ -338,4 +338,9 @@
     <string name="safe_update">Rechercher une mise à jour</string>
     <string name="safe_effects">Réactiver les effets</string>
     <string name="chk_last_problem">Dernier problème : %1$s</string>
+    <string name="su_title">Accélérer</string>
+    <string name="su_value">Vider les caches, fermer les applis en arrière-plan</string>
+    <string name="su_working">Accélération…</string>
+    <string name="su_done">%1$s d\'espace et %2$s de mémoire libérés. %3$d applis en arrière-plan fermées. La musique en cours continue.</string>
+    <string name="su_need">Accélérer a besoin de la connexion de débogage du téléviseur. Activez-la une fois : maintenez OK sur ⚙ → Mises à jour et configuration → Configurer sur ce téléviseur, et laissez le débogage USB activé.</string>
 </resources>

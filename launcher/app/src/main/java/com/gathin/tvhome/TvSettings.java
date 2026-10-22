@@ -496,10 +496,12 @@ final class TvSettings {
         }
         Collections.sort(sized, (a, b) -> Long.compare((Long) b[0], (Long) a[0]));
         List<GlassMenu.Row> rows = new ArrayList<>();
+        rows.add(new GlassMenu.Row(R.drawable.ic_s_speed, s(R.string.su_title), s(R.string.su_value),
+                () -> SpeedUp.run(act, () -> storage(0))));
         for (int i = 0; i < Math.min(6, sized.size()); i++) {
             Object[] x = sized.get(i);
             String p = (String) x[2];
-            final int at = i;
+            final int at = i + 1;
             rows.add(new GlassMenu.Row(appIcon(p), (String) x[1], Formatter.formatShortFileSize(act, (Long) x[0]),
                     () -> app(p, () -> storage(at))));
         }
