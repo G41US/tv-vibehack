@@ -35,6 +35,8 @@ public class QuickPanel extends Activity {
     private Dialog dialog;
     /** A row is about to redraw the panel: closing the old card must not close the panel. */
     private boolean reopening;
+    /** Speed up is running: the TV's "Allow USB debugging?" question pauses the panel, which must not close it. */
+    private boolean speeding;
 
     static boolean enabled(Context ctx) {
         return ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY, true);
@@ -72,7 +74,7 @@ public class QuickPanel extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (!isChangingConfigurations()) finish();   // Home, an app or sleep took over: close
+        if (!isChangingConfigurations() && !speeding) finish();   // Home, an app or sleep took over: close
     }
 
     @Override
@@ -155,6 +157,7 @@ public class QuickPanel extends Activity {
         }));
         rows.add(new GlassMenu.Row(R.drawable.ic_s_speed, getString(R.string.su_title), getString(R.string.su_value), () -> {
             reopening = true;
+            speeding = true;
             SpeedUp.run(this, this::finish);
         }));
         rows.add(new GlassMenu.Row(R.drawable.ic_m_moon, getString(R.string.qp_sleep), null, () -> {
