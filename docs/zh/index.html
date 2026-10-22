@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="zh" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- Made by tools/site/build.py from tools/site/lang/zh.json: edit those, not this file. -->
+<title>TV Home：适用于 Android TV 和 Google TV 的简洁主屏幕</title>
+<meta name="description" content="适用于 Android TV、Google TV 和 Fire TV 的简洁无广告主屏幕。用遥控器几分钟即可安装。免费开源。">
+<meta property="og:title" content="TV Home：适用于 Android TV 和 Google TV 的简洁主屏幕">
+<meta property="og:description" content="适用于 Android TV、Google TV 和 Fire TV 的简洁无广告主屏幕。用遥控器几分钟即可安装。免费开源。">
+<meta property="og:image" content="https://g41us.github.io/tv-vibehack/focus-2-up-netflix.png">
+<link rel="alternate" hreflang="en" href="https://g41us.github.io/tv-vibehack/">
+<link rel="alternate" hreflang="fr" href="https://g41us.github.io/tv-vibehack/fr/">
+<link rel="alternate" hreflang="es" href="https://g41us.github.io/tv-vibehack/es/">
+<link rel="alternate" hreflang="pt" href="https://g41us.github.io/tv-vibehack/pt/">
+<link rel="alternate" hreflang="de" href="https://g41us.github.io/tv-vibehack/de/">
+<link rel="alternate" hreflang="ca" href="https://g41us.github.io/tv-vibehack/ca/">
+<link rel="alternate" hreflang="ar" href="https://g41us.github.io/tv-vibehack/ar/">
+<link rel="alternate" hreflang="hi" href="https://g41us.github.io/tv-vibehack/hi/">
+<link rel="alternate" hreflang="sw" href="https://g41us.github.io/tv-vibehack/sw/">
+<link rel="alternate" hreflang="id" href="https://g41us.github.io/tv-vibehack/id/">
+<link rel="alternate" hreflang="th" href="https://g41us.github.io/tv-vibehack/th/">
+<link rel="alternate" hreflang="zh" href="https://g41us.github.io/tv-vibehack/zh/">
+<style>
+  :root {
+    --bg: #0a0b10; --panel: #13151d; --line: #262a37; --text: #eceef4; --dim: #a3a8b8; --faint: #6f7587;
+    --accent: #3d6bff; --ok: #5bd68a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 40px 18px 64px; }
+  .kicker { color: var(--dim); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
+  .langs { margin-top: 10px; font-size: 14px; line-height: 2; }
+  .langs a, .langs span { margin-inline-end: 12px; white-space: nowrap; }
+  .langs a { color: #9db3ff; }
+  .langs span { color: var(--text); font-weight: 600; }
+  h1 { font-size: 38px; line-height: 1.12; margin: 18px 0 14px; font-weight: 700; letter-spacing: -.01em; }
+  h2 { font-size: 24px; margin: 52px 0 14px; }
+  p { margin: 0 0 14px; color: var(--dim); }
+  strong { color: var(--text); }
+  .hero { width: 100%; border-radius: 14px; border: 1px solid var(--line); display: block; margin: 26px 0 10px; }
+  .cap { font-size: 13px; color: var(--faint); }
+  .get { display: block; margin: 22px 0 6px; padding: 18px 20px; border-radius: 14px; background: var(--accent);
+         color: #fff; text-decoration: none; font-weight: 700; font-size: 19px; text-align: center; }
+  .small { font-size: 14px; color: var(--faint); text-align: center; }
+  .note { font-size: 14px; color: var(--faint); }
+  ol.steps { list-style: none; padding: 0; margin: 0; counter-reset: s; }
+  ol.steps li { counter-increment: s; position: relative; background: var(--panel); border: 1px solid var(--line);
+                border-radius: 14px; padding-block: 18px 16px; padding-inline: 66px 18px; margin-bottom: 12px; color: var(--dim); }
+  ol.steps li::before { content: counter(s); position: absolute; inset-inline-start: 18px; top: 16px; width: 32px; height: 32px;
+                border-radius: 50%; border: 1px solid #4a5063; color: var(--text); text-align: center;
+                line-height: 30px; font-weight: 600; }
+  ol.steps li b { display: block; color: var(--text); font-size: 18px; margin-bottom: 3px; }
+  code, .addr { font-family: ui-monospace, Menlo, Consolas, monospace; background: #1c2030; border: 1px solid var(--line);
+         border-radius: 7px; padding: 2px 7px; color: #fff; font-size: 15px; overflow-wrap: anywhere; direction: ltr; unicode-bidi: isolate; }
+  .addr.code { font-size: 30px; letter-spacing: .12em; padding: 8px 18px; }
+  .addr { display: inline-block; font-size: 19px; padding: 6px 12px; margin: 6px 0; max-width: 100%;
+          white-space: normal; overflow-wrap: anywhere; }
+  ul.feat { padding-inline-start: 20px; color: var(--dim); }
+  ul.feat li { margin-bottom: 8px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid img { width: 100%; border-radius: 10px; border: 1px solid var(--line); display: block; }
+  .tip { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; margin-bottom: 10px; color: var(--dim); }
+  .tip b { color: var(--text); }
+  details { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; margin-bottom: 10px; }
+  summary { cursor: pointer; font-weight: 600; color: var(--text); }
+  details p { margin-top: 10px; }
+  footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 14px; color: var(--faint); }
+  footer a, p a, li a { color: #9db3ff; }
+  @media (max-width: 520px) { h1 { font-size: 30px; } .grid { grid-template-columns: 1fr; } .addr { font-size: 16px; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="kicker">适用于 Android TV、Google TV 和 Fire TV</div>
+  <div class="langs"><a href="../" hreflang="en" lang="en">English</a> <a href="../fr/" hreflang="fr" lang="fr">Français</a> <a href="../es/" hreflang="es" lang="es">Español</a> <a href="../pt/" hreflang="pt" lang="pt">Português</a> <a href="../de/" hreflang="de" lang="de">Deutsch</a> <a href="../ca/" hreflang="ca" lang="ca">Català</a> <a href="../ar/" hreflang="ar" lang="ar">العربية</a> <a href="../hi/" hreflang="hi" lang="hi">हिन्दी</a> <a href="../sw/" hreflang="sw" lang="sw">Kiswahili</a> <a href="../id/" hreflang="id" lang="id">Bahasa Indonesia</a> <a href="../th/" hreflang="th" lang="th">ไทย</a> <span>中文</span></div>
+  <h1>给你的电视一个简洁的主屏幕。</h1>
+  <p>TV Home 用简洁漂亮的界面取代满是广告的主屏幕：程序坞里放着你常用的应用，还有大时钟、天气和正在播放的内容。<strong>用遥控器几分钟即可安装。</strong>无需手机或电脑。免费开源，支持 12 种语言。</p>
+
+  <img class="hero" src="../focus-2-up-netflix.png" alt="TV Home：顶部是大时钟和日期，选中应用的名称以大字显示，下方是放着四个应用的程序坞">
+  <div class="cap">TV Home 的样子。程序坞显示你选择的应用。</div>
+
+  <a class="get" href="https://github.com/G41US/tv-vibehack/releases/latest/download/tvhome.apk">下载 TV Home（APK）</a>
+  <p class="small">在电视上：打开 Downloader，输入 <strong>2960939</strong>。完整步骤见下方。</p>
+
+  <h2>用遥控器安装</h2>
+  <ol class="steps">
+    <li><b>安装 Downloader</b>在电视上打开 <strong>Play 商店</strong>（Fire TV 上为亚马逊应用商店），搜索 AFTVnews 的 <strong>Downloader</strong> 并安装。</li>
+    <li><b>输入代码</b>打开 Downloader，在输入框中输入代码<br>
+      <span class="addr code">2960939</span><br>
+      然后按 <strong>Go</strong>。如果 Downloader 请求安装应用的权限，选择<strong>设置</strong>，开启后按返回键。
+      <br><span class="note">代码不管用？改为输入： <code>g41us.github.io/tv-vibehack/get</code></span></li>
+    <li><b>安装并打开</b>选择<strong>安装</strong>，然后选择<strong>打开</strong>。</li>
+    <li><b>全部帮我完成</b>TV Home 会显示一个简短的设置页面。按<strong>全部帮我完成</strong>，然后按屏幕上的三个步骤操作：<br>• 开启<strong>开发者选项</strong>：设置 → 系统（或设备偏好设置）→ 关于 → 在<strong>版本号</strong>上按 7 次 OK。<br>• 在开发者选项中开启 <strong>USB 调试</strong>（部分电视叫网络调试或 ADB 调试）。<br>• 按<strong>一键全部设置</strong>。电视询问<strong>"允许 USB 调试吗？"</strong>时，勾选始终允许并选择确定。<br>完成了。按主页键：TV Home 打开，此后电视开机就进入 TV Home。
+      <br><span class="note">不想开启调试？使用同一页面上的其他按钮：主页键和开机 → 开启（在无障碍中选择 TV Home），然后点两次允许。</span></li>
+  </ol>
+
+  <h2>你会得到</h2>
+  <ul class="feat">
+    <li><strong>没有广告，没有推广栏。</strong>只有你的应用，常用的四个放在程序坞。</li>
+    <li><strong>开机进入 TV Home</strong>，主页键也总是回到这里。</li>
+    <li><strong>时钟、日期和天气</strong>，支持全球任意城市，并有一周预报。</li>
+    <li><strong>正在播放：</strong>Spotify 或 YouTube Music 上正在播放的内容，配有全屏播放器和歌词。</li>
+    <li><strong>快捷面板：</strong>在任何地方长按返回键，即可调整音乐、音量、夜间模式、休眠和加速。</li>
+    <li><strong>夜间模式：</strong>深夜时屏幕更柔和，并限制音量。</li>
+    <li><strong>壁纸：</strong>内置壁纸、缓慢流动的动态壁纸，或从手机发送的照片。</li>
+    <li><strong>访客 Wi-Fi 二维码</strong>，以及今天和本月的已用流量。</li>
+    <li><strong>自动更新：</strong>新版本一键安装。</li>
+    <li><strong>支持你的语言：</strong>英语、法语、西班牙语、葡萄牙语、德语、加泰罗尼亚语、阿拉伯语、印地语、斯瓦希里语、印尼语、泰语和中文。</li>
+  </ul>
+  <div class="grid">
+    <img src="../focus-1-fancode.png" alt="主屏幕，程序坞中选中了一个应用">
+    <img src="../clock-screensaver.png" alt="时钟屏保：深色光晕上的大号细体时钟和日期">
+  </div>
+
+  <h2>适用的电视</h2>
+  <p><strong>运行 Android TV 或 Google TV 的电视和盒子：</strong>索尼、TCL、海信（Android 机型）、小米、飞利浦（Android 机型）、Chromecast with Google TV、Nvidia Shield、Airtel Smart Router 以及大多数 Android 盒子。如果你的设备上有功能不正常，在 TV Home 中打开<strong>电视检查</strong>并发送报告：它会显示需要修复的地方。</p>
+  <p><strong>Amazon Fire TV</strong>（Fire OS 7 和 8，即大多数 Fire TV Stick 和 Fire TV 电视）：同样可用。按主页键时会短暂闪过亚马逊主屏幕，Fire OS 7 上需要等几秒。在 Fire TV 上使用"全部帮我完成"时，在"关于"中的设备名称上按 7 次 OK，然后开启 ADB 调试。运行 Vega OS 的新款 Fire TV 无法安装亚马逊商店以外的应用。</p>
+  <p><strong>无法用于</strong>三星（Tizen）、LG（webOS）、Roku、海信 VIDAA 和 Apple TV：它们不运行 Android 应用，也不允许任何应用接管主屏幕。这些电视的简单办法：插一根 Android TV 或 Google TV 电视棒，在上面使用 TV Home。</p>
+
+  <h2>使用方法</h2>
+  <div class="tip"><b>在应用上长按 OK</b>，可在程序坞中移动、添加或移除它。程序坞可放四个。</div>
+  <div class="tip"><b>在设置上长按 OK</b>（右上角），可设置壁纸、天气城市、音乐、夜间模式、更新和设置向导。</div>
+  <div class="tip"><b>长按返回键</b>，在任何地方都能打开快捷面板。</div>
+  <div class="tip"><b>在天气上按 OK</b>，查看一周预报。</div>
+
+  <h2>常见问题</h2>
+  <details><summary>为什么需要无障碍权限？</summary>
+    <p>许多电视在开机和按主页键时会打开自带的主屏幕，不管你选了哪个应用。TV Home 的无障碍开关只监视那个屏幕和少数几个按键，并改为打开 TV Home。它不会读取、记录或发送你屏幕上的任何内容。Android 会对每个申请此权限的应用显示一般性警告。</p></details>
+  <details><summary>会删除或损坏电视里的应用吗？</summary>
+    <p>不会。不卸载也不停用任何东西。你的频道、应用和设置都保持原样。</p></details>
+  <details><summary>怎样回到原来的主屏幕？</summary>
+    <p>设置 → 无障碍 → TV Home → 关闭。要彻底删除：设置 → 应用 → TV Home → 卸载。电视会立即恢复原样。</p></details>
+  <details><summary>系统更新后原来的主屏幕又回来了。</summary>
+    <p>从应用列表打开 TV Home，重新设置一次（在设置上长按 OK → 更新与设置）。</p></details>
+  <details><summary>有功能不正常。</summary>
+    <p>在设置上长按 OK → 更新与设置 → <strong>电视检查</strong>。它会为 TV Home 的每个部分显示 ✓ 或 ✗，并告诉你按哪里修复。那里的<strong>发送报告</strong>会显示一个二维码：用手机扫码即可发送你电视的详细信息，以便加入对它的支持。</p></details>
+  <details><summary>安全吗？</summary>
+    <p>安全。代码在 GitHub 上公开，不刷机也不 root，而且更新只有在用 TV Home 自己的密钥签名后才会安装，所以别人无法向你的电视推送假冒更新。</p></details>
+  <details><summary>我重装了 TV Home，设置会丢吗？</summary>
+    <p>不会。TV Home 在电视上保存了程序坞、壁纸、天气和 Wi-Fi 二维码的加密备份。重装后，在设置页面"保护你的设置"旁按<strong>允许</strong>，设置就会回来。</p></details>
+  <details><summary>有手机或电脑的附加功能</summary>
+    <p>借助 ADB（Android 上的 Termux 或电脑），<a href="https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh">airtel-fix.sh</a> 脚本可以从手机完成同样的设置，并加快动画、安装 SmartTube。加上 <code>ADBLOCK=1</code> 可为整个盒子启用广告拦截 DNS（可能导致部分盒子无法上网）。TV Home 本身不需要。</p></details>
+
+  <footer>TV Home 基于 Gathin23 的 <a href="https://github.com/Gathin23/tv-vibehack">tv-vibehack</a>（MIT 许可证），由 <a href="https://github.com/G41US/tv-vibehack">G41US</a> 开发。它并非由 Google、Amazon、Airtel 或任何电视厂商制作，也与它们无关。使用风险自负。</footer>
+</main>
+</body>
+</html>

@@ -1,13 +1,26 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TV Home for the Airtel Smart Router</title>
-<meta name="description" content="A clean, ad-free home screen for the Airtel Smart Router TV box. Installs with the remote in about three minutes. Free and open source.">
-<meta property="og:title" content="TV Home for the Airtel Smart Router">
-<meta property="og:description" content="Replace the Airtel box's home screen with a clean, ad-free one. Remote only, about three minutes, free.">
+<!-- Made by tools/site/build.py from tools/site/lang/en.json: edit those, not this file. -->
+<title>TV Home: a clean home screen for Android TV and Google TV</title>
+<meta name="description" content="A clean, ad-free home screen for Android TV, Google TV and Fire TV. Installs with the remote in a few minutes. Free and open source.">
+<meta property="og:title" content="TV Home: a clean home screen for Android TV and Google TV">
+<meta property="og:description" content="A clean, ad-free home screen for Android TV, Google TV and Fire TV. Installs with the remote in a few minutes. Free and open source.">
 <meta property="og:image" content="https://g41us.github.io/tv-vibehack/focus-2-up-netflix.png">
+<link rel="alternate" hreflang="en" href="https://g41us.github.io/tv-vibehack/">
+<link rel="alternate" hreflang="fr" href="https://g41us.github.io/tv-vibehack/fr/">
+<link rel="alternate" hreflang="es" href="https://g41us.github.io/tv-vibehack/es/">
+<link rel="alternate" hreflang="pt" href="https://g41us.github.io/tv-vibehack/pt/">
+<link rel="alternate" hreflang="de" href="https://g41us.github.io/tv-vibehack/de/">
+<link rel="alternate" hreflang="ca" href="https://g41us.github.io/tv-vibehack/ca/">
+<link rel="alternate" hreflang="ar" href="https://g41us.github.io/tv-vibehack/ar/">
+<link rel="alternate" hreflang="hi" href="https://g41us.github.io/tv-vibehack/hi/">
+<link rel="alternate" hreflang="sw" href="https://g41us.github.io/tv-vibehack/sw/">
+<link rel="alternate" hreflang="id" href="https://g41us.github.io/tv-vibehack/id/">
+<link rel="alternate" hreflang="th" href="https://g41us.github.io/tv-vibehack/th/">
+<link rel="alternate" hreflang="zh" href="https://g41us.github.io/tv-vibehack/zh/">
 <style>
   :root {
     --bg: #0a0b10; --panel: #13151d; --line: #262a37; --text: #eceef4; --dim: #a3a8b8; --faint: #6f7587;
@@ -15,10 +28,14 @@
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text);
-         font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+         font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif; }
   main { max-width: 760px; margin: 0 auto; padding: 40px 18px 64px; }
   .kicker { color: var(--dim); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
-  h1 { font-size: 38px; line-height: 1.12; margin: 10px 0 14px; font-weight: 700; letter-spacing: -.01em; }
+  .langs { margin-top: 10px; font-size: 14px; line-height: 2; }
+  .langs a, .langs span { margin-inline-end: 12px; white-space: nowrap; }
+  .langs a { color: #9db3ff; }
+  .langs span { color: var(--text); font-weight: 600; }
+  h1 { font-size: 38px; line-height: 1.12; margin: 18px 0 14px; font-weight: 700; letter-spacing: -.01em; }
   h2 { font-size: 24px; margin: 52px 0 14px; }
   p { margin: 0 0 14px; color: var(--dim); }
   strong { color: var(--text); }
@@ -27,19 +44,20 @@
   .get { display: block; margin: 22px 0 6px; padding: 18px 20px; border-radius: 14px; background: var(--accent);
          color: #fff; text-decoration: none; font-weight: 700; font-size: 19px; text-align: center; }
   .small { font-size: 14px; color: var(--faint); text-align: center; }
+  .note { font-size: 14px; color: var(--faint); }
   ol.steps { list-style: none; padding: 0; margin: 0; counter-reset: s; }
   ol.steps li { counter-increment: s; position: relative; background: var(--panel); border: 1px solid var(--line);
-                border-radius: 14px; padding: 18px 18px 16px 66px; margin-bottom: 12px; color: var(--dim); }
-  ol.steps li::before { content: counter(s); position: absolute; left: 18px; top: 16px; width: 32px; height: 32px;
+                border-radius: 14px; padding-block: 18px 16px; padding-inline: 66px 18px; margin-bottom: 12px; color: var(--dim); }
+  ol.steps li::before { content: counter(s); position: absolute; inset-inline-start: 18px; top: 16px; width: 32px; height: 32px;
                 border-radius: 50%; border: 1px solid #4a5063; color: var(--text); text-align: center;
                 line-height: 30px; font-weight: 600; }
   ol.steps li b { display: block; color: var(--text); font-size: 18px; margin-bottom: 3px; }
   code, .addr { font-family: ui-monospace, Menlo, Consolas, monospace; background: #1c2030; border: 1px solid var(--line);
-         border-radius: 7px; padding: 2px 7px; color: #fff; font-size: 15px; overflow-wrap: anywhere; }
+         border-radius: 7px; padding: 2px 7px; color: #fff; font-size: 15px; overflow-wrap: anywhere; direction: ltr; unicode-bidi: isolate; }
   .addr.code { font-size: 30px; letter-spacing: .12em; padding: 8px 18px; }
   .addr { display: inline-block; font-size: 19px; padding: 6px 12px; margin: 6px 0; max-width: 100%;
           white-space: normal; overflow-wrap: anywhere; }
-  ul.feat { padding-left: 20px; color: var(--dim); }
+  ul.feat { padding-inline-start: 20px; color: var(--dim); }
   ul.feat li { margin-bottom: 8px; }
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .grid img { width: 100%; border-radius: 10px; border: 1px solid var(--line); display: block; }
@@ -55,47 +73,41 @@
 </head>
 <body>
 <main>
-  <div class="kicker">For the Airtel Smart Router TV box · <a href="fr/" style="color:#9db3ff">Français</a></div>
-  <h1>A clean home screen for your Airtel box.</h1>
-  <p>TV Home replaces the box's ad-filled home screen with a simple, beautiful one: your favourite apps in a dock,
-    a big clock, the weather and a few wallpapers. <strong>Installs with the remote in about three minutes.</strong>
-    No phone or computer needed. Free and open source.</p>
+  <div class="kicker">For Android TV, Google TV and Fire TV</div>
+  <div class="langs"><span>English</span> <a href="fr/" hreflang="fr" lang="fr">Français</a> <a href="es/" hreflang="es" lang="es">Español</a> <a href="pt/" hreflang="pt" lang="pt">Português</a> <a href="de/" hreflang="de" lang="de">Deutsch</a> <a href="ca/" hreflang="ca" lang="ca">Català</a> <a href="ar/" hreflang="ar" lang="ar">العربية</a> <a href="hi/" hreflang="hi" lang="hi">हिन्दी</a> <a href="sw/" hreflang="sw" lang="sw">Kiswahili</a> <a href="id/" hreflang="id" lang="id">Bahasa Indonesia</a> <a href="th/" hreflang="th" lang="th">ไทย</a> <a href="zh/" hreflang="zh" lang="zh">中文</a></div>
+  <h1>A clean home screen for your TV.</h1>
+  <p>TV Home replaces your TV's ad-filled home screen with a simple, beautiful one: your favourite apps in a dock, a big clock, the weather and what's playing. <strong>Installs with the remote in a few minutes.</strong> No phone or computer needed. Free and open source, in 12 languages.</p>
 
   <img class="hero" src="focus-2-up-netflix.png" alt="TV Home: a large clock and date at the top, the focused app's name in large type, and a dock of four app tiles">
   <div class="cap">The TV Home look. Your dock shows the apps you choose.</div>
 
   <a class="get" href="https://github.com/G41US/tv-vibehack/releases/latest/download/tvhome.apk">Download TV Home (APK)</a>
-  <p class="small">On the TV: open Downloader and type <strong style="color:var(--text)">2960939</strong>. Full steps below.</p>
+  <p class="small">On the TV: open Downloader and type <strong>2960939</strong>. Full steps below.</p>
 
   <h2>Install it with the remote</h2>
   <ol class="steps">
-    <li><b>Get Downloader</b>On the Airtel box, open the <strong>Play Store</strong>, search for <strong>Downloader</strong>
-      (by AFTVnews) and install it.</li>
+    <li><b>Get Downloader</b>On the TV, open the <strong>Play Store</strong> (on Fire TV: Amazon's app store), search for <strong>Downloader</strong> by AFTVnews and install it.</li>
     <li><b>Type the code</b>Open Downloader. In the box, type the code<br>
       <span class="addr code">2960939</span><br>
-      and press <strong>Go</strong>. If Downloader asks to be allowed to install apps, choose <strong>Settings</strong>,
-      switch it on, and press Back.
-      <br><span style="font-size:14px;color:var(--faint)">No luck with the code? Type <code>g41us.github.io/tv-vibehack/get</code> instead.</span></li>
+      and press <strong>Go</strong>. If Downloader asks to be allowed to install apps, choose <strong>Settings</strong>, switch it on, and press Back.
+      <br><span class="note">No luck with the code? Type this instead: <code>g41us.github.io/tv-vibehack/get</code></span></li>
     <li><b>Install and open</b>Choose <strong>Install</strong>, then <strong>Open</strong>.</li>
-    <li><b>Do it all for me</b>TV Home shows a short setup screen. Press <strong>Do it all for me</strong> and follow the three steps on screen:
-      <br>• Turn on <strong>Developer options</strong>: Settings → System → About → press OK 7 times on <strong>Android TV OS build</strong>.
-      <br>• Turn on <strong>USB debugging</strong> in Developer options (some TVs call it Network or ADB debugging).
-      <br>• Press <strong>Set everything up</strong>. When the TV asks <strong>"Allow USB debugging?"</strong>, tick Always allow and choose OK.
-      <br>That's it. Press Home: TV Home opens, and the box starts in it from now on.
-      <br><span style="font-size:14px;color:var(--faint)">Rather not turn on debugging? Use the other buttons on the same screen:
-      Home button and start-up → Turn on (choose TV Home in Accessibility), then Allow and Allow.</span></li>
+    <li><b>Do it all for me</b>TV Home shows a short setup screen. Press <strong>Do it all for me</strong> and follow the three steps on screen:<br>• Turn on <strong>Developer options</strong>: Settings → System (or Device Preferences) → About → press OK 7 times on <strong>Build</strong>.<br>• Turn on <strong>USB debugging</strong> in Developer options (some TVs call it Network or ADB debugging).<br>• Press <strong>Set everything up</strong>. When the TV asks <strong>"Allow USB debugging?"</strong>, tick Always allow and choose OK.<br>That's it. Press Home: TV Home opens, and the TV starts in it from now on.
+      <br><span class="note">Rather not turn on debugging? Use the other buttons on the same screen: Home button and start-up → Turn on (choose TV Home in Accessibility), then Allow and Allow.</span></li>
   </ol>
 
   <h2>What you get</h2>
   <ul class="feat">
     <li><strong>No ads or sponsored rows.</strong> Just your apps, with your four favourites in a dock.</li>
-    <li><strong>Starts in TV Home</strong> and the Home button always comes back to it.</li>
-    <li><strong>Clock, date and the weather</strong> for your city.</li>
-    <li><strong>Wallpapers:</strong> six built in, or send a photo from your phone.</li>
-    <li><strong>Guest Wi-Fi QR code:</strong> visitors scan the TV to join your Wi-Fi.</li>
-    <li><strong>Data used</strong> today and this month.</li>
+    <li><strong>Starts in TV Home</strong>, and the Home button always comes back to it.</li>
+    <li><strong>Clock, date and weather</strong> for any city in the world, with a forecast for the week.</li>
+    <li><strong>Now playing:</strong> what's on Spotify or YouTube Music, with a full-screen player and lyrics.</li>
+    <li><strong>Quick panel:</strong> hold Back anywhere for music, volume, night mode, sleep and Speed up.</li>
+    <li><strong>Night mode:</strong> a softer screen and a volume limit late at night.</li>
+    <li><strong>Wallpapers:</strong> built in, gently moving, or a photo from your phone.</li>
+    <li><strong>Guest Wi-Fi QR code</strong> and the data used today and this month.</li>
     <li><strong>Updates itself:</strong> new versions install with one press.</li>
-    <li><strong>A clock screensaver</strong> that drifts so nothing burns in.</li>
+    <li><strong>In your language:</strong> English, French, Spanish, Portuguese, German, Catalan, Arabic, Hindi, Swahili, Indonesian, Thai and Chinese.</li>
   </ul>
   <div class="grid">
     <img src="focus-1-fancode.png" alt="The home screen with an app focused in the dock">
@@ -103,52 +115,35 @@
   </div>
 
   <h2>Which TVs it works on</h2>
-  <p><strong>Made for the Airtel Smart Router.</strong> It should also work on other TVs and boxes that run
-    <strong>Android TV or Google TV</strong>: Sony, TCL, Hisense (Android models), Xiaomi, Philips (Android models),
-    Chromecast with Google TV, Nvidia Shield and most Android boxes. Install it the same way, with Downloader.</p>
-  <p><strong>Amazon Fire TV</strong> (Fire OS 7 and 8, so most Fire TV Sticks and Fire TV TVs): works too. Downloader
-    is in Amazon's app store. Expect a short flash of Amazon's home when you press Home, and on Fire OS 7 a wait of a few
-    seconds. If the Accessibility page on your Fire TV is empty, use <strong>Do it all for me</strong>: on Fire TV, press OK 7 times on the device name in About, then turn on ADB debugging.
-    Newer Fire TVs on Amazon's Vega OS can't install apps from outside Amazon's store.</p>
-  <p><strong>It can't work on</strong> Samsung (Tizen), LG (webOS), Roku, Hisense VIDAA or Apple TV. They don't run
-    Android apps, and they don't let any app take over the home screen. The easy fix for those TVs is the one this project
-    started with: plug in an Android TV or Google TV stick and use TV Home on that.</p>
+  <p><strong>TVs and boxes that run Android TV or Google TV:</strong> Sony, TCL, Hisense (Android models), Xiaomi, Philips (Android models), Chromecast with Google TV, Nvidia Shield, the Airtel Smart Router and most Android boxes. If something doesn't work on yours, open <strong>TV check</strong> in TV Home and send a report: it shows what to fix.</p>
+  <p><strong>Amazon Fire TV</strong> (Fire OS 7 and 8, so most Fire TV Sticks and Fire TV TVs): works too. Expect a short flash of Amazon's home when you press Home, and on Fire OS 7 a wait of a few seconds. For Do it all for me on Fire TV, press OK 7 times on the device name in About, then turn on ADB debugging. Newer Fire TVs on Amazon's Vega OS can't install apps from outside Amazon's store.</p>
+  <p><strong>It can't work on</strong> Samsung (Tizen), LG (webOS), Roku, Hisense VIDAA or Apple TV. They don't run Android apps, and they don't let any app take over the home screen. The easy fix for those TVs: plug in an Android TV or Google TV stick and use TV Home on that.</p>
 
   <h2>Using it</h2>
   <div class="tip"><b>Hold OK on an app</b> to move it in the dock, add it, or remove it. The dock holds four.</div>
-  <div class="tip"><b>Hold OK on Settings</b> (top right) for wallpaper, weather city, updates and setup.</div>
-  <div class="tip"><b>Hold OK on the network button</b> for the guest Wi-Fi QR code and data used.</div>
+  <div class="tip"><b>Hold OK on Settings</b> (top right) for wallpaper, weather city, music, night mode, updates and setup.</div>
+  <div class="tip"><b>Hold Back</b>, anywhere, for the Quick panel.</div>
+  <div class="tip"><b>Press OK on the weather</b> for the week's forecast.</div>
 
   <h2>Questions</h2>
   <details><summary>Why does it need Accessibility?</summary>
-    <p>The Airtel box opens its own home screen at start-up and on the Home button, whatever app you choose.
-      TV Home's Accessibility switch only watches for that screen and the Home button, and opens TV Home instead.
-      It does not read, record or send anything on your screen. Android shows a general warning for every app that asks.</p></details>
-  <details><summary>Does it remove or break Airtel's apps?</summary>
-    <p>No. Nothing is uninstalled or disabled. Your channels, Airtel account app and settings stay exactly as they were.</p></details>
-  <details><summary>How do I go back to Airtel's home screen?</summary>
-    <p>Settings → Accessibility → TV Home → off. To remove it completely: Settings → Apps → TV Home → Uninstall.
-      The box goes straight back to how it was.</p></details>
-  <details><summary>An Airtel update brought their home screen back.</summary>
+    <p>Many TVs open their own home screen at start-up and on the Home button, whatever app you choose. TV Home's Accessibility switch only watches for that screen and a few buttons, and opens TV Home instead. It does not read, record or send anything on your screen. Android shows a general warning for every app that asks.</p></details>
+  <details><summary>Does it remove or break my TV's apps?</summary>
+    <p>No. Nothing is uninstalled or disabled. Your channels, apps and settings stay exactly as they were.</p></details>
+  <details><summary>How do I go back to the old home screen?</summary>
+    <p>Settings → Accessibility → TV Home → off. To remove it completely: Settings → Apps → TV Home → Uninstall. The TV goes straight back to how it was.</p></details>
+  <details><summary>A system update brought the old home screen back.</summary>
     <p>Open TV Home from the app list and do the setup again (hold OK on Settings → Updates &amp; setup).</p></details>
   <details><summary>Something isn't working.</summary>
-    <p>Hold OK on Settings → Updates &amp; setup → <strong>TV check</strong>. It shows a ✓ or ✗ for each part of TV Home,
-      and what to press to fix it.</p></details>
+    <p>Hold OK on Settings → Updates &amp; setup → <strong>TV check</strong>. It shows a ✓ or ✗ for each part of TV Home and what to press to fix it. <strong>Send a report</strong> there shows a QR code: scan it with your phone to send the details of your TV, so support for it can be added.</p></details>
   <details><summary>Is it safe?</summary>
-    <p>Yes. The code is open on GitHub, nothing is flashed or rooted, and updates only install when they're signed with
-      TV Home's own key, so nobody else can push a fake update to your box.</p></details>
+    <p>Yes. The code is open on GitHub, nothing is flashed or rooted, and updates only install when they're signed with TV Home's own key, so nobody else can push a fake update to your TV.</p></details>
   <details><summary>I reinstalled TV Home. Are my settings gone?</summary>
-    <p>No. TV Home keeps an encrypted backup of your dock, wallpaper, weather and Wi-Fi QR on the box. After
-      reinstalling, press <strong>Allow</strong> next to "Keep your settings safe" on the setup screen and they come back.</p></details>
+    <p>No. TV Home keeps an encrypted backup of your dock, wallpaper, weather and Wi-Fi QR on the TV. After reinstalling, press <strong>Allow</strong> next to "Keep your settings safe" on the setup screen and they come back.</p></details>
   <details><summary>Extras for people with a phone or computer</summary>
-    <p>With ADB (Termux on Android, or a computer) the <a href="https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh">airtel-fix.sh</a>
-      script does the same setup from a phone, plus faster animations and SmartTube. Add <code>ADBLOCK=1</code> for ad-blocking DNS on the whole box (it can stop some boxes reaching the internet). Not needed for TV Home itself.</p></details>
+    <p>With ADB (Termux on Android, or a computer) the <a href="https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh">airtel-fix.sh</a> script does the same setup from a phone, plus faster animations and SmartTube. Add <code>ADBLOCK=1</code> for ad-blocking DNS on the whole box (it can stop some boxes reaching the internet). Not needed for TV Home itself.</p></details>
 
-  <footer>
-    TV Home is built on <a href="https://github.com/Gathin23/tv-vibehack">tv-vibehack</a> by Gathin23 (MIT licence),
-    adapted for the Airtel Smart Router by <a href="https://github.com/G41US/tv-vibehack">G41US</a>.
-    It is not made by or affiliated with Airtel. Use it at your own risk; Airtel may not support boxes running it.
-  </footer>
+  <footer>TV Home is built on <a href="https://github.com/Gathin23/tv-vibehack">tv-vibehack</a> by Gathin23 (MIT licence), developed by <a href="https://github.com/G41US/tv-vibehack">G41US</a>. It is not made by or affiliated with Google, Amazon, Airtel or any TV maker. Use it at your own risk.</footer>
 </main>
 </body>
 </html>

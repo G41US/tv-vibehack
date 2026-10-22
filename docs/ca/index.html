@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ca" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- Made by tools/site/build.py from tools/site/lang/ca.json: edit those, not this file. -->
+<title>TV Home: una pantalla d'inici neta per a Android TV i Google TV</title>
+<meta name="description" content="Una pantalla d'inici neta i sense anuncis per a Android TV, Google TV i Fire TV. S'instal·la amb el comandament en pocs minuts. Gratuït i de codi obert.">
+<meta property="og:title" content="TV Home: una pantalla d'inici neta per a Android TV i Google TV">
+<meta property="og:description" content="Una pantalla d'inici neta i sense anuncis per a Android TV, Google TV i Fire TV. S'instal·la amb el comandament en pocs minuts. Gratuït i de codi obert.">
+<meta property="og:image" content="https://g41us.github.io/tv-vibehack/focus-2-up-netflix.png">
+<link rel="alternate" hreflang="en" href="https://g41us.github.io/tv-vibehack/">
+<link rel="alternate" hreflang="fr" href="https://g41us.github.io/tv-vibehack/fr/">
+<link rel="alternate" hreflang="es" href="https://g41us.github.io/tv-vibehack/es/">
+<link rel="alternate" hreflang="pt" href="https://g41us.github.io/tv-vibehack/pt/">
+<link rel="alternate" hreflang="de" href="https://g41us.github.io/tv-vibehack/de/">
+<link rel="alternate" hreflang="ca" href="https://g41us.github.io/tv-vibehack/ca/">
+<link rel="alternate" hreflang="ar" href="https://g41us.github.io/tv-vibehack/ar/">
+<link rel="alternate" hreflang="hi" href="https://g41us.github.io/tv-vibehack/hi/">
+<link rel="alternate" hreflang="sw" href="https://g41us.github.io/tv-vibehack/sw/">
+<link rel="alternate" hreflang="id" href="https://g41us.github.io/tv-vibehack/id/">
+<link rel="alternate" hreflang="th" href="https://g41us.github.io/tv-vibehack/th/">
+<link rel="alternate" hreflang="zh" href="https://g41us.github.io/tv-vibehack/zh/">
+<style>
+  :root {
+    --bg: #0a0b10; --panel: #13151d; --line: #262a37; --text: #eceef4; --dim: #a3a8b8; --faint: #6f7587;
+    --accent: #3d6bff; --ok: #5bd68a;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 40px 18px 64px; }
+  .kicker { color: var(--dim); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
+  .langs { margin-top: 10px; font-size: 14px; line-height: 2; }
+  .langs a, .langs span { margin-inline-end: 12px; white-space: nowrap; }
+  .langs a { color: #9db3ff; }
+  .langs span { color: var(--text); font-weight: 600; }
+  h1 { font-size: 38px; line-height: 1.12; margin: 18px 0 14px; font-weight: 700; letter-spacing: -.01em; }
+  h2 { font-size: 24px; margin: 52px 0 14px; }
+  p { margin: 0 0 14px; color: var(--dim); }
+  strong { color: var(--text); }
+  .hero { width: 100%; border-radius: 14px; border: 1px solid var(--line); display: block; margin: 26px 0 10px; }
+  .cap { font-size: 13px; color: var(--faint); }
+  .get { display: block; margin: 22px 0 6px; padding: 18px 20px; border-radius: 14px; background: var(--accent);
+         color: #fff; text-decoration: none; font-weight: 700; font-size: 19px; text-align: center; }
+  .small { font-size: 14px; color: var(--faint); text-align: center; }
+  .note { font-size: 14px; color: var(--faint); }
+  ol.steps { list-style: none; padding: 0; margin: 0; counter-reset: s; }
+  ol.steps li { counter-increment: s; position: relative; background: var(--panel); border: 1px solid var(--line);
+                border-radius: 14px; padding-block: 18px 16px; padding-inline: 66px 18px; margin-bottom: 12px; color: var(--dim); }
+  ol.steps li::before { content: counter(s); position: absolute; inset-inline-start: 18px; top: 16px; width: 32px; height: 32px;
+                border-radius: 50%; border: 1px solid #4a5063; color: var(--text); text-align: center;
+                line-height: 30px; font-weight: 600; }
+  ol.steps li b { display: block; color: var(--text); font-size: 18px; margin-bottom: 3px; }
+  code, .addr { font-family: ui-monospace, Menlo, Consolas, monospace; background: #1c2030; border: 1px solid var(--line);
+         border-radius: 7px; padding: 2px 7px; color: #fff; font-size: 15px; overflow-wrap: anywhere; direction: ltr; unicode-bidi: isolate; }
+  .addr.code { font-size: 30px; letter-spacing: .12em; padding: 8px 18px; }
+  .addr { display: inline-block; font-size: 19px; padding: 6px 12px; margin: 6px 0; max-width: 100%;
+          white-space: normal; overflow-wrap: anywhere; }
+  ul.feat { padding-inline-start: 20px; color: var(--dim); }
+  ul.feat li { margin-bottom: 8px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid img { width: 100%; border-radius: 10px; border: 1px solid var(--line); display: block; }
+  .tip { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; margin-bottom: 10px; color: var(--dim); }
+  .tip b { color: var(--text); }
+  details { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; margin-bottom: 10px; }
+  summary { cursor: pointer; font-weight: 600; color: var(--text); }
+  details p { margin-top: 10px; }
+  footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 14px; color: var(--faint); }
+  footer a, p a, li a { color: #9db3ff; }
+  @media (max-width: 520px) { h1 { font-size: 30px; } .grid { grid-template-columns: 1fr; } .addr { font-size: 16px; } }
+</style>
+</head>
+<body>
+<main>
+  <div class="kicker">Per a Android TV, Google TV i Fire TV</div>
+  <div class="langs"><a href="../" hreflang="en" lang="en">English</a> <a href="../fr/" hreflang="fr" lang="fr">Français</a> <a href="../es/" hreflang="es" lang="es">Español</a> <a href="../pt/" hreflang="pt" lang="pt">Português</a> <a href="../de/" hreflang="de" lang="de">Deutsch</a> <span>Català</span> <a href="../ar/" hreflang="ar" lang="ar">العربية</a> <a href="../hi/" hreflang="hi" lang="hi">हिन्दी</a> <a href="../sw/" hreflang="sw" lang="sw">Kiswahili</a> <a href="../id/" hreflang="id" lang="id">Bahasa Indonesia</a> <a href="../th/" hreflang="th" lang="th">ไทย</a> <a href="../zh/" hreflang="zh" lang="zh">中文</a></div>
+  <h1>Una pantalla d'inici neta per al teu televisor.</h1>
+  <p>TV Home substitueix la pantalla d'inici plena d'anuncis per una de senzilla i bonica: les teves apps preferides en un dock, un rellotge gran, el temps i el que sona. <strong>S'instal·la amb el comandament en pocs minuts.</strong> Sense mòbil ni ordinador. Gratuït i de codi obert, en 12 idiomes.</p>
+
+  <img class="hero" src="../focus-2-up-netflix.png" alt="TV Home: un rellotge gran i la data a dalt, el nom de l'app seleccionada en gran i un dock amb quatre apps">
+  <div class="cap">L'aspecte de TV Home. El dock mostra les apps que triïs.</div>
+
+  <a class="get" href="https://github.com/G41US/tv-vibehack/releases/latest/download/tvhome.apk">Baixa TV Home (APK)</a>
+  <p class="small">Al televisor: obre Downloader i escriu <strong>2960939</strong>. Passos complets a sota.</p>
+
+  <h2>Instal·la'l amb el comandament</h2>
+  <ol class="steps">
+    <li><b>Aconsegueix Downloader</b>Al televisor, obre <strong>Play Store</strong> (a Fire TV: la botiga d'Amazon), cerca <strong>Downloader</strong> d'AFTVnews i instal·la'l.</li>
+    <li><b>Escriu el codi</b>Obre Downloader. A la casella, escriu el codi<br>
+      <span class="addr code">2960939</span><br>
+      i prem <strong>Go</strong>. Si Downloader demana permís per instal·lar apps, tria <strong>Configuració</strong>, activa-ho i prem Enrere.
+      <br><span class="note">No funciona el codi? Escriu això: <code>g41us.github.io/tv-vibehack/get</code></span></li>
+    <li><b>Instal·la i obre</b>Tria <strong>Instal·lar</strong> i després <strong>Obrir</strong>.</li>
+    <li><b>Fes-ho tot per mi</b>TV Home mostra una pantalla curta de configuració. Prem <strong>Fes-ho tot per mi</strong> i segueix els tres passos de la pantalla:<br>• Activa les <strong>Opcions per a desenvolupadors</strong>: Configuració → Sistema (o Preferències del dispositiu) → Informació → prem OK 7 vegades sobre <strong>Compilació</strong>.<br>• Activa la <strong>depuració USB</strong> a Opcions per a desenvolupadors (alguns televisors en diuen depuració de xarxa o ADB).<br>• Prem <strong>Configurar-ho tot</strong>. Quan el televisor pregunti <strong>"Vols permetre la depuració USB?"</strong>, marca Permet sempre i tria D'acord.<br>Ja està. Prem Inici: TV Home s'obre, i a partir d'ara el televisor arrenca amb ell.
+      <br><span class="note">Prefereixes no activar la depuració? Fes servir els altres botons de la mateixa pantalla: Botó Inici i arrencada → Activar (tria TV Home a Accessibilitat), i després Permetre i Permetre.</span></li>
+  </ol>
+
+  <h2>Què hi tens</h2>
+  <ul class="feat">
+    <li><strong>Sense anuncis ni files patrocinades.</strong> Només les teves apps, amb les quatre preferides en un dock.</li>
+    <li><strong>Arrenca amb TV Home</strong>, i el botó Inici sempre hi torna.</li>
+    <li><strong>Rellotge, data i temps</strong> de qualsevol ciutat del món, amb la previsió de la setmana.</li>
+    <li><strong>Reproduint:</strong> el que sona a Spotify o YouTube Music, amb reproductor a pantalla completa i lletres.</li>
+    <li><strong>Tauler ràpid:</strong> mantén Enrere a qualsevol lloc per a la música, el volum, el mode nit, el repòs i Accelerar.</li>
+    <li><strong>Mode nit:</strong> una pantalla més suau i un límit de volum a la nit.</li>
+    <li><strong>Fons:</strong> inclosos, amb moviment suau, o una foto des del mòbil.</li>
+    <li><strong>QR de la Wi-Fi de convidats</strong> i les dades usades avui i aquest mes.</li>
+    <li><strong>S'actualitza sol:</strong> les noves versions s'instal·len amb un clic.</li>
+    <li><strong>En el teu idioma:</strong> anglès, francès, castellà, portuguès, alemany, català, àrab, hindi, suahili, indonesi, tai i xinès.</li>
+  </ul>
+  <div class="grid">
+    <img src="../focus-1-fancode.png" alt="La pantalla d'inici amb una app seleccionada al dock">
+    <img src="../clock-screensaver.png" alt="L'estalvi de pantalla de rellotge: un rellotge gran i prim i la data sobre una lluentor fosca">
+  </div>
+
+  <h2>En quins televisors funciona</h2>
+  <p><strong>Televisors i aparells amb Android TV o Google TV:</strong> Sony, TCL, Hisense (models Android), Xiaomi, Philips (models Android), Chromecast amb Google TV, Nvidia Shield, l'Airtel Smart Router i la majoria d'aparells Android. Si alguna cosa no funciona en el teu, obre <strong>Revisió del televisor</strong> a TV Home i envia un informe: mostra què cal arreglar.</p>
+  <p><strong>Amazon Fire TV</strong> (Fire OS 7 i 8, és a dir, la majoria de Fire TV Stick i televisors Fire TV): també funciona. En prémer Inici veuràs un moment l'inici d'Amazon, i a Fire OS 7 cal esperar uns segons. Per a Fes-ho tot per mi a Fire TV, prem OK 7 vegades sobre el nom del dispositiu a Informació i activa la depuració ADB. Els Fire TV nous amb Vega OS no instal·len apps de fora de la botiga d'Amazon.</p>
+  <p><strong>No funciona en</strong> Samsung (Tizen), LG (webOS), Roku, Hisense VIDAA ni Apple TV: no executen apps Android ni deixen que una app substitueixi la pantalla d'inici. La solució fàcil per a aquests televisors: connecta un dongle amb Android TV o Google TV i fes servir TV Home amb ell.</p>
+
+  <h2>Com es fa servir</h2>
+  <div class="tip"><b>Mantén OK sobre una app</b> per moure-la al dock, afegir-la o treure-la. El dock en té quatre.</div>
+  <div class="tip"><b>Mantén OK sobre Configuració</b> (a dalt a la dreta) per al fons, la ciutat del temps, la música, el mode nit, les actualitzacions i la configuració.</div>
+  <div class="tip"><b>Mantén Enrere</b>, a qualsevol lloc, per al tauler ràpid.</div>
+  <div class="tip"><b>Prem OK sobre el temps</b> per veure la previsió de la setmana.</div>
+
+  <h2>Preguntes</h2>
+  <details><summary>Per què necessita Accessibilitat?</summary>
+    <p>Molts televisors obren la seva pròpia pantalla d'inici en engegar-se i amb el botó Inici, triïs l'app que triïs. El permís d'Accessibilitat de TV Home només vigila aquella pantalla i alguns botons, i obre TV Home al seu lloc. No llegeix, no grava ni envia res de la pantalla. Android mostra un avís general per a qualsevol app que el demana.</p></details>
+  <details><summary>Esborra o espatlla les apps del meu televisor?</summary>
+    <p>No. No es desinstal·la ni es desactiva res. Els canals, les apps i la configuració queden igual.</p></details>
+  <details><summary>Com torno a la pantalla d'inici anterior?</summary>
+    <p>Configuració → Accessibilitat → TV Home → desactivar. Per treure'l del tot: Configuració → Apps → TV Home → Desinstal·lar. El televisor torna a estar com abans.</p></details>
+  <details><summary>Una actualització del sistema ha tornat la pantalla d'inici anterior.</summary>
+    <p>Obre TV Home des de la llista d'apps i torna a fer la configuració (mantén OK sobre Configuració → Actualitzacions i configuració).</p></details>
+  <details><summary>Alguna cosa no funciona.</summary>
+    <p>Mantén OK sobre Configuració → Actualitzacions i configuració → <strong>Revisió del televisor</strong>. Mostra un ✓ o una ✗ per a cada part de TV Home i què cal prémer per arreglar-ho. <strong>Enviar un informe</strong> hi mostra un codi QR: escaneja'l amb el mòbil per enviar les dades del teu televisor i que s'hi pugui afegir suport.</p></details>
+  <details><summary>És segur?</summary>
+    <p>Sí. El codi és públic a GitHub, no es flasheja ni es fa root de res, i les actualitzacions només s'instal·len si estan signades amb la clau de TV Home, així que ningú més pot enviar una actualització falsa al teu televisor.</p></details>
+  <details><summary>He reinstal·lat TV Home. He perdut la configuració?</summary>
+    <p>No. TV Home guarda una còpia xifrada del dock, el fons, el temps i el QR de la Wi-Fi al televisor. Després de reinstal·lar, prem <strong>Permetre</strong> al costat de "Guarda la teva configuració" a la pantalla de configuració i tornen.</p></details>
+  <details><summary>Extres amb mòbil o ordinador</summary>
+    <p>Amb ADB (Termux a Android, o un ordinador), l'script <a href="https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh">airtel-fix.sh</a> fa la mateixa configuració des d'un mòbil, a més d'animacions més ràpides i SmartTube. Afegeix <code>ADBLOCK=1</code> per a un DNS amb bloqueig d'anuncis a tot l'aparell (pot deixar alguns aparells sense internet). No cal per a TV Home.</p></details>
+
+  <footer>TV Home es basa en <a href="https://github.com/Gathin23/tv-vibehack">tv-vibehack</a> de Gathin23 (llicència MIT) i el desenvolupa <a href="https://github.com/G41US/tv-vibehack">G41US</a>. No està fet per Google, Amazon, Airtel ni cap fabricant de televisors, ni hi està afiliat. Fes-lo servir sota la teva responsabilitat.</footer>
+</main>
+</body>
+</html>

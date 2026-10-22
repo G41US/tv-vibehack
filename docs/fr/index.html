@@ -1,13 +1,26 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TV Home pour l'Airtel Smart Router</title>
-<meta name="description" content="Un écran d'accueil propre et sans publicité pour le boîtier Airtel Smart Router. S'installe avec la télécommande en trois minutes environ. Gratuit et open source.">
-<meta property="og:title" content="TV Home pour l'Airtel Smart Router">
-<meta property="og:description" content="Remplacez l'écran d'accueil du boîtier Airtel par un écran propre et sans publicité. Télécommande seulement, trois minutes, gratuit.">
+<!-- Made by tools/site/build.py from tools/site/lang/fr.json: edit those, not this file. -->
+<title>TV Home : un écran d'accueil épuré pour Android TV et Google TV</title>
+<meta name="description" content="Un écran d'accueil propre et sans publicité pour Android TV, Google TV et Fire TV. S'installe avec la télécommande en quelques minutes. Gratuit et open source.">
+<meta property="og:title" content="TV Home : un écran d'accueil épuré pour Android TV et Google TV">
+<meta property="og:description" content="Un écran d'accueil propre et sans publicité pour Android TV, Google TV et Fire TV. S'installe avec la télécommande en quelques minutes. Gratuit et open source.">
 <meta property="og:image" content="https://g41us.github.io/tv-vibehack/focus-2-up-netflix.png">
+<link rel="alternate" hreflang="en" href="https://g41us.github.io/tv-vibehack/">
+<link rel="alternate" hreflang="fr" href="https://g41us.github.io/tv-vibehack/fr/">
+<link rel="alternate" hreflang="es" href="https://g41us.github.io/tv-vibehack/es/">
+<link rel="alternate" hreflang="pt" href="https://g41us.github.io/tv-vibehack/pt/">
+<link rel="alternate" hreflang="de" href="https://g41us.github.io/tv-vibehack/de/">
+<link rel="alternate" hreflang="ca" href="https://g41us.github.io/tv-vibehack/ca/">
+<link rel="alternate" hreflang="ar" href="https://g41us.github.io/tv-vibehack/ar/">
+<link rel="alternate" hreflang="hi" href="https://g41us.github.io/tv-vibehack/hi/">
+<link rel="alternate" hreflang="sw" href="https://g41us.github.io/tv-vibehack/sw/">
+<link rel="alternate" hreflang="id" href="https://g41us.github.io/tv-vibehack/id/">
+<link rel="alternate" hreflang="th" href="https://g41us.github.io/tv-vibehack/th/">
+<link rel="alternate" hreflang="zh" href="https://g41us.github.io/tv-vibehack/zh/">
 <style>
   :root {
     --bg: #0a0b10; --panel: #13151d; --line: #262a37; --text: #eceef4; --dim: #a3a8b8; --faint: #6f7587;
@@ -15,10 +28,14 @@
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text);
-         font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+         font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif; }
   main { max-width: 760px; margin: 0 auto; padding: 40px 18px 64px; }
   .kicker { color: var(--dim); font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
-  h1 { font-size: 38px; line-height: 1.12; margin: 10px 0 14px; font-weight: 700; letter-spacing: -.01em; }
+  .langs { margin-top: 10px; font-size: 14px; line-height: 2; }
+  .langs a, .langs span { margin-inline-end: 12px; white-space: nowrap; }
+  .langs a { color: #9db3ff; }
+  .langs span { color: var(--text); font-weight: 600; }
+  h1 { font-size: 38px; line-height: 1.12; margin: 18px 0 14px; font-weight: 700; letter-spacing: -.01em; }
   h2 { font-size: 24px; margin: 52px 0 14px; }
   p { margin: 0 0 14px; color: var(--dim); }
   strong { color: var(--text); }
@@ -27,19 +44,20 @@
   .get { display: block; margin: 22px 0 6px; padding: 18px 20px; border-radius: 14px; background: var(--accent);
          color: #fff; text-decoration: none; font-weight: 700; font-size: 19px; text-align: center; }
   .small { font-size: 14px; color: var(--faint); text-align: center; }
+  .note { font-size: 14px; color: var(--faint); }
   ol.steps { list-style: none; padding: 0; margin: 0; counter-reset: s; }
   ol.steps li { counter-increment: s; position: relative; background: var(--panel); border: 1px solid var(--line);
-                border-radius: 14px; padding: 18px 18px 16px 66px; margin-bottom: 12px; color: var(--dim); }
-  ol.steps li::before { content: counter(s); position: absolute; left: 18px; top: 16px; width: 32px; height: 32px;
+                border-radius: 14px; padding-block: 18px 16px; padding-inline: 66px 18px; margin-bottom: 12px; color: var(--dim); }
+  ol.steps li::before { content: counter(s); position: absolute; inset-inline-start: 18px; top: 16px; width: 32px; height: 32px;
                 border-radius: 50%; border: 1px solid #4a5063; color: var(--text); text-align: center;
                 line-height: 30px; font-weight: 600; }
   ol.steps li b { display: block; color: var(--text); font-size: 18px; margin-bottom: 3px; }
   code, .addr { font-family: ui-monospace, Menlo, Consolas, monospace; background: #1c2030; border: 1px solid var(--line);
-         border-radius: 7px; padding: 2px 7px; color: #fff; font-size: 15px; overflow-wrap: anywhere; }
+         border-radius: 7px; padding: 2px 7px; color: #fff; font-size: 15px; overflow-wrap: anywhere; direction: ltr; unicode-bidi: isolate; }
   .addr.code { font-size: 30px; letter-spacing: .12em; padding: 8px 18px; }
   .addr { display: inline-block; font-size: 19px; padding: 6px 12px; margin: 6px 0; max-width: 100%;
           white-space: normal; overflow-wrap: anywhere; }
-  ul.feat { padding-left: 20px; color: var(--dim); }
+  ul.feat { padding-inline-start: 20px; color: var(--dim); }
   ul.feat li { margin-bottom: 8px; }
   .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .grid img { width: 100%; border-radius: 10px; border: 1px solid var(--line); display: block; }
@@ -55,98 +73,77 @@
 </head>
 <body>
 <main>
-  <div class="kicker">Pour le boîtier TV Airtel Smart Router · <a href="../" style="color:#9db3ff">English</a></div>
-  <h1>Un écran d'accueil propre pour votre boîtier Airtel.</h1>
-  <p>TV Home remplace l'écran d'accueil plein de publicités par un écran simple et élégant : vos applis préférées dans
-    un dock, une grande horloge, la météo et quelques fonds d'écran. <strong>S'installe avec la télécommande en trois
-    minutes environ.</strong> Pas besoin de téléphone ni d'ordinateur. Gratuit et open source.</p>
+  <div class="kicker">Pour Android TV, Google TV et Fire TV</div>
+  <div class="langs"><a href="../" hreflang="en" lang="en">English</a> <span>Français</span> <a href="../es/" hreflang="es" lang="es">Español</a> <a href="../pt/" hreflang="pt" lang="pt">Português</a> <a href="../de/" hreflang="de" lang="de">Deutsch</a> <a href="../ca/" hreflang="ca" lang="ca">Català</a> <a href="../ar/" hreflang="ar" lang="ar">العربية</a> <a href="../hi/" hreflang="hi" lang="hi">हिन्दी</a> <a href="../sw/" hreflang="sw" lang="sw">Kiswahili</a> <a href="../id/" hreflang="id" lang="id">Bahasa Indonesia</a> <a href="../th/" hreflang="th" lang="th">ไทย</a> <a href="../zh/" hreflang="zh" lang="zh">中文</a></div>
+  <h1>Un écran d'accueil épuré pour votre téléviseur.</h1>
+  <p>TV Home remplace l'écran d'accueil plein de publicités par un écran simple et élégant : vos applis préférées dans un dock, une grande horloge, la météo et ce qui passe en ce moment. <strong>S'installe avec la télécommande en quelques minutes.</strong> Pas besoin de téléphone ni d'ordinateur. Gratuit et open source, en 12 langues.</p>
 
   <img class="hero" src="../focus-2-up-netflix.png" alt="TV Home : une grande horloge et la date en haut, le nom de l'appli sélectionnée en grand, et un dock de quatre applis">
-  <div class="cap">L'apparence de TV Home. Votre dock affiche les applis que vous choisissez.</div>
+  <div class="cap">Le style TV Home. Votre dock affiche les applis de votre choix.</div>
 
   <a class="get" href="https://github.com/G41US/tv-vibehack/releases/latest/download/tvhome.apk">Télécharger TV Home (APK)</a>
-  <p class="small">Sur le téléviseur : ouvrez Downloader et tapez <strong style="color:var(--text)">2960939</strong>. Étapes ci-dessous.</p>
+  <p class="small">Sur le téléviseur : ouvrez Downloader et tapez <strong>2960939</strong>. Étapes complètes ci-dessous.</p>
 
-  <h2>Installer avec la télécommande</h2>
+  <h2>Installez-le avec la télécommande</h2>
   <ol class="steps">
-    <li><b>Installez Downloader</b>Sur le boîtier Airtel, ouvrez le <strong>Play Store</strong>, cherchez <strong>Downloader</strong>
-      (par AFTVnews) et installez-le.</li>
+    <li><b>Installez Downloader</b>Sur le téléviseur, ouvrez le <strong>Play Store</strong> (sur Fire TV : la boutique d'Amazon), cherchez <strong>Downloader</strong> d'AFTVnews et installez-le.</li>
     <li><b>Tapez le code</b>Ouvrez Downloader. Dans la case, tapez le code<br>
       <span class="addr code">2960939</span><br>
-      et appuyez sur <strong>Go</strong>. Si Downloader demande l'autorisation d'installer des applis, choisissez
-      <strong>Paramètres</strong>, activez-la et appuyez sur Retour.
-      <br><span style="font-size:14px;color:var(--faint)">Le code ne marche pas ? Tapez plutôt <code>g41us.github.io/tv-vibehack/get</code>.</span></li>
+      et appuyez sur <strong>Go</strong>. Si Downloader demande l'autorisation d'installer des applis, choisissez <strong>Paramètres</strong>, activez-la et appuyez sur Retour.
+      <br><span class="note">Le code ne marche pas ? Tapez plutôt : <code>g41us.github.io/tv-vibehack/get</code></span></li>
     <li><b>Installez et ouvrez</b>Choisissez <strong>Installer</strong>, puis <strong>Ouvrir</strong>.</li>
-    <li><b>Tout faire pour moi</b>TV Home affiche un court écran de configuration. Appuyez sur <strong>Tout faire pour moi</strong> et suivez les trois étapes à l'écran :
-      <br>• Activez les <strong>Options pour les développeurs</strong> : Paramètres → Système → À propos → appuyez 7 fois sur OK sur <strong>Build Android TV OS</strong>.
-      <br>• Activez le <strong>Débogage USB</strong> dans les Options pour les développeurs (sur certains téléviseurs : débogage réseau ou ADB).
-      <br>• Appuyez sur <strong>Tout configurer</strong>. Quand le téléviseur demande <strong>« Autoriser le débogage USB ? »</strong>, cochez Toujours autoriser et choisissez OK.
-      <br>C'est tout. Appuyez sur Accueil : TV Home s'ouvre, et le boîtier démarre dessus désormais.
-      <br><span style="font-size:14px;color:var(--faint)">Vous préférez ne pas activer le débogage ? Utilisez les autres boutons du même écran :
-      Bouton Accueil et démarrage → Activer (choisissez TV Home dans Accessibilité), puis Autoriser et Autoriser.</span></li>
+    <li><b>Tout faire pour moi</b>TV Home affiche un court écran de configuration. Appuyez sur <strong>Tout faire pour moi</strong> et suivez les trois étapes à l'écran :<br>• Activez les <strong>Options pour les développeurs</strong> : Paramètres → Système (ou Préférences de l'appareil) → À propos → appuyez 7 fois sur OK sur <strong>Build</strong>.<br>• Activez le <strong>Débogage USB</strong> dans les Options pour les développeurs (sur certains téléviseurs : débogage réseau ou ADB).<br>• Appuyez sur <strong>Tout configurer</strong>. Quand le téléviseur demande <strong>« Autoriser le débogage USB ? »</strong>, cochez Toujours autoriser et choisissez OK.<br>C'est tout. Appuyez sur Accueil : TV Home s'ouvre, et le téléviseur démarre dessus désormais.
+      <br><span class="note">Vous préférez ne pas activer le débogage ? Utilisez les autres boutons du même écran : Bouton Accueil et démarrage → Activer (choisissez TV Home dans Accessibilité), puis Autoriser et Autoriser.</span></li>
   </ol>
 
   <h2>Ce que vous obtenez</h2>
   <ul class="feat">
     <li><strong>Plus de publicités ni de rangées sponsorisées.</strong> Juste vos applis, avec vos quatre préférées dans un dock.</li>
     <li><strong>Démarre sur TV Home</strong>, et le bouton Accueil y revient toujours.</li>
-    <li><strong>Horloge, date et météo</strong> de votre ville.</li>
-    <li><strong>Fonds d'écran :</strong> six inclus, ou une photo envoyée depuis votre téléphone.</li>
-    <li><strong>QR code Wi-Fi pour les invités :</strong> ils scannent le téléviseur pour se connecter.</li>
-    <li><strong>Données utilisées</strong> aujourd'hui et ce mois-ci.</li>
+    <li><strong>Horloge, date et météo</strong> de n'importe quelle ville du monde, avec les prévisions de la semaine.</li>
+    <li><strong>En cours de lecture :</strong> ce qui passe sur Spotify ou YouTube Music, avec un lecteur plein écran et les paroles.</li>
+    <li><strong>Panneau rapide :</strong> maintenez Retour n'importe où pour la musique, le volume, le mode nuit, la veille et Accélérer.</li>
+    <li><strong>Mode nuit :</strong> un écran plus doux et un volume limité tard le soir.</li>
+    <li><strong>Fonds d'écran :</strong> inclus, légèrement animés, ou une photo envoyée depuis votre téléphone.</li>
+    <li><strong>QR code Wi-Fi pour les invités</strong> et les données utilisées aujourd'hui et ce mois-ci.</li>
     <li><strong>Se met à jour tout seul :</strong> les nouvelles versions s'installent en un clic.</li>
-    <li><strong>Un économiseur d'écran horloge</strong> qui se déplace pour éviter le marquage.</li>
+    <li><strong>Dans votre langue :</strong> anglais, français, espagnol, portugais, allemand, catalan, arabe, hindi, swahili, indonésien, thaï et chinois.</li>
   </ul>
   <div class="grid">
     <img src="../focus-1-fancode.png" alt="L'écran d'accueil avec une appli sélectionnée dans le dock">
-    <img src="../clock-screensaver.png" alt="L'économiseur d'écran : une grande horloge fine et la date sur un fond sombre">
+    <img src="../clock-screensaver.png" alt="L'économiseur d'écran horloge : une grande horloge fine et la date sur une lueur sombre">
   </div>
 
-  <h2>Sur quels téléviseurs</h2>
-  <p><strong>Conçu pour l'Airtel Smart Router.</strong> Il devrait aussi fonctionner sur les téléviseurs et boîtiers sous
-    <strong>Android TV ou Google TV</strong> : Sony, TCL, Hisense (modèles Android), Xiaomi, Philips (modèles Android),
-    Chromecast avec Google TV, Nvidia Shield et la plupart des boîtiers Android. L'installation est la même, avec Downloader.</p>
-  <p><strong>Amazon Fire TV</strong> (Fire OS 7 et 8, donc la plupart des Fire TV Stick et téléviseurs Fire TV) : fonctionne
-    aussi. Downloader est dans la boutique d'Amazon. L'accueil d'Amazon s'affiche un bref instant quand vous appuyez sur
-    Accueil, et sur Fire OS 7 il faut attendre quelques secondes. Si la page Accessibilité de votre Fire TV est vide, utilisez
-    <strong>Tout faire pour moi</strong> : sur Fire TV, appuyez 7 fois sur OK sur le nom de l'appareil dans À propos, puis activez le débogage ADB. Les Fire TV récents sous Vega OS n'acceptent pas
-    d'applis hors de la boutique d'Amazon.</p>
-  <p><strong>Impossible sur</strong> Samsung (Tizen), LG (webOS), Roku, Hisense VIDAA et Apple TV : ils n'exécutent pas
-    les applis Android et ne laissent aucune appli remplacer l'écran d'accueil. La solution simple pour ces téléviseurs :
-    branchez une clé Android TV ou Google TV et utilisez TV Home dessus.</p>
+  <h2>Sur quels téléviseurs ça marche</h2>
+  <p><strong>Les téléviseurs et boîtiers sous Android TV ou Google TV :</strong> Sony, TCL, Hisense (modèles Android), Xiaomi, Philips (modèles Android), Chromecast avec Google TV, Nvidia Shield, l'Airtel Smart Router et la plupart des boîtiers Android. Si quelque chose ne marche pas sur le vôtre, ouvrez <strong>Vérification du téléviseur</strong> dans TV Home et envoyez un rapport : il montre quoi corriger.</p>
+  <p><strong>Amazon Fire TV</strong> (Fire OS 7 et 8, donc la plupart des Fire TV Stick et téléviseurs Fire TV) : fonctionne aussi. L'accueil d'Amazon s'affiche un bref instant quand vous appuyez sur Accueil, et sur Fire OS 7 il faut attendre quelques secondes. Pour Tout faire pour moi sur Fire TV, appuyez 7 fois sur OK sur le nom de l'appareil dans À propos, puis activez le débogage ADB. Les Fire TV récents sous Vega OS n'acceptent pas d'applis hors de la boutique d'Amazon.</p>
+  <p><strong>Impossible sur</strong> Samsung (Tizen), LG (webOS), Roku, Hisense VIDAA et Apple TV : ils n'exécutent pas d'applis Android et ne laissent aucune appli remplacer l'écran d'accueil. La solution simple pour ces téléviseurs : branchez une clé Android TV ou Google TV et utilisez TV Home dessus.</p>
 
   <h2>Utilisation</h2>
   <div class="tip"><b>Maintenez OK sur une appli</b> pour la déplacer dans le dock, l'ajouter ou la retirer. Le dock en contient quatre.</div>
-  <div class="tip"><b>Maintenez OK sur Paramètres</b> (en haut à droite) pour le fond d'écran, la ville météo, les mises à jour et la configuration.</div>
-  <div class="tip"><b>Maintenez OK sur le bouton réseau</b> pour le QR code Wi-Fi et les données utilisées.</div>
+  <div class="tip"><b>Maintenez OK sur Paramètres</b> (en haut à droite) pour le fond d'écran, la ville météo, la musique, le mode nuit, les mises à jour et la configuration.</div>
+  <div class="tip"><b>Maintenez Retour</b>, n'importe où, pour le panneau rapide.</div>
+  <div class="tip"><b>Appuyez sur OK sur la météo</b> pour les prévisions de la semaine.</div>
 
   <h2>Questions</h2>
   <details><summary>Pourquoi l'accès Accessibilité ?</summary>
-    <p>Le boîtier Airtel ouvre son propre écran d'accueil au démarrage et avec le bouton Accueil, quelle que soit l'appli choisie.
-      L'option Accessibilité de TV Home surveille seulement cet écran et le bouton Accueil, et ouvre TV Home à la place.
-      Elle ne lit, n'enregistre et n'envoie rien de ce qui est à l'écran. Android affiche le même avertissement pour toutes les applis qui la demandent.</p></details>
-  <details><summary>Est-ce que ça supprime ou casse les applis Airtel ?</summary>
-    <p>Non. Rien n'est désinstallé ni désactivé. Vos chaînes, l'appli de compte Airtel et vos réglages restent tels quels.</p></details>
-  <details><summary>Comment revenir à l'écran d'accueil Airtel ?</summary>
-    <p>Paramètres → Accessibilité → TV Home → désactiver. Pour le supprimer complètement : Paramètres → Applis → TV Home → Désinstaller.
-      Le boîtier redevient exactement comme avant.</p></details>
-  <details><summary>Une mise à jour Airtel a ramené leur écran d'accueil.</summary>
+    <p>Beaucoup de téléviseurs ouvrent leur propre écran d'accueil au démarrage et sur le bouton Accueil, quelle que soit l'appli choisie. L'option Accessibilité de TV Home surveille seulement cet écran et quelques boutons, et ouvre TV Home à la place. Elle ne lit, n'enregistre et n'envoie rien de votre écran. Android affiche un avertissement général pour toute appli qui la demande.</p></details>
+  <details><summary>Est-ce que ça supprime ou casse les applis de mon téléviseur ?</summary>
+    <p>Non. Rien n'est désinstallé ni désactivé. Vos chaînes, applis et réglages restent tels quels.</p></details>
+  <details><summary>Comment revenir à l'ancien écran d'accueil ?</summary>
+    <p>Paramètres → Accessibilité → TV Home → désactiver. Pour le supprimer complètement : Paramètres → Applis → TV Home → Désinstaller. Le téléviseur redevient exactement comme avant.</p></details>
+  <details><summary>Une mise à jour système a ramené l'ancien écran d'accueil.</summary>
     <p>Ouvrez TV Home depuis la liste des applis et refaites la configuration (maintenez OK sur Paramètres → Mises à jour et configuration).</p></details>
   <details><summary>Quelque chose ne marche pas.</summary>
-    <p>Maintenez OK sur Paramètres → Mises à jour et configuration → <strong>Vérification du téléviseur</strong>. Elle affiche
-      un ✓ ou un ✗ pour chaque partie de TV Home, et sur quoi appuyer pour corriger.</p></details>
+    <p>Maintenez OK sur Paramètres → Mises à jour et configuration → <strong>Vérification du téléviseur</strong>. Elle affiche un ✓ ou un ✗ pour chaque partie de TV Home, et sur quoi appuyer pour corriger. <strong>Envoyer un rapport</strong> y affiche un QR code : scannez-le avec votre téléphone pour envoyer les détails de votre téléviseur, afin qu'il soit pris en charge.</p></details>
   <details><summary>Est-ce sûr ?</summary>
-    <p>Oui. Le code est public sur GitHub, rien n'est flashé ni rooté, et les mises à jour ne s'installent que si elles sont
-      signées avec la clé de TV Home : personne d'autre ne peut envoyer une fausse mise à jour sur votre boîtier.</p></details>
+    <p>Oui. Le code est public sur GitHub, rien n'est flashé ni rooté, et les mises à jour ne s'installent que si elles sont signées avec la clé de TV Home : personne d'autre ne peut envoyer une fausse mise à jour sur votre téléviseur.</p></details>
   <details><summary>J'ai réinstallé TV Home. Mes réglages sont-ils perdus ?</summary>
-    <p>Non. TV Home garde une sauvegarde chiffrée de votre dock, fond d'écran, météo et QR Wi-Fi sur le boîtier. Après la
-      réinstallation, appuyez sur <strong>Autoriser</strong> à côté de « Protéger vos réglages » et ils reviennent.</p></details>
+    <p>Non. TV Home garde une sauvegarde chiffrée de votre dock, fond d'écran, météo et QR Wi-Fi sur le téléviseur. Après la réinstallation, appuyez sur <strong>Autoriser</strong> à côté de « Protéger vos réglages » et ils reviennent.</p></details>
+  <details><summary>Extras avec un téléphone ou un ordinateur</summary>
+    <p>Avec ADB (Termux sur Android, ou un ordinateur), le script <a href="https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh">airtel-fix.sh</a> fait la même configuration depuis un téléphone, plus des animations plus rapides et SmartTube. Ajoutez <code>ADBLOCK=1</code> pour un DNS anti-pub sur tout le boîtier (il peut empêcher certains boîtiers d'accéder à Internet). Pas nécessaire pour TV Home.</p></details>
 
-  <footer>
-    TV Home est basé sur <a href="https://github.com/Gathin23/tv-vibehack">tv-vibehack</a> de Gathin23 (licence MIT),
-    adapté pour l'Airtel Smart Router par <a href="https://github.com/G41US/tv-vibehack">G41US</a>.
-    Il n'est ni fait par Airtel ni affilié à Airtel. Utilisation à vos risques ; Airtel peut ne pas assister les boîtiers qui l'utilisent.
-  </footer>
+  <footer>TV Home est basé sur <a href="https://github.com/Gathin23/tv-vibehack">tv-vibehack</a> de Gathin23 (licence MIT), développé par <a href="https://github.com/G41US/tv-vibehack">G41US</a>. Il n'est ni fait par Google, Amazon, Airtel ou un fabricant de téléviseurs, ni affilié à eux. Utilisation à vos risques.</footer>
 </main>
 </body>
 </html>
