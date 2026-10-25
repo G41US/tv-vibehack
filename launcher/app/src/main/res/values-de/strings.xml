@@ -344,4 +344,6 @@
     <string name="chk_report">Bericht senden</string>
     <string name="chk_report_value">Wenn auf diesem Fernseher etwas nicht klappt</string>
     <string name="chk_report_hint">Mit dem Handy scannen. Es öffnet einen fertig ausgefüllten Bericht über diesen Fernseher zum Senden auf GitHub. Der Fernseher selbst sendet nichts.</string>
+    <string name="fc_day_details">Gefühlt %1$d° · Regen %2$d%% · Wind bis %3$d km/h</string>
+    <string name="fc_day_details_mph">Gefühlt %1$d° · Regen %2$d%% · Wind bis %3$d mph</string>
 </resources>

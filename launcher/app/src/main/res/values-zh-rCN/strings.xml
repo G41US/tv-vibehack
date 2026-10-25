@@ -344,4 +344,6 @@
     <string name="chk_report">发送报告</string>
     <string name="chk_report_value">此电视上有功能无法使用时</string>
     <string name="chk_report_hint">用手机扫码，会打开一份已填好的此电视报告，可在 GitHub 上发送。电视本身不会发送任何内容。</string>
+    <string name="fc_day_details">体感 %1$d° · 降雨 %2$d%% · 风速最高 %3$d 公里/时</string>
+    <string name="fc_day_details_mph">体感 %1$d° · 降雨 %2$d%% · 风速最高 %3$d 英里/时</string>
 </resources>
