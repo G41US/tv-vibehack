@@ -346,4 +346,6 @@
     <string name="chk_report_hint">Pindai dengan ponsel Anda. Laporan tentang TV ini akan terbuka, sudah terisi, untuk dikirim di GitHub. TV sendiri tidak mengirim apa pun.</string>
     <string name="fc_day_details">Terasa %1$d° · Hujan %2$d%% · Angin hingga %3$d km/h</string>
     <string name="fc_day_details_mph">Terasa %1$d° · Hujan %2$d%% · Angin hingga %3$d mph</string>
+    <string name="wx_sunny">Cerah</string>
+    <string name="wx_mostly_sunny">Sebagian besar cerah</string>
 </resources>

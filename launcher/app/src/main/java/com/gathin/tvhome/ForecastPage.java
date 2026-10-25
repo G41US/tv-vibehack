@@ -43,7 +43,7 @@ final class ForecastPage {
         LinearLayout body = new LinearLayout(a);
         body.setOrientation(LinearLayout.VERTICAL);
 
-        String sky = Weather.describe(a, f.code);
+        String sky = Weather.describe(a, f.code, f.day);
         LinearLayout hero = GlassMenu.hero(a, f.now + "°   " + Weather.emoji(f.code) + "  " + sky,
                 a.getString(f.mph ? R.string.fc_details_mph : R.string.fc_details, f.feels, f.humidity, (int) Math.round(f.wind)),
                 a.getString(R.string.fc_sun, clock(a, f.sunrise), clock(a, f.sunset)));
@@ -77,7 +77,8 @@ final class ForecastPage {
             tile.setBackgroundResource(R.drawable.menu_tile_bg);
             tile.setPadding(0, GlassMenu.dp(a, 12), 0, GlassMenu.dp(a, 12));
             tile.addView(GlassMenu.text(a, i == 0 ? a.getString(R.string.fc_today) : dayName(d.date), 16, ink));
-            TextView icon = GlassMenu.text(a, Weather.emoji(d.code), 30, 0xFFFFFFFF);
+            // Today's tile shows the sky as it is now when the day isn't stormier than that.
+            TextView icon = GlassMenu.text(a, Weather.emoji(i == 0 && d.code <= 3 ? f.code : d.code), 30, 0xFFFFFFFF);
             icon.setPadding(0, GlassMenu.dp(a, 6), 0, GlassMenu.dp(a, 4));
             tile.addView(icon);
             tile.addView(GlassMenu.text(a, d.hi + "°  " + d.lo + "°", 17, ink));
