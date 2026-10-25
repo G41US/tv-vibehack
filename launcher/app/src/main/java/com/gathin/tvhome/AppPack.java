@@ -31,8 +31,8 @@ final class AppPack {
     static final String YOUTUBE = "com.google.android.youtube.tv";
     static final String KEY_SWAP_YOUTUBE = "swap_youtube";
 
-    /** Community mirror redirect for SportzX Live v3.2; not independently verified. */
-    private static final String SPORTZX_LIVE_URL = "https://simturax.com/2970";
+    /** Direct SportzX APK link supplied by the user; pinned to version 3.0 and not independently verified. */
+    private static final String SPORTZX_LIVE_URL = "https://pub-da7a734dcc5649388b83d515f2c87182.r2.dev/SportzX_3.0v.apk";
     /** Official Voltra TV APK download endpoint. */
     private static final String VOLTRA_TV_URL = "https://voltra.tv/voltratvversion.apk";
 
