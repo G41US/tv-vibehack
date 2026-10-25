@@ -99,8 +99,9 @@ final class TileArt {
     }
 
     /**
-     * A banner like Spotify's for a dock app that has none, or a dark tile: near-black, the app's logo
-     * and its name spelt out beside it in the app's colour. Null if the icon has nothing to draw.
+     * A tile for a dock app with no banner of its own (or a dark tile): deep navy glass, the app's logo
+     * centred and its name spelt out underneath in white. A name in two parts like "SmartTube" gets its
+     * last part ("Tube") in the app's colour; a one-letter tail ("SportzX") stays white.
      */
     static Bitmap wordmark(Drawable icon, String name, int ambient) {
         int[][] mark = icon != null ? iconMark(icon) : null;
@@ -109,47 +110,53 @@ final class TileArt {
 
         Bitmap out = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(out);
-        float[] hsv = new float[3];
-        Color.colorToHSV(ambient, hsv);
         Paint bg = new Paint(Paint.ANTI_ALIAS_FLAG);
-        bg.setShader(new LinearGradient(0, 0, W, H, Color.HSVToColor(new float[]{hsv[0], Math.min(hsv[1], 0.5f), 0.13f}),
-                0xFF0B0B0D, Shader.TileMode.CLAMP));
+        bg.setShader(new LinearGradient(0, 0, W * 0.4f, H, 0xFF1D2746, 0xFF070A15, Shader.TileMode.CLAMP));
         c.drawRect(0, 0, W, H, bg);
+        bg.setShader(new LinearGradient(0, 0, 0, H * 0.45f, 0x18FFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
+        c.drawRect(0, 0, W, H * 0.45f, bg);
 
-        // The name in the app's own colour, like Spotify's green; white when the colour is too dull to read.
-        int ink = hsv[1] < 0.3f ? 0xFFF5F5F7 : Color.HSVToColor(new float[]{hsv[0], Math.min(hsv[1], 0.85f), Math.max(hsv[2], 0.92f)});
         Paint text = new Paint(Paint.ANTI_ALIAS_FLAG);
-        text.setTypeface(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.BOLD));
-        text.setColor(ink);
-        text.setTextSize(H * 0.25f);
-        text.setLetterSpacing(-0.02f);
-
-        float iconH = H * 0.36f, iconW = iconH * lw / lh;
-        float gap = H * 0.06f;
+        text.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
+        text.setTextSize(H * 0.19f);
+        text.setLetterSpacing(-0.01f);
         float textW = text.measureText(name);
-        float total = iconW + gap + textW, room = W * 0.86f;
-        if (total > room) {   // long name: shrink the text, then everything, to fit
-            text.setTextSize(text.getTextSize() * Math.max(0.6f, (room - iconW - gap) / textW));
+        if (textW > W * 0.84f) {
+            text.setTextSize(text.getTextSize() * W * 0.84f / textW);
             textW = text.measureText(name);
-            total = iconW + gap + textW;
-            if (total > room) {
-                float k = room / total;
-                iconH *= k;
-                iconW *= k;
-                gap *= k;
-                text.setTextSize(text.getTextSize() * k);
-                textW = text.measureText(name);
-                total = iconW + gap + textW;
-            }
         }
-        float x = (W - total) / 2f, cy = H / 2f;
+        Paint.FontMetrics fm = text.getFontMetrics();
+        float textH = fm.descent - fm.ascent;
+
+        float maxLogoH = H * 0.44f, maxLogoW = W * 0.52f;
+        float k = Math.min(maxLogoH / lh, maxLogoW / lw);
+        float dw = lw * k, dh = lh * k, gap = H * 0.05f;
+        float top = (H - (dh + gap + textH)) / 2f;
         Bitmap lb = Bitmap.createBitmap(mark[0], lw, lh, Bitmap.Config.ARGB_8888);
-        c.drawBitmap(lb, null, new RectF(x, cy - iconH / 2, x + iconW, cy + iconH / 2),
+        c.drawBitmap(lb, null, new RectF((W - dw) / 2f, top, (W + dw) / 2f, top + dh),
                 new Paint(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG));
         lb.recycle();
-        Paint.FontMetrics fm = text.getFontMetrics();
-        c.drawText(name, x + iconW + gap, cy - (fm.ascent + fm.descent) / 2, text);
+
+        float x = (W - textW) / 2f, base = top + dh + gap - fm.ascent;
+        int split = tailStart(name);
+        text.setColor(0xFFF5F6FA);
+        c.drawText(name, 0, split, x, base, text);
+        if (split < name.length()) {
+            float[] hsv = new float[3];
+            Color.colorToHSV(ambient, hsv);
+            text.setColor(hsv[1] < 0.3f ? 0xFFF5F6FA
+                    : Color.HSVToColor(new float[]{hsv[0], Math.min(hsv[1], 0.85f), Math.max(hsv[2], 0.9f)}));
+            c.drawText(name, split, name.length(), x + text.measureText(name, 0, split), base, text);
+        }
         return out;
+    }
+
+    /** Where the coloured tail of a name starts: its last capitalised part of 3+ letters, else the end. */
+    static int tailStart(String name) {
+        for (int i = name.length() - 3; i > 0; i--) {
+            if (Character.isUpperCase(name.charAt(i)) && Character.isLowerCase(name.charAt(i - 1))) return i;
+        }
+        return name.length();
     }
 
     /** Deep gradient in the app's colour, a soft glow behind the logo and a faint top sheen. */
