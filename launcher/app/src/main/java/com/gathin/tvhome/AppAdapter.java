@@ -209,7 +209,8 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         boolean withName = e.banner == null && position >= dockSize;   // the grid names banner-less apps
         // In the dock, an app without a good banner of its own (none, or a pale one like SportzX's) shows
         // its logo with the name spelt out under it: on navy in the dark style, on the glass otherwise.
-        boolean spelt = position < dockSize && (e.banner == null || isDark(e) || paleBanner(e));
+        boolean spelt = position < dockSize && (e.banner == null || isDark(e) || paleBanner(e)
+                || AppPack.isSmartTube(e.pkg) || isSportzX(e));   // their banners are just the icon
         Bitmap art = spelt ? wordmarkFor(e, isDark(e)) : null;
         if (art == null && isDark(e)) art = artFor(e, withName);
         if (art != null) {
