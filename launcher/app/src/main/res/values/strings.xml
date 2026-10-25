@@ -352,4 +352,6 @@
     <string name="chk_report_hint">Scan with your phone. It opens a report about this TV, already filled in, to send on GitHub. Nothing is sent from the TV itself.</string>
     <string name="fc_day_details">Feels like %1$d° · Rain %2$d%% · Wind up to %3$d km/h</string>
     <string name="fc_day_details_mph">Feels like %1$d° · Rain %2$d%% · Wind up to %3$d mph</string>
+    <string name="wx_sunny">Sunny</string>
+    <string name="wx_mostly_sunny">Mostly sunny</string>
 </resources>

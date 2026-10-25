@@ -353,4 +353,6 @@
     <string name="chk_report_hint">Scannez avec votre téléphone. Un rapport sur ce téléviseur s\'ouvre, déjà rempli, à envoyer sur GitHub. Rien n\'est envoyé depuis le téléviseur.</string>
     <string name="fc_day_details">Ressenti %1$d° · Pluie %2$d %% · Vent jusqu\'à %3$d km/h</string>
     <string name="fc_day_details_mph">Ressenti %1$d° · Pluie %2$d %% · Vent jusqu\'à %3$d mph</string>
+    <string name="wx_sunny">Ensoleillé</string>
+    <string name="wx_mostly_sunny">Plutôt ensoleillé</string>
 </resources>

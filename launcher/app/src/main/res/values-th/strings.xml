@@ -346,4 +346,6 @@
     <string name="chk_report_hint">สแกนด้วยโทรศัพท์ จะเปิดรายงานเกี่ยวกับทีวีเครื่องนี้ที่กรอกไว้แล้ว เพื่อส่งบน GitHub ทีวีไม่ได้ส่งอะไรเอง</string>
     <string name="fc_day_details">รู้สึกเหมือน %1$d° · ฝน %2$d%% · ลมสูงสุด %3$d กม./ชม.</string>
     <string name="fc_day_details_mph">รู้สึกเหมือน %1$d° · ฝน %2$d%% · ลมสูงสุด %3$d ไมล์/ชม.</string>
+    <string name="wx_sunny">แดดจัด</string>
+    <string name="wx_mostly_sunny">แดดเป็นส่วนใหญ่</string>
 </resources>

@@ -51,7 +51,7 @@ final class Weather {
             {"Pointe-Noire", "-4.7761", "11.8635"}, {"Victoria", "-4.6191", "55.4513"},
     };
 
-    private static final String PREFS = "weather", KEY_PLACE = "place", KEY_LINE = "line", KEY_TIME = "time",
+    private static final String PREFS = "weather", KEY_PLACE = "place", KEY_LINE = "line2", KEY_TIME = "time",
             KEY_AUTO_CITY = "auto_city", KEY_AUTO_LAT = "auto_lat", KEY_AUTO_LON = "auto_lon", KEY_AUTO_TIME = "auto_time", KEY_AUTO_COUNTRY = "auto_country";
     private static final long FRESH_MS = 30L * 60 * 1000, SHOW_FOR_MS = 3L * 60 * 60 * 1000,
             AUTO_PLACE_MS = 24L * 60 * 60 * 1000;
@@ -180,7 +180,8 @@ final class Weather {
     /** The forecast page: now, and the next days. */
     static final class Forecast {
         String city;
-        boolean mph;
+        boolean mph, day;
+        float visibility;
         int now, feels, humidity, code;
         double wind;
         String sunrise, sunset;   // "06:32"
@@ -214,6 +215,7 @@ final class Weather {
         Object[] where = locate(place);
         String url = String.format(Locale.US, "https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f"
                 + "&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code"
+                + ",visibility,cloud_cover_low,cloud_cover_mid,cloud_cover_high,is_day"
                 + "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset"
                 + ",apparent_temperature_max,wind_speed_10m_max"
                 + "&timezone=auto&forecast_days=6" + units((String) where[3])
@@ -228,7 +230,9 @@ final class Weather {
         f.feels = (int) Math.round(cur.optDouble("apparent_temperature", cur.getDouble("temperature_2m")));
         f.humidity = (int) Math.round(cur.optDouble("relative_humidity_2m", 0));
         f.wind = cur.optDouble("wind_speed_10m", 0);
-        f.code = cur.getInt("weather_code");
+        f.code = sky(cur.getInt("weather_code"), cur);
+        f.day = cur.optInt("is_day", 1) == 1;
+        f.visibility = (float) cur.optDouble("visibility", 99999);
         f.sunrise = timeOf(d.getJSONArray("sunrise").optString(0, ""));
         f.sunset = timeOf(d.getJSONArray("sunset").optString(0, ""));
         org.json.JSONArray dates = d.getJSONArray("time");
@@ -295,29 +299,27 @@ final class Weather {
     }
 
     private String fetch(String place) throws Exception {
-        Object[] where = locate(place);
-        String city = (String) where[0];
-        double lat = (Double) where[1], lon = (Double) where[2];
-        String url = String.format(Locale.US, "https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f"
-                + "&current=temperature_2m,weather_code,visibility&daily=temperature_2m_max,temperature_2m_min,sunset"
-                + "&timezone=auto&forecast_days=1" + units((String) where[3]), lat, lon);
-        JSONObject j = new JSONObject(get(url));
-        JSONObject cur = j.getJSONObject("current");
-        JSONObject daily = j.getJSONObject("daily");
-        long now = Math.round(cur.getDouble("temperature_2m"));
-        long hi = Math.round(daily.getJSONArray("temperature_2m_max").getDouble(0));
-        long lo = Math.round(daily.getJSONArray("temperature_2m_min").getDouble(0));
-        String sky = describe(ctx, cur.getInt("weather_code"));
+        Forecast f = fetchForecast(place);
         // Kept for the wallpaper's weather effects and Night mode from sunset.
-        String sunset = daily.has("sunset") ? timeOf(daily.getJSONArray("sunset").optString(0, "")) : "";
-        prefs().edit().putInt(KEY_CODE, cur.getInt("weather_code"))
-                .putFloat(KEY_VIS, (float) cur.optDouble("visibility", 99999))
-                .putString(KEY_SUNSET, sunset).apply();
+        prefs().edit().putInt(KEY_CODE, f.code).putFloat(KEY_VIS, f.visibility).putString(KEY_SUNSET, f.sunset).apply();
+        Day today = f.days.get(0);
         StringBuilder s = new StringBuilder();
-        s.append(now).append("°  ").append(sky).append("  ·  ")
-                .append(ctx.getString(R.string.weather_hilo, (int) hi, (int) lo));
-        if (!city.isEmpty()) s.append("  ·  ").append(city);
+        s.append(f.now).append("°  ").append(describe(ctx, f.code, f.day)).append("  ·  ")
+                .append(ctx.getString(R.string.weather_hilo, today.hi, today.lo));
+        if (!f.city.isEmpty()) s.append("  ·  ").append(f.city);
         return s.toString();
+    }
+
+    /*
+     * The sky as it looks from the ground. Open-Meteo's code counts all cloud, but a sheet of high
+     * cirrus (common over West Africa) barely dims the sun: 90% high cloud still reads "sunny". So
+     * low and mid cloud count fully, high cloud only a little.
+     */
+    static int sky(int code, JSONObject cur) {
+        if (code > 3 || !cur.has("cloud_cover_low")) return code;
+        double c = Math.max(Math.max(cur.optDouble("cloud_cover_low", 0), cur.optDouble("cloud_cover_mid", 0)),
+                cur.optDouble("cloud_cover_high", 0) * 0.3);
+        return c < 15 ? 0 : c < 40 ? 1 : c < 75 ? 2 : 3;
     }
 
     /** A picture for a WMO weather code (the forecast page). */
@@ -335,10 +337,15 @@ final class Weather {
 
     /** WMO weather codes, as Open-Meteo reports them. */
     static String describe(Context ctx, int code) {
+        return describe(ctx, code, true);
+    }
+
+    /** By day a clear sky is "Sunny"; at night "Clear". */
+    static String describe(Context ctx, int code, boolean day) {
         int id;
         switch (code) {
-            case 0: id = R.string.wx_clear; break;
-            case 1: id = R.string.wx_mostly_clear; break;
+            case 0: id = day ? R.string.wx_sunny : R.string.wx_clear; break;
+            case 1: id = day ? R.string.wx_mostly_sunny : R.string.wx_mostly_clear; break;
             case 2: id = R.string.wx_partly_cloudy; break;
             case 3: id = R.string.wx_cloudy; break;
             case 45: case 48: id = R.string.wx_fog; break;
