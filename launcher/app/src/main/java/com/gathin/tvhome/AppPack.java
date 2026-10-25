@@ -31,8 +31,6 @@ final class AppPack {
     static final String YOUTUBE = "com.google.android.youtube.tv";
     static final String KEY_SWAP_YOUTUBE = "swap_youtube";
 
-    /** Community mirror redirect for SportzX Live v3.2; not independently verified. */
-    private static final String SPORTZX_LIVE_URL = "https://simturax.com/2970";
     /** Official Voltra TV APK download endpoint. */
     private static final String VOLTRA_TV_URL = "https://voltra.tv/voltratvversion.apk";
 
@@ -77,9 +75,7 @@ final class AppPack {
             installer.installFrom(SMARTTUBE_URL, null, null, act.getString(R.string.apps_downloading, "SmartTube"));
         });
         labels.add("SportzX Live  ·  third-party APK");
-        actions.add(() -> confirmThirdPartyInstall(act, installer, "SportzX Live",
-                SPORTZX_LIVE_URL,
-                "This downloads SportzX Live from a community mirror. The APK has not been independently verified. Continue only if you accept that risk."));
+        actions.add(() -> SportzXResolver.installLatest(act, installer));
         labels.add("Voltra TV  ·  official TV APK");
         actions.add(() -> confirmThirdPartyInstall(act, installer, "Voltra TV",
                 VOLTRA_TV_URL,
