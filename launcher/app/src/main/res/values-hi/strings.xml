@@ -344,4 +344,6 @@
     <string name="chk_report">रिपोर्ट भेजें</string>
     <string name="chk_report_value">अगर इस टीवी पर कुछ काम न करे</string>
     <string name="chk_report_hint">फ़ोन से स्कैन करें। इस टीवी की पहले से भरी रिपोर्ट खुलेगी, जिसे GitHub पर भेजा जा सकता है। टीवी खुद कुछ नहीं भेजता।</string>
+    <string name="fc_day_details">महसूस %1$d° · बारिश %2$d%% · हवा %3$d किमी/घं तक</string>
+    <string name="fc_day_details_mph">महसूस %1$d° · बारिश %2$d%% · हवा %3$d मील/घं तक</string>
 </resources>

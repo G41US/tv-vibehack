@@ -344,4 +344,6 @@
     <string name="chk_report">Tuma ripoti</string>
     <string name="chk_report_value">Kama kitu hakifanyi kazi kwenye TV hii</string>
     <string name="chk_report_hint">Changanua kwa simu yako. Itafungua ripoti kuhusu TV hii, iliyojazwa tayari, ya kutuma kwenye GitHub. TV yenyewe haitumi chochote.</string>
+    <string name="fc_day_details">Inahisika %1$d° · Mvua %2$d%% · Upepo hadi km/h %3$d</string>
+    <string name="fc_day_details_mph">Inahisika %1$d° · Mvua %2$d%% · Upepo hadi mph %3$d</string>
 </resources>

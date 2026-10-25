@@ -45,8 +45,10 @@ final class ForecastPage {
 
         String sky = Weather.describe(a, f.code);
         LinearLayout hero = GlassMenu.hero(a, f.now + "°   " + Weather.emoji(f.code) + "  " + sky,
-                a.getString(Weather.mph() ? R.string.fc_details_mph : R.string.fc_details, f.feels, f.humidity, (int) Math.round(f.wind)),
+                a.getString(f.mph ? R.string.fc_details_mph : R.string.fc_details, f.feels, f.humidity, (int) Math.round(f.wind)),
                 a.getString(R.string.fc_sun, clock(a, f.sunrise), clock(a, f.sunset)));
+        CharSequence[] today = {((TextView) hero.getChildAt(0)).getText(), ((TextView) hero.getChildAt(1)).getText(),
+                ((TextView) hero.getChildAt(2)).getText()};
         LinearLayout.LayoutParams hlp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         hlp.bottomMargin = GlassMenu.dp(a, 20);
@@ -63,6 +65,15 @@ final class ForecastPage {
             tile.setOrientation(LinearLayout.VERTICAL);
             tile.setGravity(Gravity.CENTER_HORIZONTAL);
             tile.setFocusable(true);
+            final int at = i;
+            tile.setOnFocusChangeListener((v, has) -> {
+                if (!has) return;
+                CharSequence[] show = at == 0 ? today : new CharSequence[]{
+                        dayName(d.date) + "   " + d.hi + "° / " + d.lo + "°   " + Weather.emoji(d.code) + "  " + Weather.describe(a, d.code),
+                        a.getString(f.mph ? R.string.fc_day_details_mph : R.string.fc_day_details, d.feels, d.rain, d.wind),
+                        a.getString(R.string.fc_sun, clock(a, d.sunrise), clock(a, d.sunset))};
+                for (int k = 0; k < 3; k++) ((TextView) hero.getChildAt(k)).setText(show[k]);
+            });
             tile.setBackgroundResource(R.drawable.menu_tile_bg);
             tile.setPadding(0, GlassMenu.dp(a, 12), 0, GlassMenu.dp(a, 12));
             tile.addView(GlassMenu.text(a, i == 0 ? a.getString(R.string.fc_today) : dayName(d.date), 16, ink));

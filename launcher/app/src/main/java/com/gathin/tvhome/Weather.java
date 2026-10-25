@@ -52,7 +52,7 @@ final class Weather {
     };
 
     private static final String PREFS = "weather", KEY_PLACE = "place", KEY_LINE = "line", KEY_TIME = "time",
-            KEY_AUTO_CITY = "auto_city", KEY_AUTO_LAT = "auto_lat", KEY_AUTO_LON = "auto_lon", KEY_AUTO_TIME = "auto_time";
+            KEY_AUTO_CITY = "auto_city", KEY_AUTO_LAT = "auto_lat", KEY_AUTO_LON = "auto_lon", KEY_AUTO_TIME = "auto_time", KEY_AUTO_COUNTRY = "auto_country";
     private static final long FRESH_MS = 30L * 60 * 1000, SHOW_FOR_MS = 3L * 60 * 60 * 1000,
             AUTO_PLACE_MS = 24L * 60 * 60 * 1000;
 
@@ -105,15 +105,18 @@ final class Weather {
             String region = r.optString("admin1", ""), country = r.optString("country", "");
             if (!region.isEmpty() && !region.equals(city)) label.append(", ").append(region);
             if (!country.isEmpty()) label.append(", ").append(country);
-            out.add(new String[]{label.toString(), String.format(Locale.US, "%s|%.4f|%.4f", city,
-                    r.getDouble("latitude"), r.getDouble("longitude"))});
+            out.add(new String[]{label.toString(), String.format(Locale.US, "%s|%.4f|%.4f|%s", city,
+                    r.getDouble("latitude"), r.getDouble("longitude"), r.optString("country_code", "").replace("|", ""))});
         }
         return out;
     }
 
-    /** °F where people use it (US and a few others); °C everywhere else. */
-    private static String units() {
-        switch (Locale.getDefault().getCountry()) {
+    /*
+     * Units follow the weather place's country, not the TV's region: many boxes ship set to the US
+     * whatever country they're in. °F in the US and a few others, mph in the US and UK; else °C, km/h.
+     */
+    private static String units(String country) {
+        switch (country) {
             case "US": case "LR": case "MM": case "BS": case "BZ": case "KY": case "PW":
                 return "&temperature_unit=fahrenheit";
             default:
@@ -121,9 +124,8 @@ final class Weather {
         }
     }
 
-    /** Wind in mph where people use it (US, UK and a few others); km/h everywhere else. */
-    static boolean mph() {
-        switch (Locale.getDefault().getCountry()) {
+    static boolean mph(String country) {
+        switch (country) {
             case "US": case "GB": case "LR": case "MM":
                 return true;
             default:
@@ -178,6 +180,7 @@ final class Weather {
     /** The forecast page: now, and the next days. */
     static final class Forecast {
         String city;
+        boolean mph;
         int now, feels, humidity, code;
         double wind;
         String sunrise, sunset;   // "06:32"
@@ -186,7 +189,8 @@ final class Weather {
 
     static final class Day {
         String date;   // "2026-10-21"
-        int code, hi, lo, rain;
+        int code, hi, lo, rain, feels, wind;   // feels and wind: the day's highest
+        String sunrise, sunset;
     }
 
     interface ForecastCallback {
@@ -211,12 +215,15 @@ final class Weather {
         String url = String.format(Locale.US, "https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f"
                 + "&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,weather_code"
                 + "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset"
-                + "&timezone=auto&forecast_days=6" + units() + (mph() ? "&wind_speed_unit=mph" : ""), (Double) where[1], (Double) where[2]);
+                + ",apparent_temperature_max,wind_speed_10m_max"
+                + "&timezone=auto&forecast_days=6" + units((String) where[3])
+                + (mph((String) where[3]) ? "&wind_speed_unit=mph" : ""), (Double) where[1], (Double) where[2]);
         JSONObject j = new JSONObject(get(url));
         JSONObject cur = j.getJSONObject("current");
         JSONObject d = j.getJSONObject("daily");
         Forecast f = new Forecast();
         f.city = (String) where[0];
+        f.mph = mph((String) where[3]);
         f.now = (int) Math.round(cur.getDouble("temperature_2m"));
         f.feels = (int) Math.round(cur.optDouble("apparent_temperature", cur.getDouble("temperature_2m")));
         f.humidity = (int) Math.round(cur.optDouble("relative_humidity_2m", 0));
@@ -233,6 +240,11 @@ final class Weather {
             day.lo = (int) Math.round(d.getJSONArray("temperature_2m_min").optDouble(i, 0));
             day.rain = d.has("precipitation_probability_max")
                     ? (int) Math.round(d.getJSONArray("precipitation_probability_max").optDouble(i, 0)) : 0;
+            day.feels = d.has("apparent_temperature_max")
+                    ? (int) Math.round(d.getJSONArray("apparent_temperature_max").optDouble(i, day.hi)) : day.hi;
+            day.wind = d.has("wind_speed_10m_max") ? (int) Math.round(d.getJSONArray("wind_speed_10m_max").optDouble(i, 0)) : 0;
+            day.sunrise = timeOf(d.getJSONArray("sunrise").optString(i, ""));
+            day.sunset = timeOf(d.getJSONArray("sunset").optString(i, ""));
             f.days.add(day);
         }
         return f;
@@ -245,7 +257,7 @@ final class Weather {
 
     /** {city, lat, lon} for a place from CITIES, or found from the connection. */
     private Object[] locate(String place) throws Exception {
-        String city;
+        String city, country = "";
         double lat, lon;
         String[] picked = null;
         for (String[] c : CITIES) if (c[0].equals(place)) picked = c;
@@ -254,12 +266,14 @@ final class Weather {
             city = picked[0];
             lat = Double.parseDouble(picked[1]);
             lon = Double.parseDouble(picked[2]);
+            if (picked.length > 3) country = picked[3];   // searched city; the built-in list is all °C, km/h
         } else {
             SharedPreferences p = prefs();
-            if (System.currentTimeMillis() - p.getLong(KEY_AUTO_TIME, 0) > AUTO_PLACE_MS || autoCity() == null) {
+            if (System.currentTimeMillis() - p.getLong(KEY_AUTO_TIME, 0) > AUTO_PLACE_MS || autoCity() == null
+                    || !p.contains(KEY_AUTO_COUNTRY)) {
                 JSONObject geo = null;
                 try {
-                    geo = new JSONObject(get("https://ipwho.is/?fields=success,city,latitude,longitude"));
+                    geo = new JSONObject(get("https://ipwho.is/?fields=success,city,latitude,longitude,country_code"));
                     if (!geo.optBoolean("success", false)) geo = null;
                 } catch (Exception ignored) {
                 }
@@ -267,6 +281,7 @@ final class Weather {
                     geo = new JSONObject(get("https://get.geojs.io/v1/ip/geo.json"));
                 }
                 p.edit().putString(KEY_AUTO_CITY, geo.optString("city", ""))
+                        .putString(KEY_AUTO_COUNTRY, geo.optString("country_code", ""))
                         .putString(KEY_AUTO_LAT, String.valueOf(Double.parseDouble(geo.get("latitude").toString())))
                         .putString(KEY_AUTO_LON, String.valueOf(Double.parseDouble(geo.get("longitude").toString())))
                         .putLong(KEY_AUTO_TIME, System.currentTimeMillis()).commit();
@@ -274,8 +289,9 @@ final class Weather {
             city = p.getString(KEY_AUTO_CITY, "");
             lat = Double.parseDouble(p.getString(KEY_AUTO_LAT, "0"));
             lon = Double.parseDouble(p.getString(KEY_AUTO_LON, "0"));
+            country = p.getString(KEY_AUTO_COUNTRY, "");
         }
-        return new Object[]{city, lat, lon};
+        return new Object[]{city, lat, lon, country};
     }
 
     private String fetch(String place) throws Exception {
@@ -284,7 +300,7 @@ final class Weather {
         double lat = (Double) where[1], lon = (Double) where[2];
         String url = String.format(Locale.US, "https://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f"
                 + "&current=temperature_2m,weather_code,visibility&daily=temperature_2m_max,temperature_2m_min,sunset"
-                + "&timezone=auto&forecast_days=1" + units(), lat, lon);
+                + "&timezone=auto&forecast_days=1" + units((String) where[3]), lat, lon);
         JSONObject j = new JSONObject(get(url));
         JSONObject cur = j.getJSONObject("current");
         JSONObject daily = j.getJSONObject("daily");

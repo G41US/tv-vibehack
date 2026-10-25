@@ -344,4 +344,6 @@
     <string name="chk_report">Enviar un informe</string>
     <string name="chk_report_value">Si algo no funciona en este televisor</string>
     <string name="chk_report_hint">Escanéalo con tu móvil. Se abre un informe sobre este televisor, ya rellenado, para enviarlo en GitHub. El televisor no envía nada por sí mismo.</string>
+    <string name="fc_day_details">Sensación %1$d° · Lluvia %2$d%% · Viento hasta %3$d km/h</string>
+    <string name="fc_day_details_mph">Sensación %1$d° · Lluvia %2$d%% · Viento hasta %3$d mph</string>
 </resources>

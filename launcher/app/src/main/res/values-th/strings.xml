@@ -344,4 +344,6 @@
     <string name="chk_report">ส่งรายงาน</string>
     <string name="chk_report_value">ถ้ามีบางอย่างใช้ไม่ได้บนทีวีเครื่องนี้</string>
     <string name="chk_report_hint">สแกนด้วยโทรศัพท์ จะเปิดรายงานเกี่ยวกับทีวีเครื่องนี้ที่กรอกไว้แล้ว เพื่อส่งบน GitHub ทีวีไม่ได้ส่งอะไรเอง</string>
+    <string name="fc_day_details">รู้สึกเหมือน %1$d° · ฝน %2$d%% · ลมสูงสุด %3$d กม./ชม.</string>
+    <string name="fc_day_details_mph">รู้สึกเหมือน %1$d° · ฝน %2$d%% · ลมสูงสุด %3$d ไมล์/ชม.</string>
 </resources>

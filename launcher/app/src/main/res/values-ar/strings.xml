@@ -344,4 +344,6 @@
     <string name="chk_report">إرسال تقرير</string>
     <string name="chk_report_value">إذا لم يعمل شيء على هذا التلفزيون</string>
     <string name="chk_report_hint">امسح الرمز بهاتفك. يفتح تقريرًا عن هذا التلفزيون مملوءًا مسبقًا لإرساله على GitHub. لا يرسل التلفزيون أي شيء بنفسه.</string>
+    <string name="fc_day_details">الإحساس %1$d° · المطر %2$d%% · الرياح حتى %3$d كم/س</string>
+    <string name="fc_day_details_mph">الإحساس %1$d° · المطر %2$d%% · الرياح حتى %3$d ميل/س</string>
 </resources>
