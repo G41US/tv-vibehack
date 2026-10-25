@@ -53,22 +53,11 @@ final class TileArt {
             }
         }
         if (logo == null && icon != null) {
-            int s = 216;
-            int[] px = null;
-            if (icon instanceof AdaptiveIconDrawable) {
-                Drawable fg = ((AdaptiveIconDrawable) icon).getForeground();
-                if (fg != null) {
-                    px = render(fg, s, s);
-                    float cover = coverage(px);
-                    if (cover < 0.01f || cover > 0.85f) px = null;   // empty, or a full-bleed picture
-                }
-            }
-            if (px == null) px = render(icon, s, s);
-            int[] box = trim(px, s, s);
-            if (box != null) {
-                logo = crop(px, s, box);
-                lw = box[2] - box[0];
-                lh = box[3] - box[1];
+            int[][] mark = iconMark(icon);
+            if (mark != null) {
+                logo = mark[0];
+                lw = mark[1][0];
+                lh = mark[1][1];
             }
         }
         if (logo == null) return null;
@@ -88,6 +77,78 @@ final class TileArt {
         Paint p = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG);
         c.drawBitmap(lb, null, new RectF(cx - dw / 2, cy - dh / 2, cx + dw / 2, cy + dh / 2), p);
         lb.recycle();
+        return out;
+    }
+
+    /** The icon's logo, trimmed: {pixels, {width, height}}, or null. */
+    private static int[][] iconMark(Drawable icon) {
+        int s = 216;
+        int[] px = null;
+        if (icon instanceof AdaptiveIconDrawable) {
+            Drawable fg = ((AdaptiveIconDrawable) icon).getForeground();
+            if (fg != null) {
+                px = render(fg, s, s);
+                float cover = coverage(px);
+                if (cover < 0.01f || cover > 0.85f) px = null;   // empty, or a full-bleed picture
+            }
+        }
+        if (px == null) px = render(icon, s, s);
+        int[] box = trim(px, s, s);
+        if (box == null) return null;
+        return new int[][]{crop(px, s, box), {box[2] - box[0], box[3] - box[1]}};
+    }
+
+    /**
+     * A banner like Spotify's for a dock app that has none, or a dark tile: near-black, the app's logo
+     * and its name spelt out beside it in the app's colour. Null if the icon has nothing to draw.
+     */
+    static Bitmap wordmark(Drawable icon, String name, int ambient) {
+        int[][] mark = icon != null ? iconMark(icon) : null;
+        if (mark == null) return null;
+        int lw = mark[1][0], lh = mark[1][1];
+
+        Bitmap out = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(out);
+        float[] hsv = new float[3];
+        Color.colorToHSV(ambient, hsv);
+        Paint bg = new Paint(Paint.ANTI_ALIAS_FLAG);
+        bg.setShader(new LinearGradient(0, 0, W, H, Color.HSVToColor(new float[]{hsv[0], Math.min(hsv[1], 0.5f), 0.13f}),
+                0xFF0B0B0D, Shader.TileMode.CLAMP));
+        c.drawRect(0, 0, W, H, bg);
+
+        // The name in the app's own colour, like Spotify's green; white when the colour is too dull to read.
+        int ink = hsv[1] < 0.3f ? 0xFFF5F5F7 : Color.HSVToColor(new float[]{hsv[0], Math.min(hsv[1], 0.85f), Math.max(hsv[2], 0.92f)});
+        Paint text = new Paint(Paint.ANTI_ALIAS_FLAG);
+        text.setTypeface(android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.BOLD));
+        text.setColor(ink);
+        text.setTextSize(H * 0.25f);
+        text.setLetterSpacing(-0.02f);
+
+        float iconH = H * 0.36f, iconW = iconH * lw / lh;
+        float gap = H * 0.06f;
+        float textW = text.measureText(name);
+        float total = iconW + gap + textW, room = W * 0.86f;
+        if (total > room) {   // long name: shrink the text, then everything, to fit
+            text.setTextSize(text.getTextSize() * Math.max(0.6f, (room - iconW - gap) / textW));
+            textW = text.measureText(name);
+            total = iconW + gap + textW;
+            if (total > room) {
+                float k = room / total;
+                iconH *= k;
+                iconW *= k;
+                gap *= k;
+                text.setTextSize(text.getTextSize() * k);
+                textW = text.measureText(name);
+                total = iconW + gap + textW;
+            }
+        }
+        float x = (W - total) / 2f, cy = H / 2f;
+        Bitmap lb = Bitmap.createBitmap(mark[0], lw, lh, Bitmap.Config.ARGB_8888);
+        c.drawBitmap(lb, null, new RectF(x, cy - iconH / 2, x + iconW, cy + iconH / 2),
+                new Paint(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG));
+        lb.recycle();
+        Paint.FontMetrics fm = text.getFontMetrics();
+        c.drawText(name, x + iconW + gap, cy - (fm.ascent + fm.descent) / 2, text);
         return out;
     }
 

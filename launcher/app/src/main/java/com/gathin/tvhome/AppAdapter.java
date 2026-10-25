@@ -207,7 +207,10 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         h.card.setScaleX(focused ? FOCUS_SCALE : 1f);
         h.card.setScaleY(focused ? FOCUS_SCALE : 1f);
         boolean withName = e.banner == null && position >= dockSize;   // the grid names banner-less apps
-        Bitmap art = isDark(e) ? artFor(e, withName) : null;
+        // In the dock, an app without a banner (or a dark tile) gets one like Spotify's: logo and name.
+        boolean spelt = position < dockSize && (e.banner == null || isDark(e));
+        Bitmap art = spelt ? wordmarkFor(e) : null;
+        if (art == null && isDark(e)) art = artFor(e, withName);
         if (art != null) {
             h.banner.setImageDrawable(new android.graphics.drawable.BitmapDrawable(ctx.getResources(), art));
             h.banner.setVisibility(View.VISIBLE);
@@ -435,6 +438,21 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
                 b = TileArt.make(e.banner, e.icon, ambientColorAt(items.indexOf(e)), withName);
             } catch (RuntimeException | OutOfMemoryError err) {
                 b = null;   // never let one odd icon break Home
+            }
+            if (b == null) b = NO_ART;
+            ART.put(key, b);
+        }
+        return b == NO_ART ? null : b;
+    }
+
+    private Bitmap wordmarkFor(Entry e) {
+        String key = e.component.flattenToString() + "|" + e.updated + "|word";
+        Bitmap b = ART.get(key);
+        if (b == null) {
+            try {
+                b = TileArt.wordmark(e.icon, e.label, vividColor(e.icon));
+            } catch (RuntimeException | OutOfMemoryError err) {
+                b = null;
             }
             if (b == null) b = NO_ART;
             ART.put(key, b);
