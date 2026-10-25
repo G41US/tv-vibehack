@@ -207,9 +207,10 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         h.card.setScaleX(focused ? FOCUS_SCALE : 1f);
         h.card.setScaleY(focused ? FOCUS_SCALE : 1f);
         boolean withName = e.banner == null && position >= dockSize;   // the grid names banner-less apps
-        // In the dock, an app without a banner (or a dark tile) gets one like Spotify's: logo and name.
-        boolean spelt = position < dockSize && (e.banner == null || isDark(e));
-        Bitmap art = spelt ? wordmarkFor(e) : null;
+        // In the dock, an app without a good banner of its own (none, or a pale one like SportzX's) shows
+        // its logo with the name spelt out under it: on navy in the dark style, on the glass otherwise.
+        boolean spelt = position < dockSize && (e.banner == null || isDark(e) || paleBanner(e));
+        Bitmap art = spelt ? wordmarkFor(e, isDark(e)) : null;
         if (art == null && isDark(e)) art = artFor(e, withName);
         if (art != null) {
             h.banner.setImageDrawable(new android.graphics.drawable.BitmapDrawable(ctx.getResources(), art));
@@ -445,12 +446,30 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         return b == NO_ART ? null : b;
     }
 
-    private Bitmap wordmarkFor(Entry e) {
-        String key = e.component.flattenToString() + "|" + e.updated + "|word";
+    /** The banner is mostly white or pale grey, so it glares on the dark Home (cached per app version). */
+    private boolean paleBanner(Entry e) {
+        if (e.banner == null) return false;
+        String key = e.component.flattenToString() + "|" + e.updated;
+        Boolean pale = PALE.get(key);
+        if (pale == null) {
+            try {
+                pale = TileArt.isLightBanner(e.banner);
+            } catch (RuntimeException | OutOfMemoryError err) {
+                pale = false;
+            }
+            PALE.put(key, pale);
+        }
+        return pale;
+    }
+
+    private static final java.util.Map<String, Boolean> PALE = new java.util.HashMap<>();
+
+    private Bitmap wordmarkFor(Entry e, boolean dark) {
+        String key = e.component.flattenToString() + "|" + e.updated + "|word|" + dark;
         Bitmap b = ART.get(key);
         if (b == null) {
             try {
-                b = TileArt.wordmark(e.icon, e.label, vividColor(e.icon));
+                b = TileArt.wordmark(e.icon, e.label, vividColor(e.icon), dark);
             } catch (RuntimeException | OutOfMemoryError err) {
                 b = null;
             }

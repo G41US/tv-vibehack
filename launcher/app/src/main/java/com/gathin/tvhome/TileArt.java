@@ -93,6 +93,8 @@ final class TileArt {
             }
         }
         if (px == null) px = render(icon, s, s);
+        int[] keyed = keyOut(px, s, s);   // a logo printed on a plain square: lift it off, clean
+        if (keyed != null) px = keyed;
         int[] box = trim(px, s, s);
         if (box == null) return null;
         return new int[][]{crop(px, s, box), {box[2] - box[0], box[3] - box[1]}};
@@ -103,18 +105,20 @@ final class TileArt {
      * centred and its name spelt out underneath in white. A name in two parts like "SmartTube" gets its
      * last part ("Tube") in the app's colour; a one-letter tail ("SportzX") stays white.
      */
-    static Bitmap wordmark(Drawable icon, String name, int ambient) {
+    static Bitmap wordmark(Drawable icon, String name, int ambient, boolean dark) {
         int[][] mark = icon != null ? iconMark(icon) : null;
         if (mark == null) return null;
         int lw = mark[1][0], lh = mark[1][1];
 
         Bitmap out = Bitmap.createBitmap(W, H, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(out);
-        Paint bg = new Paint(Paint.ANTI_ALIAS_FLAG);
-        bg.setShader(new LinearGradient(0, 0, W * 0.4f, H, 0xFF1D2746, 0xFF070A15, Shader.TileMode.CLAMP));
-        c.drawRect(0, 0, W, H, bg);
-        bg.setShader(new LinearGradient(0, 0, 0, H * 0.45f, 0x18FFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
-        c.drawRect(0, 0, W, H * 0.45f, bg);
+        if (dark) {   // the original style leaves it clear, so the tile's own glass shows behind
+            Paint bg = new Paint(Paint.ANTI_ALIAS_FLAG);
+            bg.setShader(new LinearGradient(0, 0, W * 0.4f, H, 0xFF1D2746, 0xFF070A15, Shader.TileMode.CLAMP));
+            c.drawRect(0, 0, W, H, bg);
+            bg.setShader(new LinearGradient(0, 0, 0, H * 0.45f, 0x18FFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
+            c.drawRect(0, 0, W, H * 0.45f, bg);
+        }
 
         Paint text = new Paint(Paint.ANTI_ALIAS_FLAG);
         text.setTypeface(android.graphics.Typeface.create("sans-serif-medium", android.graphics.Typeface.NORMAL));
@@ -196,6 +200,10 @@ final class TileArt {
 
     private static float lum(int p) {
         return (0.2126f * ((p >> 16) & 255) + 0.7152f * ((p >> 8) & 255) + 0.0722f * (p & 255)) / 255f;
+    }
+
+    static boolean isLightBanner(Drawable banner) {
+        return isLight(render(banner, 160, 90));
     }
 
     /** Most of the visible banner is light (white, pale grey, cream). */
