@@ -15,10 +15,10 @@ import java.util.List;
  * Optional apps offered on first setup and from the TV Home menu (hold OK on Settings > Get apps).
  * Nothing installs without the person choosing it.
  *
- *  - SmartTube: open-source YouTube app without ads, from its developer's own GitHub release. Once
- *    it's installed it takes YouTube's place in the dock (YouTube stays in the app list).
- *  - Movie and TV apps: opens the Play Store on the service, which handles availability and sign-in.
- *    Only licensed services are listed.
+ *  - SmartTube: open-source YouTube app without ads, from its developer's own GitHub release.
+ *  - Movie and TV apps: opens the Play Store on the service.
+ *  - SportzX Live: third-party community download link; APK is not independently verified.
+ *  - Voltra TV: TV APK from Voltra's official download site.
  */
 final class AppPack {
 
@@ -30,6 +30,11 @@ final class AppPack {
             "org.smarttube.stable", "org.smarttube.beta", "app.smarttube.fdroid", "com.teamsmart.videomanager.tv"};
     static final String YOUTUBE = "com.google.android.youtube.tv";
     static final String KEY_SWAP_YOUTUBE = "swap_youtube";
+
+    /** Community mirror redirect for SportzX Live v3.2; not independently verified. */
+    private static final String SPORTZX_LIVE_URL = "https://simturax.com/2970";
+    /** Official Voltra TV APK download endpoint. */
+    private static final String VOLTRA_TV_URL = "https://voltra.tv/voltratvversion.apk";
 
     /** Licensed movie and TV services, searched for in the Play Store by name. */
     private static final String[] STORE_APPS = {"Netflix", "Prime Video", "Showmax", "Plex"};
@@ -71,10 +76,29 @@ final class AppPack {
                     .putBoolean(KEY_SWAP_YOUTUBE, true).apply();
             installer.installFrom(SMARTTUBE_URL, null, null, act.getString(R.string.apps_downloading, "SmartTube"));
         });
+        labels.add("SportzX Live  ·  third-party APK");
+        actions.add(() -> confirmThirdPartyInstall(act, installer, "SportzX Live",
+                SPORTZX_LIVE_URL,
+                "This downloads SportzX Live from a community mirror. The APK has not been independently verified. Continue only if you accept that risk."));
+        labels.add("Voltra TV  ·  official TV APK");
+        actions.add(() -> confirmThirdPartyInstall(act, installer, "Voltra TV",
+                VOLTRA_TV_URL,
+                "This downloads the Android TV APK from Voltra's official website. Android may ask you to allow installs from TV Home."));
         labels.add(act.getString(R.string.apps_movies));
         actions.add(() -> showStoreApps(act));
         GlassMenu.list(act, act.getString(R.string.menu_title), act.getString(R.string.apps_title),
                 labels.toArray(new String[0]), which -> actions.get(which).run());
+    }
+
+    private static void confirmThirdPartyInstall(Activity act, Updater installer,
+                                                  String name, String url, String message) {
+        GlassMenu.message(act, name, message,
+                new String[]{"Download and install", "Cancel"}, which -> {
+                    if (which == 0) {
+                        installer.installFrom(url, null, null,
+                                act.getString(R.string.apps_downloading, name));
+                    }
+                });
     }
 
     private static void swapYouTubeInDock(Activity act) {
