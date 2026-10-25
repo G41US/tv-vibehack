@@ -93,11 +93,21 @@ final class TileArt {
             }
         }
         if (px == null) px = render(icon, s, s);
-        int[] keyed = keyOut(px, s, s);   // a logo printed on a plain square: lift it off, clean
-        if (keyed != null) px = keyed;
         int[] box = trim(px, s, s);
         if (box == null) return null;
-        return new int[][]{crop(px, s, box), {box[2] - box[0], box[3] - box[1]}};
+        int cw = box[2] - box[0], ch = box[3] - box[1];
+        int[] mark = crop(px, s, box);
+        // A logo printed on a plain square (SportzX: on white): drop the square's edge and shadow,
+        // key out its colour and keep just the logo. A shaped logo (SmartTube's TV) isn't a full square.
+        float aspect = cw / (float) ch;
+        if (coverage(mark) > 0.85f && aspect > 0.8f && aspect < 1.25f) {
+            int m = Math.round(Math.min(cw, ch) * 0.07f);
+            int iw = cw - 2 * m, ih = ch - 2 * m;
+            int[] keyed = keyOut(crop(mark, cw, new int[]{m, m, cw - m, ch - m}), iw, ih);
+            int[] kb = keyed != null ? trim(keyed, iw, ih) : null;
+            if (kb != null) return new int[][]{crop(keyed, iw, kb), {kb[2] - kb[0], kb[3] - kb[1]}};
+        }
+        return new int[][]{mark, {cw, ch}};
     }
 
     /**
