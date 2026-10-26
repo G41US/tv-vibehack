@@ -27,7 +27,7 @@ final class BootTrace {
         String text = now < p.getLong("at", Long.MAX_VALUE) ? "" : p.getString("text", "");   // a new start: begin again
         if (text.contains(what + " ")) return;   // first time only
         text += (text.isEmpty() ? "" : ", ") + what + String.format(java.util.Locale.US, " %.1fs", at / 1000f);
-        p.edit().putString("text", text).putLong("at", now).apply();
+        p.edit().putString("text", text).putLong("at", now).commit();   // at once: a process that dies still leaves its marks
     }
 
     private static boolean watching;
