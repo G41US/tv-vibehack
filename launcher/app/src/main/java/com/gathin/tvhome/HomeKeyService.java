@@ -109,6 +109,8 @@ public class HomeKeyService extends AccessibilityService {
             android.content.BroadcastReceiver shutdown = new android.content.BroadcastReceiver() {
                 @Override
                 public void onReceive(android.content.Context c, Intent i) {
+                    // The start-up screen plays the animation straight after the boot logo next time.
+                    BootHome.enable(c, Splash.on(c) && !SafeStart.on(c));
                     PendingResult done = goAsync();
                     new Thread(() -> {
                         StartupApps.hold(c);
@@ -255,6 +257,7 @@ public class HomeKeyService extends AccessibilityService {
     }
 
     void goHome() {
+        if (BootHome.showing) return;   // the start-up screen hands over to Home itself
         Intent home = new Intent(Intent.ACTION_MAIN)
                 .addCategory(Intent.CATEGORY_HOME)
                 .setPackage(getPackageName())

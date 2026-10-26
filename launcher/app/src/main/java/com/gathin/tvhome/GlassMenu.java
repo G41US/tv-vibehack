@@ -180,7 +180,18 @@ final class GlassMenu {
         card.setBackgroundResource(R.drawable.glass_panel);
         int pad = dp(a, 30);
         card.setPadding(pad, dp(a, 26), pad, dp(a, 26));
-        card.addView(content);
+        // Never taller than the screen: anything longer scrolls (focus moving down it scrolls it along).
+        int maxH = a.getResources().getDisplayMetrics().heightPixels - dp(a, 52 + 48);
+        ScrollView fit = new ScrollView(a) {
+            @Override
+            protected void onMeasure(int w, int hgt) {
+                super.onMeasure(w, MeasureSpec.makeMeasureSpec(maxH, MeasureSpec.AT_MOST));
+            }
+        };
+        fit.setVerticalScrollBarEnabled(false);
+        fit.setFocusable(false);
+        fit.addView(content);
+        card.addView(fit);
         d.setContentView(card, new ViewGroup.LayoutParams(dp(a, widthDp), ViewGroup.LayoutParams.WRAP_CONTENT));
         Sounds.attach(d);
         OPEN.add(d);
@@ -699,7 +710,14 @@ final class GlassMenu {
         holder[0] = d;
         final View f = first;
         d.setOnShowListener(x -> {
-            if (f != null) f.requestFocus();
+            // Longer than the screen: start at the top and let Down scroll the text, then reach the buttons.
+            ScrollView fit = (ScrollView) content.getParent();
+            if (fit.canScrollVertically(1)) {
+                fit.setFocusable(true);
+                fit.requestFocus();
+            } else if (f != null) {
+                f.requestFocus();
+            }
         });
         d.show();
         return d;

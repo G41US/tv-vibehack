@@ -160,6 +160,26 @@
             </intent-filter>
         </activity>
 
+        <!-- Start-up screen: plays the animation right after the boot logo, before the box unlocks
+             its storage (only directBootAware home screens may run then). Off until the box shuts
+             down with the animation on; switches itself off when it hands over to MainActivity. -->
+        <activity
+            android:name=".BootHome"
+            android:exported="true"
+            android:enabled="false"
+            android:directBootAware="true"
+            android:launchMode="singleTask"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden|uiMode"
+            android:screenOrientation="landscape">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".HomeSettingsActivity"
             android:exported="false"
