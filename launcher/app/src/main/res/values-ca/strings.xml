@@ -401,4 +401,6 @@
     <string name="fs_starts">S\'engega amb l\'aparell</string>
     <string name="fs_count">%1$d retardada(es)</string>
     <string name="fs_explain">Aquestes apps s\'engeguen cada cop que s\'encén l\'aparell. Les que retardis es desactiven en apagar-lo i es tornen a activar just després de l\'animació de TV Home, perquè arrenqui més ràpid.</string>
+    <string name="fs_auto">Tria per mi</string>
+    <string name="fs_pending">Funciona a partir del proper reinici, quan TV Home comprovi que pot tornar a activar les apps.</string>
 </resources>

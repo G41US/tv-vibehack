@@ -123,8 +123,7 @@ final class TvCheck {
         line(report, "Debugging (port 5555)", debug);
         report.append("- Start-up animation: ").append(Splash.on(a) ? Splash.last(a) : "off").append('\n');
         report.append("- Last start-up: ").append(BootTrace.text(a)).append('\n');
-        report.append("- Faster start-up: ").append(StartupApps.held(a).size()).append(" held back, ")
-                .append(StartupApps.paused(a).size()).append(" still off").append('\n');
+        report.append("- Faster start-up: ").append(StartupApps.state(a)).append('\n');
 
         ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
         ((ActivityManager) a.getSystemService(Context.ACTIVITY_SERVICE)).getMemoryInfo(mi);
@@ -140,7 +139,8 @@ final class TvCheck {
                 + "- Language/region: " + java.util.Locale.getDefault().toLanguageTag() + "\n"
                 + report + (problem != null ? "- Last problem: " + problem + "\n" : "")
                 + "\nWhat isn't working? (write here)\n";
-        String trace = BootTrace.text(a) + "\n\n" + a.getString(R.string.hs_startup) + ": " + (Splash.on(a) ? Splash.last(a) : "off");
+        String trace = BootTrace.text(a) + "\n\n" + a.getString(R.string.hs_startup) + ": " + (Splash.on(a) ? Splash.last(a) : "off")
+                + "\n" + a.getString(R.string.fs_title) + ": " + StartupApps.state(a);
         rows.add(new GlassMenu.Row(R.drawable.ic_s_speed, a.getString(R.string.chk_startup), null,
                 () -> GlassMenu.message(a, a.getString(R.string.chk_startup), trace, new String[]{a.getString(android.R.string.ok)}, w -> {
                 })));

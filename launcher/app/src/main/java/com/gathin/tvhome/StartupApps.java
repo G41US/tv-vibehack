@@ -23,11 +23,21 @@ import java.util.regex.Pattern;
  * or restarts, so Android has less to start before Home, and switched back on (and given their
  * start-up call where the box allows it) as soon as the TV Home animation has played. Done over the
  * same debugging connection as "Set up on this TV". If switching back on fails, it's retried every
- * time TV Home starts, and the page offers "Turn them all back on now".
+ * time TV Home starts.
+ *
+ * "Pick for me" (on by default, on every TV) holds back what is safe to: apps that start with the box
+ * but aren't a home screen, keyboard, accessibility service, VPN, TV input, screensaver, device admin,
+ * notification reader, Chromecast or the voice assistant. Nothing is held back on a box until TV Home
+ * has seen, after a restart, that it can reach the debugging connection to switch apps back on.
  */
 final class StartupApps {
 
-    private static final String PREFS = "startup_apps", KEY_HELD = "held", KEY_PAUSED = "paused";
+    private static final String PREFS = "startup_apps", KEY_HELD = "held", KEY_PAUSED = "paused", KEY_AUTO = "auto",
+            KEY_PROVEN = "proven";
+    /** Held back by "Pick for me" never: Chromecast built-in and the voice assistant should work at once. */
+    private static final String[] KEEP_RUNNING = {"com.google.android.apps.mediashell", "com.google.android.katniss",
+            "com.google.android.apps.tv.launcherx", "com.google.android.tvlauncher"};
+    private static volatile boolean releasing;
     /** Parts of Android and the box that must always start (remote, keyboard, Play services, chips). */
     private static final String[] NEVER = {"android", "com.android.", "com.google.android.gms",
             "com.google.android.gsf", "com.google.android.ext.", "com.google.android.tv.remote",
@@ -60,7 +70,8 @@ final class StartupApps {
     /** The box is shutting down or restarting: switch the held-back apps off. Runs off the main thread. */
     static void hold(Context c) {
         Set<String> held = held(c);
-        if (held.isEmpty() || !AdbSelf.reachable(SelfSetup.PORT)) return;
+        // Only where switching back on has been seen to work after a restart: never strand an app.
+        if (held.isEmpty() || !prefs(c).getBoolean(KEY_PROVEN, false) || !AdbSelf.reachable(SelfSetup.PORT)) return;
         Set<String> paused = paused(c);
         try (AdbSelf adb = connect(c, 3000)) {
             String off = adb.shell("pm list packages -d");   // already off by the person's choice: leave alone
@@ -76,20 +87,46 @@ final class StartupApps {
         }
     }
 
-    /** Home is up after the animation: switch everything paused back on. Retries for a few minutes. */
+    /** For TV check. */
+    static String state(Context c) {
+        return (auto(c) ? "picked for me, " : "") + held(c).size() + " held back, " + paused(c).size() + " still off"
+                + (prefs(c).getBoolean(KEY_PROVEN, false) ? "" : ", waiting for a restart");
+    }
+
+    static boolean auto(Context c) {
+        return prefs(c).getBoolean(KEY_AUTO, true);
+    }
+
+    /**
+     * Home is up after the animation: switch everything paused back on, note that the debugging
+     * connection works after a restart, and with "Pick for me" choose what to hold back next time.
+     * Retries for two minutes if the connection isn't up yet.
+     */
     static void release(Context c) {
-        if (paused(c).isEmpty()) return;
+        if (releasing) return;
+        boolean boot = SystemClock.elapsedRealtime() < 300_000;
+        if (paused(c).isEmpty() && !boot) return;   // later opens of Home: nothing to do
+        releasing = true;
         Context app = c.getApplicationContext();
         new Thread(() -> {
-            for (int i = 0; i < 12 && !paused(app).isEmpty(); i++) {
+            boolean reached = false;
+            for (int i = 0; i < 12 && !reached; i++) {
                 if (i > 0) SystemClock.sleep(10_000);
                 if (!AdbSelf.reachable(SelfSetup.PORT)) continue;
                 try (AdbSelf adb = connect(app, 30_000)) {
                     turnOn(app, adb);
+                    reached = paused(app).isEmpty();
+                    if (reached && auto(app)) {
+                        Set<String> picks = new TreeSet<>();
+                        for (App a : list(app, adb)) if (a.autoPick) picks.add(a.pkg);
+                        prefs(app).edit().putStringSet(KEY_HELD, picks).apply();
+                    }
                 } catch (Exception ignored) {
                 }
             }
-            if (paused(app).isEmpty()) BootTrace.mark(app, "held-back apps back on");
+            if (boot) prefs(app).edit().putBoolean(KEY_PROVEN, reached).commit();
+            if (reached) BootTrace.mark(app, "held-back apps back on");
+            releasing = false;
         }, "startup-apps").start();
     }
 
@@ -111,6 +148,7 @@ final class StartupApps {
     private static final class App {
         String pkg, name;
         Object icon;
+        boolean autoPick;
     }
 
     static void show(Activity a, Runnable back) {
@@ -158,6 +196,19 @@ final class StartupApps {
         String keep = String.valueOf(Settings.Secure.getString(c.getContentResolver(), Settings.Secure.ENABLED_INPUT_METHODS))
                 + ":" + Settings.Secure.getString(c.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
         PackageManager pm = c.getPackageManager();
+        // What "Pick for me" leaves alone: home screens, admins, notification readers, the screensaver.
+        Set<String> busy = new HashSet<>(java.util.Arrays.asList(KEEP_RUNNING));
+        android.content.Intent home = new android.content.Intent(android.content.Intent.ACTION_MAIN)
+                .addCategory(android.content.Intent.CATEGORY_HOME);
+        for (android.content.pm.ResolveInfo r : pm.queryIntentActivities(home, PackageManager.MATCH_DISABLED_COMPONENTS)) {
+            busy.add(r.activityInfo.packageName);
+        }
+        android.app.admin.DevicePolicyManager dpm = c.getSystemService(android.app.admin.DevicePolicyManager.class);
+        if (dpm != null && dpm.getActiveAdmins() != null) {
+            for (android.content.ComponentName cn : dpm.getActiveAdmins()) busy.add(cn.getPackageName());
+        }
+        String inUse = keep + ":" + Settings.Secure.getString(c.getContentResolver(), "enabled_notification_listeners")
+                + ":" + Settings.Secure.getString(c.getContentResolver(), "screensaver_components");
         List<App> out = new ArrayList<>();
         for (String pkg : pkgs) {
             if (pkg.equals(c.getPackageName()) || keep.contains(pkg + "/") || never(pkg)) continue;
@@ -168,6 +219,7 @@ final class StartupApps {
                 if ((ai.flags & ApplicationInfo.FLAG_PERSISTENT) != 0) continue;   // Android won't switch these off
                 app.name = String.valueOf(pm.getApplicationLabel(ai));
                 app.icon = pm.getApplicationIcon(ai);
+                app.autoPick = !busy.contains(pkg) && !inUse.contains(pkg + "/") && !runsSomethingLive(pm, pkg);
             } catch (PackageManager.NameNotFoundException e) {
                 continue;
             }
@@ -177,25 +229,54 @@ final class StartupApps {
         return out;
     }
 
+    /** A VPN, a TV input (HDMI, tuner) or a screensaver: things that should be there from the start. */
+    private static boolean runsSomethingLive(PackageManager pm, String pkg) {
+        try {
+            android.content.pm.PackageInfo pi = pm.getPackageInfo(pkg,
+                    PackageManager.GET_SERVICES | PackageManager.MATCH_DISABLED_COMPONENTS);
+            if (pi.services == null) return false;
+            for (android.content.pm.ServiceInfo si : pi.services) {
+                String perm = si.permission;
+                if ("android.permission.BIND_VPN_SERVICE".equals(perm) || "android.permission.BIND_TV_INPUT".equals(perm)
+                        || "android.permission.BIND_DREAM_SERVICE".equals(perm)) return true;
+            }
+            return false;
+        } catch (Exception e) {
+            return true;
+        }
+    }
+
     private static boolean never(String pkg) {
         for (String n : NEVER) if (n.endsWith(".") ? pkg.startsWith(n) : pkg.equals(n) || pkg.startsWith(n + ".")) return true;
         return false;
     }
 
     private static void page(Activity a, List<App> apps, Runnable back, int focus) {
+        boolean auto = auto(a);
+        if (auto) {   // show what "Pick for me" holds back now
+            Set<String> picks = new TreeSet<>();
+            for (App app : apps) if (app.autoPick) picks.add(app.pkg);
+            prefs(a).edit().putStringSet(KEY_HELD, picks).apply();
+        }
         Set<String> held = held(a);
         List<GlassMenu.Row> rows = new ArrayList<>();
+        rows.add(new GlassMenu.Row(R.drawable.ic_s_speed, a.getString(R.string.fs_auto),
+                a.getString(auto ? R.string.tv_on : R.string.tv_off), () -> {
+            prefs(a).edit().putBoolean(KEY_AUTO, !auto).apply();
+            page(a, apps, back, 0);
+        }));
         for (App app : apps) {
             boolean on = held.contains(app.pkg);
             rows.add(new GlassMenu.Row(app.icon, app.name, a.getString(on ? R.string.fs_held : R.string.fs_starts), () -> {
-                Set<String> h = held(a);
+                Set<String> h = held(a);   // choosing yourself turns "Pick for me" off
                 if (!h.remove(app.pkg)) h.add(app.pkg);
-                prefs(a).edit().putStringSet(KEY_HELD, h).apply();
-                page(a, apps, back, apps.indexOf(app));
+                prefs(a).edit().putStringSet(KEY_HELD, h).putBoolean(KEY_AUTO, false).apply();
+                page(a, apps, back, apps.indexOf(app) + 1);
             }));
         }
         GlassMenu.page(a, a.getString(R.string.hs_setup), a.getString(R.string.fs_title),
-                GlassMenu.hero(a, a.getString(R.string.fs_count, held.size()), a.getString(R.string.fs_explain)),
+                GlassMenu.hero(a, a.getString(R.string.fs_count, held.size()), a.getString(R.string.fs_explain),
+                        prefs(a).getBoolean(KEY_PROVEN, false) ? null : a.getString(R.string.fs_pending)),
                 rows, back, focus);
     }
 }

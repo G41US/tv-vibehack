@@ -401,4 +401,6 @@
     <string name="fs_starts">Huwaka pamoja na kisanduku</string>
     <string name="fs_count">%1$d zimecheleweshwa</string>
     <string name="fs_explain">Programu hizi huwaka kila kisanduku kinapowashwa. Unazochelewesha huzimwa kisanduku kinapozimwa, na huwashwa tena mara baada ya uhuishaji wa TV Home, ili kisanduku kiwake haraka.</string>
+    <string name="fs_auto">Nichagulie</string>
+    <string name="fs_pending">Inaanza kufanya kazi baada ya kuwasha upya ijayo, TV Home ikishathibitisha inaweza kuwasha programu tena.</string>
 </resources>
