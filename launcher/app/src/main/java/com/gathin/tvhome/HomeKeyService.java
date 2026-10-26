@@ -93,6 +93,7 @@ public class HomeKeyService extends AccessibilityService {
     @Override
     protected void onServiceConnected() {
         takeover = getResources().getStringArray(R.array.takeover_packages);
+        BootTrace.mark(this, "Home button service");
         if (volume == null) {
             volume = new VolumeOverlay(this);
             android.content.IntentFilter f = new android.content.IntentFilter("android.media.VOLUME_CHANGED_ACTION");
