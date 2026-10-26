@@ -182,9 +182,18 @@ public class QuickPanel extends Activity {
             w.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
             WindowManager.LayoutParams lp = w.getAttributes();
             // Well clear of the right edge: many TVs (LG among them) crop a few percent of the picture.
-            lp.x = GlassMenu.dp(this, 72);
-            lp.width = GlassMenu.dp(this, 500);
+            lp.x = GlassMenu.dp(this, 64);
+            // The glass card is made 660dp wide for centred pages; narrow the card itself (not just the
+            // window, which would cut its right side off) and let the window fit it.
+            lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
             w.setAttributes(lp);
+            android.view.ViewGroup frame = dialog.findViewById(android.R.id.content);
+            if (frame != null && frame.getChildCount() > 0) {
+                android.view.View card = frame.getChildAt(0);
+                android.view.ViewGroup.LayoutParams clp = card.getLayoutParams();
+                clp.width = GlassMenu.dp(this, 520);
+                card.setLayoutParams(clp);
+            }
             w.setWindowAnimations(R.style.QuickPanelAnim);
             w.setDimAmount(0.35f);
         }
