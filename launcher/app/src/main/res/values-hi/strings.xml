@@ -364,11 +364,19 @@
     <string name="fx_eid">ईद मुबारक</string>
     <string name="fx_diwali">दिवाली की शुभकामनाएं</string>
     <string name="fx_lunar">चंद्र नववर्ष की शुभकामनाएं</string>
-    <string name="games_title">गेम</string>
-    <string name="games_snake_desc">खाओ, बढ़ो, और खुद से मत टकराओ</string>
-    <string name="games_2048_desc">टाइलें खिसकाएं, अंक जोड़ें, 2048 तक पहुंचें</string>
-    <string name="games_score">स्कोर %1$d</string>
-    <string name="games_best">सबसे अच्छा %1$d</string>
-    <string name="games_over">गेम ख़त्म · फिर खेलने के लिए OK दबाएं</string>
-    <string name="games_start">शुरू करने के लिए OK या तीर दबाएं</string>
+    <string name="wp_v_tag">चलता</string>
+    <string name="wp_v_ocean">समुद्र की लहरें</string>
+    <string name="wp_v_rain">खिड़की पर बारिश</string>
+    <string name="wp_v_city">रात का शहर</string>
+    <string name="wp_v_aurora">उत्तरी ध्रुवीय ज्योति</string>
+    <string name="wp_v_golden">सुनहरा पानी</string>
+    <string name="wp_v_downloading">%1$s डाउनलोड हो रहा है…</string>
+    <string name="wp_v_failed">यह दृश्य डाउनलोड नहीं हो सका। इंटरनेट कनेक्शन देखें और फिर कोशिश करें।</string>
+    <string name="profile_birthday_add">%1$s का जन्मदिन जोड़ें…</string>
+    <string name="profile_birthday_set">%1$s का जन्मदिन: %2$s</string>
+    <string name="birthday_month_title">जन्मदिन का महीना</string>
+    <string name="birthday_day_title">जन्मदिन की तारीख़</string>
+    <string name="birthday_none">कोई जन्मदिन नहीं</string>
+    <string name="fx_birthday">जन्मदिन मुबारक, %1$s</string>
+    <string name="fx_birthday_plain">जन्मदिन मुबारक</string>
 </resources>

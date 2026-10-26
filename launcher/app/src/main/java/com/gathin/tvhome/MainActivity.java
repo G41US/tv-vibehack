@@ -471,6 +471,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         nowPlaying.start();
         if (weatherFx != null) weatherFx.start();
         if (festiveFx != null) festiveFx.start();
+        if (videoWall != null) videoWall.start();
         if (mood != null) mood.resume();
         if (twinkle != null) twinkle.start();
         if (driftAnim != null) {
@@ -511,6 +512,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         nowPlaying.stop();
         if (weatherFx != null) weatherFx.stop();
         if (festiveFx != null) festiveFx.stop();
+        if (videoWall != null) videoWall.stop();
         if (mood != null) mood.pause();
         if (twinkle != null) twinkle.stop();
         if (driftAnim != null) driftAnim.pause();
@@ -743,7 +745,25 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         for (int i = 0; i < BUILT_IN.length; i++) {
             if (BUILT_IN[i].equals(choice)) showWallpaper(BUILT_IN_RES[i]);
         }
+        if (VideoWallpaper.index(choice) >= 0 && VideoWallpaper.file(this, choice).isFile()) {
+            // A moving scene, playing only while Home is on screen; festive touches go on top as usual.
+            FrameLayout layer = new FrameLayout(this);
+            videoWall = new VideoWallpaper.Player(this, VideoWallpaper.file(this, choice));
+            layer.addView(videoWall, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            Festive.Holiday holiday = SafeStart.on(this) ? null : Festive.today(this);
+            if (holiday != null) {
+                festiveFx = new Festive.Fx(this, density, holiday);
+                layer.addView(festiveFx, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            }
+            root.addView(layer, 0, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            if (resumed) {
+                videoWall.start();
+                if (festiveFx != null) festiveFx.start();
+            }
+        }
     }
+
+    private VideoWallpaper.Player videoWall;
 
     private void setWallpaper(String key) {
         getSharedPreferences(LOOK_PREFS, MODE_PRIVATE).edit().putString(Profiles.key(this, KEY_WALLPAPER), key).apply();
@@ -817,6 +837,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (WP_BLACK.equals(c)) return getString(R.string.wp_black);
         if (WP_PHOTO.equals(c)) return getString(R.string.wp_photo);
         for (int i = 0; i < BUILT_IN.length; i++) if (BUILT_IN[i].equals(c)) return getString(BUILT_IN_NAMES[i]);
+        if (VideoWallpaper.index(c) >= 0) return getString(VideoWallpaper.NAMES[VideoWallpaper.index(c)]);
         return config != null && config.wallpaper != null ? getString(R.string.wp_theme) : getString(R.string.wp_black);
     }
 
@@ -855,6 +876,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             String id = Profiles.add(this, name);
             switchProfile(id);
         }));
+        String me = Profiles.active(this), bday = Profiles.birthday(this, me);
+        labels.add(bday == null ? getString(R.string.profile_birthday_add, Profiles.activeName(this))
+                : getString(R.string.profile_birthday_set, Profiles.activeName(this), birthdayText(bday)));
+        actions.add(() -> askBirthday(me));
         labels.add(getString(R.string.profile_rename, Profiles.activeName(this)));
         actions.add(() -> askName(getString(R.string.profile_rename_title), Profiles.activeName(this), name -> {
             Profiles.rename(this, Profiles.active(this), name);
@@ -869,6 +894,44 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         GlassMenu.list(this, getString(R.string.menu_title), getString(R.string.menu_profiles),
                 labels.toArray(new String[0]), which -> actions.get(which).run());
+    }
+
+    /** "14 March" (in the TV's language) for "03-14". */
+    private static String birthdayText(String mmdd) {
+        try {
+            java.util.Calendar c = java.util.Calendar.getInstance();
+            c.set(2000, Integer.parseInt(mmdd.substring(0, 2)) - 1, Integer.parseInt(mmdd.substring(3, 5)));
+            String pattern = android.text.format.DateFormat.getBestDateTimePattern(Locale.getDefault(), "dMMMM");
+            return new java.text.SimpleDateFormat(pattern, Locale.getDefault()).format(c.getTime());
+        } catch (Exception e) {
+            return mmdd;
+        }
+    }
+
+    /** Pick a month, then a day; "No birthday" clears it. */
+    private void askBirthday(String id) {
+        String[] months = new java.text.DateFormatSymbols(Locale.getDefault()).getMonths();
+        List<String> labels = new ArrayList<>();
+        if (Profiles.birthday(this, id) != null) labels.add(getString(R.string.birthday_none));
+        final int offset = labels.size();
+        for (int m = 0; m < 12; m++) labels.add(months[m]);
+        GlassMenu.list(this, getString(R.string.menu_profiles), getString(R.string.birthday_month_title),
+                labels.toArray(new String[0]), which -> {
+                    if (which < offset) {
+                        Profiles.setBirthday(this, id, null);
+                        updateGreeting();
+                        return;
+                    }
+                    int month = which - offset + 1;
+                    int days = month == 2 ? 29 : (month == 4 || month == 6 || month == 9 || month == 11) ? 30 : 31;
+                    String[] dayLabels = new String[days];
+                    for (int d = 1; d <= days; d++) dayLabels[d - 1] = birthdayText(String.format(Locale.US, "%02d-%02d", month, d));
+                    GlassMenu.list(this, getString(R.string.menu_profiles), getString(R.string.birthday_day_title), dayLabels, day -> {
+                        Profiles.setBirthday(this, id, String.format(Locale.US, "%02d-%02d", month, day + 1));
+                        updateGreeting();
+                        recreate();   // confetti straight away if it's today
+                    });
+                });
     }
 
     private void showRemoveProfile() {
@@ -902,6 +965,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             final String key = BUILT_IN[i];
             labels.add(mark(current, key, getString(BUILT_IN_NAMES[i])));
             actions.add(() -> setWallpaper(key));
+        }
+        for (int i = 0; i < VideoWallpaper.KEYS.length; i++) {
+            final String key = VideoWallpaper.KEYS[i];
+            labels.add(mark(current, key, getString(VideoWallpaper.NAMES[i]) + "  ·  " + getString(R.string.wp_v_tag)));
+            actions.add(() -> VideoWallpaper.fetch(this, key, () -> setWallpaper(key)));
         }
         if (customWallpaper().isFile()) {
             labels.add(mark(current, WP_PHOTO, getString(R.string.wp_photo)));

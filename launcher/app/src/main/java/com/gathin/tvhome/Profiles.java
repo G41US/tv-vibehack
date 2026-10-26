@@ -102,9 +102,35 @@ final class Profiles {
         ctx.getSharedPreferences(AppAdapter.PREFS, Context.MODE_PRIVATE).edit()
                 .remove(AppAdapter.KEY_ORDER + "_" + id).apply();
         ctx.getSharedPreferences("look", Context.MODE_PRIVATE).edit().remove("wallpaper_" + id).apply();
+        setBirthday(ctx, id, null);
         //noinspection ResultOfMethodCallIgnored
         new File(ctx.getFilesDir(), "custom_wallpaper_" + id + ".jpg").delete();
         if (id.equals(prefs(ctx).getString(KEY_ACTIVE, MAIN))) setActive(ctx, MAIN);
+    }
+
+    /** A profile's birthday as "MM-DD", or null. */
+    static String birthday(Context ctx, String id) {
+        return prefs(ctx).getString("birthday_" + id, null);
+    }
+
+    static void setBirthday(Context ctx, String id, String mmdd) {
+        if (mmdd == null) prefs(ctx).edit().remove("birthday_" + id).apply();
+        else prefs(ctx).edit().putString("birthday_" + id, mmdd).apply();
+    }
+
+    /** Names of the profiles whose birthday is today (29 February counts on the 28th in other years). */
+    static List<String> birthdaysToday(Context ctx) {
+        java.util.Calendar now = java.util.Calendar.getInstance();
+        int m = now.get(java.util.Calendar.MONTH) + 1, d = now.get(java.util.Calendar.DAY_OF_MONTH);
+        String today = String.format(java.util.Locale.US, "%02d-%02d", m, d);
+        boolean leap = new java.util.GregorianCalendar().isLeapYear(now.get(java.util.Calendar.YEAR));
+        List<String> out = new ArrayList<>();
+        for (String[] p : list(ctx)) {
+            String b = birthday(ctx, p[0]);
+            if (b == null) continue;
+            if (b.equals(today) || (!leap && b.equals("02-29") && today.equals("02-28"))) out.add(p[1]);
+        }
+        return out;
     }
 
     static boolean askEnabled(Context ctx) {

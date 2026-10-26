@@ -364,11 +364,19 @@
     <string name="fx_eid">عيد مبارك</string>
     <string name="fx_diwali">ديوالي سعيد</string>
     <string name="fx_lunar">سنة قمرية جديدة سعيدة</string>
-    <string name="games_title">ألعاب</string>
-    <string name="games_snake_desc">كُل وكبُر ولا تصطدم بنفسك</string>
-    <string name="games_2048_desc">حرّك المربعات واجمع الأرقام حتى 2048</string>
-    <string name="games_score">النقاط %1$d</string>
-    <string name="games_best">الأفضل %1$d</string>
-    <string name="games_over">انتهت اللعبة · اضغط OK للعب مجددًا</string>
-    <string name="games_start">اضغط OK أو سهمًا للبدء</string>
+    <string name="wp_v_tag">متحركة</string>
+    <string name="wp_v_ocean">أمواج البحر</string>
+    <string name="wp_v_rain">مطر على النافذة</string>
+    <string name="wp_v_city">مدينة في الليل</string>
+    <string name="wp_v_aurora">الشفق القطبي</string>
+    <string name="wp_v_golden">مياه ذهبية</string>
+    <string name="wp_v_downloading">جارٍ تنزيل %1$s…</string>
+    <string name="wp_v_failed">تعذّر تنزيل هذا المشهد. تحقق من الاتصال بالإنترنت وحاول مرة أخرى.</string>
+    <string name="profile_birthday_add">إضافة عيد ميلاد لـ %1$s…</string>
+    <string name="profile_birthday_set">عيد ميلاد %1$s: %2$s</string>
+    <string name="birthday_month_title">شهر الميلاد</string>
+    <string name="birthday_day_title">يوم الميلاد</string>
+    <string name="birthday_none">بلا عيد ميلاد</string>
+    <string name="fx_birthday">عيد ميلاد سعيد يا %1$s</string>
+    <string name="fx_birthday_plain">عيد ميلاد سعيد</string>
 </resources>

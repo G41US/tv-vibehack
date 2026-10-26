@@ -370,13 +370,19 @@
     <string name="fx_eid">Eid Mubarak</string>
     <string name="fx_diwali">Happy Diwali</string>
     <string name="fx_lunar">Happy Lunar New Year</string>
-    <string name="games_title">Games</string>
-    <string name="games_snake_desc">Eat, grow, and don\'t run into yourself</string>
-    <string name="games_2048_desc">Slide the tiles, join numbers, reach 2048</string>
-    <string name="games_score">Score %1$d</string>
-    <string name="games_best">Best %1$d</string>
-    <string name="games_over">Game over · Press OK to play again</string>
-    <string name="games_start">Press OK or an arrow to start</string>
-    <string name="games_snake" translatable="false">Snake</string>
-    <string name="games_2048" translatable="false">2048</string>
+    <string name="wp_v_tag">moving</string>
+    <string name="wp_v_ocean">Ocean waves</string>
+    <string name="wp_v_rain">Rain on a window</string>
+    <string name="wp_v_city">City at night</string>
+    <string name="wp_v_aurora">Northern lights</string>
+    <string name="wp_v_golden">Golden water</string>
+    <string name="wp_v_downloading">Downloading %1$s…</string>
+    <string name="wp_v_failed">Couldn\'t download this scene. Check the internet connection and try again.</string>
+    <string name="profile_birthday_add">Add a birthday for %1$s…</string>
+    <string name="profile_birthday_set">%1$s\'s birthday: %2$s</string>
+    <string name="birthday_month_title">Birthday month</string>
+    <string name="birthday_day_title">Birthday day</string>
+    <string name="birthday_none">No birthday</string>
+    <string name="fx_birthday">Happy birthday, %1$s</string>
+    <string name="fx_birthday_plain">Happy birthday</string>
 </resources>

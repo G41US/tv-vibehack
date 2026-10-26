@@ -364,11 +364,19 @@
     <string name="fx_eid">Eid Mubarak · 节日快乐</string>
     <string name="fx_diwali">排灯节快乐</string>
     <string name="fx_lunar">春节快乐</string>
-    <string name="games_title">游戏</string>
-    <string name="games_snake_desc">吃东西、变长，别撞到自己</string>
-    <string name="games_2048_desc">滑动方块、合并数字，达到 2048</string>
-    <string name="games_score">得分 %1$d</string>
-    <string name="games_best">最高 %1$d</string>
-    <string name="games_over">游戏结束 · 按 OK 再玩一次</string>
-    <string name="games_start">按 OK 或方向键开始</string>
+    <string name="wp_v_tag">动态</string>
+    <string name="wp_v_ocean">海浪</string>
+    <string name="wp_v_rain">雨打窗</string>
+    <string name="wp_v_city">城市夜景</string>
+    <string name="wp_v_aurora">北极光</string>
+    <string name="wp_v_golden">金色水面</string>
+    <string name="wp_v_downloading">正在下载%1$s…</string>
+    <string name="wp_v_failed">无法下载此场景。请检查网络连接后重试。</string>
+    <string name="profile_birthday_add">为%1$s添加生日…</string>
+    <string name="profile_birthday_set">%1$s的生日：%2$s</string>
+    <string name="birthday_month_title">生日月份</string>
+    <string name="birthday_day_title">生日日期</string>
+    <string name="birthday_none">不设生日</string>
+    <string name="fx_birthday">%1$s，生日快乐</string>
+    <string name="fx_birthday_plain">生日快乐</string>
 </resources>

@@ -104,8 +104,16 @@ final class Festive {
         return c.getSharedPreferences(HomeSettings.PREFS, Context.MODE_PRIVATE).getBoolean("festive", true);
     }
 
-    /** Today's holiday where the person is, or null. */
+    /** Today's birthday or holiday where the person is, or null. */
     static Holiday today(Context ctx) {
+        // Birthdays (set per profile in Profiles) come first, whatever Festive looks is set to.
+        java.util.List<String> names = Profiles.birthdaysToday(ctx);
+        if (!names.isEmpty()) {
+            names.remove(ctx.getString(R.string.profile_main));   // the unnamed main profile: just "Happy birthday"
+            String text = names.isEmpty() ? ctx.getString(R.string.fx_birthday_plain)
+                    : ctx.getString(R.string.fx_birthday, String.join(" & ", names));
+            return new Holiday(text + "  🎂", CONFETTI, 0xFFFF6B9D, 0xFFFFD166, 0xFF4CC9F0, 0xFF7B5CFA, 0xFF2ECC9A);
+        }
         if (!on(ctx)) return null;
         String cc = Weather.country(ctx);
         Calendar now = Calendar.getInstance();

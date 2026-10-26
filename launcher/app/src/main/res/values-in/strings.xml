@@ -364,11 +364,19 @@
     <string name="fx_eid">Selamat Hari Raya</string>
     <string name="fx_diwali">Selamat Diwali</string>
     <string name="fx_lunar">Selamat Tahun Baru Imlek</string>
-    <string name="games_title">Game</string>
-    <string name="games_snake_desc">Makan, tumbuh, jangan menabrak diri sendiri</string>
-    <string name="games_2048_desc">Geser ubin, gabungkan angka, capai 2048</string>
-    <string name="games_score">Skor %1$d</string>
-    <string name="games_best">Terbaik %1$d</string>
-    <string name="games_over">Permainan selesai · Tekan OK untuk main lagi</string>
-    <string name="games_start">Tekan OK atau panah untuk mulai</string>
+    <string name="wp_v_tag">bergerak</string>
+    <string name="wp_v_ocean">Ombak laut</string>
+    <string name="wp_v_rain">Hujan di jendela</string>
+    <string name="wp_v_city">Kota di malam hari</string>
+    <string name="wp_v_aurora">Aurora</string>
+    <string name="wp_v_golden">Air keemasan</string>
+    <string name="wp_v_downloading">Mengunduh %1$s…</string>
+    <string name="wp_v_failed">Adegan ini tidak dapat diunduh. Periksa koneksi internet dan coba lagi.</string>
+    <string name="profile_birthday_add">Tambahkan ulang tahun untuk %1$s…</string>
+    <string name="profile_birthday_set">Ulang tahun %1$s: %2$s</string>
+    <string name="birthday_month_title">Bulan ulang tahun</string>
+    <string name="birthday_day_title">Tanggal ulang tahun</string>
+    <string name="birthday_none">Tanpa ulang tahun</string>
+    <string name="fx_birthday">Selamat ulang tahun, %1$s</string>
+    <string name="fx_birthday_plain">Selamat ulang tahun</string>
 </resources>

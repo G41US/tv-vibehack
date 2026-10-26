@@ -364,11 +364,19 @@
     <string name="fx_eid">Eid Mubarak</string>
     <string name="fx_diwali">Feliz Diwali</string>
     <string name="fx_lunar">Feliz Ano Novo Lunar</string>
-    <string name="games_title">Jogos</string>
-    <string name="games_snake_desc">Coma, cresça e não bata em si mesmo</string>
-    <string name="games_2048_desc">Deslize as peças, junte números, chegue a 2048</string>
-    <string name="games_score">Pontos %1$d</string>
-    <string name="games_best">Recorde %1$d</string>
-    <string name="games_over">Fim de jogo · Pressione OK para jogar de novo</string>
-    <string name="games_start">Pressione OK ou uma seta para começar</string>
+    <string name="wp_v_tag">em movimento</string>
+    <string name="wp_v_ocean">Ondas do mar</string>
+    <string name="wp_v_rain">Chuva na janela</string>
+    <string name="wp_v_city">Cidade à noite</string>
+    <string name="wp_v_aurora">Aurora boreal</string>
+    <string name="wp_v_golden">Água dourada</string>
+    <string name="wp_v_downloading">Baixando %1$s…</string>
+    <string name="wp_v_failed">Não foi possível baixar esta cena. Verifique a conexão com a internet e tente de novo.</string>
+    <string name="profile_birthday_add">Adicionar um aniversário para %1$s…</string>
+    <string name="profile_birthday_set">Aniversário de %1$s: %2$s</string>
+    <string name="birthday_month_title">Mês do aniversário</string>
+    <string name="birthday_day_title">Dia do aniversário</string>
+    <string name="birthday_none">Sem aniversário</string>
+    <string name="fx_birthday">Feliz aniversário, %1$s</string>
+    <string name="fx_birthday_plain">Feliz aniversário</string>
 </resources>
