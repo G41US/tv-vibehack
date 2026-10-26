@@ -389,4 +389,8 @@
     <string name="apps_data_removed">已删除的应用</string>
     <string name="apps_data_need">要按应用查看流量，TV Home 需要使用一次电视的调试连接。请用\"在此电视上设置\"设置后重试。</string>
     <string name="apps_data_empty">本月尚未使用流量。</string>
+    <string name="hs_startup">开机动画</string>
+    <string name="profile_avatar_add">为 %1$s 选择头像…</string>
+    <string name="profile_avatar_set">%1$s 的头像：%2$s</string>
+    <string name="avatar_title">为 %1$s 选一个头像</string>
 </resources>

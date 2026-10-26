@@ -389,4 +389,8 @@
     <string name="apps_data_removed">Apps eliminadas</string>
     <string name="apps_data_need">Para ver los datos por app, TV Home necesita una vez la conexión de depuración del televisor. Configúrala con \"Configurar en este televisor\" y vuelve a intentarlo.</string>
     <string name="apps_data_empty">Aún no se han usado datos este mes.</string>
+    <string name="hs_startup">Animación de inicio</string>
+    <string name="profile_avatar_add">Elegir una imagen para %1$s…</string>
+    <string name="profile_avatar_set">Imagen de %1$s: %2$s</string>
+    <string name="avatar_title">Una imagen para %1$s</string>
 </resources>

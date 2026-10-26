@@ -395,4 +395,8 @@
     <string name="apps_data_removed">Removed apps</string>
     <string name="apps_data_need">To see data by app, TV Home needs the TV\'s debugging connection once. Set it up with \"Set up on this TV\", then try again.</string>
     <string name="apps_data_empty">No data used yet this month.</string>
+    <string name="hs_startup">Start-up animation</string>
+    <string name="profile_avatar_add">Choose a picture for %1$s…</string>
+    <string name="profile_avatar_set">Picture for %1$s: %2$s</string>
+    <string name="avatar_title">A picture for %1$s</string>
 </resources>

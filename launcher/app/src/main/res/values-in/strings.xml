@@ -389,4 +389,8 @@
     <string name="apps_data_removed">Aplikasi yang dihapus</string>
     <string name="apps_data_need">Untuk melihat data per aplikasi, TV Home perlu koneksi debugging TV sekali. Siapkan dengan \"Siapkan di TV ini\", lalu coba lagi.</string>
     <string name="apps_data_empty">Belum ada data terpakai bulan ini.</string>
+    <string name="hs_startup">Animasi saat menyala</string>
+    <string name="profile_avatar_add">Pilih gambar untuk %1$s…</string>
+    <string name="profile_avatar_set">Gambar %1$s: %2$s</string>
+    <string name="avatar_title">Gambar untuk %1$s</string>
 </resources>
