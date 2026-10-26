@@ -187,6 +187,15 @@ final class StartupApps {
 
     private static void turnOn(Context c, AdbSelf adb) throws Exception {
         Set<String> paused = paused(c);
+        // Bringing back the box's own home screen made Android switch to it (a black flash, then TV
+        // Home taking over again). Made the box's chosen home app first, TV Home stays in front.
+        boolean homeBack = false;
+        android.content.Intent home = new android.content.Intent(android.content.Intent.ACTION_MAIN)
+                .addCategory(android.content.Intent.CATEGORY_HOME);
+        for (android.content.pm.ResolveInfo r : c.getPackageManager().queryIntentActivities(home, PackageManager.MATCH_DISABLED_COMPONENTS)) {
+            if (paused.contains(r.activityInfo.packageName)) homeBack = true;
+        }
+        if (homeBack) claimHome(c, adb);
         for (String pkg : new ArrayList<>(paused)) {
             String out = adb.shell("pm enable --user 0 " + pkg + " 2>&1");
             if (out.contains("enabled") || out.contains("Unknown package")) {
@@ -196,6 +205,15 @@ final class StartupApps {
                 adb.shell("am broadcast -a android.intent.action.BOOT_COMPLETED -p " + pkg + " >/dev/null 2>&1");
             }
         }
+        if (homeBack) claimHome(c, adb);   // and again, in case bringing it back reassigned it
+    }
+
+    /** TV Home as the box's chosen home app (Android 10+ "home app" role; older boxes the home setting). */
+    private static void claimHome(Context c, AdbSelf adb) throws Exception {
+        String me = c.getPackageName();
+        adb.shell("cmd package set-home-activity --user 0 " + me + "/.MainActivity >/dev/null 2>&1");
+        adb.shell("cmd role add-role-holder --user 0 android.app.role.HOME " + me + " >/dev/null 2>&1");
+        BootTrace.mark(c, "TV Home made the box's home app");
     }
 
     // ---- the page -----------------------------------------------------------------------------------
