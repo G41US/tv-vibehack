@@ -23,13 +23,14 @@
   "s4_alt": "Prefereixes no activar la depuració? Fes servir els altres botons de la mateixa pantalla: Botó Inici i arrencada → Activar (tria TV Home a Accessibilitat), i després Permetre i Permetre.",
   "get_h": "Què hi tens",
   "features": [
-    "<strong>Sense anuncis ni files patrocinades.</strong> Només les teves apps, amb les quatre preferides en un dock.",
+    "<strong>Sense anuncis ni files patrocinades.</strong> Només les teves apps, amb les preferides en un dock de 3 a 6.",
     "<strong>Arrenca amb TV Home</strong>, i el botó Inici sempre hi torna.",
-    "<strong>Rellotge, data i temps</strong> de qualsevol ciutat del món, amb la previsió de la setmana.",
+    "<strong>Rellotge, data i temps</strong> de qualsevol ciutat del món, amb la previsió de la setmana i el detall hora a hora de cada dia.",
     "<strong>Reproduint:</strong> el que sona a Spotify o YouTube Music, amb reproductor a pantalla completa i lletres.",
     "<strong>Tauler ràpid:</strong> mantén Enrere a qualsevol lloc per a la música, el volum, el mode nit, el repòs i Accelerar.",
     "<strong>Mode nit:</strong> una pantalla més suau i un límit de volum a la nit.",
-    "<strong>Fons:</strong> inclosos, amb moviment suau, o una foto des del mòbil.",
+    "<strong>Festes i aniversaris:</strong> confeti, neu o espurnes a les festes del teu país, i una felicitació d'aniversari per a cada perfil.",
+    "<strong>Fons:</strong> inclosos, una foto del mòbil o escenes en moviment com onades, pluja a la finestra o aurores boreals.",
     "<strong>QR de la Wi-Fi de convidats</strong> i les dades usades avui i aquest mes.",
     "<strong>S'actualitza sol:</strong> les noves versions s'instal·len amb un clic.",
     "<strong>En el teu idioma:</strong> anglès, francès, castellà, portuguès, alemany, català, àrab, hindi, suahili, indonesi, tai i xinès."
@@ -42,21 +43,45 @@
   "tvs_no": "<strong>No funciona en</strong> Samsung (Tizen), LG (webOS), Roku, Hisense VIDAA ni Apple TV: no executen apps Android ni deixen que una app substitueixi la pantalla d'inici. La solució fàcil per a aquests televisors: connecta un dongle amb Android TV o Google TV i fes servir TV Home amb ell.",
   "use_h": "Com es fa servir",
   "tips": [
-    "<b>Mantén OK sobre una app</b> per moure-la al dock, afegir-la o treure-la. El dock en té quatre.",
+    "<b>Mantén OK sobre una app</b> per moure-la al dock, afegir-la o treure-la. Tria de 3 a 6 apps del dock a Configuració → Aspecte.",
     "<b>Mantén OK sobre Configuració</b> (a dalt a la dreta) per al fons, la ciutat del temps, la música, el mode nit, les actualitzacions i la configuració.",
     "<b>Mantén Enrere</b>, a qualsevol lloc, per al tauler ràpid.",
     "<b>Prem OK sobre el temps</b> per veure la previsió de la setmana."
   ],
   "q_h": "Preguntes",
   "questions": [
-    ["Per què necessita Accessibilitat?", "Molts televisors obren la seva pròpia pantalla d'inici en engegar-se i amb el botó Inici, triïs l'app que triïs. El permís d'Accessibilitat de TV Home només vigila aquella pantalla i alguns botons, i obre TV Home al seu lloc. No llegeix, no grava ni envia res de la pantalla. Android mostra un avís general per a qualsevol app que el demana."],
-    ["Esborra o espatlla les apps del meu televisor?", "No. No es desinstal·la ni es desactiva res. Els canals, les apps i la configuració queden igual."],
-    ["Com torno a la pantalla d'inici anterior?", "Configuració → Accessibilitat → TV Home → desactivar. Per treure'l del tot: Configuració → Apps → TV Home → Desinstal·lar. El televisor torna a estar com abans."],
-    ["Una actualització del sistema ha tornat la pantalla d'inici anterior.", "Obre TV Home des de la llista d'apps i torna a fer la configuració (mantén OK sobre Configuració → Actualitzacions i configuració)."],
-    ["Alguna cosa no funciona.", "Mantén OK sobre Configuració → Actualitzacions i configuració → <strong>Revisió del televisor</strong>. Mostra un ✓ o una ✗ per a cada part de TV Home i què cal prémer per arreglar-ho. <strong>Enviar un informe</strong> hi mostra un codi QR: escaneja'l amb el mòbil per enviar les dades del teu televisor i que s'hi pugui afegir suport."],
-    ["És segur?", "Sí. El codi és públic a GitHub, no es flasheja ni es fa root de res, i les actualitzacions només s'instal·len si estan signades amb la clau de TV Home, així que ningú més pot enviar una actualització falsa al teu televisor."],
-    ["He reinstal·lat TV Home. He perdut la configuració?", "No. TV Home guarda una còpia xifrada del dock, el fons, el temps i el QR de la Wi-Fi al televisor. Després de reinstal·lar, prem <strong>Permetre</strong> al costat de \"Guarda la teva configuració\" a la pantalla de configuració i tornen."],
-    ["Extres amb mòbil o ordinador", "Amb ADB (Termux a Android, o un ordinador), l'script <a href=\"https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh\">airtel-fix.sh</a> fa la mateixa configuració des d'un mòbil, a més d'animacions més ràpides i SmartTube. Afegeix <code>ADBLOCK=1</code> per a un DNS amb bloqueig d'anuncis a tot l'aparell (pot deixar alguns aparells sense internet). No cal per a TV Home."]
+    [
+      "Per què necessita Accessibilitat?",
+      "Molts televisors obren la seva pròpia pantalla d'inici en engegar-se i amb el botó Inici, triïs l'app que triïs. El permís d'Accessibilitat de TV Home només vigila aquella pantalla i alguns botons, i obre TV Home al seu lloc. No llegeix, no grava ni envia res de la pantalla. Android mostra un avís general per a qualsevol app que el demana."
+    ],
+    [
+      "Esborra o espatlla les apps del meu televisor?",
+      "No. No es desinstal·la ni es desactiva res. Els canals, les apps i la configuració queden igual."
+    ],
+    [
+      "Com torno a la pantalla d'inici anterior?",
+      "Configuració → Accessibilitat → TV Home → desactivar. Per treure'l del tot: Configuració → Apps → TV Home → Desinstal·lar. El televisor torna a estar com abans."
+    ],
+    [
+      "Una actualització del sistema ha tornat la pantalla d'inici anterior.",
+      "Obre TV Home des de la llista d'apps i torna a fer la configuració (mantén OK sobre Configuració → Actualitzacions i configuració)."
+    ],
+    [
+      "Alguna cosa no funciona.",
+      "Mantén OK sobre Configuració → Actualitzacions i configuració → <strong>Revisió del televisor</strong>. Mostra un ✓ o una ✗ per a cada part de TV Home i què cal prémer per arreglar-ho. <strong>Enviar un informe</strong> hi mostra un codi QR: escaneja'l amb el mòbil per enviar les dades del teu televisor i que s'hi pugui afegir suport."
+    ],
+    [
+      "És segur?",
+      "Sí. El codi és públic a GitHub, no es flasheja ni es fa root de res, i les actualitzacions només s'instal·len si estan signades amb la clau de TV Home, així que ningú més pot enviar una actualització falsa al teu televisor."
+    ],
+    [
+      "He reinstal·lat TV Home. He perdut la configuració?",
+      "No. TV Home guarda una còpia xifrada del dock, el fons, el temps i el QR de la Wi-Fi al televisor. Després de reinstal·lar, prem <strong>Permetre</strong> al costat de \"Guarda la teva configuració\" a la pantalla de configuració i tornen."
+    ],
+    [
+      "Extres amb mòbil o ordinador",
+      "Amb ADB (Termux a Android, o un ordinador), l'script <a href=\"https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh\">airtel-fix.sh</a> fa la mateixa configuració des d'un mòbil, a més d'animacions més ràpides i SmartTube. Afegeix <code>ADBLOCK=1</code> per a un DNS amb bloqueig d'anuncis a tot l'aparell (pot deixar alguns aparells sense internet). No cal per a TV Home."
+    ]
   ],
   "footer": "TV Home es basa en <a href=\"https://github.com/Gathin23/tv-vibehack\">tv-vibehack</a> de Gathin23 (llicència MIT) i el desenvolupa <a href=\"https://github.com/G41US/tv-vibehack\">G41US</a>. No està fet per Google, Amazon, Airtel ni cap fabricant de televisors, ni hi està afiliat. Fes-lo servir sota la teva responsabilitat."
 }

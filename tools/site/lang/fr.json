@@ -23,13 +23,14 @@
   "s4_alt": "Vous préférez ne pas activer le débogage ? Utilisez les autres boutons du même écran : Bouton Accueil et démarrage → Activer (choisissez TV Home dans Accessibilité), puis Autoriser et Autoriser.",
   "get_h": "Ce que vous obtenez",
   "features": [
-    "<strong>Plus de publicités ni de rangées sponsorisées.</strong> Juste vos applis, avec vos quatre préférées dans un dock.",
+    "<strong>Plus de publicités ni de rangées sponsorisées.</strong> Juste vos applis, avec vos préférées dans un dock de 3 à 6.",
     "<strong>Démarre sur TV Home</strong>, et le bouton Accueil y revient toujours.",
-    "<strong>Horloge, date et météo</strong> de n'importe quelle ville du monde, avec les prévisions de la semaine.",
+    "<strong>Horloge, date et météo</strong> de n'importe quelle ville du monde, avec les prévisions de la semaine et le détail heure par heure de chaque jour.",
     "<strong>En cours de lecture :</strong> ce qui passe sur Spotify ou YouTube Music, avec un lecteur plein écran et les paroles.",
     "<strong>Panneau rapide :</strong> maintenez Retour n'importe où pour la musique, le volume, le mode nuit, la veille et Accélérer.",
     "<strong>Mode nuit :</strong> un écran plus doux et un volume limité tard le soir.",
-    "<strong>Fonds d'écran :</strong> inclus, légèrement animés, ou une photo envoyée depuis votre téléphone.",
+    "<strong>Fêtes et anniversaires :</strong> confettis, neige ou étincelles pour les fêtes de votre pays, et un message d'anniversaire pour chaque profil.",
+    "<strong>Fonds d'écran :</strong> inclus, une photo de votre téléphone, ou des scènes animées comme les vagues, la pluie sur une vitre ou les aurores boréales.",
     "<strong>QR code Wi-Fi pour les invités</strong> et les données utilisées aujourd'hui et ce mois-ci.",
     "<strong>Se met à jour tout seul :</strong> les nouvelles versions s'installent en un clic.",
     "<strong>Dans votre langue :</strong> anglais, français, espagnol, portugais, allemand, catalan, arabe, hindi, swahili, indonésien, thaï et chinois."
@@ -42,21 +43,45 @@
   "tvs_no": "<strong>Impossible sur</strong> Samsung (Tizen), LG (webOS), Roku, Hisense VIDAA et Apple TV : ils n'exécutent pas d'applis Android et ne laissent aucune appli remplacer l'écran d'accueil. La solution simple pour ces téléviseurs : branchez une clé Android TV ou Google TV et utilisez TV Home dessus.",
   "use_h": "Utilisation",
   "tips": [
-    "<b>Maintenez OK sur une appli</b> pour la déplacer dans le dock, l'ajouter ou la retirer. Le dock en contient quatre.",
+    "<b>Maintenez OK sur une appli</b> pour la déplacer dans le dock, l'ajouter ou la retirer. Choisissez de 3 à 6 applis dans Paramètres → Apparence.",
     "<b>Maintenez OK sur Paramètres</b> (en haut à droite) pour le fond d'écran, la ville météo, la musique, le mode nuit, les mises à jour et la configuration.",
     "<b>Maintenez Retour</b>, n'importe où, pour le panneau rapide.",
     "<b>Appuyez sur OK sur la météo</b> pour les prévisions de la semaine."
   ],
   "q_h": "Questions",
   "questions": [
-    ["Pourquoi l'accès Accessibilité ?", "Beaucoup de téléviseurs ouvrent leur propre écran d'accueil au démarrage et sur le bouton Accueil, quelle que soit l'appli choisie. L'option Accessibilité de TV Home surveille seulement cet écran et quelques boutons, et ouvre TV Home à la place. Elle ne lit, n'enregistre et n'envoie rien de votre écran. Android affiche un avertissement général pour toute appli qui la demande."],
-    ["Est-ce que ça supprime ou casse les applis de mon téléviseur ?", "Non. Rien n'est désinstallé ni désactivé. Vos chaînes, applis et réglages restent tels quels."],
-    ["Comment revenir à l'ancien écran d'accueil ?", "Paramètres → Accessibilité → TV Home → désactiver. Pour le supprimer complètement : Paramètres → Applis → TV Home → Désinstaller. Le téléviseur redevient exactement comme avant."],
-    ["Une mise à jour système a ramené l'ancien écran d'accueil.", "Ouvrez TV Home depuis la liste des applis et refaites la configuration (maintenez OK sur Paramètres → Mises à jour et configuration)."],
-    ["Quelque chose ne marche pas.", "Maintenez OK sur Paramètres → Mises à jour et configuration → <strong>Vérification du téléviseur</strong>. Elle affiche un ✓ ou un ✗ pour chaque partie de TV Home, et sur quoi appuyer pour corriger. <strong>Envoyer un rapport</strong> y affiche un QR code : scannez-le avec votre téléphone pour envoyer les détails de votre téléviseur, afin qu'il soit pris en charge."],
-    ["Est-ce sûr ?", "Oui. Le code est public sur GitHub, rien n'est flashé ni rooté, et les mises à jour ne s'installent que si elles sont signées avec la clé de TV Home : personne d'autre ne peut envoyer une fausse mise à jour sur votre téléviseur."],
-    ["J'ai réinstallé TV Home. Mes réglages sont-ils perdus ?", "Non. TV Home garde une sauvegarde chiffrée de votre dock, fond d'écran, météo et QR Wi-Fi sur le téléviseur. Après la réinstallation, appuyez sur <strong>Autoriser</strong> à côté de « Protéger vos réglages » et ils reviennent."],
-    ["Extras avec un téléphone ou un ordinateur", "Avec ADB (Termux sur Android, ou un ordinateur), le script <a href=\"https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh\">airtel-fix.sh</a> fait la même configuration depuis un téléphone, plus des animations plus rapides et SmartTube. Ajoutez <code>ADBLOCK=1</code> pour un DNS anti-pub sur tout le boîtier (il peut empêcher certains boîtiers d'accéder à Internet). Pas nécessaire pour TV Home."]
+    [
+      "Pourquoi l'accès Accessibilité ?",
+      "Beaucoup de téléviseurs ouvrent leur propre écran d'accueil au démarrage et sur le bouton Accueil, quelle que soit l'appli choisie. L'option Accessibilité de TV Home surveille seulement cet écran et quelques boutons, et ouvre TV Home à la place. Elle ne lit, n'enregistre et n'envoie rien de votre écran. Android affiche un avertissement général pour toute appli qui la demande."
+    ],
+    [
+      "Est-ce que ça supprime ou casse les applis de mon téléviseur ?",
+      "Non. Rien n'est désinstallé ni désactivé. Vos chaînes, applis et réglages restent tels quels."
+    ],
+    [
+      "Comment revenir à l'ancien écran d'accueil ?",
+      "Paramètres → Accessibilité → TV Home → désactiver. Pour le supprimer complètement : Paramètres → Applis → TV Home → Désinstaller. Le téléviseur redevient exactement comme avant."
+    ],
+    [
+      "Une mise à jour système a ramené l'ancien écran d'accueil.",
+      "Ouvrez TV Home depuis la liste des applis et refaites la configuration (maintenez OK sur Paramètres → Mises à jour et configuration)."
+    ],
+    [
+      "Quelque chose ne marche pas.",
+      "Maintenez OK sur Paramètres → Mises à jour et configuration → <strong>Vérification du téléviseur</strong>. Elle affiche un ✓ ou un ✗ pour chaque partie de TV Home, et sur quoi appuyer pour corriger. <strong>Envoyer un rapport</strong> y affiche un QR code : scannez-le avec votre téléphone pour envoyer les détails de votre téléviseur, afin qu'il soit pris en charge."
+    ],
+    [
+      "Est-ce sûr ?",
+      "Oui. Le code est public sur GitHub, rien n'est flashé ni rooté, et les mises à jour ne s'installent que si elles sont signées avec la clé de TV Home : personne d'autre ne peut envoyer une fausse mise à jour sur votre téléviseur."
+    ],
+    [
+      "J'ai réinstallé TV Home. Mes réglages sont-ils perdus ?",
+      "Non. TV Home garde une sauvegarde chiffrée de votre dock, fond d'écran, météo et QR Wi-Fi sur le téléviseur. Après la réinstallation, appuyez sur <strong>Autoriser</strong> à côté de « Protéger vos réglages » et ils reviennent."
+    ],
+    [
+      "Extras avec un téléphone ou un ordinateur",
+      "Avec ADB (Termux sur Android, ou un ordinateur), le script <a href=\"https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh\">airtel-fix.sh</a> fait la même configuration depuis un téléphone, plus des animations plus rapides et SmartTube. Ajoutez <code>ADBLOCK=1</code> pour un DNS anti-pub sur tout le boîtier (il peut empêcher certains boîtiers d'accéder à Internet). Pas nécessaire pour TV Home."
+    ]
   ],
   "footer": "TV Home est basé sur <a href=\"https://github.com/Gathin23/tv-vibehack\">tv-vibehack</a> de Gathin23 (licence MIT), développé par <a href=\"https://github.com/G41US/tv-vibehack\">G41US</a>. Il n'est ni fait par Google, Amazon, Airtel ou un fabricant de téléviseurs, ni affilié à eux. Utilisation à vos risques."
 }

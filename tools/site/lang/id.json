@@ -23,13 +23,14 @@
   "s4_alt": "Tidak ingin mengaktifkan debugging? Gunakan tombol lain di layar yang sama: Tombol Home dan saat menyala → Aktifkan (pilih TV Home di Aksesibilitas), lalu Izinkan dan Izinkan.",
   "get_h": "Yang Anda dapatkan",
   "features": [
-    "<strong>Tanpa iklan atau baris bersponsor.</strong> Hanya aplikasi Anda, dengan empat favorit di dock.",
+    "<strong>Tanpa iklan atau baris bersponsor.</strong> Hanya aplikasi Anda, dengan favorit di dock berisi 3 sampai 6.",
     "<strong>TV menyala ke TV Home</strong>, dan tombol Home selalu kembali ke sana.",
-    "<strong>Jam, tanggal, dan cuaca</strong> untuk kota mana pun di dunia, dengan prakiraan seminggu.",
+    "<strong>Jam, tanggal, dan cuaca</strong> untuk kota mana pun di dunia, dengan prakiraan seminggu dan tampilan per jam untuk setiap hari.",
     "<strong>Sedang diputar:</strong> apa yang diputar di Spotify atau YouTube Music, dengan pemutar layar penuh dan lirik.",
     "<strong>Panel cepat:</strong> tahan Kembali di mana saja untuk musik, volume, mode malam, tidur, dan Percepat.",
     "<strong>Mode malam:</strong> layar lebih lembut dan batas volume larut malam.",
-    "<strong>Wallpaper:</strong> bawaan, bergerak perlahan, atau foto dari ponsel Anda.",
+    "<strong>Perayaan dan ulang tahun:</strong> konfeti, salju, atau kilauan di hari raya negara Anda, dan ucapan ulang tahun untuk setiap profil.",
+    "<strong>Wallpaper:</strong> bawaan, foto dari ponsel, atau adegan bergerak seperti ombak laut, hujan di jendela, dan aurora.",
     "<strong>Kode QR Wi-Fi tamu</strong> dan data yang terpakai hari ini dan bulan ini.",
     "<strong>Memperbarui sendiri:</strong> versi baru terinstal dengan satu tekan.",
     "<strong>Dalam bahasa Anda:</strong> Inggris, Prancis, Spanyol, Portugis, Jerman, Katalan, Arab, Hindi, Swahili, Indonesia, Thai, dan Mandarin."
@@ -42,21 +43,45 @@
   "tvs_no": "<strong>Tidak bisa dipakai di</strong> Samsung (Tizen), LG (webOS), Roku, Hisense VIDAA, atau Apple TV: TV tersebut tidak menjalankan aplikasi Android dan tidak mengizinkan aplikasi mengambil alih layar utama. Solusi mudahnya: colokkan stik Android TV atau Google TV dan pakai TV Home di sana.",
   "use_h": "Cara memakai",
   "tips": [
-    "<b>Tahan OK pada aplikasi</b> untuk memindahkannya di dock, menambahkannya, atau menghapusnya. Dock berisi empat.",
+    "<b>Tahan OK pada aplikasi</b> untuk memindahkannya di dock, menambahkannya, atau menghapusnya. Pilih 3 sampai 6 aplikasi dock di Setelan → Tampilan.",
     "<b>Tahan OK pada Setelan</b> (kanan atas) untuk wallpaper, kota cuaca, musik, mode malam, pembaruan, dan penyiapan.",
     "<b>Tahan Kembali</b>, di mana saja, untuk panel cepat.",
     "<b>Tekan OK pada cuaca</b> untuk prakiraan seminggu."
   ],
   "q_h": "Pertanyaan",
   "questions": [
-    ["Kenapa perlu Aksesibilitas?", "Banyak TV membuka layar utama bawaannya saat menyala dan saat tombol Home ditekan, apa pun aplikasi yang Anda pilih. Sakelar Aksesibilitas TV Home hanya mengawasi layar itu dan beberapa tombol, lalu membuka TV Home sebagai gantinya. Sakelar ini tidak membaca, merekam, atau mengirim apa pun di layar Anda. Android menampilkan peringatan umum untuk setiap aplikasi yang memintanya."],
-    ["Apakah ini menghapus atau merusak aplikasi TV saya?", "Tidak. Tidak ada yang dicopot atau dinonaktifkan. Saluran, aplikasi, dan setelan Anda tetap seperti semula."],
-    ["Bagaimana kembali ke layar utama lama?", "Setelan → Aksesibilitas → TV Home → nonaktifkan. Untuk menghapusnya sepenuhnya: Setelan → Aplikasi → TV Home → Copot. TV langsung kembali seperti semula."],
-    ["Pembaruan sistem mengembalikan layar utama lama.", "Buka TV Home dari daftar aplikasi dan lakukan penyiapan lagi (tahan OK pada Setelan → Pembaruan &amp; penyiapan)."],
-    ["Ada yang tidak berfungsi.", "Tahan OK pada Setelan → Pembaruan &amp; penyiapan → <strong>Cek TV</strong>. Cek TV menampilkan ✓ atau ✗ untuk setiap bagian TV Home dan apa yang perlu ditekan untuk memperbaikinya. <strong>Kirim laporan</strong> di sana menampilkan kode QR: pindai dengan ponsel untuk mengirim detail TV Anda, agar dukungannya bisa ditambahkan."],
-    ["Apakah aman?", "Ya. Kodenya terbuka di GitHub, tidak ada yang di-flash atau di-root, dan pembaruan hanya terinstal jika ditandatangani dengan kunci milik TV Home, jadi tidak ada orang lain yang bisa mengirim pembaruan palsu ke TV Anda."],
-    ["Saya menginstal ulang TV Home. Apakah setelan saya hilang?", "Tidak. TV Home menyimpan cadangan terenkripsi dock, wallpaper, cuaca, dan QR Wi-Fi Anda di TV. Setelah instal ulang, tekan <strong>Izinkan</strong> di samping \"Amankan setelan Anda\" di layar penyiapan dan semuanya kembali."],
-    ["Ekstra untuk yang punya ponsel atau komputer", "Dengan ADB (Termux di Android, atau komputer), skrip <a href=\"https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh\">airtel-fix.sh</a> melakukan penyiapan yang sama dari ponsel, plus animasi lebih cepat dan SmartTube. Tambahkan <code>ADBLOCK=1</code> untuk DNS pemblokir iklan di seluruh box (bisa membuat beberapa box tidak tersambung ke internet). Tidak diperlukan untuk TV Home."]
+    [
+      "Kenapa perlu Aksesibilitas?",
+      "Banyak TV membuka layar utama bawaannya saat menyala dan saat tombol Home ditekan, apa pun aplikasi yang Anda pilih. Sakelar Aksesibilitas TV Home hanya mengawasi layar itu dan beberapa tombol, lalu membuka TV Home sebagai gantinya. Sakelar ini tidak membaca, merekam, atau mengirim apa pun di layar Anda. Android menampilkan peringatan umum untuk setiap aplikasi yang memintanya."
+    ],
+    [
+      "Apakah ini menghapus atau merusak aplikasi TV saya?",
+      "Tidak. Tidak ada yang dicopot atau dinonaktifkan. Saluran, aplikasi, dan setelan Anda tetap seperti semula."
+    ],
+    [
+      "Bagaimana kembali ke layar utama lama?",
+      "Setelan → Aksesibilitas → TV Home → nonaktifkan. Untuk menghapusnya sepenuhnya: Setelan → Aplikasi → TV Home → Copot. TV langsung kembali seperti semula."
+    ],
+    [
+      "Pembaruan sistem mengembalikan layar utama lama.",
+      "Buka TV Home dari daftar aplikasi dan lakukan penyiapan lagi (tahan OK pada Setelan → Pembaruan &amp; penyiapan)."
+    ],
+    [
+      "Ada yang tidak berfungsi.",
+      "Tahan OK pada Setelan → Pembaruan &amp; penyiapan → <strong>Cek TV</strong>. Cek TV menampilkan ✓ atau ✗ untuk setiap bagian TV Home dan apa yang perlu ditekan untuk memperbaikinya. <strong>Kirim laporan</strong> di sana menampilkan kode QR: pindai dengan ponsel untuk mengirim detail TV Anda, agar dukungannya bisa ditambahkan."
+    ],
+    [
+      "Apakah aman?",
+      "Ya. Kodenya terbuka di GitHub, tidak ada yang di-flash atau di-root, dan pembaruan hanya terinstal jika ditandatangani dengan kunci milik TV Home, jadi tidak ada orang lain yang bisa mengirim pembaruan palsu ke TV Anda."
+    ],
+    [
+      "Saya menginstal ulang TV Home. Apakah setelan saya hilang?",
+      "Tidak. TV Home menyimpan cadangan terenkripsi dock, wallpaper, cuaca, dan QR Wi-Fi Anda di TV. Setelah instal ulang, tekan <strong>Izinkan</strong> di samping \"Amankan setelan Anda\" di layar penyiapan dan semuanya kembali."
+    ],
+    [
+      "Ekstra untuk yang punya ponsel atau komputer",
+      "Dengan ADB (Termux di Android, atau komputer), skrip <a href=\"https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh\">airtel-fix.sh</a> melakukan penyiapan yang sama dari ponsel, plus animasi lebih cepat dan SmartTube. Tambahkan <code>ADBLOCK=1</code> untuk DNS pemblokir iklan di seluruh box (bisa membuat beberapa box tidak tersambung ke internet). Tidak diperlukan untuk TV Home."
+    ]
   ],
   "footer": "TV Home dibangun di atas <a href=\"https://github.com/Gathin23/tv-vibehack\">tv-vibehack</a> karya Gathin23 (lisensi MIT) dan dikembangkan oleh <a href=\"https://github.com/G41US/tv-vibehack\">G41US</a>. TV Home tidak dibuat oleh atau berafiliasi dengan Google, Amazon, Airtel, atau produsen TV mana pun. Gunakan dengan risiko Anda sendiri."
 }

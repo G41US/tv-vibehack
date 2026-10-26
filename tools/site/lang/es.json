@@ -23,13 +23,14 @@
   "s4_alt": "¿Prefieres no activar la depuración? Usa los otros botones de la misma pantalla: Botón Inicio y arranque → Activar (elige TV Home en Accesibilidad), luego Permitir y Permitir.",
   "get_h": "Lo que obtienes",
   "features": [
-    "<strong>Sin anuncios ni filas patrocinadas.</strong> Solo tus apps, con tus cuatro favoritas en un dock.",
+    "<strong>Sin anuncios ni filas patrocinadas.</strong> Solo tus apps, con tus favoritas en un dock de 3 a 6.",
     "<strong>Arranca en TV Home</strong>, y el botón Inicio siempre vuelve a él.",
-    "<strong>Reloj, fecha y el tiempo</strong> de cualquier ciudad del mundo, con el pronóstico de la semana.",
+    "<strong>Reloj, fecha y el tiempo</strong> de cualquier ciudad del mundo, con el pronóstico de la semana y el detalle hora a hora de cada día.",
     "<strong>Reproduciendo:</strong> lo que suena en Spotify o YouTube Music, con reproductor a pantalla completa y letras.",
     "<strong>Panel rápido:</strong> mantén Atrás en cualquier sitio para música, volumen, modo noche, suspensión y Acelerar.",
     "<strong>Modo noche:</strong> una pantalla más suave y un límite de volumen por la noche.",
-    "<strong>Fondos:</strong> incluidos, con movimiento suave, o una foto desde tu móvil.",
+    "<strong>Fiestas y cumpleaños:</strong> confeti, nieve o destellos en las fiestas de tu país, y un saludo de cumpleaños para cada perfil.",
+    "<strong>Fondos:</strong> incluidos, una foto desde tu móvil o escenas en movimiento como olas, lluvia en la ventana o auroras boreales.",
     "<strong>QR del Wi-Fi de invitados</strong> y los datos usados hoy y este mes.",
     "<strong>Se actualiza solo:</strong> las nuevas versiones se instalan con un clic.",
     "<strong>En tu idioma:</strong> inglés, francés, español, portugués, alemán, catalán, árabe, hindi, suajili, indonesio, tailandés y chino."
@@ -42,21 +43,45 @@
   "tvs_no": "<strong>No funciona en</strong> Samsung (Tizen), LG (webOS), Roku, Hisense VIDAA ni Apple TV: no ejecutan apps Android ni dejan que una app sustituya la pantalla de inicio. La solución fácil para esos televisores: conecta un dongle con Android TV o Google TV y usa TV Home en él.",
   "use_h": "Cómo se usa",
   "tips": [
-    "<b>Mantén OK sobre una app</b> para moverla en el dock, añadirla o quitarla. El dock tiene cuatro.",
+    "<b>Mantén OK sobre una app</b> para moverla en el dock, añadirla o quitarla. Elige de 3 a 6 apps del dock en Ajustes → Aspecto.",
     "<b>Mantén OK sobre Ajustes</b> (arriba a la derecha) para el fondo, la ciudad del tiempo, la música, el modo noche, las actualizaciones y la configuración.",
     "<b>Mantén Atrás</b>, en cualquier sitio, para el panel rápido.",
     "<b>Pulsa OK sobre el tiempo</b> para ver el pronóstico de la semana."
   ],
   "q_h": "Preguntas",
   "questions": [
-    ["¿Por qué necesita Accesibilidad?", "Muchos televisores abren su propia pantalla de inicio al encender y con el botón Inicio, elijas la app que elijas. El permiso de Accesibilidad de TV Home solo vigila esa pantalla y algunos botones, y abre TV Home en su lugar. No lee, graba ni envía nada de tu pantalla. Android muestra un aviso general para toda app que lo pide."],
-    ["¿Borra o estropea las apps de mi televisor?", "No. No se desinstala ni desactiva nada. Tus canales, apps y ajustes quedan tal cual."],
-    ["¿Cómo vuelvo a la pantalla de inicio anterior?", "Ajustes → Accesibilidad → TV Home → desactivar. Para quitarlo del todo: Ajustes → Apps → TV Home → Desinstalar. El televisor vuelve a estar como antes."],
-    ["Una actualización del sistema trajo de vuelta la pantalla de inicio anterior.", "Abre TV Home desde la lista de apps y repite la configuración (mantén OK sobre Ajustes → Actualizaciones y configuración)."],
-    ["Algo no funciona.", "Mantén OK sobre Ajustes → Actualizaciones y configuración → <strong>Revisión del televisor</strong>. Muestra un ✓ o una ✗ para cada parte de TV Home y qué pulsar para arreglarla. <strong>Enviar un informe</strong> muestra un código QR: escanéalo con el móvil para enviar los datos de tu televisor y que se pueda añadir soporte."],
-    ["¿Es seguro?", "Sí. El código es público en GitHub, no se flashea ni se rootea nada, y las actualizaciones solo se instalan si están firmadas con la clave de TV Home, así que nadie más puede enviar una actualización falsa a tu televisor."],
-    ["He reinstalado TV Home. ¿He perdido mis ajustes?", "No. TV Home guarda una copia cifrada de tu dock, fondo, tiempo y QR del Wi-Fi en el televisor. Tras reinstalar, pulsa <strong>Permitir</strong> junto a \"Guarda tus ajustes\" en la pantalla de configuración y vuelven."],
-    ["Extras con móvil u ordenador", "Con ADB (Termux en Android, o un ordenador), el script <a href=\"https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh\">airtel-fix.sh</a> hace la misma configuración desde un móvil, además de animaciones más rápidas y SmartTube. Añade <code>ADBLOCK=1</code> para un DNS con bloqueo de anuncios en todo el aparato (puede dejar a algunos aparatos sin internet). No hace falta para TV Home."]
+    [
+      "¿Por qué necesita Accesibilidad?",
+      "Muchos televisores abren su propia pantalla de inicio al encender y con el botón Inicio, elijas la app que elijas. El permiso de Accesibilidad de TV Home solo vigila esa pantalla y algunos botones, y abre TV Home en su lugar. No lee, graba ni envía nada de tu pantalla. Android muestra un aviso general para toda app que lo pide."
+    ],
+    [
+      "¿Borra o estropea las apps de mi televisor?",
+      "No. No se desinstala ni desactiva nada. Tus canales, apps y ajustes quedan tal cual."
+    ],
+    [
+      "¿Cómo vuelvo a la pantalla de inicio anterior?",
+      "Ajustes → Accesibilidad → TV Home → desactivar. Para quitarlo del todo: Ajustes → Apps → TV Home → Desinstalar. El televisor vuelve a estar como antes."
+    ],
+    [
+      "Una actualización del sistema trajo de vuelta la pantalla de inicio anterior.",
+      "Abre TV Home desde la lista de apps y repite la configuración (mantén OK sobre Ajustes → Actualizaciones y configuración)."
+    ],
+    [
+      "Algo no funciona.",
+      "Mantén OK sobre Ajustes → Actualizaciones y configuración → <strong>Revisión del televisor</strong>. Muestra un ✓ o una ✗ para cada parte de TV Home y qué pulsar para arreglarla. <strong>Enviar un informe</strong> muestra un código QR: escanéalo con el móvil para enviar los datos de tu televisor y que se pueda añadir soporte."
+    ],
+    [
+      "¿Es seguro?",
+      "Sí. El código es público en GitHub, no se flashea ni se rootea nada, y las actualizaciones solo se instalan si están firmadas con la clave de TV Home, así que nadie más puede enviar una actualización falsa a tu televisor."
+    ],
+    [
+      "He reinstalado TV Home. ¿He perdido mis ajustes?",
+      "No. TV Home guarda una copia cifrada de tu dock, fondo, tiempo y QR del Wi-Fi en el televisor. Tras reinstalar, pulsa <strong>Permitir</strong> junto a \"Guarda tus ajustes\" en la pantalla de configuración y vuelven."
+    ],
+    [
+      "Extras con móvil u ordenador",
+      "Con ADB (Termux en Android, o un ordenador), el script <a href=\"https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh\">airtel-fix.sh</a> hace la misma configuración desde un móvil, además de animaciones más rápidas y SmartTube. Añade <code>ADBLOCK=1</code> para un DNS con bloqueo de anuncios en todo el aparato (puede dejar a algunos aparatos sin internet). No hace falta para TV Home."
+    ]
   ],
   "footer": "TV Home se basa en <a href=\"https://github.com/Gathin23/tv-vibehack\">tv-vibehack</a> de Gathin23 (licencia MIT) y lo desarrolla <a href=\"https://github.com/G41US/tv-vibehack\">G41US</a>. No está hecho por Google, Amazon, Airtel ni ningún fabricante de televisores, ni está afiliado a ellos. Úsalo bajo tu responsabilidad."
 }
