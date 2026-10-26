@@ -196,6 +196,7 @@ final class Weather {
         String city;
         boolean mph, day;
         float visibility;
+        int utcOffset;   // seconds: the place's own clock, which can differ from the TV's
         int now, feels, humidity, code;
         double wind;
         String sunrise, sunset;   // "06:32"
@@ -249,6 +250,7 @@ final class Weather {
         Forecast f = new Forecast();
         f.city = (String) where[0];
         f.mph = mph((String) where[3]);
+        f.utcOffset = j.optInt("utc_offset_seconds", 0);
         f.now = (int) Math.round(cur.getDouble("temperature_2m"));
         f.feels = (int) Math.round(cur.optDouble("apparent_temperature", cur.getDouble("temperature_2m")));
         f.humidity = (int) Math.round(cur.optDouble("relative_humidity_2m", 0));

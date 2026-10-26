@@ -745,7 +745,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         for (int i = 0; i < BUILT_IN.length; i++) {
             if (BUILT_IN[i].equals(choice)) showWallpaper(BUILT_IN_RES[i]);
         }
-        if (VideoWallpaper.index(choice) >= 0 && VideoWallpaper.file(this, choice).isFile()) {
+        // Safe mode (TV Home kept crashing) leaves moving scenes off, like the other effects.
+        if (VideoWallpaper.index(choice) >= 0 && VideoWallpaper.file(this, choice).isFile() && !SafeStart.on(this)) {
             // A moving scene, playing only while Home is on screen; festive touches go on top as usual.
             FrameLayout layer = new FrameLayout(this);
             videoWall = new VideoWallpaper.Player(this, VideoWallpaper.file(this, choice));
