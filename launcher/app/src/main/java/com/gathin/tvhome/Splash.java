@@ -145,14 +145,19 @@ final class Splash {
         }, "splash-wait").start();
     }
 
+    /** The boot logo is still up: not yet told to stop (some boxes keep its service "running" long after). */
     private static boolean bootAnimating() {
+        return !"1".equals(prop("service.bootanim.exit")) && "running".equals(prop("init.svc.bootanim"));
+    }
+
+    private static String prop(String name) {
         try {
-            Process p = Runtime.getRuntime().exec(new String[]{"getprop", "init.svc.bootanim"});
+            Process p = Runtime.getRuntime().exec(new String[]{"getprop", name});
             try (BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
-                return "running".equals(String.valueOf(r.readLine()).trim());
+                return String.valueOf(r.readLine()).trim();
             }
         } catch (Exception e) {
-            return false;
+            return "";
         }
     }
 
