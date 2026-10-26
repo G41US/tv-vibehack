@@ -116,7 +116,9 @@ final class ForecastPage {
     private static void showDay(Activity a, Weather.Forecast f, int index) {
         Weather.Day d = f.days.get(index);
         List<Weather.Hour> hours = new ArrayList<>();
-        String now = new SimpleDateFormat("yyyy-MM-dd'T'HH:00", Locale.US).format(new Date());
+        SimpleDateFormat placeClock = new SimpleDateFormat("yyyy-MM-dd'T'HH:00", Locale.US);
+        placeClock.setTimeZone(new java.util.SimpleTimeZone(f.utcOffset * 1000, "place"));   // "now" where the city is
+        String now = placeClock.format(new Date());
         for (Weather.Hour h : f.hours) {
             if (index == 0) {
                 // Today: from this hour to midnight, running into tomorrow if only a few hours are left.
