@@ -113,6 +113,7 @@ public class BootHome extends Activity {
         try (AssetFileDescriptor afd = getResources().openRawResourceFd(R.raw.startup)) {
             mp.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
             mp.prepare();
+            mp.seekTo(250);   // skip the opening quarter-second of near-black: the logo starts drawing at once
         } catch (Exception e) {
             mp.release();
             h.post(() -> {
