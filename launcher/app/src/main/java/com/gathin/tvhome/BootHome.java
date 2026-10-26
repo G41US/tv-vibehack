@@ -142,11 +142,35 @@ public class BootHome extends Activity {
             mp.setDisplay(video.getHolder());
             mp.start();
             startedAt = SystemClock.elapsedRealtime();
+            h.post(holdOnLogo);
         } catch (Exception e) {
             videoDone = true;
             handOver();
         }
     }
+
+    /**
+     * At 4 s the logo and name are complete (after that the video fades to black): stop there and hold
+     * the logo until TV Home takes over with the same picture, so there's no black gap while Android
+     * finishes starting.
+     */
+    private final Runnable holdOnLogo = new Runnable() {
+        @Override
+        public void run() {
+            MediaPlayer mp = player;
+            if (mp == null || videoDone) return;
+            try {
+                if (mp.getCurrentPosition() >= 4000) {
+                    mp.pause();
+                    videoDone = true;
+                    handOver();
+                    return;
+                }
+            } catch (Exception ignored) {
+            }
+            h.postDelayed(this, 50);
+        }
+    };
 
     private boolean unlocked() {
         UserManager um = getSystemService(UserManager.class);
