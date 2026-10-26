@@ -401,4 +401,6 @@
     <string name="fs_starts">يبدأ مع الجهاز</string>
     <string name="fs_count">%1$d مؤجَّلة</string>
     <string name="fs_explain">تبدأ هذه التطبيقات في كل مرة يعمل فيها الجهاز. التطبيقات التي تؤجلها تُوقَف عند إيقاف تشغيل الجهاز وتُعاد مباشرة بعد رسوم TV Home المتحركة، فيبدأ الجهاز أسرع.</string>
+    <string name="fs_auto">اختر نيابةً عني</string>
+    <string name="fs_pending">يعمل بعد إعادة التشغيل التالية، بعد أن يتأكد TV Home من قدرته على إعادة تشغيل التطبيقات.</string>
 </resources>

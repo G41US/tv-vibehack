@@ -401,4 +401,6 @@
     <string name="fs_starts">เริ่มพร้อมกล่อง</string>
     <string name="fs_count">พักไว้ %1$d แอป</string>
     <string name="fs_explain">แอปเหล่านี้เริ่มทุกครั้งที่เปิดกล่อง แอปที่คุณพักไว้จะถูกปิดขณะกล่องปิดเครื่อง และเปิดกลับทันทีหลังภาพเคลื่อนไหวของ TV Home เพื่อให้กล่องเปิดเร็วขึ้น</string>
+    <string name="fs_auto">เลือกให้ฉัน</string>
+    <string name="fs_pending">เริ่มทำงานหลังรีสตาร์ทครั้งถัดไป เมื่อ TV Home ตรวจแล้วว่าเปิดแอปกลับได้</string>
 </resources>
