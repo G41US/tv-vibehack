@@ -110,6 +110,18 @@ public class HomeKeyService extends AccessibilityService {
         idleHandler.postDelayed(idleCheck, IDLE_CHECK_MS);
         // Just updated (SelfHeal.Receiver): come back to this home screen instead of the stock one.
         if (takeGoHomeFlag(this)) goHome();
+        else if (SystemClock.elapsedRealtime() < 180_000 && !MainActivity.created && setupDone()) {
+            // The box is starting and Home isn't open yet: open it now rather than when Android gets
+            // round to it (TV check showed several seconds between this service and Home).
+            BootTrace.mark(this, "opened Home early");
+            goHome();
+        }
+    }
+
+    /** The box's first-time setup is finished (never jump over it). */
+    private boolean setupDone() {
+        return android.provider.Settings.Global.getInt(getContentResolver(), android.provider.Settings.Global.DEVICE_PROVISIONED, 0) == 1
+                && android.provider.Settings.Secure.getInt(getContentResolver(), "user_setup_complete", 0) == 1;
     }
 
     private long lastSample;
@@ -159,6 +171,7 @@ public class HomeKeyService extends AccessibilityService {
                 }
                 cameUp = false;
                 lastTakeover = now;
+                BootTrace.mark(this, "took over from " + pkg);
                 goHome();
                 return;
             }
