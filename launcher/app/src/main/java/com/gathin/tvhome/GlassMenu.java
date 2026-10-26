@@ -359,9 +359,11 @@ final class GlassMenu {
             name.setSingleLine(true);
             name.setEllipsize(TextUtils.TruncateAt.END);
             name.setPadding(0, dp(a, 10), 0, 0);
+            name.setGravity(Gravity.CENTER_HORIZONTAL);
             tile.addView(name);
             if (t.value != null && !t.value.isEmpty()) {
                 TextView value = text(a, t.value, 13, dim);
+                value.setGravity(Gravity.CENTER_HORIZONTAL);
                 value.setSingleLine(true);
                 value.setEllipsize(TextUtils.TruncateAt.END);
                 tile.addView(value);

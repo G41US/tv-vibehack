@@ -189,6 +189,7 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         cardLp.height = h;
         card.setLayoutParams(cardLp);
         View name = v.findViewById(R.id.name);
+        ((TextView) name).setTypeface(Fonts.weight(parent.getContext(), 500));
         ViewGroup.MarginLayoutParams nameLp = (ViewGroup.MarginLayoutParams) name.getLayoutParams();
         nameLp.width = w;
         nameLp.height = Math.round(22 * density * TextScale.current);

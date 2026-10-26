@@ -155,6 +155,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         BootTrace.mark(this, "TV Home started", android.os.Process.getStartElapsedRealtime());
         BootTrace.mark(this, "home opening");
         setContentView(R.layout.activity_main);
+        // Font weights set here, once per weight (in the layout, Android built a font per view: slow at start-up).
+        int[][] weights = {{R.id.heroName, 300}, {R.id.greeting, 500}, {R.id.clock, 300}, {R.id.ampm, 500},
+                {R.id.shamsiDate, 400}, {R.id.weather, 400}, {R.id.date, 400}};
+        for (int[] w : weights) ((TextView) findViewById(w[0])).setTypeface(Fonts.weight(this, w[1]));
         density = getResources().getDisplayMetrics().density;
         // config.xml, overlaid by config.json from a pushed theme (see Config and tools/theme.sh).
         Config cfg = Config.load(this);
@@ -373,14 +377,40 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
      * JPEG costs a 1080p bitmap at most (about 8 MB), which is the price of a wallpaper on a 1 GB TV.
      */
     private void showWallpaper(File file) {
-        showWallpaper(opts -> android.graphics.BitmapFactory.decodeFile(file.getPath(), opts));
+        showWallpaper(opts -> android.graphics.BitmapFactory.decodeFile(file.getPath(), opts), file);
     }
 
     private void showWallpaper(int resId) {
-        showWallpaper(opts -> android.graphics.BitmapFactory.decodeResource(getResources(), resId, opts));
+        showWallpaper(opts -> android.graphics.BitmapFactory.decodeResource(getResources(), resId, opts), null);
     }
 
-    private void showWallpaper(java.util.function.Function<android.graphics.BitmapFactory.Options, android.graphics.Bitmap> decoder) {
+    /**
+     * Decoded on its own thread (reading a phone photo took 6.4 s while the box was starting, and
+     * nothing could be drawn meanwhile), then faded in. A big photo is saved back at screen size once,
+     * so later starts read a fraction of it.
+     */
+    private void showWallpaper(java.util.function.Function<android.graphics.BitmapFactory.Options, android.graphics.Bitmap> decoder,
+                               File shrink) {
+        new Thread(() -> {
+            android.graphics.Bitmap bmp = decodeWallpaper(decoder);
+            if (bmp == null) return;
+            if (shrink != null && shrink.length() > 1_500_000) {
+                File tmp = new File(shrink.getPath() + ".tmp");
+                try (java.io.FileOutputStream out = new java.io.FileOutputStream(tmp)) {
+                    bmp.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, out);
+                    out.getFD().sync();
+                } catch (Exception | OutOfMemoryError e) {
+                    tmp.delete();
+                }
+                if (tmp.length() > 0 && !tmp.renameTo(shrink)) tmp.delete();
+            }
+            runOnUiThread(() -> {
+                if (!isDestroyed()) addWallpaper(bmp);
+            });
+        }, "wallpaper").start();
+    }
+
+    private android.graphics.Bitmap decodeWallpaper(java.util.function.Function<android.graphics.BitmapFactory.Options, android.graphics.Bitmap> decoder) {
         try {
             android.util.DisplayMetrics dm = getResources().getDisplayMetrics();
             android.graphics.BitmapFactory.Options opts = new android.graphics.BitmapFactory.Options();
@@ -392,14 +422,22 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             opts.inSampleSize = sample;
             opts.inScaled = false;
             opts.inPreferredConfig = android.graphics.Bitmap.Config.RGB_565;   // no alpha needed, half the memory
-            android.graphics.Bitmap bmp = decoder.apply(opts);
-            if (bmp == null) return;
+            return decoder.apply(opts);
+        } catch (Exception | OutOfMemoryError e) {
+            return null;   // a bad or huge picture must never take the home screen down; the plain colour stays
+        }
+    }
+
+    private void addWallpaper(android.graphics.Bitmap bmp) {
+        try {
             android.widget.ImageView wall = new android.widget.ImageView(this);
             wall.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
             wall.setImageBitmap(bmp);
             FrameLayout layer = new FrameLayout(this);
             layer.addView(wall, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
             root.addView(layer, 0, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            layer.setAlpha(0f);
+            layer.animate().alpha(1f).setDuration(250).start();
             if (LiveWallpaper.enabled(this)) {
                 // Moving wallpaper: a slow drift, and the picture's own stars twinkle.
                 twinkle = new LiveWallpaper.Twinkle(this, density);
@@ -410,6 +448,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 weatherFx = new WeatherFx(this, density);
                 layer.addView(weatherFx, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 weatherFx.setMode(HomeSettings.weatherFxOn(this) ? WeatherFx.modeFor(Weather.code(this), Weather.visibility(this)) : WeatherFx.NONE);
+                if (resumed) weatherFx.start();
                 // Festive looks: confetti, snow or sparkles on a holiday where the person is.
                 Festive.Holiday holiday = SafeStart.on(this) ? null : Festive.today(this);
                 if (holiday != null) {
@@ -1664,6 +1703,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         View row = getLayoutInflater().inflate(R.layout.item_input, rows, false);
         ((ImageView) row.findViewById(R.id.icon)).setImageResource(iconRes);
         ((TextView) row.findViewById(R.id.title)).setText(title);
+        ((TextView) row.findViewById(R.id.title)).setTypeface(Fonts.weight(this, 500));
         TextView status = row.findViewById(R.id.status);
         View dot = row.findViewById(R.id.dot);
         // This TV reports "standby" for every port whether or not something is plugged in, so only
