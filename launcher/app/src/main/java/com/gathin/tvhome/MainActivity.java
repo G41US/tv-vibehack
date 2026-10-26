@@ -167,6 +167,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         sourcePanelAction = cfg.sourcePanelAction;
 
         root = findViewById(R.id.root);
+        splash = Splash.maybeShow(this);   // first Home after the box starts: the logo animation
         config = cfg;
         updater = new Updater(this);
         setupPanel = new SetupPanel(this, updater);
@@ -457,7 +458,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             runRestore();   // first start after a reinstall, once the photos permission is granted
         }
         setupPanel.onResume();
-        if (Profiles.shouldAsk(this)) showWhoIsWatching();
+        if (Profiles.shouldAsk(this)) {
+            if (splash != null && splash.showing()) splash.then(this::showWhoIsWatching);
+            else showWhoIsWatching();
+        }
         DataLimit.maybeWarn(this);
         updater.autoCheck();
         weather.refresh(false, this::showWeather);
@@ -509,6 +513,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         BackupStore.saveAsync(this);
         handler.removeCallbacks(minuteTick);
         resumed = false;
+        if (splash != null) splash.end();
         nowPlaying.stop();
         if (weatherFx != null) weatherFx.stop();
         if (festiveFx != null) festiveFx.stop();
@@ -521,6 +526,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     // ---- night mode, moving wallpaper, sounds --------------------------------------------------
 
     private View nightShade;
+    private Splash splash;
     private MoodLight mood;
     private WeatherFx weatherFx;
     private Festive.Fx festiveFx;
@@ -562,6 +568,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent e) {
+        if (splash != null && splash.showing()) {   // any button skips the start-up animation
+            if (e.getAction() == KeyEvent.ACTION_UP) splash.end();
+            return true;
+        }
         Sounds.onKey(this, e);
         LiveWallpaper.touched();
         if (nowPlaying != null) nowPlaying.noteInput();
@@ -857,7 +867,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         List<String[]> people = Profiles.list(this);
         String current = Profiles.active(this);
         String[] names = new String[people.size()];
-        for (int i = 0; i < names.length; i++) names[i] = mark(current, people.get(i)[0], people.get(i)[1]);
+        for (int i = 0; i < names.length; i++) {
+            String id = people.get(i)[0];
+            names[i] = mark(current, id, Profiles.withAvatar(this, id, people.get(i)[1]));
+        }
         GlassMenu.list(this, getString(R.string.menu_title), getString(R.string.profile_who), names,
                 which -> switchProfile(people.get(which)[0]))
                 .setOnCancelListener(d -> Profiles.asked(this));
@@ -869,7 +882,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         List<String> labels = new ArrayList<>();
         List<Runnable> actions = new ArrayList<>();
         for (String[] p : people) {
-            labels.add(mark(current, p[0], p[1]));
+            labels.add(mark(current, p[0], Profiles.withAvatar(this, p[0], p[1])));
             actions.add(() -> switchProfile(p[0]));
         }
         labels.add(getString(R.string.profile_add));
@@ -877,7 +890,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             String id = Profiles.add(this, name);
             switchProfile(id);
         }));
-        String me = Profiles.active(this), bday = Profiles.birthday(this, me);
+        String me = Profiles.active(this), bday = Profiles.birthday(this, me), pic = Profiles.avatar(this, me);
+        labels.add(pic == null ? getString(R.string.profile_avatar_add, Profiles.activeName(this))
+                : getString(R.string.profile_avatar_set, Profiles.activeName(this), pic));
+        actions.add(() -> askAvatar(me));
         labels.add(bday == null ? getString(R.string.profile_birthday_add, Profiles.activeName(this))
                 : getString(R.string.profile_birthday_set, Profiles.activeName(this), birthdayText(bday)));
         actions.add(() -> askBirthday(me));
@@ -895,6 +911,18 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         GlassMenu.list(this, getString(R.string.menu_title), getString(R.string.menu_profiles),
                 labels.toArray(new String[0]), which -> actions.get(which).run());
+    }
+
+    /** The emoji grid; with a picture already set, a last ✕ tile removes it. */
+    private void askAvatar(String id) {
+        String now = Profiles.avatar(this, id);
+        List<String> items = new ArrayList<>(java.util.Arrays.asList(Profiles.AVATARS));
+        if (now != null) items.add("✕");
+        GlassMenu.emoji(this, getString(R.string.menu_profiles), getString(R.string.avatar_title, Profiles.activeName(this)),
+                items.toArray(new String[0]), now, which -> {
+                    Profiles.setAvatar(this, id, which < Profiles.AVATARS.length ? Profiles.AVATARS[which] : null);
+                    updateGreeting();
+                });
     }
 
     /** "14 March" (in the TV's language) for "03-14". */
@@ -1355,7 +1383,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         else if (hour < 22) res = R.string.good_evening;
         else res = R.string.good_night;
         // With several profiles, greet the person: "Good evening, Ada".
-        greeting.setText(Profiles.multiple(this) ? getString(res) + ", " + Profiles.activeName(this) : getString(res));
+        String hello = Profiles.multiple(this) ? getString(res) + ", " + Profiles.activeName(this) : getString(res);
+        String pic = Profiles.avatar(this, Profiles.active(this));
+        greeting.setText(pic == null ? hello : hello + "  " + pic);   // "Good evening, Ada  🦁"
         Festive.Holiday holiday = Festive.today(this);
         if (holiday != null) greeting.setText(holiday.text);   // "Happy Independence Day 🇳🇬" for the day
         if (shamsi) shamsiDate.setText(Shamsi.today());

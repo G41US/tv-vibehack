@@ -389,4 +389,8 @@
     <string name="apps_data_removed">تطبيقات محذوفة</string>
     <string name="apps_data_need">لعرض البيانات حسب التطبيق، يحتاج TV Home مرة واحدة إلى اتصال تصحيح الأخطاء في التلفزيون. أعدّه من \"الإعداد على هذا التلفزيون\" ثم حاول مرة أخرى.</string>
     <string name="apps_data_empty">لم تُستخدم بيانات بعد هذا الشهر.</string>
+    <string name="hs_startup">رسوم متحركة عند التشغيل</string>
+    <string name="profile_avatar_add">اختيار صورة لـ %1$s…</string>
+    <string name="profile_avatar_set">صورة %1$s: %2$s</string>
+    <string name="avatar_title">صورة لـ %1$s</string>
 </resources>

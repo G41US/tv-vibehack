@@ -22,6 +22,9 @@ final class Profiles {
     static final String PREFS = "profiles", KEY_LIST = "list", KEY_ACTIVE = "active", KEY_ASK = "ask",
             KEY_PENDING = "ask_pending";
     static final String MAIN = "0";
+    /** Pictures a profile can pick (emoji, so they look the same on every TV and need no files). */
+    static final String[] AVATARS = {"🦁", "🐯", "🐼", "🦊", "🐨", "🐸", "🐵", "🦄", "🐶", "🐱", "🐰", "🐻",
+            "🐧", "🦉", "🐙", "🦋", "⚽", "🎮", "🎧", "🎨", "🚀", "🌟", "🌈", "👑"};
 
     private Profiles() {
     }
@@ -103,9 +106,26 @@ final class Profiles {
                 .remove(AppAdapter.KEY_ORDER + "_" + id).apply();
         ctx.getSharedPreferences("look", Context.MODE_PRIVATE).edit().remove("wallpaper_" + id).apply();
         setBirthday(ctx, id, null);
+        setAvatar(ctx, id, null);
         //noinspection ResultOfMethodCallIgnored
         new File(ctx.getFilesDir(), "custom_wallpaper_" + id + ".jpg").delete();
         if (id.equals(prefs(ctx).getString(KEY_ACTIVE, MAIN))) setActive(ctx, MAIN);
+    }
+
+    /** A profile's picture (an emoji), or null. */
+    static String avatar(Context ctx, String id) {
+        return prefs(ctx).getString("avatar_" + id, null);
+    }
+
+    static void setAvatar(Context ctx, String id, String emoji) {
+        if (emoji == null) prefs(ctx).edit().remove("avatar_" + id).apply();
+        else prefs(ctx).edit().putString("avatar_" + id, emoji).apply();
+    }
+
+    /** "🦁  Ada", or just the name without a picture. */
+    static String withAvatar(Context ctx, String id, String name) {
+        String a = avatar(ctx, id);
+        return a == null ? name : a + "  " + name;
     }
 
     /** A profile's birthday as "MM-DD", or null. */

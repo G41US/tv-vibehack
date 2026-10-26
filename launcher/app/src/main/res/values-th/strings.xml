@@ -389,4 +389,8 @@
     <string name="apps_data_removed">แอปที่ลบแล้ว</string>
     <string name="apps_data_need">หากต้องการดูข้อมูลตามแอป TV Home ต้องใช้การเชื่อมต่อแก้ไขข้อบกพร่องของทีวีหนึ่งครั้ง ตั้งค่าด้วย \"ตั้งค่าบนทีวีเครื่องนี้\" แล้วลองอีกครั้ง</string>
     <string name="apps_data_empty">เดือนนี้ยังไม่มีการใช้ข้อมูล</string>
+    <string name="hs_startup">ภาพเคลื่อนไหวตอนเปิด</string>
+    <string name="profile_avatar_add">เลือกรูปสำหรับ %1$s…</string>
+    <string name="profile_avatar_set">รูปของ %1$s: %2$s</string>
+    <string name="avatar_title">รูปสำหรับ %1$s</string>
 </resources>

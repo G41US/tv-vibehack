@@ -389,4 +389,8 @@
     <string name="apps_data_removed">हटाए गए ऐप</string>
     <string name="apps_data_need">ऐप के हिसाब से डेटा देखने के लिए TV Home को एक बार टीवी का डीबगिंग कनेक्शन चाहिए। \"इस टीवी पर सेटअप करें\" से इसे सेट करें, फिर दोबारा कोशिश करें।</string>
     <string name="apps_data_empty">इस महीने अभी कोई डेटा इस्तेमाल नहीं हुआ।</string>
+    <string name="hs_startup">शुरू होने का एनिमेशन</string>
+    <string name="profile_avatar_add">%1$s के लिए तस्वीर चुनें…</string>
+    <string name="profile_avatar_set">%1$s की तस्वीर: %2$s</string>
+    <string name="avatar_title">%1$s के लिए एक तस्वीर</string>
 </resources>

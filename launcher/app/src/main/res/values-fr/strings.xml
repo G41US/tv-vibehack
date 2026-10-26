@@ -396,4 +396,8 @@
     <string name="apps_data_removed">Applis supprimées</string>
     <string name="apps_data_need">Pour voir les données par appli, TV Home a besoin une fois de la connexion de débogage du téléviseur. Configurez-la avec « Configurer sur ce téléviseur », puis réessayez.</string>
     <string name="apps_data_empty">Aucune donnée utilisée ce mois-ci.</string>
+    <string name="hs_startup">Animation au démarrage</string>
+    <string name="profile_avatar_add">Choisir une image pour %1$s…</string>
+    <string name="profile_avatar_set">Image de %1$s : %2$s</string>
+    <string name="avatar_title">Une image pour %1$s</string>
 </resources>

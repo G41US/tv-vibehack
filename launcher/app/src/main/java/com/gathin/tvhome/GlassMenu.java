@@ -373,6 +373,51 @@ final class GlassMenu {
         return d;
     }
 
+    /** Big emoji to pick from in a grid (profile pictures); the current one gets focus. */
+    static Dialog emoji(Activity a, CharSequence kicker, CharSequence title, String[] items, String current, OnPick pick) {
+        final int columns = 6, size = 84, gap = 12;
+        LinearLayout content = column(a);
+        header(a, content, kicker, title);
+        final Dialog[] holder = new Dialog[1];
+        LinearLayout line = null;
+        View focus = null;
+        for (int i = 0; i < items.length; i++) {
+            if (i % columns == 0) {
+                line = new LinearLayout(a);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                lp.topMargin = i == 0 ? 0 : dp(a, gap);
+                content.addView(line, lp);
+            }
+            TextView tile = new TextView(a);
+            tile.setText(items[i]);
+            tile.setTextSize(38);
+            tile.setTextColor(Color.WHITE);
+            tile.setGravity(Gravity.CENTER);
+            tile.setIncludeFontPadding(false);
+            tile.setFocusable(true);
+            tile.setClickable(true);
+            tile.setBackgroundResource(R.drawable.menu_tile_bg);
+            final int which = i;
+            tile.setOnClickListener(v -> {
+                holder[0].dismiss();
+                pick.onPick(which);
+            });
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(dp(a, size), dp(a, size));
+            lp.leftMargin = i % columns == 0 ? 0 : dp(a, gap);
+            line.addView(tile, lp);
+            if (focus == null || items[i].equals(current)) focus = tile;
+        }
+        Dialog d = dialog(a, content, columns * size + (columns - 1) * gap + 60);
+        holder[0] = d;
+        final View f = focus;
+        d.setOnShowListener(x -> {
+            if (f != null) f.requestFocus();
+        });
+        d.show();
+        return d;
+    }
+
     // ---- settings page -----------------------------------------------------------------------------
 
     /** A summary block at the top of a page: one large line and smaller ones under it. */

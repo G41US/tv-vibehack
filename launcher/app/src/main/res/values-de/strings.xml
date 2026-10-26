@@ -389,4 +389,8 @@
     <string name="apps_data_removed">Entfernte Apps</string>
     <string name="apps_data_need">Für Daten pro App braucht TV Home einmal die Debugging-Verbindung des Fernsehers. Richte sie mit \"Auf diesem Fernseher einrichten\" ein und versuche es erneut.</string>
     <string name="apps_data_empty">Diesen Monat noch keine Daten verbraucht.</string>
+    <string name="hs_startup">Startanimation</string>
+    <string name="profile_avatar_add">Bild für %1$s auswählen…</string>
+    <string name="profile_avatar_set">Bild von %1$s: %2$s</string>
+    <string name="avatar_title">Ein Bild für %1$s</string>
 </resources>

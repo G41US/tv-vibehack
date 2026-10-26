@@ -1,0 +1,208 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face { font-family: Outfit; src: url(../../launcher/app/src/main/res/font/outfit.ttf); font-weight: 100 900; }
+html,body { margin:0; background:#000; }
+canvas { display:block; }
+</style></head>
+<body><canvas id="c" width="1920" height="1080"></canvas>
+<script>
+// Calm version: one line of light traces the logo, the logo settles into soft glass, the name comes into focus.
+const W = 1920, H = 1080, CX = 960, CY = 440;
+const END = 4.8;
+const c = document.getElementById('c'), m = c.getContext('2d');
+const L = new OffscreenCanvas(W, H), l = L.getContext('2d');      // light layer (gets bloom)
+const T = new OffscreenCanvas(W, H), tc = T.getContext('2d');     // scratch for the shine
+
+let seed = 11;
+const rnd = () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+  t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const lerp = (a, b, k) => a + (b - a) * k;
+const ease = k => k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+const sine = k => -(Math.cos(Math.PI * k) - 1) / 2;
+const out = k => 1 - Math.pow(1 - k, 3);
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+
+// ---- logo geometry ----
+const S = 1.12, TVW = 440 * S, TVH = 280 * S, TVR = 60 * S;
+function rr(u) {   // point on the rounded TV outline, u in [0,1), clockwise from top centre
+  const x0 = CX - TVW / 2, y0 = CY - TVH / 2, sw = TVW - 2 * TVR, sh = TVH - 2 * TVR, arc = Math.PI * TVR / 2;
+  const segs = [
+    ['l', sw / 2, [CX, y0], [1, 0]],
+    ['a', arc, [x0 + TVW - TVR, y0 + TVR], -Math.PI / 2],
+    ['l', sh, [x0 + TVW, y0 + TVR], [0, 1]],
+    ['a', arc, [x0 + TVW - TVR, y0 + TVH - TVR], 0],
+    ['l', sw, [x0 + TVW - TVR, y0 + TVH], [-1, 0]],
+    ['a', arc, [x0 + TVR, y0 + TVH - TVR], Math.PI / 2],
+    ['l', sh, [x0, y0 + TVH - TVR], [0, -1]],
+    ['a', arc, [x0 + TVR, y0 + TVR], Math.PI],
+    ['l', sw / 2, [x0 + TVR, y0], [1, 0]],
+  ];
+  const total = segs.reduce((s, g) => s + g[1], 0);
+  let d = ((u % 1) + 1) % 1 * total;
+  for (const g of segs) {
+    if (d <= g[1]) {
+      if (g[0] === 'l') return [g[2][0] + g[3][0] * d, g[2][1] + g[3][1] * d];
+      const a = g[3] + d / TVR; return [g[2][0] + Math.cos(a) * TVR, g[2][1] + Math.sin(a) * TVR];
+    }
+    d -= g[1];
+  }
+  return [CX, y0];
+}
+const ring = (a, b, n = 240) => { const p = []; for (let i = 0; i <= n; i++) p.push(rr(lerp(a, b, i / n))); return p; };
+const ROOF = [[CX - 92 * S, CY + 2 * S], [CX, CY - 80 * S], [CX + 92 * S, CY + 2 * S]];
+const BODY_L = [[CX - 58 * S, CY - 26 * S], [CX - 58 * S, CY + 72 * S], [CX, CY + 72 * S]];
+const BODY = [[CX - 58 * S, CY - 26 * S], [CX - 58 * S, CY + 72 * S], [CX + 58 * S, CY + 72 * S], [CX + 58 * S, CY - 26 * S]];
+const BODY_R = [[CX + 58 * S, CY - 26 * S], [CX + 58 * S, CY + 72 * S], [CX, CY + 72 * S]];
+const STAND = [[CX - 96 * S, CY + TVH / 2 + 44 * S], [CX + 96 * S, CY + TVH / 2 + 44 * S]];
+
+function sub(pts, a, b) {   // part of a polyline between fractions a..b of its length
+  const lens = [0]; for (let i = 1; i < pts.length; i++) lens.push(lens[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const tot = lens[lens.length - 1], at = f => { const d = f * tot; for (let i = 1; i < pts.length; i++) if (d <= lens[i]) {
+    const k = (d - lens[i - 1]) / (lens[i] - lens[i - 1] || 1); return [lerp(pts[i - 1][0], pts[i][0], k), lerp(pts[i - 1][1], pts[i][1], k)]; } return pts[pts.length - 1]; };
+  const r = [at(a)]; for (let i = 1; i < pts.length - 1; i++) if (lens[i] / tot > a && lens[i] / tot < b) r.push(pts[i]); r.push(at(b)); return r;
+}
+const poly = (g, p) => { g.beginPath(); for (const q of (Array.isArray(p[0][0]) ? p : [p])) { g.moveTo(q[0][0], q[0][1]); for (let i = 1; i < q.length; i++) g.lineTo(q[i][0], q[i][1]); } };
+
+function line(g, p, w, col, a = 1) {   // refined stroke: soft halo, body, faint bright core
+  if (p.length < 2) return;
+  g.lineCap = 'round'; g.lineJoin = 'round';
+  g.globalAlpha = a * .22; g.strokeStyle = col; g.lineWidth = w * 2.2; poly(g, p); g.stroke();
+  g.globalAlpha = a; g.lineWidth = w; poly(g, p); g.stroke();
+  g.globalAlpha = a * .28; g.strokeStyle = '#ffffff'; g.lineWidth = w * .3; poly(g, p); g.stroke();
+  g.globalAlpha = 1;
+}
+function glint(g, x, y, r, a) {   // small soft point of light at the tip of a drawing line
+  const gr = g.createRadialGradient(x, y, 0, x, y, r);
+  gr.addColorStop(0, `rgba(255,255,255,${a})`); gr.addColorStop(.3, `rgba(200,220,255,${a * .5})`); gr.addColorStop(1, 'rgba(200,220,255,0)');
+  g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
+}
+// a line being drawn: settled colour behind, a short hot white section at the tip
+function drawn(g, pts, k, w, col) {
+  if (k <= 0) return;
+  line(g, sub(pts, 0, k), w, col, .92);
+  if (k < 1) {
+    const hot = Math.min(k, .10);
+    for (let i = 0; i < 4; i++) { const a = k - hot * (1 - i / 4); line(g, sub(pts, a, k), w * .9, '#ffffff', .1); }
+    const tip = sub(pts, k, k)[0]; glint(g, tip[0], tip[1], 26, .9);
+  }
+}
+
+// bokeh: a few large, very faint, slow out-of-focus lights
+const bokeh = []; for (let i = 0; i < 0; i++) bokeh.push({ x: rnd() * W, y: 120 + rnd() * (H - 240), r: 60 + rnd() * 110,
+  vx: (rnd() - .5) * 10, vy: -4 - rnd() * 6, a: .012 + rnd() * .022, hue: 215 + rnd() * 45 });
+
+// film grain so the dark gradient doesn't band in the video
+const G = new OffscreenCanvas(256, 256), gg = G.getContext('2d'), gd = gg.createImageData(256, 256);
+for (let i = 0; i < gd.data.length; i += 4) { const v = rnd() * 255; gd.data[i] = gd.data[i + 1] = gd.data[i + 2] = v; gd.data[i + 3] = 255; }
+gg.putImageData(gd, 0, 0);
+
+function grad(g) {   // cool blue -> soft violet across the logo, kept slightly desaturated
+  const gr = g.createLinearGradient(CX - TVW / 2, CY - TVH / 2, CX + TVW / 2, CY + TVH / 2);
+  gr.addColorStop(0, '#4FB0FF'); gr.addColorStop(.5, '#6E86FF'); gr.addColorStop(1, '#9A72FF'); return gr;
+}
+
+// timeline (seconds)
+const TRACE = [0.35, 1.75], HOUSE = [1.25, 2.15], STND = [1.65, 2.25], SETTLE = [2.0, 2.9],
+  SHINE = [2.55, 3.35], TITLE = [2.55, 3.55];
+
+function draw(t) {
+  const settle = sine(prog(t, ...SETTLE));
+  const zoom = lerp(.97, 1.015, sine(prog(t, 0, END)));
+  const tf = g => g.setTransform(zoom, 0, 0, zoom, CX - CX * zoom, CY - CY * zoom);
+
+  // background: near-black, a soft cool light grows behind the logo as it forms
+  m.setTransform(1, 0, 0, 1, 0, 0); m.globalAlpha = 1; m.globalCompositeOperation = 'source-over'; m.filter = 'none';
+  m.fillStyle = '#030408'; m.fillRect(0, 0, W, H);
+  const bgA = .35 * sine(prog(t, 0, 1.2)) + .65 * settle;
+  let bg = m.createRadialGradient(CX, CY + 60, 0, CX, CY + 60, 1050);
+  bg.addColorStop(0, `rgba(36,50,98,${.75 * bgA})`); bg.addColorStop(.5, `rgba(20,22,52,${.4 * bgA})`); bg.addColorStop(1, 'rgba(0,0,0,0)');
+  m.fillStyle = bg; m.fillRect(0, 0, W, H);
+
+  // bokeh
+  const ba = sine(prog(t, .2, 2.0));
+  for (const b of bokeh) { const x = b.x + b.vx * t, y = b.y + b.vy * t, gr = m.createRadialGradient(x, y, 0, x, y, b.r);
+    gr.addColorStop(0, `hsla(${b.hue},90%,65%,${b.a * ba})`); gr.addColorStop(1, `hsla(${b.hue},90%,65%,0)`);
+    m.fillStyle = gr; m.beginPath(); m.arc(x, y, b.r, 0, 7); m.fill(); }
+
+  // frosted glass panel inside the TV
+  tf(m);
+  if (settle > 0) {
+    m.save(); m.beginPath(); m.roundRect(CX - TVW / 2 + 8, CY - TVH / 2 + 8, TVW - 16, TVH - 16, TVR - 8); m.clip();
+    let gf = m.createLinearGradient(0, CY - TVH / 2, 0, CY + TVH / 2);
+    gf.addColorStop(0, `rgba(150,180,255,${.15 * settle})`); gf.addColorStop(1, `rgba(110,90,210,${.05 * settle})`);
+    m.fillStyle = gf; m.fillRect(0, 0, W, H);
+    let sh = m.createLinearGradient(CX - TVW / 2, CY - TVH / 2, CX - TVW * .1, CY + TVH * .1);   // reflection, top left
+    sh.addColorStop(0, `rgba(255,255,255,${.07 * settle})`); sh.addColorStop(.6, `rgba(255,255,255,${.02 * settle})`); sh.addColorStop(.61, 'rgba(255,255,255,0)');
+    m.fillStyle = sh; m.fillRect(0, 0, W, H);
+    m.restore();
+  }
+
+  // ---- light layer ----
+  l.setTransform(1, 0, 0, 1, 0, 0); l.globalCompositeOperation = 'source-over'; l.globalAlpha = 1; l.clearRect(0, 0, W, H);
+  tf(l); l.globalCompositeOperation = 'lighter';
+  const col = grad(l);
+
+  // the frame: two lines leave the top centre and meet at the bottom
+  const k = ease(prog(t, ...TRACE));
+  if (k > 0) {
+    if (k < 1) { const r = ring(0, k / 2), lft = ring(1, 1 - k / 2);
+      drawn(l, r, 1 - 1e-6, 13, col); drawn(l, lft, 1 - 1e-6, 13, col);
+    } else line(l, ring(0, 1, 480), 13, col, .92);
+  }
+
+  // the house: roof opens from the peak, walls run down and meet; then the stand
+  const h = ease(prog(t, ...HOUSE)), r = clamp(h * 1.6), bw = clamp(h * 1.6 - .6);
+  if (r >= 1 && bw >= 1) line(l, [ROOF, BODY], 13, '#C9D8FF', .92);   // one path, so the joins don't double up
+  else if (r >= 1) line(l, ROOF, 13, '#C9D8FF', .92); else if (r > 0) { const k = 1 - 1e-6;
+    drawn(l, sub(ROOF, .5, .5 + r / 2), k, 13, '#C9D8FF'); drawn(l, sub(ROOF, .5 - r / 2, .5).reverse(), k, 13, '#C9D8FF'); }
+  if (bw >= 1) { if (r < 1) line(l, BODY, 13, '#C9D8FF', .92); } else if (bw > 0) for (const B of [BODY_L, BODY_R]) drawn(l, B, bw, 13, '#C9D8FF');
+  const sd = ease(prog(t, ...STND));
+  if (sd > 0) { line(l, sub(STAND, .5 - sd / 2, .5 + sd / 2), 13, col, .9);
+    if (sd < 1) { const p = sub(STAND, .5 - sd / 2, .5 + sd / 2); glint(l, ...p[0], 18, .7); glint(l, ...p[p.length - 1], 18, .7); } }
+
+  // shine: one slow, soft pass of light across the finished logo
+  const sp = prog(t, ...SHINE);
+  if (sp > 0 && sp < 1) {
+    tc.setTransform(1, 0, 0, 1, 0, 0); tc.globalCompositeOperation = 'source-over'; tc.clearRect(0, 0, W, H); tf(tc);
+    tc.strokeStyle = '#fff'; tc.lineCap = 'round'; tc.lineJoin = 'round'; tc.lineWidth = 12;
+    poly(tc, ring(0, 1, 480)); tc.stroke(); poly(tc, ROOF); tc.stroke(); poly(tc, BODY_L); tc.stroke(); poly(tc, BODY_R); tc.stroke(); poly(tc, STAND); tc.stroke();
+    tc.globalAlpha = .12; tc.fillStyle = '#fff'; tc.beginPath(); tc.roundRect(CX - TVW / 2, CY - TVH / 2, TVW, TVH, TVR); tc.fill(); tc.globalAlpha = 1;
+    tc.globalCompositeOperation = 'source-in';
+    const x = lerp(CX - TVW * .9, CX + TVW * .9, sine(sp)), sg = tc.createLinearGradient(x - 160, CY - 220, x + 160, CY + 220);
+    sg.addColorStop(0, 'rgba(255,255,255,0)'); sg.addColorStop(.5, 'rgba(255,255,255,1)'); sg.addColorStop(1, 'rgba(255,255,255,0)');
+    tc.fillStyle = sg; tc.fillRect(0, 0, W, H);
+    l.setTransform(1, 0, 0, 1, 0, 0); l.globalAlpha = .55 * Math.sin(Math.PI * sp); l.drawImage(T, 0, 0); l.globalAlpha = 1; tf(l);
+  }
+
+  // ---- composite with bloom: a gentle swell as the logo settles ----
+  m.setTransform(1, 0, 0, 1, 0, 0);
+  m.globalCompositeOperation = 'lighter';
+  const swell = 1 + .35 * Math.sin(Math.PI * prog(t, SETTLE[0] - .2, SETTLE[1] + .3));
+  m.filter = 'blur(56px)'; m.globalAlpha = clamp(.34 * swell); m.drawImage(L, 0, 0);
+  m.filter = 'blur(24px)'; m.globalAlpha = clamp(.5 * swell); m.drawImage(L, 0, 0);
+  m.filter = 'blur(6px)';  m.globalAlpha = .55; m.drawImage(L, 0, 0);
+  m.filter = 'none'; m.globalAlpha = 1; m.drawImage(L, 0, 0);
+  m.globalCompositeOperation = 'source-over';
+
+  // the name comes into focus: from soft and widely spaced to sharp
+  const ta = sine(prog(t, ...TITLE));
+  if (ta > 0) {
+    const track = lerp(.42, .1, out(prog(t, TITLE[0], TITLE[1] + .5)));
+    tf(m); m.font = '500 100px Outfit'; m.letterSpacing = track + 'em'; m.textAlign = 'center'; m.textBaseline = 'middle';
+    m.filter = `blur(${(1 - ta) * 14}px)`; m.globalAlpha = ta; m.fillStyle = '#EEF2FF';
+    m.fillText('TV Home', CX + track * 50, CY + TVH / 2 + 205); m.filter = 'none'; m.globalAlpha = 1; m.setTransform(1, 0, 0, 1, 0, 0);
+  }
+
+  // vignette, grain, fade out
+  const vg = m.createRadialGradient(CX, H / 2, 450, CX, H / 2, 1250); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.6)');
+  m.fillStyle = vg; m.fillRect(0, 0, W, H);
+  m.globalAlpha = .03; m.globalCompositeOperation = 'overlay'; m.fillStyle = m.createPattern(G, 'repeat');
+  m.save(); m.translate((t * 997) % 256, (t * 613) % 256); m.fillRect(-256, -256, W + 512, H + 512); m.restore();
+  m.globalCompositeOperation = 'source-over'; m.globalAlpha = 1;
+  const fo = prog(t, END - .65, END); if (fo > 0) { m.globalAlpha = sine(fo); m.fillStyle = '#000'; m.fillRect(0, 0, W, H); m.globalAlpha = 1; }
+}
+window.END = END;
+window.draw = draw;
+</script></body></html>

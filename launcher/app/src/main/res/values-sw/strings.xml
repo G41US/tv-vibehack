@@ -389,4 +389,8 @@
     <string name="apps_data_removed">Programu zilizoondolewa</string>
     <string name="apps_data_need">Ili kuona data kwa kila programu, TV Home inahitaji muunganisho wa utatuzi wa TV mara moja. Uweke kwa \"Weka kwenye TV hii\", kisha ujaribu tena.</string>
     <string name="apps_data_empty">Hakuna data iliyotumika mwezi huu bado.</string>
+    <string name="hs_startup">Uhuishaji wa kuwasha</string>
+    <string name="profile_avatar_add">Chagua picha ya %1$s…</string>
+    <string name="profile_avatar_set">Picha ya %1$s: %2$s</string>
+    <string name="avatar_title">Picha ya %1$s</string>
 </resources>

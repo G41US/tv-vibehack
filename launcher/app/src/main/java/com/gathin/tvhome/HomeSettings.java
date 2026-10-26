@@ -135,6 +135,11 @@ final class HomeSettings {
                 act.recreate();
             });
         }));
+        boolean startup = Splash.on(act);
+        rows.add(new GlassMenu.Row(R.drawable.ic_s_play, s(R.string.hs_startup), onOff(startup), () -> {
+            prefs(act).edit().putBoolean(Splash.KEY_ON, !startup).apply();
+            look(6);
+        }));
         page(R.string.hs_look, rows, focus);
     }
 
