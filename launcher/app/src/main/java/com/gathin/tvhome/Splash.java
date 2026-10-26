@@ -155,7 +155,7 @@ final class Splash {
         return !"1".equals(prop("service.bootanim.exit")) && "running".equals(prop("init.svc.bootanim"));
     }
 
-    private static String prop(String name) {
+    static String prop(String name) {
         try {
             Process p = Runtime.getRuntime().exec(new String[]{"getprop", name});
             try (BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
