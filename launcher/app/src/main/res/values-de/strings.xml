@@ -348,4 +348,10 @@
     <string name="fc_day_details_mph">Gefühlt %1$d° · Regen %2$d%% · Wind bis %3$d mph</string>
     <string name="wx_sunny">Sonnig</string>
     <string name="wx_mostly_sunny">Überwiegend sonnig</string>
+    <string name="fc_now">Jetzt</string>
+    <string name="fc_sum_storms">Gewitter wahrscheinlich %1$s – %2$s</string>
+    <string name="fc_sum_rain">Regen wahrscheinlich %1$s – %2$s</string>
+    <string name="fc_sum_chance">Regen möglich gegen %1$s</string>
+    <string name="fc_sum_dry">Kein Regen erwartet</string>
+    <string name="fc_sum_hot">Am wärmsten um %1$s, %2$d°</string>
 </resources>

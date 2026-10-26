@@ -348,4 +348,10 @@
     <string name="fc_day_details_mph">Sensación %1$d° · Lluvia %2$d%% · Viento hasta %3$d mph</string>
     <string name="wx_sunny">Soleado</string>
     <string name="wx_mostly_sunny">Mayormente soleado</string>
+    <string name="fc_now">Ahora</string>
+    <string name="fc_sum_storms">Tormentas probables de %1$s a %2$s</string>
+    <string name="fc_sum_rain">Lluvia probable de %1$s a %2$s</string>
+    <string name="fc_sum_chance">Posible lluvia hacia las %1$s</string>
+    <string name="fc_sum_dry">No se espera lluvia</string>
+    <string name="fc_sum_hot">Más calor a las %1$s, %2$d°</string>
 </resources>

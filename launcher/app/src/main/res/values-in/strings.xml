@@ -348,4 +348,10 @@
     <string name="fc_day_details_mph">Terasa %1$d° · Hujan %2$d%% · Angin hingga %3$d mph</string>
     <string name="wx_sunny">Cerah</string>
     <string name="wx_mostly_sunny">Sebagian besar cerah</string>
+    <string name="fc_now">Sekarang</string>
+    <string name="fc_sum_storms">Kemungkinan badai %1$s – %2$s</string>
+    <string name="fc_sum_rain">Kemungkinan hujan %1$s – %2$s</string>
+    <string name="fc_sum_chance">Mungkin hujan sekitar %1$s</string>
+    <string name="fc_sum_dry">Tidak ada hujan</string>
+    <string name="fc_sum_hot">Terpanas pukul %1$s, %2$d°</string>
 </resources>

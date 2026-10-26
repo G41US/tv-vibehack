@@ -355,4 +355,10 @@
     <string name="fc_day_details_mph">Ressenti %1$d° · Pluie %2$d %% · Vent jusqu\'à %3$d mph</string>
     <string name="wx_sunny">Ensoleillé</string>
     <string name="wx_mostly_sunny">Plutôt ensoleillé</string>
+    <string name="fc_now">Maintenant</string>
+    <string name="fc_sum_storms">Orages probables de %1$s à %2$s</string>
+    <string name="fc_sum_rain">Pluie probable de %1$s à %2$s</string>
+    <string name="fc_sum_chance">Risque de pluie vers %1$s</string>
+    <string name="fc_sum_dry">Pas de pluie prévue</string>
+    <string name="fc_sum_hot">Plus chaud à %1$s, %2$d°</string>
 </resources>

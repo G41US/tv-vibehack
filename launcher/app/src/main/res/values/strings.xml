@@ -354,4 +354,10 @@
     <string name="fc_day_details_mph">Feels like %1$d° · Rain %2$d%% · Wind up to %3$d mph</string>
     <string name="wx_sunny">Sunny</string>
     <string name="wx_mostly_sunny">Mostly sunny</string>
+    <string name="fc_now">Now</string>
+    <string name="fc_sum_storms">Storms likely %1$s – %2$s</string>
+    <string name="fc_sum_rain">Rain likely %1$s – %2$s</string>
+    <string name="fc_sum_chance">A chance of rain around %1$s</string>
+    <string name="fc_sum_dry">No rain expected</string>
+    <string name="fc_sum_hot">Hottest at %1$s, %2$d°</string>
 </resources>

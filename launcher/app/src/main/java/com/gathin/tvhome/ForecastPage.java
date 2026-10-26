@@ -11,7 +11,9 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -35,11 +37,11 @@ final class ForecastPage {
                         new String[]{act.getString(android.R.string.ok)}, null);
                 return;
             }
-            build(act, f);
+            build(act, f, 0);
         });
     }
 
-    private static void build(Activity a, Weather.Forecast f) {
+    private static void build(Activity a, Weather.Forecast f, int focus) {
         LinearLayout body = new LinearLayout(a);
         body.setOrientation(LinearLayout.VERTICAL);
 
@@ -66,6 +68,10 @@ final class ForecastPage {
             tile.setGravity(Gravity.CENTER_HORIZONTAL);
             tile.setFocusable(true);
             final int at = i;
+            tile.setOnClickListener(v -> {
+                GlassMenu.closeAll();
+                showDay(a, f, at);
+            });
             tile.setOnFocusChangeListener((v, has) -> {
                 if (!has) return;
                 CharSequence[] show = at == 0 ? today : new CharSequence[]{
@@ -99,7 +105,119 @@ final class ForecastPage {
             row.addView(tile, lp);
         }
         body.addView(row);
-        GlassMenu.panel(a, a.getString(R.string.fc_title), f.city, body, 6 * 112 + 5 * 10 + 60, null);
+        GlassMenu.panel(a, a.getString(R.string.fc_title), f.city, body, WIDTH_DP, null);
+        if (focus > 0 && focus < row.getChildCount()) row.post(() -> row.getChildAt(focus).requestFocus());
+    }
+
+    private static final int WIDTH_DP = 6 * 112 + 5 * 10 + 60;
+
+    // ---- one day, hour by hour (press OK on a day) -----------------------------------------------
+
+    private static void showDay(Activity a, Weather.Forecast f, int index) {
+        Weather.Day d = f.days.get(index);
+        List<Weather.Hour> hours = new ArrayList<>();
+        String now = new SimpleDateFormat("yyyy-MM-dd'T'HH:00", Locale.US).format(new Date());
+        for (Weather.Hour h : f.hours) {
+            if (index == 0) {
+                // Today: from this hour to midnight, running into tomorrow if only a few hours are left.
+                if (h.time.compareTo(now) >= 0 && (h.time.startsWith(d.date) || hours.size() < 6)) hours.add(h);
+            } else if (h.time.startsWith(d.date) && h.time.compareTo(d.date + "T06:00") >= 0) {
+                hours.add(h);
+            }
+        }
+
+        LinearLayout body = new LinearLayout(a);
+        body.setOrientation(LinearLayout.VERTICAL);
+        TextView line = GlassMenu.text(a, summary(a, hours), 20, 0xFFFFFFFF);
+        line.setPadding(0, 0, 0, GlassMenu.dp(a, 18));
+        body.addView(line);
+
+        ColorStateList ink = a.getColorStateList(R.color.menu_ink);
+        ColorStateList dim = a.getColorStateList(R.color.menu_ink_dim);
+        LinearLayout row = new LinearLayout(a);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        for (int i = 0; i < hours.size(); i++) {
+            Weather.Hour h = hours.get(i);
+            LinearLayout cell = new LinearLayout(a);
+            cell.setOrientation(LinearLayout.VERTICAL);
+            cell.setGravity(Gravity.CENTER);
+            cell.setFocusable(true);
+            cell.setBackgroundResource(R.drawable.menu_tile_bg);
+            cell.setPadding(0, GlassMenu.dp(a, 12), 0, GlassMenu.dp(a, 12));
+            String label = index == 0 && i == 0 ? a.getString(R.string.fc_now) : hourLabel(a, h.time, 0);
+            TextView time = GlassMenu.text(a, label, 15, ink);
+            String pic = !h.day && h.code <= 1 ? "🌙" : Weather.emoji(h.code);
+            TextView icon = GlassMenu.text(a, pic, 28, 0xFFFFFFFF);
+            icon.setPadding(0, GlassMenu.dp(a, 6), 0, GlassMenu.dp(a, 4));
+            TextView temp = GlassMenu.text(a, h.temp + "°", 18, ink);
+            TextView rain = GlassMenu.text(a, h.rain >= 10 ? "💧 " + h.rain + "%" : " ", 13, dim);
+            for (TextView v : new TextView[]{time, icon, temp, rain}) {
+                v.setGravity(Gravity.CENTER_HORIZONTAL);
+                cell.addView(v);
+            }
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(GlassMenu.dp(a, 92),
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.leftMargin = i == 0 ? 0 : GlassMenu.dp(a, 8);
+            row.addView(cell, lp);
+        }
+        android.widget.HorizontalScrollView scroll = new android.widget.HorizontalScrollView(a);
+        scroll.setHorizontalScrollBarEnabled(false);
+        scroll.setClipToPadding(false);
+        scroll.addView(row);
+        body.addView(scroll);
+
+        String title = index == 0 ? a.getString(R.string.fc_today)
+                : new SimpleDateFormat("EEEE d MMMM", Locale.getDefault()).format(parse(d.date));
+        GlassMenu.panel(a, f.city, title, body, WIDTH_DP, () -> build(a, f, index));
+    }
+
+    /** "Storms likely 2 PM – 6 PM  ·  Hottest at 3 PM, 32°" for the hours shown. */
+    private static String summary(Activity a, List<Weather.Hour> hours) {
+        int n = hours.size();
+        int[] rain = new int[n], code = new int[n], temp = new int[n];
+        for (int i = 0; i < n; i++) {
+            rain[i] = hours.get(i).rain;
+            code[i] = hours.get(i).code;
+            temp[i] = hours.get(i).temp;
+        }
+        int[] s = DaySummary.of(rain, code, temp);
+        String main;
+        switch (s[0]) {
+            case DaySummary.STORMS:
+                main = a.getString(R.string.fc_sum_storms, hourLabel(a, hours.get(s[1]).time, 0), hourLabel(a, hours.get(s[2]).time, 1));
+                break;
+            case DaySummary.RAIN:
+                main = a.getString(R.string.fc_sum_rain, hourLabel(a, hours.get(s[1]).time, 0), hourLabel(a, hours.get(s[2]).time, 1));
+                break;
+            case DaySummary.CHANCE:
+                main = a.getString(R.string.fc_sum_chance, hourLabel(a, hours.get(s[1]).time, 0));
+                break;
+            default:
+                main = a.getString(R.string.fc_sum_dry);
+        }
+        if (s[3] < 0) return main;
+        return main + "  ·  " + a.getString(R.string.fc_sum_hot, hourLabel(a, hours.get(s[3]).time, 0), temp[s[3]]);
+    }
+
+    /** "2 PM" or "14:00" (as the box is set) for "2026-10-26T14:00", plus some hours. */
+    private static String hourLabel(Activity a, String iso, int plusHours) {
+        try {
+            Calendar c = Calendar.getInstance();
+            c.setTime(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.US).parse(iso));
+            c.add(Calendar.HOUR_OF_DAY, plusHours);
+            String pattern = DateFormat.getBestDateTimePattern(Locale.getDefault(), DateFormat.is24HourFormat(a) ? "Hm" : "ha");
+            return new SimpleDateFormat(pattern, Locale.getDefault()).format(c.getTime());
+        } catch (Exception e) {
+            return iso;
+        }
+    }
+
+    private static Date parse(String isoDate) {
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(isoDate);
+        } catch (Exception e) {
+            return new Date();
+        }
     }
 
     private static String dayName(String iso) {

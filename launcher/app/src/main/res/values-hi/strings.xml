@@ -348,4 +348,10 @@
     <string name="fc_day_details_mph">महसूस %1$d° · बारिश %2$d%% · हवा %3$d मील/घं तक</string>
     <string name="wx_sunny">धूप</string>
     <string name="wx_mostly_sunny">ज़्यादातर धूप</string>
+    <string name="fc_now">अभी</string>
+    <string name="fc_sum_storms">%1$s – %2$s आंधी-तूफ़ान की संभावना</string>
+    <string name="fc_sum_rain">%1$s – %2$s बारिश की संभावना</string>
+    <string name="fc_sum_chance">%1$s के आसपास बारिश हो सकती है</string>
+    <string name="fc_sum_dry">बारिश की उम्मीद नहीं</string>
+    <string name="fc_sum_hot">सबसे गर्म %1$s, %2$d°</string>
 </resources>
