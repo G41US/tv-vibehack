@@ -551,13 +551,15 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     /** A home screen has been opened in this process (HomeKeyService opens one early at start-up). */
     static volatile boolean created;
-    private final Runnable afterResume = () -> {
+    private final Runnable afterResume = this::afterResume;
+
+    private void afterResume() {
         if (!resumed) return;
         DataLimit.maybeWarn(this);
         updater.autoCheck();
         new Thread(() -> DataUsage.sample(this), "data-sample").start();
         checkNet();
-    };
+    }
     private View nightShade;
     private Splash splash;
     private MoodLight mood;
