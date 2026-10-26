@@ -114,6 +114,7 @@ final class StartupApps {
                 if (i > 0) SystemClock.sleep(10_000);
                 if (!AdbSelf.reachable(SelfSetup.PORT)) continue;
                 try (AdbSelf adb = connect(app, 30_000)) {
+                    if (boot) androidTimeline(app, adb);
                     turnOn(app, adb);
                     reached = paused(app).isEmpty();
                     if (reached && auto(app)) {
@@ -128,6 +129,28 @@ final class StartupApps {
             if (reached) BootTrace.mark(app, "held-back apps back on");
             releasing = false;
         }, "startup-apps").start();
+    }
+
+    private static final String[][] ANDROID_STEPS = {
+            {"boot_progress_start", "Android starting"}, {"boot_progress_system_run", "Android system"},
+            {"boot_progress_pms_ready", "apps scanned"}, {"boot_progress_ams_ready", "Android ready"},
+            {"FallbackHome", "Android's waiting screen"}, {"uc_finish_user_unlocked", "storage unlocked"},
+            {"boot_progress_enable_screen", "screen handed over"}, {"sf_stop_bootanim", "boot logo stopped"}};
+
+    /** Android's own start-up steps from its event log, into "Last start-up" (TV check). */
+    private static void androidTimeline(Context c, AdbSelf adb) {
+        try {
+            String out = adb.shell("logcat -b events -d -v monotonic 2>/dev/null | grep -E "
+                    + "'boot_progress_|sf_stop_bootanim|uc_finish_user_unlocked|am_create_activity.*FallbackHome' | head -40");
+            Pattern at = Pattern.compile("^\\s*(\\d+\\.\\d+)");
+            for (String line : out.split("\n")) {
+                Matcher m = at.matcher(line);
+                if (!m.find()) continue;
+                long ms = (long) (Double.parseDouble(m.group(1)) * 1000);
+                for (String[] step : ANDROID_STEPS) if (line.contains(step[0])) BootTrace.mark(c, step[1], ms);
+            }
+        } catch (Exception ignored) {
+        }
     }
 
     private static void turnOn(Context c, AdbSelf adb) throws Exception {
