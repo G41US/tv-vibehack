@@ -187,7 +187,7 @@ final class Festive {
             super(c);
             this.h = h;
             this.density = density;
-            int n = h.kind == SPARKLE ? 34 : 40;
+            int n = h.kind == SPARKLE ? 26 : 30;
             x = new float[n];
             y = new float[n];
             v = new float[n];
@@ -221,7 +221,7 @@ final class Festive {
         @Override
         protected void onDraw(Canvas c) {
             long now = SystemClock.uptimeMillis();
-            float dt = Math.min(0.06f, (now - last) / 1000f), t = now / 1000f;
+            float dt = Math.min(0.2f, (now - last) / 1000f), t = now / 1000f;
             last = now;
             float hh = getHeight();
             for (int i = 0; i < x.length; i++) {
@@ -253,7 +253,7 @@ final class Festive {
                 if (y[i] > hh + 12 * density) seed(i, false);
             }
             if (running) {
-                postInvalidateDelayed(50);
+                postInvalidateDelayed(66);
             }
         }
     }

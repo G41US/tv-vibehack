@@ -487,13 +487,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             if (splash != null && splash.active()) splash.then(this::showWhoIsWatching);
             else showWhoIsWatching();
         }
-        DataLimit.maybeWarn(this);
-        updater.autoCheck();
         weather.refresh(false, this::showWeather);
-        DataUsage.sample(this);
         updateGreeting();
         updateWifiLabel();
-        checkNet();
+        // Checks that can wait a moment, so coming back to Home is instant.
+        handler.removeCallbacks(afterResume);
+        handler.postDelayed(afterResume, 1500);
         updateInputsButton();
         updateNight();
         resumed = true;
@@ -537,6 +536,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         super.onPause();
         BackupStore.saveAsync(this);
         handler.removeCallbacks(minuteTick);
+        handler.removeCallbacks(afterResume);
         resumed = false;
         nowPlaying.stop();
         if (weatherFx != null) weatherFx.stop();
@@ -551,6 +551,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     /** A home screen has been opened in this process (HomeKeyService opens one early at start-up). */
     static volatile boolean created;
+    private final Runnable afterResume = () -> {
+        if (!resumed) return;
+        DataLimit.maybeWarn(this);
+        updater.autoCheck();
+        new Thread(() -> DataUsage.sample(this), "data-sample").start();
+        checkNet();
+    };
     private View nightShade;
     private Splash splash;
     private MoodLight mood;

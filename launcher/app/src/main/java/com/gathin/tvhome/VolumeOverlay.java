@@ -148,8 +148,7 @@ final class VolumeOverlay {
         pct = new TextView(service);
         pct.setTextColor(Color.WHITE);
         pct.setTextSize(19);
-        pct.setTypeface(font);
-        pct.setFontVariationSettings("'wght' 700");
+        pct.setTypeface(Fonts.weight(service, 700));
         pct.setGravity(Gravity.CENTER);
         bar = new Bar(service, density);
         icon = new ImageView(service);

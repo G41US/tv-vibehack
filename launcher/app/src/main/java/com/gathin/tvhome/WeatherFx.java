@@ -57,7 +57,7 @@ final class WeatherFx extends View {
     void setMode(int m) {
         if (m == mode) return;
         mode = m;
-        int n = m == RAIN ? 55 : m == STORM ? 70 : m == SNOW ? 45 : 0;
+        int n = m == RAIN ? 42 : m == STORM ? 54 : m == SNOW ? 34 : 0;   // light enough to keep the menus smooth
         x = new float[n];
         y = new float[n];
         speed = new float[n];
@@ -128,7 +128,7 @@ final class WeatherFx extends View {
         }
         if (x.length == 0) return;
         long now = SystemClock.uptimeMillis();
-        float dt = Math.min(0.05f, (now - last) / 1000f);
+        float dt = Math.min(0.2f, (now - last) / 1000f);   // a late frame catches up instead of slowing the rain
         last = now;
         float slant = 0.18f;
         for (int i = 0; i < x.length; i++) {
@@ -156,7 +156,7 @@ final class WeatherFx extends View {
             }
         }
         if (running) {
-            postInvalidateDelayed(50);
+            postInvalidateDelayed(66);   // 15 frames a second: smooth for rain, half the work of 30
         }
     }
 

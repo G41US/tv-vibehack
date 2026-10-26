@@ -120,7 +120,7 @@ final class LiveWallpaper {
             public void run() {
                 if (!running) return;
                 invalidate();
-                handler.postDelayed(this, 80);
+                handler.postDelayed(this, 100);   // twinkling is slow: 10 frames a second is plenty
             }
         };
 
