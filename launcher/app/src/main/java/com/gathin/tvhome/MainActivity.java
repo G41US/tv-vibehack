@@ -176,6 +176,15 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
         root = findViewById(R.id.root);
         splash = Splash.maybeShow(this);   // first Home after the box starts: the logo animation
+        if (getIntent() != null && getIntent().getBooleanExtra(BootHome.EXTRA_PLAYED, false)) {
+            // Straight from the start-up screen, which is holding the finished logo: show the same
+            // picture until Home is ready underneath, then fade into Home (no black gap).
+            logoHold = new ImageView(this);
+            logoHold.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            logoHold.setImageResource(R.drawable.startup_logo);
+            logoHold.setBackgroundColor(Color.BLACK);
+            addContentView(logoHold, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        }
         root.getViewTreeObserver().addOnDrawListener(new android.view.ViewTreeObserver.OnDrawListener() {
             private boolean once;
 
@@ -533,7 +542,18 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         // Read these before reload(): rebinding can move focus to the first tile and overwrite them.
         final String returnKey = lastFocusedKey;
         final int returnSlot = lastFocused;
-        if (splash != null && splash.active()) {
+        if (logoHold != null) {
+            // From the start-up screen: draw the logo first, then load Home under it and fade across.
+            ImageView hold = logoHold;
+            logoHold = null;
+            afterFirstFrame(() -> {
+                adapter.reload();
+                grid.post(() -> focusTile(Math.max(0, adapter.positionOf(returnKey))));
+                afterFirstFrame(() -> hold.animate().alpha(0f).setDuration(450).withEndAction(() -> {
+                    if (hold.getParent() instanceof ViewGroup) ((ViewGroup) hold.getParent()).removeView(hold);
+                }).start());
+            });
+        } else if (splash != null && splash.active()) {
             // Start-up: the app list asks Android for every app, slow while the box is still starting
             // (2.7 s). Draw the animation's first frame first; the list fills in behind it.
             splash.whenPlaying(() -> {
@@ -627,6 +647,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         checkNet();
     }
     private View nightShade;
+    private ImageView logoHold;
     private Splash splash;
     private MoodLight mood;
     private WeatherFx weatherFx;
