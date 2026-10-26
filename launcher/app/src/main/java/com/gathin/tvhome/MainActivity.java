@@ -483,6 +483,24 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (splash != null) splash.end();
     }
 
+    /** Runs r once, just after the next frame is on screen. */
+    private void afterFirstFrame(Runnable r) {
+        root.getViewTreeObserver().addOnDrawListener(new android.view.ViewTreeObserver.OnDrawListener() {
+            private boolean done;
+
+            @Override
+            public void onDraw() {
+                if (done) return;
+                done = true;
+                handler.post(() -> {
+                    root.getViewTreeObserver().removeOnDrawListener(this);
+                    r.run();
+                });
+            }
+        });
+        root.invalidate();
+    }
+
     /** Home pressed while TV Home is already showing: close whatever is open over it. */
     @Override
     protected void onNewIntent(Intent intent) {
@@ -515,8 +533,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         // Read these before reload(): rebinding can move focus to the first tile and overwrite them.
         final String returnKey = lastFocusedKey;
         final int returnSlot = lastFocused;
-        adapter.reload();
-        grid.scheduleLayoutAnimation();
+        if (splash != null && splash.active()) {
+            // Start-up: the app list asks Android for every app, slow while the box is still starting
+            // (2.7 s). Draw the animation's first frame first; the list fills in behind it.
+            afterFirstFrame(() -> {
+                adapter.reload();
+                grid.post(() -> focusTile(Math.max(0, adapter.positionOf(returnKey))));
+            });
+        } else {
+            adapter.reload();
+            grid.scheduleLayoutAnimation();
+        }
         SelfHeal.ensureService(this);
         if (BackupStore.supported() && BackupStore.canRead(this) && !BackupStore.restoreChecked(this)) {
             runRestore();   // first start after a reinstall, once the photos permission is granted
