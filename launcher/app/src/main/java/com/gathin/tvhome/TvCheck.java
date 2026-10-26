@@ -121,6 +121,7 @@ final class TvCheck {
         rows.add(new GlassMenu.Row(R.drawable.ic_s_tune, a.getString(R.string.ss_step_debug),
                 debug ? ok(a.getString(R.string.chk_on)) : "–  " + a.getString(R.string.chk_off), fix));
         line(report, "Debugging (port 5555)", debug);
+        report.append("- Start-up animation: ").append(Splash.on(a) ? Splash.last(a) : "off").append('\n');
 
         ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
         ((ActivityManager) a.getSystemService(Context.ACTIVITY_SERVICE)).getMemoryInfo(mi);

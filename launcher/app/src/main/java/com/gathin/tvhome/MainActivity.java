@@ -419,6 +419,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Not in onPause: at start-up Android brings Home to the front again, which pauses it for a moment.
+        if (splash != null) splash.end();
+    }
+
     /** Home pressed while TV Home is already showing: close whatever is open over it. */
     @Override
     protected void onNewIntent(Intent intent) {
@@ -459,7 +466,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
         setupPanel.onResume();
         if (Profiles.shouldAsk(this)) {
-            if (splash != null && splash.showing()) splash.then(this::showWhoIsWatching);
+            if (splash != null && splash.active()) splash.then(this::showWhoIsWatching);
             else showWhoIsWatching();
         }
         DataLimit.maybeWarn(this);
@@ -513,7 +520,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         BackupStore.saveAsync(this);
         handler.removeCallbacks(minuteTick);
         resumed = false;
-        if (splash != null) splash.end();
         nowPlaying.stop();
         if (weatherFx != null) weatherFx.stop();
         if (festiveFx != null) festiveFx.stop();
@@ -568,12 +574,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent e) {
-        if (splash != null && splash.showing()) {   // any button skips the start-up animation
-            if (e.getAction() == KeyEvent.ACTION_UP) splash.end();
-            return true;
+        if (splash != null && splash.active()) {   // any button skips the start-up animation
+            boolean onScreen = splash.visible();
+            if (!onScreen || e.getAction() == KeyEvent.ACTION_UP) splash.end();
+            if (onScreen) return true;
         }
         Sounds.onKey(this, e);
-        LiveWallpaper.touched();
         if (nowPlaying != null) nowPlaying.noteInput();
         return super.dispatchKeyEvent(e);
     }

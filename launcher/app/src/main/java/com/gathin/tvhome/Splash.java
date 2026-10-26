@@ -2,49 +2,74 @@ package com.gathin.tvhome;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 /**
  * Start-up animation: the TV Home logo traced in light (res/raw/startup.mp4, made by tools/splash).
  * Plays full screen the first time Home opens after the box starts, over the home screen that loads
  * underneath, then fades away. Any button skips it. Not played in safe mode, before setup is done,
- * with animations turned off in the TV's settings, or when switched off in Look. If the box can't
- * play it, or it hasn't started within a second, Home just shows.
+ * with animations turned off in the TV's settings, or when switched off in Look.
+ *
+ * It waits for the box's own boot animation to finish, and stays invisible until the first frame of
+ * video is on screen, so a slow or failing box never sees a black screen: it just gets Home. What
+ * happened last time is kept for TV check ("startup_last").
  */
 final class Splash {
 
-    static final String KEY_ON = "startup_anim", KEY_BOOT = "startup_boot";
-    private static final long START_WITHIN_MS = 1000;
+    static final String KEY_ON = "startup_anim", KEY_UP = "startup_uptime", KEY_LAST = "startup_last";
+    private static final long BOOTANIM_MAX_MS = 20_000, FIRST_FRAME_MS = 4000;
 
     private final Activity act;
+    private final TextureView video;
     private final FrameLayout layer;
     private final Handler h = new Handler(Looper.getMainLooper());
     private MediaPlayer player;
+    private SurfaceTexture surface;
+    private boolean ready, ended, visible;
     private Runnable then;
-    private boolean ended;
 
     static boolean on(Context c) {
         return c.getSharedPreferences(HomeSettings.PREFS, Context.MODE_PRIVATE).getBoolean(KEY_ON, true);
     }
 
+    static String last(Context c) {
+        return c.getSharedPreferences(HomeSettings.PREFS, Context.MODE_PRIVATE).getString(KEY_LAST, "never");
+    }
+
+    private void note(String what) {
+        act.getSharedPreferences(HomeSettings.PREFS, Context.MODE_PRIVATE).edit().putString(KEY_LAST, what).apply();
+    }
+
     /** Starts the animation if this is the first Home since the box started; null when it won't play. */
     static Splash maybeShow(Activity a) {
-        android.content.SharedPreferences p = a.getSharedPreferences(HomeSettings.PREFS, Context.MODE_PRIVATE);
-        int boot = Settings.Global.getInt(a.getContentResolver(), Settings.Global.BOOT_COUNT, -1);
-        if (boot == p.getInt(KEY_BOOT, -2)) return null;
-        p.edit().putInt(KEY_BOOT, boot).apply();   // marked before playing, so a bad file can't loop
-        if (!on(a) || SafeStart.on(a) || !SetupPanel.serviceOn(a)) return null;
-        if (Settings.Global.getFloat(a.getContentResolver(), Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f) return null;
+        SharedPreferences p = a.getSharedPreferences(HomeSettings.PREFS, Context.MODE_PRIVATE);
+        // Time since the box started only goes down when it restarts (BOOT_COUNT isn't kept on every box).
+        long up = SystemClock.elapsedRealtime(), was = p.getLong(KEY_UP, Long.MAX_VALUE);
+        p.edit().putLong(KEY_UP, up).apply();
+        if (up >= was) return null;
+        if (!on(a)) return null;
+        String skip = SafeStart.on(a) ? "skipped: safe mode" : !SetupPanel.serviceOn(a) ? "skipped: setup not done"
+                : Settings.Global.getFloat(a.getContentResolver(), Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
+                ? "skipped: animations off" : null;
+        if (skip != null) {
+            p.edit().putString(KEY_LAST, skip).apply();
+            return null;
+        }
         return new Splash(a);
     }
 
@@ -52,14 +77,15 @@ final class Splash {
         act = a;
         layer = new FrameLayout(a);
         layer.setBackgroundColor(0xFF000000);
-        TextureView video = new TextureView(a);
+        layer.setAlpha(0f);   // shown with the first frame of video
+        video = new TextureView(a);
         layer.addView(video, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         a.addContentView(layer, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        h.postDelayed(this::end, START_WITHIN_MS);   // cancelled once the video is playing
         video.setSurfaceTextureListener(new TextureView.SurfaceTextureListener() {
             @Override
             public void onSurfaceTextureAvailable(SurfaceTexture st, int w, int hgt) {
-                play(video, st, w, hgt);
+                surface = st;
+                maybePlay();
             }
 
             @Override
@@ -74,18 +100,50 @@ final class Splash {
 
             @Override
             public void onSurfaceTextureUpdated(SurfaceTexture st) {
+                if (visible || ended || player == null) return;
+                visible = true;   // the first frame is on screen: cover Home with the animation
+                layer.setAlpha(1f);
+                h.removeCallbacksAndMessages(null);
+                note("played");
             }
         });
+        // The box's own start-up animation may still be on screen: wait until it's gone.
+        new Thread(() -> {
+            long until = SystemClock.uptimeMillis() + BOOTANIM_MAX_MS;
+            while (SystemClock.uptimeMillis() < until && bootAnimating()) SystemClock.sleep(250);
+            h.post(() -> {
+                ready = true;
+                maybePlay();
+            });
+        }, "splash-wait").start();
     }
 
-    private void play(TextureView video, SurfaceTexture st, int w, int hgt) {
-        if (ended) return;
+    private static boolean bootAnimating() {
+        try {
+            Process p = Runtime.getRuntime().exec(new String[]{"getprop", "init.svc.bootanim"});
+            try (BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+                return "running".equals(String.valueOf(r.readLine()).trim());
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void maybePlay() {
+        if (ended || !ready || surface == null || player != null) return;
+        h.postDelayed(() -> {
+            if (!visible) {
+                note("skipped: video didn't start in time");
+                end();
+            }
+        }, FIRST_FRAME_MS);
         try {
             player = new MediaPlayer();
             player.setDataSource(act, Uri.parse("android.resource://" + act.getPackageName() + "/" + R.raw.startup));
-            player.setSurface(new Surface(st));
+            player.setSurface(new Surface(surface));
             player.setOnVideoSizeChangedListener((mp, vw, vh) -> {
-                if (vw == 0 || vh == 0) return;
+                int w = video.getWidth(), hgt = video.getHeight();
+                if (vw == 0 || vh == 0 || w == 0 || hgt == 0) return;
                 // Fill the screen from the centre whatever its shape (the logo sits well inside the frame).
                 float s = Math.max((float) w / vw, (float) hgt / vh);
                 Matrix m = new Matrix();
@@ -93,17 +151,17 @@ final class Splash {
                 video.setTransform(m);
             });
             player.setOnPreparedListener(mp -> {
-                if (ended) return;
-                mp.start();
-                h.removeCallbacksAndMessages(null);
+                if (!ended) mp.start();
             });
             player.setOnCompletionListener(mp -> end());
             player.setOnErrorListener((mp, what, extra) -> {
+                note("skipped: video error " + what + "/" + extra);
                 end();
                 return true;
             });
             player.prepareAsync();
         } catch (Exception e) {
+            note("skipped: " + e.getClass().getSimpleName());
             end();
         }
     }
@@ -113,8 +171,14 @@ final class Splash {
         then = r;
     }
 
-    boolean showing() {
+    /** Waiting to play, or playing. */
+    boolean active() {
         return !ended;
+    }
+
+    /** The animation is on screen (buttons skip it rather than reaching Home). */
+    boolean visible() {
+        return visible && !ended;
     }
 
     /** Fades out to the home screen underneath. */
@@ -122,11 +186,13 @@ final class Splash {
         if (ended) return;
         ended = true;
         h.removeCallbacksAndMessages(null);
-        layer.animate().alpha(0f).setDuration(350).withEndAction(() -> {
+        Runnable done = () -> {
             if (layer.getParent() instanceof ViewGroup) ((ViewGroup) layer.getParent()).removeView(layer);
             release();
             if (then != null && !act.isFinishing()) then.run();
-        }).start();
+        };
+        if (visible) layer.animate().alpha(0f).setDuration(350).withEndAction(done).start();
+        else done.run();
     }
 
     private void release() {

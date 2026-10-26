@@ -25,17 +25,6 @@ final class LiveWallpaper {
 
     static final String PREFS = "look", KEY = "motion";
 
-    /** While the remote is being used, decorations hold still so every frame goes to the menus. */
-    static volatile long busyUntil;
-
-    static void touched() {
-        busyUntil = SystemClock.uptimeMillis() + 1500;
-    }
-
-    static boolean busy() {
-        return SystemClock.uptimeMillis() < busyUntil;
-    }
-
     private LiveWallpaper() {
     }
 
@@ -130,7 +119,7 @@ final class LiveWallpaper {
             @Override
             public void run() {
                 if (!running) return;
-                if (!busy()) invalidate();
+                invalidate();
                 handler.postDelayed(this, 80);
             }
         };

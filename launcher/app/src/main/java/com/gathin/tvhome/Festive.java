@@ -253,8 +253,7 @@ final class Festive {
                 if (y[i] > hh + 12 * density) seed(i, false);
             }
             if (running) {
-                if (LiveWallpaper.busy()) postDelayed(this::invalidate, 300);   // the remote is in use: wait
-                else postInvalidateDelayed(50);
+                postInvalidateDelayed(50);
             }
         }
     }
