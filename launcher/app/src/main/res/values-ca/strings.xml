@@ -364,11 +364,19 @@
     <string name="fx_eid">Eid Mubarak</string>
     <string name="fx_diwali">Feliç Diwali</string>
     <string name="fx_lunar">Feliç Any Nou Lunar</string>
-    <string name="games_title">Jocs</string>
-    <string name="games_snake_desc">Menja, creix i no xoquis amb tu mateix</string>
-    <string name="games_2048_desc">Llisca les fitxes, uneix números, arriba a 2048</string>
-    <string name="games_score">Punts %1$d</string>
-    <string name="games_best">Rècord %1$d</string>
-    <string name="games_over">Fi del joc · Prem OK per tornar a jugar</string>
-    <string name="games_start">Prem OK o una fletxa per començar</string>
+    <string name="wp_v_tag">en moviment</string>
+    <string name="wp_v_ocean">Onades del mar</string>
+    <string name="wp_v_rain">Pluja a la finestra</string>
+    <string name="wp_v_city">Ciutat de nit</string>
+    <string name="wp_v_aurora">Aurores boreals</string>
+    <string name="wp_v_golden">Aigua daurada</string>
+    <string name="wp_v_downloading">Baixant %1$s…</string>
+    <string name="wp_v_failed">No s\'ha pogut baixar aquesta escena. Comprova la connexió a internet i torna-ho a provar.</string>
+    <string name="profile_birthday_add">Afegir un aniversari per a %1$s…</string>
+    <string name="profile_birthday_set">Aniversari de %1$s: %2$s</string>
+    <string name="birthday_month_title">Mes de l\'aniversari</string>
+    <string name="birthday_day_title">Dia de l\'aniversari</string>
+    <string name="birthday_none">Sense aniversari</string>
+    <string name="fx_birthday">Per molts anys, %1$s</string>
+    <string name="fx_birthday_plain">Per molts anys</string>
 </resources>

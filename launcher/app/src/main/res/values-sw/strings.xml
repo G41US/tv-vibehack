@@ -364,11 +364,19 @@
     <string name="fx_eid">Eid Mubarak</string>
     <string name="fx_diwali">Heri ya Diwali</string>
     <string name="fx_lunar">Heri ya Mwaka Mpya wa Mwezi</string>
-    <string name="games_title">Michezo</string>
-    <string name="games_snake_desc">Kula, kua, usijigonge mwenyewe</string>
-    <string name="games_2048_desc">Sogeza vigae, unganisha namba, fikia 2048</string>
-    <string name="games_score">Alama %1$d</string>
-    <string name="games_best">Bora %1$d</string>
-    <string name="games_over">Mchezo umekwisha · Bonyeza OK kucheza tena</string>
-    <string name="games_start">Bonyeza OK au mshale kuanza</string>
+    <string name="wp_v_tag">inayosonga</string>
+    <string name="wp_v_ocean">Mawimbi ya bahari</string>
+    <string name="wp_v_rain">Mvua kwenye dirisha</string>
+    <string name="wp_v_city">Mji usiku</string>
+    <string name="wp_v_aurora">Mwanga wa kaskazini</string>
+    <string name="wp_v_golden">Maji ya dhahabu</string>
+    <string name="wp_v_downloading">Inapakua %1$s…</string>
+    <string name="wp_v_failed">Imeshindwa kupakua mandhari hii. Angalia muunganisho wa intaneti na ujaribu tena.</string>
+    <string name="profile_birthday_add">Ongeza siku ya kuzaliwa ya %1$s…</string>
+    <string name="profile_birthday_set">Siku ya kuzaliwa ya %1$s: %2$s</string>
+    <string name="birthday_month_title">Mwezi wa kuzaliwa</string>
+    <string name="birthday_day_title">Siku ya kuzaliwa</string>
+    <string name="birthday_none">Hakuna siku ya kuzaliwa</string>
+    <string name="fx_birthday">Heri ya siku ya kuzaliwa, %1$s</string>
+    <string name="fx_birthday_plain">Heri ya siku ya kuzaliwa</string>
 </resources>

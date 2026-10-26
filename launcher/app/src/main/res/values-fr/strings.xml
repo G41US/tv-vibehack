@@ -371,11 +371,19 @@
     <string name="fx_eid">Aïd Moubarak</string>
     <string name="fx_diwali">Joyeux Diwali</string>
     <string name="fx_lunar">Joyeux Nouvel An lunaire</string>
-    <string name="games_title">Jeux</string>
-    <string name="games_snake_desc">Mangez, grandissez, ne vous mordez pas la queue</string>
-    <string name="games_2048_desc">Glissez les tuiles, unissez les nombres, atteignez 2048</string>
-    <string name="games_score">Score %1$d</string>
-    <string name="games_best">Record %1$d</string>
-    <string name="games_over">Partie terminée · Appuyez sur OK pour rejouer</string>
-    <string name="games_start">Appuyez sur OK ou une flèche pour commencer</string>
+    <string name="wp_v_tag">animé</string>
+    <string name="wp_v_ocean">Vagues de l\'océan</string>
+    <string name="wp_v_rain">Pluie sur la vitre</string>
+    <string name="wp_v_city">Ville la nuit</string>
+    <string name="wp_v_aurora">Aurores boréales</string>
+    <string name="wp_v_golden">Eau dorée</string>
+    <string name="wp_v_downloading">Téléchargement de %1$s…</string>
+    <string name="wp_v_failed">Impossible de télécharger cette scène. Vérifiez la connexion Internet et réessayez.</string>
+    <string name="profile_birthday_add">Ajouter un anniversaire pour %1$s…</string>
+    <string name="profile_birthday_set">Anniversaire de %1$s : %2$s</string>
+    <string name="birthday_month_title">Mois d\'anniversaire</string>
+    <string name="birthday_day_title">Jour d\'anniversaire</string>
+    <string name="birthday_none">Pas d\'anniversaire</string>
+    <string name="fx_birthday">Joyeux anniversaire, %1$s</string>
+    <string name="fx_birthday_plain">Joyeux anniversaire</string>
 </resources>

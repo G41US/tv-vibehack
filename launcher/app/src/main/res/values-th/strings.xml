@@ -364,11 +364,19 @@
     <string name="fx_eid">อีดมุบาร็อก</string>
     <string name="fx_diwali">สุขสันต์วันดิวาลี</string>
     <string name="fx_lunar">สุขสันต์วันตรุษจีน</string>
-    <string name="games_title">เกม</string>
-    <string name="games_snake_desc">กิน โต และอย่าชนตัวเอง</string>
-    <string name="games_2048_desc">เลื่อนไทล์ รวมตัวเลข ไปให้ถึง 2048</string>
-    <string name="games_score">คะแนน %1$d</string>
-    <string name="games_best">สูงสุด %1$d</string>
-    <string name="games_over">จบเกม · กด OK เพื่อเล่นอีกครั้ง</string>
-    <string name="games_start">กด OK หรือปุ่มลูกศรเพื่อเริ่ม</string>
+    <string name="wp_v_tag">เคลื่อนไหว</string>
+    <string name="wp_v_ocean">คลื่นทะเล</string>
+    <string name="wp_v_rain">ฝนบนหน้าต่าง</string>
+    <string name="wp_v_city">เมืองยามค่ำคืน</string>
+    <string name="wp_v_aurora">แสงเหนือ</string>
+    <string name="wp_v_golden">ผืนน้ำสีทอง</string>
+    <string name="wp_v_downloading">กำลังดาวน์โหลด %1$s…</string>
+    <string name="wp_v_failed">ดาวน์โหลดฉากนี้ไม่ได้ ตรวจสอบการเชื่อมต่ออินเทอร์เน็ตแล้วลองอีกครั้ง</string>
+    <string name="profile_birthday_add">เพิ่มวันเกิดของ %1$s…</string>
+    <string name="profile_birthday_set">วันเกิดของ %1$s: %2$s</string>
+    <string name="birthday_month_title">เดือนเกิด</string>
+    <string name="birthday_day_title">วันที่เกิด</string>
+    <string name="birthday_none">ไม่มีวันเกิด</string>
+    <string name="fx_birthday">สุขสันต์วันเกิด %1$s</string>
+    <string name="fx_birthday_plain">สุขสันต์วันเกิด</string>
 </resources>
