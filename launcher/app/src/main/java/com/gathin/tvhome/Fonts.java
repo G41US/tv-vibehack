@@ -42,7 +42,7 @@ final class Fonts {
 
     /** The font as a file (Typeface.Builder can't take a font resource with a weight). */
     private static File file(Context c) throws Exception {
-        File f = new File(c.getCodeCacheDir(), "outfit.ttf")   // emptied by Android on every update;
+        File f = new File(c.getCodeCacheDir(), "outfit.ttf");   // emptied by Android on every update
         if (f.length() > 0) return f;
         File tmp = new File(f.getPath() + ".tmp");
         try (InputStream in = c.getResources().openRawResource(R.font.outfit); OutputStream out = new FileOutputStream(tmp)) {
