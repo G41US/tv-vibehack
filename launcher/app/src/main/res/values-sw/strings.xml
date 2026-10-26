@@ -393,4 +393,5 @@
     <string name="profile_avatar_add">Chagua picha ya %1$s…</string>
     <string name="profile_avatar_set">Picha ya %1$s: %2$s</string>
     <string name="avatar_title">Picha ya %1$s</string>
+    <string name="chk_startup">Kuwashwa kwa mwisho</string>
 </resources>

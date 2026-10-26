@@ -150,6 +150,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SafeStart.begin(this);   // counts crashes; two in a row: safe mode (effects off)
+        BootTrace.watch(this);
         BootTrace.mark(this, "TV Home started", android.os.Process.getStartElapsedRealtime());
         BootTrace.mark(this, "home opening");
         setContentView(R.layout.activity_main);

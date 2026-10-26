@@ -393,4 +393,5 @@
     <string name="profile_avatar_add">Pilih gambar untuk %1$s…</string>
     <string name="profile_avatar_set">Gambar %1$s: %2$s</string>
     <string name="avatar_title">Gambar untuk %1$s</string>
+    <string name="chk_startup">Penyalaan terakhir</string>
 </resources>

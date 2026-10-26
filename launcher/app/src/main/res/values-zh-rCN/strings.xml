@@ -393,4 +393,5 @@
     <string name="profile_avatar_add">为 %1$s 选择头像…</string>
     <string name="profile_avatar_set">%1$s 的头像：%2$s</string>
     <string name="avatar_title">为 %1$s 选一个头像</string>
+    <string name="chk_startup">上次开机</string>
 </resources>
