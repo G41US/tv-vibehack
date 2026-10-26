@@ -536,7 +536,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (splash != null && splash.active()) {
             // Start-up: the app list asks Android for every app, slow while the box is still starting
             // (2.7 s). Draw the animation's first frame first; the list fills in behind it.
-            afterFirstFrame(() -> {
+            splash.whenPlaying(() -> {
                 adapter.reload();
                 grid.post(() -> focusTile(Math.max(0, adapter.positionOf(returnKey))));
             });

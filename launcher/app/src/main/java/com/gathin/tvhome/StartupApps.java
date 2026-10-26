@@ -148,6 +148,29 @@ final class StartupApps {
                 long ms = (long) (Double.parseDouble(m.group(1)) * 1000);
                 for (String[] step : ANDROID_STEPS) if (line.contains(step[0])) BootTrace.mark(c, step[1], ms);
             }
+            // What Android put on screen, and why it started TV Home, between its logo and Home.
+            String acts = adb.shell("logcat -b events -d -v monotonic 2>/dev/null | grep -E "
+                    + "'(wm|am)_(create|finish)_activity|am_proc_start' | head -120");
+            Pattern ev = Pattern.compile("^\\s*(\\d+\\.\\d+).*?\\b(wm_create_activity|am_create_activity|wm_finish_activity|am_finish_activity|am_proc_start): \\[(.*)\\]");
+            int n = 0;
+            for (String line : acts.split("\n")) {
+                Matcher m = ev.matcher(line);
+                if (!m.find() || n >= 10) continue;
+                long ms = (long) (Double.parseDouble(m.group(1)) * 1000);
+                if (ms < 15_000 || ms > 40_000) continue;
+                String[] f = m.group(3).split(",");
+                if (f.length < 5) continue;
+                String what;
+                if (m.group(2).equals("am_proc_start")) {
+                    if (!f[3].trim().equals(c.getPackageName())) continue;
+                    what = "TV Home started for " + f[4].trim();
+                } else {
+                    String comp = f[3].trim().replaceAll(".*/\\.?", "").replaceAll(".*\\.", "");
+                    what = (m.group(2).contains("create") ? "opened " : "closed ") + comp;
+                }
+                BootTrace.mark(c, what, ms);
+                n++;
+            }
         } catch (Exception ignored) {
         }
     }
