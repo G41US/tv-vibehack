@@ -175,9 +175,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
             @Override
             public void onDraw() {
-                if (once) return;
+                if (once || (splash != null && splash.active())) return;
                 once = true;
-                root.post(() -> BootTrace.mark(MainActivity.this, "home on screen"));
+                root.post(() -> {
+                    Splash.homeSeen(MainActivity.this);
+                    BootTrace.mark(MainActivity.this, "home on screen");
+                });
             }
         });
         config = cfg;
