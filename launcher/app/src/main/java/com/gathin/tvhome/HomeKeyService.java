@@ -104,6 +104,22 @@ public class HomeKeyService extends AccessibilityService {
             else registerReceiver(volumeReceiver, f);
         }
         if (songPopup == null) songPopup = new SongPopup(this);
+        if (!shutdownWatch) {   // Faster start-up: hold the picked apps back while the box shuts down
+            shutdownWatch = true;
+            android.content.BroadcastReceiver shutdown = new android.content.BroadcastReceiver() {
+                @Override
+                public void onReceive(android.content.Context c, Intent i) {
+                    PendingResult done = goAsync();
+                    new Thread(() -> {
+                        StartupApps.hold(c);
+                        done.finish();
+                    }, "startup-hold").start();
+                }
+            };
+            android.content.IntentFilter sf = new android.content.IntentFilter(Intent.ACTION_SHUTDOWN);
+            if (android.os.Build.VERSION.SDK_INT >= 33) registerReceiver(shutdown, sf, RECEIVER_EXPORTED);
+            else registerReceiver(shutdown, sf);
+        }
         live = this;
         lastInput = SystemClock.elapsedRealtime();
         idleHandler.removeCallbacks(idleCheck);
@@ -124,6 +140,7 @@ public class HomeKeyService extends AccessibilityService {
                 && android.provider.Settings.Secure.getInt(getContentResolver(), "user_setup_complete", 0) == 1;
     }
 
+    private boolean shutdownWatch;
     private long lastSample;
     private long pausedUntil;
     private int failures;

@@ -394,4 +394,11 @@
     <string name="profile_avatar_set">Bild von %1$s: %2$s</string>
     <string name="avatar_title">Ein Bild für %1$s</string>
     <string name="chk_startup">Letzter Start</string>
+    <string name="fs_title">Schnellerer Start</string>
+    <string name="fs_checking">Apps werden gesucht, die mit der Box starten…</string>
+    <string name="fs_none">Auf dieser Box gibt es keine Apps zum Zurückhalten.</string>
+    <string name="fs_held">Zurückgehalten</string>
+    <string name="fs_starts">Startet mit der Box</string>
+    <string name="fs_count">%1$d zurückgehalten</string>
+    <string name="fs_explain">Diese Apps starten bei jedem Einschalten der Box. Zurückgehaltene Apps werden beim Herunterfahren ausgeschaltet und direkt nach der TV-Home-Animation wieder eingeschaltet, damit die Box schneller startet.</string>
 </resources>

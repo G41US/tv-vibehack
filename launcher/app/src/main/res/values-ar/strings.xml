@@ -394,4 +394,11 @@
     <string name="profile_avatar_set">صورة %1$s: %2$s</string>
     <string name="avatar_title">صورة لـ %1$s</string>
     <string name="chk_startup">آخر تشغيل</string>
+    <string name="fs_title">تشغيل أسرع</string>
+    <string name="fs_checking">جارٍ البحث عن التطبيقات التي تبدأ مع الجهاز…</string>
+    <string name="fs_none">لا توجد تطبيقات يمكن تأجيلها على هذا الجهاز.</string>
+    <string name="fs_held">مؤجَّل</string>
+    <string name="fs_starts">يبدأ مع الجهاز</string>
+    <string name="fs_count">%1$d مؤجَّلة</string>
+    <string name="fs_explain">تبدأ هذه التطبيقات في كل مرة يعمل فيها الجهاز. التطبيقات التي تؤجلها تُوقَف عند إيقاف تشغيل الجهاز وتُعاد مباشرة بعد رسوم TV Home المتحركة، فيبدأ الجهاز أسرع.</string>
 </resources>

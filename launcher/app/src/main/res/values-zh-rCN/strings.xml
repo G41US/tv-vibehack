@@ -394,4 +394,11 @@
     <string name="profile_avatar_set">%1$s 的头像：%2$s</string>
     <string name="avatar_title">为 %1$s 选一个头像</string>
     <string name="chk_startup">上次开机</string>
+    <string name="fs_title">更快开机</string>
+    <string name="fs_checking">正在检查哪些应用随盒子启动…</string>
+    <string name="fs_none">这个盒子上没有可以推迟的应用。</string>
+    <string name="fs_held">已推迟</string>
+    <string name="fs_starts">随盒子启动</string>
+    <string name="fs_count">已推迟 %1$d 个</string>
+    <string name="fs_explain">这些应用每次开机都会启动。你推迟的应用会在盒子关机时关闭，并在 TV Home 动画播放后立即重新打开，让盒子开机更快。</string>
 </resources>

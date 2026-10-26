@@ -394,4 +394,11 @@
     <string name="profile_avatar_set">Imatge de %1$s: %2$s</string>
     <string name="avatar_title">Una imatge per a %1$s</string>
     <string name="chk_startup">Darrera engegada</string>
+    <string name="fs_title">Engegada més ràpida</string>
+    <string name="fs_checking">Cercant apps que s\'engeguen amb l\'aparell…</string>
+    <string name="fs_none">No hi ha apps per retardar en aquest aparell.</string>
+    <string name="fs_held">Retardada</string>
+    <string name="fs_starts">S\'engega amb l\'aparell</string>
+    <string name="fs_count">%1$d retardada(es)</string>
+    <string name="fs_explain">Aquestes apps s\'engeguen cada cop que s\'encén l\'aparell. Les que retardis es desactiven en apagar-lo i es tornen a activar just després de l\'animació de TV Home, perquè arrenqui més ràpid.</string>
 </resources>

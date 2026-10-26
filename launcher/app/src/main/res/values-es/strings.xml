@@ -394,4 +394,11 @@
     <string name="profile_avatar_set">Imagen de %1$s: %2$s</string>
     <string name="avatar_title">Una imagen para %1$s</string>
     <string name="chk_startup">Último arranque</string>
+    <string name="fs_title">Arranque más rápido</string>
+    <string name="fs_checking">Buscando apps que se inician con el aparato…</string>
+    <string name="fs_none">No hay apps que retrasar en este aparato.</string>
+    <string name="fs_held">Retrasada</string>
+    <string name="fs_starts">Se inicia con el aparato</string>
+    <string name="fs_count">%1$d retrasada(s)</string>
+    <string name="fs_explain">Estas apps se inician cada vez que se enciende el aparato. Las que retrases se desactivan al apagarlo y se vuelven a activar justo después de la animación de TV Home, así arranca más rápido.</string>
 </resources>

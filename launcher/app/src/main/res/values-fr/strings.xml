@@ -401,4 +401,11 @@
     <string name="profile_avatar_set">Image de %1$s : %2$s</string>
     <string name="avatar_title">Une image pour %1$s</string>
     <string name="chk_startup">Dernier démarrage</string>
+    <string name="fs_title">Démarrage plus rapide</string>
+    <string name="fs_checking">Recherche des applis lancées au démarrage…</string>
+    <string name="fs_none">Aucune appli à retenir sur ce boîtier.</string>
+    <string name="fs_held">Retenue</string>
+    <string name="fs_starts">Démarre avec le boîtier</string>
+    <string name="fs_count">%1$d retenue(s)</string>
+    <string name="fs_explain">Ces applis démarrent à chaque mise en marche du boîtier. Celles que vous retenez sont désactivées pendant l\'arrêt, puis réactivées juste après l\'animation de TV Home : le boîtier démarre plus vite.</string>
 </resources>
