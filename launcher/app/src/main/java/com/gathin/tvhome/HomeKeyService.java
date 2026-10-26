@@ -93,6 +93,7 @@ public class HomeKeyService extends AccessibilityService {
     @Override
     protected void onServiceConnected() {
         takeover = getResources().getStringArray(R.array.takeover_packages);
+        BootTrace.watch(this);
         BootTrace.mark(this, "Home button service");
         if (volume == null) {
             volume = new VolumeOverlay(this);

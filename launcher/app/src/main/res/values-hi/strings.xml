@@ -393,4 +393,5 @@
     <string name="profile_avatar_add">%1$s के लिए तस्वीर चुनें…</string>
     <string name="profile_avatar_set">%1$s की तस्वीर: %2$s</string>
     <string name="avatar_title">%1$s के लिए एक तस्वीर</string>
+    <string name="chk_startup">पिछली बार चालू होना</string>
 </resources>

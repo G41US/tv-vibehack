@@ -393,4 +393,5 @@
     <string name="profile_avatar_add">เลือกรูปสำหรับ %1$s…</string>
     <string name="profile_avatar_set">รูปของ %1$s: %2$s</string>
     <string name="avatar_title">รูปสำหรับ %1$s</string>
+    <string name="chk_startup">การเปิดครั้งล่าสุด</string>
 </resources>

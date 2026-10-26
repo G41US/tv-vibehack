@@ -138,6 +138,10 @@ final class TvCheck {
                 + "- Language/region: " + java.util.Locale.getDefault().toLanguageTag() + "\n"
                 + report + (problem != null ? "- Last problem: " + problem + "\n" : "")
                 + "\nWhat isn't working? (write here)\n";
+        String trace = BootTrace.text(a) + "\n\n" + a.getString(R.string.hs_startup) + ": " + (Splash.on(a) ? Splash.last(a) : "off");
+        rows.add(new GlassMenu.Row(R.drawable.ic_s_speed, a.getString(R.string.chk_startup), null,
+                () -> GlassMenu.message(a, a.getString(R.string.chk_startup), trace, new String[]{a.getString(android.R.string.ok)}, w -> {
+                })));
         rows.add(new GlassMenu.Row(R.drawable.ic_s_open, a.getString(R.string.chk_report), a.getString(R.string.chk_report_value),
                 () -> showReport(a, Build.MANUFACTURER + " " + Build.MODEL, text)));
         LinearLayout hero = GlassMenu.hero(a, Build.MANUFACTURER + " " + Build.MODEL,

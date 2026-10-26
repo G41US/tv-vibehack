@@ -400,4 +400,5 @@
     <string name="profile_avatar_add">Choisir une image pour %1$s…</string>
     <string name="profile_avatar_set">Image de %1$s : %2$s</string>
     <string name="avatar_title">Une image pour %1$s</string>
+    <string name="chk_startup">Dernier démarrage</string>
 </resources>

@@ -30,6 +30,48 @@ final class BootTrace {
         p.edit().putString("text", text).putLong("at", now).apply();
     }
 
+    private static boolean watching;
+
+    /**
+     * While the box is starting, notices when TV Home's main thread is held up for more than a second
+     * and records where ("busy 14.8s in TvInputManager.getTvInputList (MainActivity.updateInputsButton)").
+     */
+    static synchronized void watch(Context c) {
+        if (watching || SystemClock.elapsedRealtime() > WINDOW_MS) return;
+        watching = true;
+        Context app = c.getApplicationContext();
+        android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
+        Thread mainThread = android.os.Looper.getMainLooper().getThread();
+        new Thread(() -> {
+            int found = 0;
+            while (SystemClock.elapsedRealtime() < WINDOW_MS && found < 4) {
+                java.util.concurrent.atomic.AtomicLong done = new java.util.concurrent.atomic.AtomicLong();
+                long sent = SystemClock.elapsedRealtime();
+                main.post(() -> done.set(SystemClock.elapsedRealtime()));
+                SystemClock.sleep(1000);
+                if (done.get() != 0) continue;
+                String where = where(mainThread.getStackTrace());
+                while (done.get() == 0 && SystemClock.elapsedRealtime() < WINDOW_MS) SystemClock.sleep(100);
+                long end = done.get() != 0 ? done.get() : SystemClock.elapsedRealtime();
+                mark(app, String.format(java.util.Locale.US, "busy %.1fs in %s from", (end - sent) / 1000f, where), sent);
+                found++;
+            }
+        }, "boot-watch").start();
+    }
+
+    /** The call it's stuck in, and the TV Home code that made it. */
+    private static String where(StackTraceElement[] st) {
+        if (st.length == 0) return "?";
+        String top = st[0].getClassName().replaceAll(".*\\.", "") + "." + st[0].getMethodName();
+        for (StackTraceElement e : st) {
+            if (e.getClassName().startsWith("com.gathin")) {
+                String ours = e.getClassName().replaceAll(".*\\.", "") + "." + e.getMethodName();
+                return ours.equals(top) ? top : top + " (" + ours + ")";
+            }
+        }
+        return top;
+    }
+
     static String text(Context c) {
         String t = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getString("text", "");
         return t.isEmpty() ? "not recorded yet" : t;
