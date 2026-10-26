@@ -15,7 +15,9 @@ import java.util.List;
  */
 final class HomeSettings {
 
-    static final String PREFS = "look";
+    static final String PREFS = "look", KEY_DOCK = "dock_size";
+    /** Dock sizes offered in Look; every row of apps follows it. */
+    static final int[] DOCK_SIZES = {3, 4, 5, 6};
     /** Row of the Look page to reopen after TV Home redraws at a new text size; -1 none. */
     static int reopenLook = -1;
 
@@ -108,6 +110,20 @@ final class HomeSettings {
         rows.add(new GlassMenu.Row(R.drawable.ic_s_text, s(R.string.tv_text), s(TextScale.NAMES[text]), () -> {
             TextScale.setLevel(act, (text + 1) % TextScale.LEVELS.length);
             reopenLook = 3;   // TV Home redraws at the new size, then this page comes back
+            act.recreate();
+        }));
+        boolean festive = Festive.on(act);
+        rows.add(new GlassMenu.Row(R.drawable.ic_m_wallpaper, s(R.string.hs_festive), onOff(festive), () -> {
+            prefs(act).edit().putBoolean("festive", !festive).apply();
+            reopenLook = 4;
+            act.recreate();
+        }));
+        int dock = MainActivity.COLUMNS;
+        rows.add(new GlassMenu.Row(R.drawable.ic_m_apps, s(R.string.hs_dock_size), s(R.string.hs_dock_size_value, dock), () -> {
+            int i = 0;
+            for (int k = 0; k < DOCK_SIZES.length; k++) if (DOCK_SIZES[k] == dock) i = k;
+            prefs(act).edit().putInt(KEY_DOCK, DOCK_SIZES[(i + 1) % DOCK_SIZES.length]).apply();
+            reopenLook = 5;   // TV Home redraws with the new dock, then this page comes back
             act.recreate();
         }));
         page(R.string.hs_look, rows, focus);

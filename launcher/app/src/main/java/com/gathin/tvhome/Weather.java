@@ -32,23 +32,23 @@ final class Weather {
     }
 
     static final String AUTO = "auto", OFF = "off";
-    /** Cities offered in the picker: name, latitude, longitude. */
+    /** Cities offered in the picker: name, latitude, longitude, country. */
     static final String[][] CITIES = {
-            {"Lagos", "6.5244", "3.3792"}, {"Abuja", "9.0765", "7.3986"},
-            {"Port Harcourt", "4.8156", "7.0498"}, {"Ibadan", "7.3775", "3.9470"},
-            {"Kano", "12.0022", "8.5920"}, {"Uyo", "5.0377", "7.9128"},
-            {"Enugu", "6.4584", "7.5464"}, {"Benin City", "6.3350", "5.6037"},
-            {"Calabar", "4.9757", "8.3417"}, {"Owerri", "5.4840", "7.0351"},
-            {"Kaduna", "10.5105", "7.4165"}, {"Jos", "9.8965", "8.8583"},
+            {"Lagos", "6.5244", "3.3792", "NG"}, {"Abuja", "9.0765", "7.3986", "NG"},
+            {"Port Harcourt", "4.8156", "7.0498", "NG"}, {"Ibadan", "7.3775", "3.9470", "NG"},
+            {"Kano", "12.0022", "8.5920", "NG"}, {"Uyo", "5.0377", "7.9128", "NG"},
+            {"Enugu", "6.4584", "7.5464", "NG"}, {"Benin City", "6.3350", "5.6037", "NG"},
+            {"Calabar", "4.9757", "8.3417", "NG"}, {"Owerri", "5.4840", "7.0351", "NG"},
+            {"Kaduna", "10.5105", "7.4165", "NG"}, {"Jos", "9.8965", "8.8583", "NG"},
             // Other countries where Airtel sells the box
-            {"Antananarivo", "-18.8792", "47.5079"}, {"Brazzaville", "-4.2634", "15.2429"},
-            {"Dar es Salaam", "-6.7924", "39.2083"}, {"Kampala", "0.3476", "32.5825"},
-            {"Kigali", "-1.9441", "30.0619"}, {"Kinshasa", "-4.4419", "15.2663"},
-            {"Libreville", "0.4162", "9.4673"}, {"Lilongwe", "-13.9626", "33.7741"},
-            {"Lubumbashi", "-11.6876", "27.5026"}, {"Lusaka", "-15.3875", "28.3228"},
-            {"Mombasa", "-4.0435", "39.6682"}, {"N'Djamena", "12.1348", "15.0557"},
-            {"Nairobi", "-1.2864", "36.8172"}, {"Niamey", "13.5116", "2.1254"},
-            {"Pointe-Noire", "-4.7761", "11.8635"}, {"Victoria", "-4.6191", "55.4513"},
+            {"Antananarivo", "-18.8792", "47.5079", "MG"}, {"Brazzaville", "-4.2634", "15.2429", "CG"},
+            {"Dar es Salaam", "-6.7924", "39.2083", "TZ"}, {"Kampala", "0.3476", "32.5825", "UG"},
+            {"Kigali", "-1.9441", "30.0619", "RW"}, {"Kinshasa", "-4.4419", "15.2663", "CD"},
+            {"Libreville", "0.4162", "9.4673", "GA"}, {"Lilongwe", "-13.9626", "33.7741", "MW"},
+            {"Lubumbashi", "-11.6876", "27.5026", "CD"}, {"Lusaka", "-15.3875", "28.3228", "ZM"},
+            {"Mombasa", "-4.0435", "39.6682", "KE"}, {"N'Djamena", "12.1348", "15.0557", "TD"},
+            {"Nairobi", "-1.2864", "36.8172", "KE"}, {"Niamey", "13.5116", "2.1254", "NE"},
+            {"Pointe-Noire", "-4.7761", "11.8635", "CG"}, {"Victoria", "-4.6191", "55.4513", "SC"},
     };
 
     private static final String PREFS = "weather", KEY_PLACE = "place", KEY_LINE = "line2", KEY_TIME = "time",
@@ -131,6 +131,20 @@ final class Weather {
             default:
                 return false;
         }
+    }
+
+    /** Country code of the weather's place ("NG"), or the TV's region when it isn't known. */
+    static String country(Context ctx) {
+        SharedPreferences p = ctx.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        String place = p.getString(KEY_PLACE, AUTO), cc = "";
+        if (place.indexOf('|') > 0) {
+            String[] parts = place.split("\\|");
+            if (parts.length > 3) cc = parts[3];
+        } else {
+            for (String[] c : CITIES) if (c[0].equals(place)) cc = c[3];
+            if (cc.isEmpty()) cc = p.getString(KEY_AUTO_COUNTRY, "");
+        }
+        return cc.isEmpty() ? Locale.getDefault().getCountry() : cc.toUpperCase(Locale.ROOT);
     }
 
     /** "auto", "off", a city name from CITIES, or a searched city ("name|lat|lon"). */
@@ -294,7 +308,7 @@ final class Weather {
             city = picked[0];
             lat = Double.parseDouble(picked[1]);
             lon = Double.parseDouble(picked[2]);
-            if (picked.length > 3) country = picked[3];   // searched city; the built-in list is all °C, km/h
+            if (picked.length > 3) country = picked[3];
         } else {
             SharedPreferences p = prefs();
             if (System.currentTimeMillis() - p.getLong(KEY_AUTO_TIME, 0) > AUTO_PLACE_MS || autoCity() == null
