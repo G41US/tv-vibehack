@@ -25,9 +25,9 @@ import java.util.regex.Pattern;
  * same debugging connection as "Set up on this TV". If switching back on fails, it's retried every
  * time TV Home starts.
  *
- * "Pick for me" (on by default, on every TV) holds back what is safe to: apps that start with the box
- * but aren't a home screen, keyboard, accessibility service, VPN, TV input, screensaver, device admin,
- * notification reader, Chromecast or the voice assistant. Nothing is held back on a box until TV Home
+ * "Pick for me" (on by default, on every TV) holds back what is safe to: the box's other home screens,
+ * and apps that start with the box but aren't a keyboard, accessibility service, VPN, TV input,
+ * screensaver, device admin, notification reader, Chromecast or the voice assistant. Nothing is held back on a box until TV Home
  * has seen, after a restart, that it can reach the debugging connection to switch apps back on.
  */
 final class StartupApps {
@@ -35,8 +35,7 @@ final class StartupApps {
     private static final String PREFS = "startup_apps", KEY_HELD = "held", KEY_PAUSED = "paused", KEY_AUTO = "auto",
             KEY_PROVEN = "proven";
     /** Held back by "Pick for me" never: Chromecast built-in and the voice assistant should work at once. */
-    private static final String[] KEEP_RUNNING = {"com.google.android.apps.mediashell", "com.google.android.katniss",
-            "com.google.android.apps.tv.launcherx", "com.google.android.tvlauncher"};
+    private static final String[] KEEP_RUNNING = {"com.google.android.apps.mediashell", "com.google.android.katniss"};
     private static volatile boolean releasing;
     /** Parts of Android and the box that must always start (remote, keyboard, Play services, chips). */
     private static final String[] NEVER = {"android", "com.android.", "com.google.android.gms",
@@ -219,12 +218,15 @@ final class StartupApps {
         String keep = String.valueOf(Settings.Secure.getString(c.getContentResolver(), Settings.Secure.ENABLED_INPUT_METHODS))
                 + ":" + Settings.Secure.getString(c.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
         PackageManager pm = c.getPackageManager();
-        // What "Pick for me" leaves alone: home screens, admins, notification readers, the screensaver.
+        // What "Pick for me" leaves alone: admins, notification readers, the screensaver, Cast, voice.
         Set<String> busy = new HashSet<>(java.util.Arrays.asList(KEEP_RUNNING));
+        // The box's own home screens ARE held back: with them off while the box starts, Android opens
+        // TV Home as soon as it can (TV check showed Android opening Airtel's home first, ~7 s lost).
+        // They come back with everything else right after the animation.
         android.content.Intent home = new android.content.Intent(android.content.Intent.ACTION_MAIN)
                 .addCategory(android.content.Intent.CATEGORY_HOME);
         for (android.content.pm.ResolveInfo r : pm.queryIntentActivities(home, PackageManager.MATCH_DISABLED_COMPONENTS)) {
-            busy.add(r.activityInfo.packageName);
+            pkgs.add(r.activityInfo.packageName);
         }
         android.app.admin.DevicePolicyManager dpm = c.getSystemService(android.app.admin.DevicePolicyManager.class);
         if (dpm != null && dpm.getActiveAdmins() != null) {

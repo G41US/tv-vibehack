@@ -125,6 +125,8 @@ public class HomeKeyService extends AccessibilityService {
         idleHandler.removeCallbacks(idleCheck);
         idleHandler.postDelayed(idleCheck, IDLE_CHECK_MS);
         // Just updated (SelfHeal.Receiver): come back to this home screen instead of the stock one.
+        // Safety net: whatever happens to Home, held-back apps (and the box's own home screen) come back.
+        if (SystemClock.elapsedRealtime() < 180_000) idleHandler.postDelayed(() -> StartupApps.release(this), 60_000);
         if (takeGoHomeFlag(this)) goHome();
         else if (SystemClock.elapsedRealtime() < 180_000 && !MainActivity.created && setupDone()) {
             // The box is starting and Home isn't open yet: open it now rather than when Android gets
