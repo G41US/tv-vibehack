@@ -250,6 +250,9 @@ final class HomeSettings {
         rows.add(new GlassMenu.Row(R.drawable.ic_m_setup, s(R.string.ss_menu_quick), null, act.setupPanel::show));
         rows.add(new GlassMenu.Row(R.drawable.ic_s_play, s(R.string.ss_menu_self), null, () -> SelfSetup.show(act)));
         rows.add(new GlassMenu.Row(R.drawable.ic_s_shield, s(R.string.chk_title), null, () -> TvCheck.show(act, false)));
+        int held = StartupApps.held(act).size();
+        rows.add(new GlassMenu.Row(R.drawable.ic_s_speed, s(R.string.fs_title), held == 0 ? null : s(R.string.fs_count, held),
+                () -> StartupApps.show(act, () -> setup(4))));
         page(R.string.hs_setup, rows, focus);
     }
 }

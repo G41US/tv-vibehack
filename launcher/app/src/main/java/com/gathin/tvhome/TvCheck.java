@@ -123,6 +123,8 @@ final class TvCheck {
         line(report, "Debugging (port 5555)", debug);
         report.append("- Start-up animation: ").append(Splash.on(a) ? Splash.last(a) : "off").append('\n');
         report.append("- Last start-up: ").append(BootTrace.text(a)).append('\n');
+        report.append("- Faster start-up: ").append(StartupApps.held(a).size()).append(" held back, ")
+                .append(StartupApps.paused(a).size()).append(" still off").append('\n');
 
         ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
         ((ActivityManager) a.getSystemService(Context.ACTIVITY_SERVICE)).getMemoryInfo(mi);

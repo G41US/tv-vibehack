@@ -400,4 +400,11 @@
     <string name="profile_avatar_set">Picture for %1$s: %2$s</string>
     <string name="avatar_title">A picture for %1$s</string>
     <string name="chk_startup">Last start-up</string>
+    <string name="fs_title">Faster start-up</string>
+    <string name="fs_checking">Checking which apps start with the box…</string>
+    <string name="fs_none">No apps to hold back on this box.</string>
+    <string name="fs_held">Held back</string>
+    <string name="fs_starts">Starts with the box</string>
+    <string name="fs_count">%1$d held back</string>
+    <string name="fs_explain">These apps start every time the box turns on. Apps you hold back are switched off while the box shuts down, and switched back on right after the TV Home animation, so the box starts faster.</string>
 </resources>

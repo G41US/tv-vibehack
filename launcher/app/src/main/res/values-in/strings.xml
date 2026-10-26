@@ -394,4 +394,11 @@
     <string name="profile_avatar_set">Gambar %1$s: %2$s</string>
     <string name="avatar_title">Gambar untuk %1$s</string>
     <string name="chk_startup">Penyalaan terakhir</string>
+    <string name="fs_title">Mulai lebih cepat</string>
+    <string name="fs_checking">Memeriksa aplikasi yang berjalan saat box menyala…</string>
+    <string name="fs_none">Tidak ada aplikasi yang bisa ditunda di box ini.</string>
+    <string name="fs_held">Ditunda</string>
+    <string name="fs_starts">Berjalan saat box menyala</string>
+    <string name="fs_count">%1$d ditunda</string>
+    <string name="fs_explain">Aplikasi ini berjalan setiap kali box menyala. Aplikasi yang Anda tunda dimatikan saat box dimatikan, lalu dinyalakan lagi tepat setelah animasi TV Home, sehingga box menyala lebih cepat.</string>
 </resources>

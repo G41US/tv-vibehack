@@ -181,6 +181,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 once = true;
                 root.post(() -> {
                     Splash.homeSeen(MainActivity.this);
+                    StartupApps.release(MainActivity.this);   // held-back apps back on after the animation
                     BootTrace.mark(MainActivity.this, "home on screen");
                 });
             }

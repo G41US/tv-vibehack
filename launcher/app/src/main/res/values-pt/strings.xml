@@ -394,4 +394,11 @@
     <string name="profile_avatar_set">Imagem de %1$s: %2$s</string>
     <string name="avatar_title">Uma imagem para %1$s</string>
     <string name="chk_startup">Último arranque</string>
+    <string name="fs_title">Arranque mais rápido</string>
+    <string name="fs_checking">A verificar que apps arrancam com a box…</string>
+    <string name="fs_none">Não há apps para adiar nesta box.</string>
+    <string name="fs_held">Adiada</string>
+    <string name="fs_starts">Arranca com a box</string>
+    <string name="fs_count">%1$d adiada(s)</string>
+    <string name="fs_explain">Estas apps arrancam sempre que a box liga. As que adiar são desativadas quando a box desliga e reativadas logo após a animação do TV Home, para a box arrancar mais depressa.</string>
 </resources>

@@ -394,4 +394,11 @@
     <string name="profile_avatar_set">%1$s की तस्वीर: %2$s</string>
     <string name="avatar_title">%1$s के लिए एक तस्वीर</string>
     <string name="chk_startup">पिछली बार चालू होना</string>
+    <string name="fs_title">तेज़ शुरुआत</string>
+    <string name="fs_checking">देखा जा रहा है कि कौन से ऐप बॉक्स के साथ शुरू होते हैं…</string>
+    <string name="fs_none">इस बॉक्स पर रोकने लायक कोई ऐप नहीं है।</string>
+    <string name="fs_held">रोका गया</string>
+    <string name="fs_starts">बॉक्स के साथ शुरू होता है</string>
+    <string name="fs_count">%1$d रोके गए</string>
+    <string name="fs_explain">ये ऐप हर बार बॉक्स चालू होने पर शुरू होते हैं। जिन्हें आप रोकते हैं, वे बॉक्स बंद होते समय बंद किए जाते हैं और TV Home एनिमेशन के ठीक बाद फिर चालू हो जाते हैं, ताकि बॉक्स जल्दी शुरू हो।</string>
 </resources>
