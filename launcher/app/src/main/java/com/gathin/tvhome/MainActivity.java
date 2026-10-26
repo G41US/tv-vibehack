@@ -150,6 +150,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SafeStart.begin(this);   // counts crashes; two in a row: safe mode (effects off)
+        created = true;
         BootTrace.watch(this);
         BootTrace.mark(this, "TV Home started", android.os.Process.getStartElapsedRealtime());
         BootTrace.mark(this, "home opening");
@@ -547,6 +548,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     // ---- night mode, moving wallpaper, sounds --------------------------------------------------
 
+    /** A home screen has been opened in this process (HomeKeyService opens one early at start-up). */
+    static volatile boolean created;
     private View nightShade;
     private Splash splash;
     private MoodLight mood;
