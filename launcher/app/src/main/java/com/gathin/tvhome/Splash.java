@@ -67,6 +67,11 @@ final class Splash {
         SharedPreferences.Editor e = p.edit().putLong(KEY_UP, up);
         if (up < was) e.putBoolean(KEY_DONE, false);   // the box restarted
         e.commit();   // written now: TV Home's process can be killed and restarted while the box starts
+        if (a.getIntent() != null && a.getIntent().getBooleanExtra(BootHome.EXTRA_PLAYED, false)) {
+            // Already played by the start-up screen, straight after the boot logo.
+            p.edit().putBoolean(KEY_DONE, true).putString(KEY_LAST, "played (start-up screen)").commit();
+            return null;
+        }
         // Once per start, and never once Home has been seen (it would look like a glitch after Home).
         if (p.getBoolean(KEY_DONE, false)) return null;
         p.edit().putBoolean(KEY_DONE, true).commit();
@@ -146,7 +151,7 @@ final class Splash {
     }
 
     /** The boot logo is still up: not yet told to stop (some boxes keep its service "running" long after). */
-    private static boolean bootAnimating() {
+    static boolean bootAnimating() {
         return !"1".equals(prop("service.bootanim.exit")) && "running".equals(prop("init.svc.bootanim"));
     }
 
