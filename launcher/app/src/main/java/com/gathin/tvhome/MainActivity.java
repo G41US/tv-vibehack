@@ -150,6 +150,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SafeStart.begin(this);   // counts crashes; two in a row: safe mode (effects off)
+        BootTrace.mark(this, "TV Home started", android.os.Process.getStartElapsedRealtime());
+        BootTrace.mark(this, "home opening");
         setContentView(R.layout.activity_main);
         density = getResources().getDisplayMetrics().density;
         // config.xml, overlaid by config.json from a pushed theme (see Config and tools/theme.sh).
@@ -168,6 +170,16 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
         root = findViewById(R.id.root);
         splash = Splash.maybeShow(this);   // first Home after the box starts: the logo animation
+        root.getViewTreeObserver().addOnDrawListener(new android.view.ViewTreeObserver.OnDrawListener() {
+            private boolean once;
+
+            @Override
+            public void onDraw() {
+                if (once) return;
+                once = true;
+                root.post(() -> BootTrace.mark(MainActivity.this, "home on screen"));
+            }
+        });
         config = cfg;
         updater = new Updater(this);
         setupPanel = new SetupPanel(this, updater);
@@ -575,9 +587,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     @Override
     public boolean dispatchKeyEvent(KeyEvent e) {
         if (splash != null && splash.active()) {   // any button skips the start-up animation
-            boolean onScreen = splash.visible();
-            if (!onScreen || e.getAction() == KeyEvent.ACTION_UP) splash.end();
-            if (onScreen) return true;
+            if (e.getAction() == KeyEvent.ACTION_UP) splash.end();
+            return true;
         }
         Sounds.onKey(this, e);
         if (nowPlaying != null) nowPlaying.noteInput();

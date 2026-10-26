@@ -25,14 +25,15 @@ import java.io.InputStreamReader;
  * underneath, then fades away. Any button skips it. Not played in safe mode, before setup is done,
  * with animations turned off in the TV's settings, or when switched off in Look.
  *
- * It waits for the box's own boot animation to finish, and stays invisible until the first frame of
- * video is on screen, so a slow or failing box never sees a black screen: it just gets Home. What
- * happened last time is kept for TV check ("startup_last").
+ * It covers Home from TV Home's very first frame (the animation opens on black anyway), so Home is
+ * never seen before it. It waits for the box's own boot animation to finish; if the video then isn't
+ * on screen within a moment, it fades straight to Home. What happened last time is kept for TV check
+ * ("startup_last").
  */
 final class Splash {
 
     static final String KEY_ON = "startup_anim", KEY_UP = "startup_uptime", KEY_LAST = "startup_last";
-    private static final long BOOTANIM_MAX_MS = 20_000, FIRST_FRAME_MS = 4000;
+    private static final long BOOTANIM_MAX_MS = 20_000, FIRST_FRAME_MS = 2500;
 
     private final Activity act;
     private final TextureView video;
@@ -40,7 +41,7 @@ final class Splash {
     private final Handler h = new Handler(Looper.getMainLooper());
     private MediaPlayer player;
     private SurfaceTexture surface;
-    private boolean ready, ended, visible;
+    private boolean ready, ended, playing;
     private Runnable then;
 
     static boolean on(Context c) {
@@ -77,7 +78,6 @@ final class Splash {
         act = a;
         layer = new FrameLayout(a);
         layer.setBackgroundColor(0xFF000000);
-        layer.setAlpha(0f);   // shown with the first frame of video
         video = new TextureView(a);
         layer.addView(video, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         a.addContentView(layer, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
@@ -100,9 +100,8 @@ final class Splash {
 
             @Override
             public void onSurfaceTextureUpdated(SurfaceTexture st) {
-                if (visible || ended || player == null) return;
-                visible = true;   // the first frame is on screen: cover Home with the animation
-                layer.setAlpha(1f);
+                if (playing || ended || player == null) return;
+                playing = true;   // the first frame is on screen
                 h.removeCallbacksAndMessages(null);
                 note("played");
             }
@@ -112,6 +111,7 @@ final class Splash {
             long until = SystemClock.uptimeMillis() + BOOTANIM_MAX_MS;
             while (SystemClock.uptimeMillis() < until && bootAnimating()) SystemClock.sleep(250);
             h.post(() -> {
+                BootTrace.mark(act, "boot logo gone");
                 ready = true;
                 maybePlay();
             });
@@ -132,7 +132,7 @@ final class Splash {
     private void maybePlay() {
         if (ended || !ready || surface == null || player != null) return;
         h.postDelayed(() -> {
-            if (!visible) {
+            if (!playing) {
                 note("skipped: video didn't start in time");
                 end();
             }
@@ -171,14 +171,9 @@ final class Splash {
         then = r;
     }
 
-    /** Waiting to play, or playing. */
+    /** On screen: waiting to play, or playing. */
     boolean active() {
         return !ended;
-    }
-
-    /** The animation is on screen (buttons skip it rather than reaching Home). */
-    boolean visible() {
-        return visible && !ended;
     }
 
     /** Fades out to the home screen underneath. */
@@ -191,8 +186,7 @@ final class Splash {
             release();
             if (then != null && !act.isFinishing()) then.run();
         };
-        if (visible) layer.animate().alpha(0f).setDuration(350).withEndAction(done).start();
-        else done.run();
+        layer.animate().alpha(0f).setDuration(350).withEndAction(done).start();
     }
 
     private void release() {
