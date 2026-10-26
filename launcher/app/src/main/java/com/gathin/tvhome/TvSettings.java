@@ -175,6 +175,7 @@ final class TvSettings {
 
         List<GlassMenu.Row> rows = new ArrayList<>();
         rows.add(new GlassMenu.Row(R.drawable.ic_wifi, s(R.string.tv_net_guest), null, act::showNetworkPanel));
+        rows.add(new GlassMenu.Row(R.drawable.ic_s_data, s(R.string.apps_data_title), null, () -> DataByApp.show(act, () -> network(1))));
         rows.add(new GlassMenu.Row(R.drawable.ic_s_shield, s(R.string.tv_net_adblock),
                 custom ? host : onOff(adblock), () -> change(() -> {
                     if (adblock || custom) {
@@ -183,11 +184,11 @@ final class TvSettings {
                         Settings.Global.putString(cr(), "private_dns_specifier", "dns.adguard-dns.com");
                         Settings.Global.putString(cr(), "private_dns_mode", "hostname");
                     }
-                }, () -> network(1))));
+                }, () -> network(2))));
         int gb = DataLimit.gb(act);
         rows.add(new GlassMenu.Row(R.drawable.ic_s_data, s(R.string.limit_title),
                 gb <= 0 ? s(R.string.limit_none) : s(R.string.limit_gb, gb),
-                () -> DataLimit.showSettings(act, () -> network(2))));
+                () -> DataLimit.showSettings(act, () -> network(3))));
         rows.add(new GlassMenu.Row(R.drawable.ic_s_tune, s(R.string.tv_net_join), null,
                 () -> openSettings(Settings.ACTION_WIFI_SETTINGS)).external());
         GlassMenu.page(act, s(R.string.tv_title), s(R.string.tv_network), hero, rows, networkBack, focus);

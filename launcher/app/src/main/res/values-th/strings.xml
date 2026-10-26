@@ -379,4 +379,14 @@
     <string name="birthday_none">ไม่มีวันเกิด</string>
     <string name="fx_birthday">สุขสันต์วันเกิด %1$s</string>
     <string name="fx_birthday_plain">สุขสันต์วันเกิด</string>
+    <string name="hs_song_popup">ป๊อปอัปเพลงในแอป</string>
+    <string name="apps_data_title">ข้อมูลตามแอป</string>
+    <string name="apps_data_month">ใช้ไปเดือนนี้</string>
+    <string name="apps_data_today">วันนี้: %1$s</string>
+    <string name="apps_data_row">%1$s · วันนี้ %2$s</string>
+    <string name="apps_data_tether">โทรศัพท์และแล็ปท็อปบน Wi-Fi ของคุณ</string>
+    <string name="apps_data_system">ระบบ Android</string>
+    <string name="apps_data_removed">แอปที่ลบแล้ว</string>
+    <string name="apps_data_need">หากต้องการดูข้อมูลตามแอป TV Home ต้องใช้การเชื่อมต่อแก้ไขข้อบกพร่องของทีวีหนึ่งครั้ง ตั้งค่าด้วย \"ตั้งค่าบนทีวีเครื่องนี้\" แล้วลองอีกครั้ง</string>
+    <string name="apps_data_empty">เดือนนี้ยังไม่มีการใช้ข้อมูล</string>
 </resources>

@@ -71,6 +71,7 @@ fi
 sh_tv appops set $PKG REQUEST_INSTALL_PACKAGES allow >/dev/null
 sh_tv pm grant $PKG android.permission.BLUETOOTH_CONNECT >/dev/null 2>&1   # TV settings > Remotes, without Android asking
 sh_tv cmd notification allow_listener $PKG/$PKG.MediaListener >/dev/null 2>&1   # Now playing card
+sh_tv appops set $PKG GET_USAGE_STATS allow >/dev/null 2>&1   # data by app
 echo "updates from the TV allowed"
 
 say "Theme"

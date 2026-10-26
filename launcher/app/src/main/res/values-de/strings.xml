@@ -379,4 +379,14 @@
     <string name="birthday_none">Kein Geburtstag</string>
     <string name="fx_birthday">Alles Gute zum Geburtstag, %1$s</string>
     <string name="fx_birthday_plain">Alles Gute zum Geburtstag</string>
+    <string name="hs_song_popup">Song-Hinweis in Apps</string>
+    <string name="apps_data_title">Daten pro App</string>
+    <string name="apps_data_month">Diesen Monat verbraucht</string>
+    <string name="apps_data_today">Heute: %1$s</string>
+    <string name="apps_data_row">%1$s · heute %2$s</string>
+    <string name="apps_data_tether">Handys und Laptops in deinem WLAN</string>
+    <string name="apps_data_system">Android-System</string>
+    <string name="apps_data_removed">Entfernte Apps</string>
+    <string name="apps_data_need">Für Daten pro App braucht TV Home einmal die Debugging-Verbindung des Fernsehers. Richte sie mit \"Auf diesem Fernseher einrichten\" ein und versuche es erneut.</string>
+    <string name="apps_data_empty">Diesen Monat noch keine Daten verbraucht.</string>
 </resources>

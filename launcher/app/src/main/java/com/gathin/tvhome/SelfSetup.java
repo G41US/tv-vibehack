@@ -116,6 +116,7 @@ final class SelfSetup {
         adb.shell("appops set " + pkg + " REQUEST_INSTALL_PACKAGES allow");
         if (Build.VERSION.SDK_INT >= 31) adb.shell("pm grant " + pkg + " " + Manifest.permission.BLUETOOTH_CONNECT);
         adb.shell("cmd notification allow_listener " + new ComponentName(act, MediaListener.class).flattenToString());
+        adb.shell("appops set " + pkg + " GET_USAGE_STATS allow");   // data by app
         adb.shell("pm grant " + pkg + " " + BackupStore.readPermission());
         adb.shell("cmd package set-home-activity --user 0 " + pkg + "/.MainActivity");
     }

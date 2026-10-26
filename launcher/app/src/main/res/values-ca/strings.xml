@@ -379,4 +379,14 @@
     <string name="birthday_none">Sense aniversari</string>
     <string name="fx_birthday">Per molts anys, %1$s</string>
     <string name="fx_birthday_plain">Per molts anys</string>
+    <string name="hs_song_popup">Avís de cançó a les apps</string>
+    <string name="apps_data_title">Dades per app</string>
+    <string name="apps_data_month">Usat aquest mes</string>
+    <string name="apps_data_today">Avui: %1$s</string>
+    <string name="apps_data_row">%1$s · avui %2$s</string>
+    <string name="apps_data_tether">Mòbils i portàtils a la teva Wi-Fi</string>
+    <string name="apps_data_system">Sistema Android</string>
+    <string name="apps_data_removed">Apps eliminades</string>
+    <string name="apps_data_need">Per veure les dades per app, TV Home necessita una vegada la connexió de depuració del televisor. Configura-la amb \"Configurar en aquest televisor\" i torna-ho a provar.</string>
+    <string name="apps_data_empty">Encara no s\'han usat dades aquest mes.</string>
 </resources>

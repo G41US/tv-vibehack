@@ -379,4 +379,14 @@
     <string name="birthday_none">Hakuna siku ya kuzaliwa</string>
     <string name="fx_birthday">Heri ya siku ya kuzaliwa, %1$s</string>
     <string name="fx_birthday_plain">Heri ya siku ya kuzaliwa</string>
+    <string name="hs_song_popup">Taarifa ya wimbo ndani ya programu</string>
+    <string name="apps_data_title">Data kwa kila programu</string>
+    <string name="apps_data_month">Iliyotumika mwezi huu</string>
+    <string name="apps_data_today">Leo: %1$s</string>
+    <string name="apps_data_row">%1$s · leo %2$s</string>
+    <string name="apps_data_tether">Simu na kompyuta kwenye Wi-Fi yako</string>
+    <string name="apps_data_system">Mfumo wa Android</string>
+    <string name="apps_data_removed">Programu zilizoondolewa</string>
+    <string name="apps_data_need">Ili kuona data kwa kila programu, TV Home inahitaji muunganisho wa utatuzi wa TV mara moja. Uweke kwa \"Weka kwenye TV hii\", kisha ujaribu tena.</string>
+    <string name="apps_data_empty">Hakuna data iliyotumika mwezi huu bado.</string>
 </resources>

@@ -379,4 +379,14 @@
     <string name="birthday_none">Tanpa ulang tahun</string>
     <string name="fx_birthday">Selamat ulang tahun, %1$s</string>
     <string name="fx_birthday_plain">Selamat ulang tahun</string>
+    <string name="hs_song_popup">Pop-up lagu di aplikasi</string>
+    <string name="apps_data_title">Data per aplikasi</string>
+    <string name="apps_data_month">Terpakai bulan ini</string>
+    <string name="apps_data_today">Hari ini: %1$s</string>
+    <string name="apps_data_row">%1$s · hari ini %2$s</string>
+    <string name="apps_data_tether">Ponsel dan laptop di Wi-Fi Anda</string>
+    <string name="apps_data_system">Sistem Android</string>
+    <string name="apps_data_removed">Aplikasi yang dihapus</string>
+    <string name="apps_data_need">Untuk melihat data per aplikasi, TV Home perlu koneksi debugging TV sekali. Siapkan dengan \"Siapkan di TV ini\", lalu coba lagi.</string>
+    <string name="apps_data_empty">Belum ada data terpakai bulan ini.</string>
 </resources>
