@@ -23,13 +23,14 @@
   "s4_alt": "Lieber kein Debugging einschalten? Nutze die anderen Knöpfe auf demselben Bildschirm: Home-Taste und Start → Einschalten (TV Home in Bedienungshilfen wählen), dann Erlauben und Erlauben.",
   "get_h": "Was du bekommst",
   "features": [
-    "<strong>Keine Werbung, keine gesponserten Reihen.</strong> Nur deine Apps, die vier liebsten im Dock.",
+    "<strong>Keine Werbung, keine gesponserten Reihen.</strong> Nur deine Apps, die liebsten in einem Dock mit 3 bis 6 Plätzen.",
     "<strong>Startet in TV Home</strong>, und die Home-Taste führt immer dorthin zurück.",
-    "<strong>Uhr, Datum und Wetter</strong> für jede Stadt der Welt, mit der Vorhersage für die Woche.",
+    "<strong>Uhr, Datum und Wetter</strong> für jede Stadt der Welt, mit der Vorhersage für die Woche und einer Stundenansicht für jeden Tag.",
     "<strong>Läuft gerade:</strong> was auf Spotify oder YouTube Music läuft, mit Vollbild-Player und Songtexten.",
     "<strong>Schnellmenü:</strong> halte überall Zurück gedrückt für Musik, Lautstärke, Nachtmodus, Standby und Beschleunigen.",
     "<strong>Nachtmodus:</strong> ein sanfterer Bildschirm und ein Lautstärkelimit spät abends.",
-    "<strong>Hintergründe:</strong> eingebaut, sanft bewegt oder ein Foto vom Handy.",
+    "<strong>Feiertage und Geburtstage:</strong> Konfetti, Schnee oder Funkeln an den Feiertagen deines Landes und ein Geburtstagsgruß für jedes Profil.",
+    "<strong>Hintergründe:</strong> eingebaut, ein Foto vom Handy oder bewegte Szenen wie Meereswellen, Regen am Fenster und Polarlichter.",
     "<strong>Gäste-WLAN-QR-Code</strong> und der Datenverbrauch heute und diesen Monat.",
     "<strong>Aktualisiert sich selbst:</strong> neue Versionen installieren sich mit einem Tastendruck.",
     "<strong>In deiner Sprache:</strong> Englisch, Französisch, Spanisch, Portugiesisch, Deutsch, Katalanisch, Arabisch, Hindi, Swahili, Indonesisch, Thai und Chinesisch."
@@ -42,21 +43,45 @@
   "tvs_no": "<strong>Nicht möglich auf</strong> Samsung (Tizen), LG (webOS), Roku, Hisense VIDAA oder Apple TV: Sie führen keine Android-Apps aus und lassen keine App den Startbildschirm übernehmen. Die einfache Lösung für diese Fernseher: einen Android-TV- oder Google-TV-Stick anschließen und TV Home darauf nutzen.",
   "use_h": "So benutzt du es",
   "tips": [
-    "<b>Halte OK auf einer App</b>, um sie im Dock zu verschieben, hinzuzufügen oder zu entfernen. Das Dock fasst vier.",
+    "<b>Halte OK auf einer App</b>, um sie im Dock zu verschieben, hinzuzufügen oder zu entfernen. 3 bis 6 Dock-Apps wählst du unter Einstellungen → Aussehen.",
     "<b>Halte OK auf Einstellungen</b> (oben rechts) für Hintergrund, Wetterstadt, Musik, Nachtmodus, Updates und Einrichtung.",
     "<b>Halte Zurück</b> gedrückt, egal wo, für das Schnellmenü.",
     "<b>Drücke OK auf dem Wetter</b> für die Vorhersage der Woche."
   ],
   "q_h": "Fragen",
   "questions": [
-    ["Warum braucht es Bedienungshilfen?", "Viele Fernseher öffnen beim Start und mit der Home-Taste ihren eigenen Startbildschirm, egal welche App du wählst. Der Bedienungshilfen-Schalter von TV Home achtet nur auf diesen Bildschirm und ein paar Tasten und öffnet stattdessen TV Home. Er liest, speichert und sendet nichts von deinem Bildschirm. Android zeigt bei jeder App, die danach fragt, eine allgemeine Warnung."],
-    ["Löscht oder beschädigt es die Apps meines Fernsehers?", "Nein. Nichts wird deinstalliert oder deaktiviert. Deine Sender, Apps und Einstellungen bleiben genau so."],
-    ["Wie komme ich zum alten Startbildschirm zurück?", "Einstellungen → Bedienungshilfen → TV Home → aus. Ganz entfernen: Einstellungen → Apps → TV Home → Deinstallieren. Der Fernseher ist sofort wieder wie vorher."],
-    ["Ein Systemupdate hat den alten Startbildschirm zurückgebracht.", "Öffne TV Home aus der App-Liste und führe die Einrichtung erneut durch (OK auf Einstellungen halten → Updates &amp; Einrichtung)."],
-    ["Etwas funktioniert nicht.", "Halte OK auf Einstellungen → Updates &amp; Einrichtung → <strong>TV-Check</strong>. Er zeigt für jeden Teil von TV Home ein ✓ oder ✗ und was du zum Beheben drückst. <strong>Bericht senden</strong> zeigt dort einen QR-Code: Scanne ihn mit dem Handy, um die Daten deines Fernsehers zu senden, damit er unterstützt werden kann."],
-    ["Ist es sicher?", "Ja. Der Code ist offen auf GitHub, nichts wird geflasht oder gerootet, und Updates installieren sich nur, wenn sie mit dem eigenen Schlüssel von TV Home signiert sind. Niemand sonst kann also ein gefälschtes Update auf deinen Fernseher schicken."],
-    ["Ich habe TV Home neu installiert. Sind meine Einstellungen weg?", "Nein. TV Home bewahrt eine verschlüsselte Sicherung von Dock, Hintergrund, Wetter und WLAN-QR auf dem Fernseher auf. Drücke nach der Neuinstallation auf dem Einrichtungsbildschirm <strong>Erlauben</strong> neben „Einstellungen sichern“, und sie sind wieder da."],
-    ["Extras mit Handy oder Computer", "Mit ADB (Termux auf Android oder ein Computer) erledigt das Skript <a href=\"https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh\">airtel-fix.sh</a> dieselbe Einrichtung vom Handy aus, dazu schnellere Animationen und SmartTube. Füge <code>ADBLOCK=1</code> hinzu für werbeblockendes DNS auf der ganzen Box (das kann manche Boxen vom Internet trennen). Für TV Home selbst nicht nötig."]
+    [
+      "Warum braucht es Bedienungshilfen?",
+      "Viele Fernseher öffnen beim Start und mit der Home-Taste ihren eigenen Startbildschirm, egal welche App du wählst. Der Bedienungshilfen-Schalter von TV Home achtet nur auf diesen Bildschirm und ein paar Tasten und öffnet stattdessen TV Home. Er liest, speichert und sendet nichts von deinem Bildschirm. Android zeigt bei jeder App, die danach fragt, eine allgemeine Warnung."
+    ],
+    [
+      "Löscht oder beschädigt es die Apps meines Fernsehers?",
+      "Nein. Nichts wird deinstalliert oder deaktiviert. Deine Sender, Apps und Einstellungen bleiben genau so."
+    ],
+    [
+      "Wie komme ich zum alten Startbildschirm zurück?",
+      "Einstellungen → Bedienungshilfen → TV Home → aus. Ganz entfernen: Einstellungen → Apps → TV Home → Deinstallieren. Der Fernseher ist sofort wieder wie vorher."
+    ],
+    [
+      "Ein Systemupdate hat den alten Startbildschirm zurückgebracht.",
+      "Öffne TV Home aus der App-Liste und führe die Einrichtung erneut durch (OK auf Einstellungen halten → Updates &amp; Einrichtung)."
+    ],
+    [
+      "Etwas funktioniert nicht.",
+      "Halte OK auf Einstellungen → Updates &amp; Einrichtung → <strong>TV-Check</strong>. Er zeigt für jeden Teil von TV Home ein ✓ oder ✗ und was du zum Beheben drückst. <strong>Bericht senden</strong> zeigt dort einen QR-Code: Scanne ihn mit dem Handy, um die Daten deines Fernsehers zu senden, damit er unterstützt werden kann."
+    ],
+    [
+      "Ist es sicher?",
+      "Ja. Der Code ist offen auf GitHub, nichts wird geflasht oder gerootet, und Updates installieren sich nur, wenn sie mit dem eigenen Schlüssel von TV Home signiert sind. Niemand sonst kann also ein gefälschtes Update auf deinen Fernseher schicken."
+    ],
+    [
+      "Ich habe TV Home neu installiert. Sind meine Einstellungen weg?",
+      "Nein. TV Home bewahrt eine verschlüsselte Sicherung von Dock, Hintergrund, Wetter und WLAN-QR auf dem Fernseher auf. Drücke nach der Neuinstallation auf dem Einrichtungsbildschirm <strong>Erlauben</strong> neben „Einstellungen sichern“, und sie sind wieder da."
+    ],
+    [
+      "Extras mit Handy oder Computer",
+      "Mit ADB (Termux auf Android oder ein Computer) erledigt das Skript <a href=\"https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh\">airtel-fix.sh</a> dieselbe Einrichtung vom Handy aus, dazu schnellere Animationen und SmartTube. Füge <code>ADBLOCK=1</code> hinzu für werbeblockendes DNS auf der ganzen Box (das kann manche Boxen vom Internet trennen). Für TV Home selbst nicht nötig."
+    ]
   ],
   "footer": "TV Home basiert auf <a href=\"https://github.com/Gathin23/tv-vibehack\">tv-vibehack</a> von Gathin23 (MIT-Lizenz) und wird von <a href=\"https://github.com/G41US/tv-vibehack\">G41US</a> entwickelt. Es stammt nicht von Google, Amazon, Airtel oder einem Fernseherhersteller und ist mit ihnen nicht verbunden. Nutzung auf eigene Gefahr."
 }

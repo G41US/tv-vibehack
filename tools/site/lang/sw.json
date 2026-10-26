@@ -23,13 +23,14 @@
   "s4_alt": "Hutaki kuwasha utatuzi? Tumia vitufe vingine kwenye skrini hiyo hiyo: Kitufe cha Home na kuwasha → Washa (chagua TV Home kwenye Ufikivu), kisha Ruhusu na Ruhusu.",
   "get_h": "Unachopata",
   "features": [
-    "<strong>Hakuna matangazo wala safu za udhamini.</strong> Programu zako tu, nne unazopenda zaidi kwenye dock.",
+    "<strong>Hakuna matangazo wala safu za udhamini.</strong> Programu zako tu, unazopenda zaidi kwenye dock ya 3 hadi 6.",
     "<strong>TV inaanza na TV Home</strong>, na kitufe cha Home kinarudi kwake kila wakati.",
-    "<strong>Saa, tarehe na hali ya hewa</strong> ya mji wowote duniani, pamoja na utabiri wa wiki.",
+    "<strong>Saa, tarehe na hali ya hewa</strong> ya mji wowote duniani, pamoja na utabiri wa wiki na mwonekano wa kila saa kwa kila siku.",
     "<strong>Inacheza sasa:</strong> kinachocheza kwenye Spotify au YouTube Music, na kicheza cha skrini nzima na maneno ya nyimbo.",
     "<strong>Paneli ya haraka:</strong> shikilia Rudi popote kwa muziki, sauti, hali ya usiku, kulala na Ongeza kasi.",
     "<strong>Hali ya usiku:</strong> skrini laini zaidi na kikomo cha sauti usiku sana.",
-    "<strong>Mandhari:</strong> zilizomo, zinazosonga taratibu, au picha kutoka kwa simu yako.",
+    "<strong>Sikukuu na siku za kuzaliwa:</strong> karatasi za rangi, theluji au mng'ao kwenye sikukuu za nchi yako, na salamu za siku ya kuzaliwa kwa kila wasifu.",
+    "<strong>Mandhari:</strong> zilizomo, picha kutoka kwa simu yako, au mandhari zinazosonga kama mawimbi ya bahari, mvua kwenye dirisha na mwanga wa kaskazini.",
     "<strong>Msimbo wa QR wa Wi-Fi ya wageni</strong> na data iliyotumika leo na mwezi huu.",
     "<strong>Inajisasisha yenyewe:</strong> matoleo mapya yanasakinishwa kwa kubonyeza mara moja.",
     "<strong>Kwa lugha yako:</strong> Kiingereza, Kifaransa, Kihispania, Kireno, Kijerumani, Kikatalani, Kiarabu, Kihindi, Kiswahili, Kiindonesia, Kithai na Kichina."
@@ -42,21 +43,45 @@
   "tvs_no": "<strong>Haiwezi kufanya kazi kwenye</strong> Samsung (Tizen), LG (webOS), Roku, Hisense VIDAA wala Apple TV: haziendeshi programu za Android wala haziruhusu programu yoyote kuchukua nafasi ya skrini kuu. Suluhisho rahisi kwa TV hizo: chomeka kijiti cha Android TV au Google TV na utumie TV Home juu yake.",
   "use_h": "Jinsi ya kuitumia",
   "tips": [
-    "<b>Shikilia OK kwenye programu</b> ili kuisogeza kwenye dock, kuiongeza au kuiondoa. Dock inabeba nne.",
+    "<b>Shikilia OK kwenye programu</b> ili kuisogeza kwenye dock, kuiongeza au kuiondoa. Chagua programu 3 hadi 6 za dock kwenye Mipangilio → Mwonekano.",
     "<b>Shikilia OK kwenye Mipangilio</b> (juu kulia) kwa mandhari, mji wa hali ya hewa, muziki, hali ya usiku, masasisho na kuweka.",
     "<b>Shikilia Rudi</b>, popote, kwa paneli ya haraka.",
     "<b>Bonyeza OK kwenye hali ya hewa</b> kwa utabiri wa wiki."
   ],
   "q_h": "Maswali",
   "questions": [
-    ["Kwa nini inahitaji Ufikivu?", "TV nyingi hufungua skrini kuu yao zinapowashwa na kwa kitufe cha Home, haijalishi umechagua programu gani. Kipengele cha Ufikivu cha TV Home kinaangalia skrini hiyo na vitufe vichache tu, na kufungua TV Home badala yake. Hakisomi, hakirekodi wala hakitumi chochote kilicho kwenye skrini yako. Android huonyesha onyo la jumla kwa kila programu inayoomba."],
-    ["Je, inafuta au kuharibu programu za TV yangu?", "Hapana. Hakuna kinachoondolewa wala kuzimwa. Chaneli, programu na mipangilio yako inabaki kama ilivyokuwa."],
-    ["Nitarudije kwenye skrini kuu ya zamani?", "Mipangilio → Ufikivu → TV Home → zima. Kuiondoa kabisa: Mipangilio → Programu → TV Home → Ondoa. TV inarudi kama ilivyokuwa mara moja."],
-    ["Sasisho la mfumo limerudisha skrini kuu ya zamani.", "Fungua TV Home kutoka orodha ya programu na urudie kuweka (shikilia OK kwenye Mipangilio → Masasisho na kuweka)."],
-    ["Kuna kitu hakifanyi kazi.", "Shikilia OK kwenye Mipangilio → Masasisho na kuweka → <strong>Ukaguzi wa TV</strong>. Unaonyesha ✓ au ✗ kwa kila sehemu ya TV Home na cha kubonyeza ili kurekebisha. <strong>Tuma ripoti</strong> hapo inaonyesha msimbo wa QR: uchanganue kwa simu yako ili kutuma maelezo ya TV yako, ili usaidizi wake uongezwe."],
-    ["Je, ni salama?", "Ndiyo. Msimbo uko wazi kwenye GitHub, hakuna kinachofleshiwa wala kufanyiwa root, na masasisho husakinishwa tu yakiwa yametiwa sahihi kwa ufunguo wa TV Home wenyewe, kwa hiyo hakuna mtu mwingine anayeweza kutuma sasisho bandia kwenye TV yako."],
-    ["Nimesakinisha upya TV Home. Mipangilio yangu imepotea?", "Hapana. TV Home huhifadhi nakala iliyosimbwa ya dock, mandhari, hali ya hewa na QR ya Wi-Fi kwenye TV. Baada ya kusakinisha upya, bonyeza <strong>Ruhusu</strong> karibu na \"Linda mipangilio yako\" kwenye skrini ya kuweka na itarudi."],
-    ["Ziada kwa wenye simu au kompyuta", "Ukiwa na ADB (Termux kwenye Android, au kompyuta), hati ya <a href=\"https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh\">airtel-fix.sh</a> inafanya uwekaji huo huo kutoka kwa simu, pamoja na uhuishaji wa haraka zaidi na SmartTube. Ongeza <code>ADBLOCK=1</code> kwa DNS ya kuzuia matangazo kwenye kisanduku kizima (inaweza kukata intaneti kwa baadhi ya visanduku). Haihitajiki kwa TV Home yenyewe."]
+    [
+      "Kwa nini inahitaji Ufikivu?",
+      "TV nyingi hufungua skrini kuu yao zinapowashwa na kwa kitufe cha Home, haijalishi umechagua programu gani. Kipengele cha Ufikivu cha TV Home kinaangalia skrini hiyo na vitufe vichache tu, na kufungua TV Home badala yake. Hakisomi, hakirekodi wala hakitumi chochote kilicho kwenye skrini yako. Android huonyesha onyo la jumla kwa kila programu inayoomba."
+    ],
+    [
+      "Je, inafuta au kuharibu programu za TV yangu?",
+      "Hapana. Hakuna kinachoondolewa wala kuzimwa. Chaneli, programu na mipangilio yako inabaki kama ilivyokuwa."
+    ],
+    [
+      "Nitarudije kwenye skrini kuu ya zamani?",
+      "Mipangilio → Ufikivu → TV Home → zima. Kuiondoa kabisa: Mipangilio → Programu → TV Home → Ondoa. TV inarudi kama ilivyokuwa mara moja."
+    ],
+    [
+      "Sasisho la mfumo limerudisha skrini kuu ya zamani.",
+      "Fungua TV Home kutoka orodha ya programu na urudie kuweka (shikilia OK kwenye Mipangilio → Masasisho na kuweka)."
+    ],
+    [
+      "Kuna kitu hakifanyi kazi.",
+      "Shikilia OK kwenye Mipangilio → Masasisho na kuweka → <strong>Ukaguzi wa TV</strong>. Unaonyesha ✓ au ✗ kwa kila sehemu ya TV Home na cha kubonyeza ili kurekebisha. <strong>Tuma ripoti</strong> hapo inaonyesha msimbo wa QR: uchanganue kwa simu yako ili kutuma maelezo ya TV yako, ili usaidizi wake uongezwe."
+    ],
+    [
+      "Je, ni salama?",
+      "Ndiyo. Msimbo uko wazi kwenye GitHub, hakuna kinachofleshiwa wala kufanyiwa root, na masasisho husakinishwa tu yakiwa yametiwa sahihi kwa ufunguo wa TV Home wenyewe, kwa hiyo hakuna mtu mwingine anayeweza kutuma sasisho bandia kwenye TV yako."
+    ],
+    [
+      "Nimesakinisha upya TV Home. Mipangilio yangu imepotea?",
+      "Hapana. TV Home huhifadhi nakala iliyosimbwa ya dock, mandhari, hali ya hewa na QR ya Wi-Fi kwenye TV. Baada ya kusakinisha upya, bonyeza <strong>Ruhusu</strong> karibu na \"Linda mipangilio yako\" kwenye skrini ya kuweka na itarudi."
+    ],
+    [
+      "Ziada kwa wenye simu au kompyuta",
+      "Ukiwa na ADB (Termux kwenye Android, au kompyuta), hati ya <a href=\"https://github.com/G41US/tv-vibehack/blob/main/tools/airtel-fix.sh\">airtel-fix.sh</a> inafanya uwekaji huo huo kutoka kwa simu, pamoja na uhuishaji wa haraka zaidi na SmartTube. Ongeza <code>ADBLOCK=1</code> kwa DNS ya kuzuia matangazo kwenye kisanduku kizima (inaweza kukata intaneti kwa baadhi ya visanduku). Haihitajiki kwa TV Home yenyewe."
+    ]
   ],
   "footer": "TV Home imejengwa juu ya <a href=\"https://github.com/Gathin23/tv-vibehack\">tv-vibehack</a> ya Gathin23 (leseni ya MIT), na inatengenezwa na <a href=\"https://github.com/G41US/tv-vibehack\">G41US</a>. Haijatengenezwa na Google, Amazon, Airtel wala kampuni yoyote ya TV, wala haihusiani nazo. Itumie kwa hatari yako mwenyewe."
 }
