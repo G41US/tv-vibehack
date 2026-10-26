@@ -159,9 +159,8 @@ final class GlassMenu {
         v.setText(s);
         v.setTextSize(sp);
         v.setTextColor(color);
-        v.setTypeface(font(a));
         // Heavier than the font's regular weight so it reads well from the sofa.
-        v.setFontVariationSettings("'wght' " + (sp >= 24 ? 650 : sp >= 17 ? 580 : 540));
+        v.setTypeface(Fonts.weight(a, sp >= 24 ? 650 : sp >= 17 ? 580 : 540));
         return v;
     }
 
@@ -202,6 +201,10 @@ final class GlassMenu {
     }
 
     private static void header(Activity a, LinearLayout into, CharSequence kicker, CharSequence title) {
+        header(a, into, kicker, title, false);
+    }
+
+    private static void header(Activity a, LinearLayout into, CharSequence kicker, CharSequence title, boolean center) {
         if (kicker != null) {
             TextView k = text(a, kicker, 13, 0xCCFFFFFF);
             k.setAllCaps(true);
@@ -212,6 +215,7 @@ final class GlassMenu {
             TextView t = text(a, title, 26, Color.WHITE);
             t.setSingleLine(true);
             t.setEllipsize(TextUtils.TruncateAt.END);
+            if (center) t.setGravity(Gravity.CENTER_HORIZONTAL);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             lp.topMargin = kicker != null ? dp(a, 4) : 0;
@@ -224,7 +228,7 @@ final class GlassMenu {
     static TextView pill(Activity a, CharSequence label, View.OnClickListener click) {
         TextView v = new TextView(a, null, 0, R.style.TopButton);
         v.setText(label);
-        v.setFontVariationSettings("'wght' 600");
+        v.setTypeface(Fonts.weight(a, 600));
         v.setPadding(dp(a, 22), 0, dp(a, 22), 0);
         v.setOnClickListener(click);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, dp(a, 42));
@@ -233,9 +237,17 @@ final class GlassMenu {
         return v;
     }
 
+    /** Buttons centred under a pop-up's text. */
     private static LinearLayout buttonRow(Activity a) {
-        LinearLayout bar = new LinearLayout(a);
-        bar.setGravity(Gravity.END);
+        LinearLayout bar = new LinearLayout(a) {
+            @Override
+            public void onViewAdded(View child) {   // even gaps either side, so the row sits in the middle
+                super.onViewAdded(child);
+                LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) child.getLayoutParams();
+                lp.leftMargin = lp.rightMargin = dp(a, 6);
+            }
+        };
+        bar.setGravity(Gravity.CENTER_HORIZONTAL);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.topMargin = dp(a, 24);
@@ -336,6 +348,7 @@ final class GlassMenu {
             tile.setFocusable(true);
             tile.setClickable(true);
             tile.setBackgroundResource(R.drawable.menu_tile_bg);
+            tile.setGravity(Gravity.CENTER);
             tile.setPadding(dp(a, 18), dp(a, 14), dp(a, 18), dp(a, 12));
             ImageView icon = new ImageView(a);
             icon.setImageResource(t.icon);
@@ -423,14 +436,17 @@ final class GlassMenu {
     /** A summary block at the top of a page: one large line and smaller ones under it. */
     static LinearLayout hero(Activity a, CharSequence big, CharSequence... lines) {
         LinearLayout h = column(a);
+        h.setGravity(Gravity.CENTER_HORIZONTAL);
         TextView b = text(a, big, 30, Color.WHITE);
         b.setSingleLine(true);
         b.setEllipsize(TextUtils.TruncateAt.END);
+        b.setGravity(Gravity.CENTER_HORIZONTAL);
         h.addView(b);
         for (CharSequence l : lines) {
             if (l == null || l.length() == 0) continue;
             TextView t = text(a, l, 16, 0xE0FFFFFF);
             t.setPadding(0, dp(a, 3), 0, 0);
+            t.setGravity(Gravity.CENTER_HORIZONTAL);
             h.addView(t);
         }
         return h;
@@ -659,9 +675,10 @@ final class GlassMenu {
      */
     static Dialog message(Activity a, CharSequence title, CharSequence message, CharSequence[] buttons, OnPick pick) {
         LinearLayout content = column(a);
-        header(a, content, null, title);
+        header(a, content, null, title, true);
         TextView body = text(a, message, 17, 0xF0FFFFFF);
         body.setLineSpacing(0, 1.2f);
+        body.setGravity(Gravity.CENTER_HORIZONTAL);
         content.addView(body);
         LinearLayout bar = buttonRow(a);
         final Dialog[] holder = new Dialog[1];
@@ -688,8 +705,9 @@ final class GlassMenu {
 
     static Progress progress(Activity a, CharSequence title) {
         LinearLayout content = column(a);
-        header(a, content, null, title);
+        header(a, content, null, title, true);
         TextView line = text(a, "0%", 20, 0xF0FFFFFF);
+        line.setGravity(Gravity.CENTER_HORIZONTAL);
         content.addView(line);
         Dialog d = dialog(a, content, 480);
         d.setCancelable(false);
@@ -700,7 +718,7 @@ final class GlassMenu {
     /** A text field with OK and Cancel; the TV keyboard opens on it. */
     static Dialog input(Activity a, CharSequence title, String initial, OnText ok) {
         LinearLayout content = column(a);
-        header(a, content, null, title);
+        header(a, content, null, title, true);
         EditText field = new EditText(a);
         field.setSingleLine(true);
         field.setText(initial);

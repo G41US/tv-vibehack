@@ -293,8 +293,7 @@ final class SetupPanel {
         v.setText(s);
         v.setTextSize(sp);
         v.setTextColor(color);
-        v.setTypeface(act.getResources().getFont(R.font.outfit));
-        v.setFontVariationSettings("'wght' " + (sp >= 24 ? 650 : sp >= 16 ? 580 : 540));
+        v.setTypeface(Fonts.weight(act, sp >= 24 ? 650 : sp >= 16 ? 580 : 540));
         if (letterSpacing > 0) {
             v.setLetterSpacing(letterSpacing);
             v.setAllCaps(true);

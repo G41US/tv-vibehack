@@ -347,11 +347,7 @@ final class NowPlaying {
         TextView t = new TextView(act);
         t.setTextSize(sp);
         t.setTextColor(color);
-        try {
-            t.setTypeface(act.getResources().getFont(R.font.outfit));
-        } catch (Exception ignored) {
-        }
-        t.setFontVariationSettings("'wght' " + weight);
+        t.setTypeface(Fonts.weight(act, weight));
         t.setShadowLayer(6 * density, 0, density, 0x99000000);
         t.setSingleLine(true);
         t.setEllipsize(TextUtils.TruncateAt.END);
@@ -1058,11 +1054,7 @@ final class NowPlaying {
             clock.setFormat24Hour("HH:mm");
             clock.setTextColor(0xD9FFFFFF);
             clock.setTextSize(22);
-            try {
-                clock.setTypeface(act.getResources().getFont(R.font.outfit));
-            } catch (Exception ignored) {
-            }
-            clock.setFontVariationSettings("'wght' 560");
+            clock.setTypeface(Fonts.weight(act, 560));
             clock.setShadowLayer(8 * density, 0, density, 0x99000000);
             FrameLayout.LayoutParams ck = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.END);
