@@ -140,7 +140,8 @@ final class TvCheck {
                 + report + (problem != null ? "- Last problem: " + problem + "\n" : "")
                 + "\nWhat isn't working? (write here)\n";
         String trace = BootTrace.text(a) + "\n\n" + a.getString(R.string.hs_startup) + ": " + (Splash.on(a) ? Splash.last(a) : "off")
-                + "\n" + a.getString(R.string.fs_title) + ": " + StartupApps.state(a);
+                + "\n" + a.getString(R.string.fs_title) + ": " + StartupApps.state(a)
+                + (SafeStart.lastProblem(a) != null ? "\nLast problem: " + SafeStart.lastProblem(a) : "");
         rows.add(new GlassMenu.Row(R.drawable.ic_s_speed, a.getString(R.string.chk_startup), null,
                 () -> GlassMenu.message(a, a.getString(R.string.chk_startup), trace, new String[]{a.getString(android.R.string.ok)}, w -> {
                 })));

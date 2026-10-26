@@ -150,23 +150,33 @@ final class StartupApps {
             }
             // What Android put on screen, and why it started TV Home, between its logo and Home.
             String acts = adb.shell("logcat -b events -d -v monotonic 2>/dev/null | grep -E "
-                    + "'(wm|am)_(create|finish)_activity|am_proc_start' | head -120");
-            Pattern ev = Pattern.compile("^\\s*(\\d+\\.\\d+).*?\\b(wm_create_activity|am_create_activity|wm_finish_activity|am_finish_activity|am_proc_start): \\[(.*)\\]");
+                    + "'(wm|am)_(create|finish)_activity|am_proc_start|am_proc_died|am_kill|am_crash|am_anr' | head -200");
+            Pattern ev = Pattern.compile("^\\s*(\\d+\\.\\d+).*?\\b(wm_create_activity|am_create_activity|wm_finish_activity|am_finish_activity|am_proc_start|am_proc_died|am_kill|am_crash|am_anr): \\[(.*)\\]");
             int n = 0;
+            String me = c.getPackageName();
             for (String line : acts.split("\n")) {
                 Matcher m = ev.matcher(line);
-                if (!m.find() || n >= 10) continue;
+                if (!m.find() || n >= 16) continue;
                 long ms = (long) (Double.parseDouble(m.group(1)) * 1000);
                 if (ms < 15_000 || ms > 40_000) continue;
                 String[] f = m.group(3).split(",");
-                if (f.length < 5) continue;
-                String what;
-                if (m.group(2).equals("am_proc_start")) {
-                    if (!f[3].trim().equals(c.getPackageName())) continue;
+                if (f.length < 4) continue;
+                String tag = m.group(2), what;
+                if (tag.equals("am_proc_start")) {
+                    if (f.length < 5 || !f[3].trim().equals(me)) continue;
                     what = "TV Home started for " + f[4].trim();
+                } else if (tag.equals("am_proc_died") || tag.equals("am_kill") || tag.equals("am_crash") || tag.equals("am_anr")) {
+                    if (!f[2].trim().equals(me)) continue;
+                    String why = tag.equals("am_kill") && f.length > 4 ? "killed: " + f[4].trim()
+                            : tag.equals("am_crash") && f.length > 4 ? "crashed: " + f[4].trim()
+                            : tag.equals("am_anr") ? "not responding" : "ended";
+                    what = "TV Home " + why;
                 } else {
-                    String comp = f[3].trim().replaceAll(".*/\\.?", "").replaceAll(".*\\.", "");
-                    what = (m.group(2).contains("create") ? "opened " : "closed ") + comp;
+                    // "com.airtel.app/.EmptyActivity" -> "EmptyActivity (com.airtel.app)": the app matters here
+                    String comp = f[3].trim(), pkg = comp.replaceAll("/.*", ""),
+                            cls = comp.replaceAll(".*/\\.?", "").replaceAll(".*\\.", "");
+                    what = (tag.contains("create") ? "opened " : "closed ") + cls
+                            + (pkg.equals(me) || pkg.equals("com.android.settings") ? "" : " (" + pkg + ")");
                 }
                 BootTrace.mark(c, what, ms);
                 n++;
