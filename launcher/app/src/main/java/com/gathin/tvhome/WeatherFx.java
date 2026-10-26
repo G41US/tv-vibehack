@@ -156,8 +156,7 @@ final class WeatherFx extends View {
             }
         }
         if (running) {
-            if (LiveWallpaper.busy()) postDelayed(this::invalidate, 300);   // the remote is in use: wait
-            else postInvalidateDelayed(50);
+            postInvalidateDelayed(50);
         }
     }
 
