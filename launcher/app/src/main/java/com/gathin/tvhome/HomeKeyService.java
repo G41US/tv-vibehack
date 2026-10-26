@@ -110,7 +110,7 @@ public class HomeKeyService extends AccessibilityService {
                 @Override
                 public void onReceive(android.content.Context c, Intent i) {
                     // The start-up screen plays the animation straight after the boot logo next time.
-                    BootHome.enable(c, Splash.on(c) && !SafeStart.on(c));
+                    BootHome.enable(c, Splash.on(c) && !SafeStart.on(c) && BootHome.supported());
                     PendingResult done = goAsync();
                     new Thread(() -> {
                         StartupApps.hold(c);

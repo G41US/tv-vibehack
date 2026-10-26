@@ -48,6 +48,15 @@ public class BootHome extends Activity {
         }
     };
 
+    /**
+     * Only on boxes whose storage is locked while Android starts (file-based encryption, nearly all
+     * Android 10+ TVs). Elsewhere there is no early waiting screen to replace, and a second home screen
+     * from TV Home could make Android ask which home to use.
+     */
+    static boolean supported() {
+        return "file".equals(Splash.prop("ro.crypto.type"));
+    }
+
     /** Switched on or off with the start-up animation; used while the box shuts down and from Look. */
     static void enable(Context c, boolean on) {
         try {
