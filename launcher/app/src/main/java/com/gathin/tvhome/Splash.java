@@ -184,6 +184,7 @@ final class Splash {
             return;
         }
         BootTrace.mark(act, "animation started");
+        h.postDelayed(this::runPlaying, 600);   // Home's own loading waits until the video is under way
         h.postDelayed(timeout = () -> {
             if (playing) return;
             // Some boxes never report the first frame: going by the clock is as good.
@@ -207,6 +208,19 @@ final class Splash {
         if (!p.getBoolean(KEY_DONE, false)) p.edit().putBoolean(KEY_DONE, true).commit();
     }
 
+    private Runnable whenPlaying;
+
+    /** Runs r once the video is playing (or the animation is skipped), so it never delays the start. */
+    void whenPlaying(Runnable r) {
+        whenPlaying = r;
+    }
+
+    private void runPlaying() {
+        Runnable r = whenPlaying;
+        whenPlaying = null;
+        if (r != null) r.run();
+    }
+
     /** Runs r when the animation is gone (for "Who's watching?"). */
     void then(Runnable r) {
         then = r;
@@ -222,6 +236,7 @@ final class Splash {
         if (ended) return;
         ended = true;
         if (timeout != null) h.removeCallbacks(timeout);
+        runPlaying();
         release();
         layer.removeView(video);
         layer.animate().alpha(0f).setDuration(350).withEndAction(() -> {
