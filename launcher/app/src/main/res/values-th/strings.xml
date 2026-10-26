@@ -354,4 +354,21 @@
     <string name="fc_sum_chance">อาจมีฝนช่วง %1$s</string>
     <string name="fc_sum_dry">ไม่มีฝน</string>
     <string name="fc_sum_hot">ร้อนที่สุด %1$s, %2$d°</string>
+    <string name="hs_dock_size">แอปในด็อก</string>
+    <string name="hs_dock_size_value">%1$d แอป</string>
+    <string name="hs_festive">บรรยากาศเทศกาล</string>
+    <string name="fx_independence">สุขสันต์วันประกาศอิสรภาพ</string>
+    <string name="fx_national">สุขสันต์วันชาติ</string>
+    <string name="fx_christmas">สุขสันต์วันคริสต์มาส</string>
+    <string name="fx_new_year">สวัสดีปีใหม่</string>
+    <string name="fx_eid">อีดมุบาร็อก</string>
+    <string name="fx_diwali">สุขสันต์วันดิวาลี</string>
+    <string name="fx_lunar">สุขสันต์วันตรุษจีน</string>
+    <string name="games_title">เกม</string>
+    <string name="games_snake_desc">กิน โต และอย่าชนตัวเอง</string>
+    <string name="games_2048_desc">เลื่อนไทล์ รวมตัวเลข ไปให้ถึง 2048</string>
+    <string name="games_score">คะแนน %1$d</string>
+    <string name="games_best">สูงสุด %1$d</string>
+    <string name="games_over">จบเกม · กด OK เพื่อเล่นอีกครั้ง</string>
+    <string name="games_start">กด OK หรือปุ่มลูกศรเพื่อเริ่ม</string>
 </resources>

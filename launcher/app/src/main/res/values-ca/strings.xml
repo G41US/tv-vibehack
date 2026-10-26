@@ -354,4 +354,21 @@
     <string name="fc_sum_chance">Possible pluja cap a les %1$s</string>
     <string name="fc_sum_dry">No es preveu pluja</string>
     <string name="fc_sum_hot">Més calor a les %1$s, %2$d°</string>
+    <string name="hs_dock_size">Apps al dock</string>
+    <string name="hs_dock_size_value">%1$d apps</string>
+    <string name="hs_festive">Ambient festiu</string>
+    <string name="fx_independence">Feliç Dia de la Independència</string>
+    <string name="fx_national">Feliç Dia Nacional</string>
+    <string name="fx_christmas">Bon Nadal</string>
+    <string name="fx_new_year">Bon Any Nou</string>
+    <string name="fx_eid">Eid Mubarak</string>
+    <string name="fx_diwali">Feliç Diwali</string>
+    <string name="fx_lunar">Feliç Any Nou Lunar</string>
+    <string name="games_title">Jocs</string>
+    <string name="games_snake_desc">Menja, creix i no xoquis amb tu mateix</string>
+    <string name="games_2048_desc">Llisca les fitxes, uneix números, arriba a 2048</string>
+    <string name="games_score">Punts %1$d</string>
+    <string name="games_best">Rècord %1$d</string>
+    <string name="games_over">Fi del joc · Prem OK per tornar a jugar</string>
+    <string name="games_start">Prem OK o una fletxa per començar</string>
 </resources>

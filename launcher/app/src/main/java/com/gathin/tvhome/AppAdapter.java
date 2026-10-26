@@ -134,7 +134,9 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.Holder> {
         for (ResolveInfo ri : found) {
             if (ri.activityInfo == null) continue;
             String pkg = ri.activityInfo.packageName;
-            if (pkg.equals(ctx.getPackageName()) || hidden.contains(pkg)) continue;
+            // TV Home's own entry is hidden; its Games tile is shown like any app.
+            boolean games = ri.activityInfo.name.equals(GamesActivity.class.getName());
+            if ((pkg.equals(ctx.getPackageName()) && !games) || hidden.contains(pkg)) continue;
             Drawable banner = ri.activityInfo.loadBanner(pm);
             if (banner == null) banner = ri.activityInfo.applicationInfo.loadBanner(pm);
             Drawable icon = ri.loadIcon(pm);

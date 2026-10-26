@@ -354,4 +354,21 @@
     <string name="fc_sum_chance">%1$s 前后可能有雨</string>
     <string name="fc_sum_dry">预计无雨</string>
     <string name="fc_sum_hot">%1$s 最热，%2$d°</string>
+    <string name="hs_dock_size">程序坞中的应用</string>
+    <string name="hs_dock_size_value">%1$d 个应用</string>
+    <string name="hs_festive">节日装扮</string>
+    <string name="fx_independence">独立日快乐</string>
+    <string name="fx_national">国庆日快乐</string>
+    <string name="fx_christmas">圣诞快乐</string>
+    <string name="fx_new_year">新年快乐</string>
+    <string name="fx_eid">Eid Mubarak · 节日快乐</string>
+    <string name="fx_diwali">排灯节快乐</string>
+    <string name="fx_lunar">春节快乐</string>
+    <string name="games_title">游戏</string>
+    <string name="games_snake_desc">吃东西、变长，别撞到自己</string>
+    <string name="games_2048_desc">滑动方块、合并数字，达到 2048</string>
+    <string name="games_score">得分 %1$d</string>
+    <string name="games_best">最高 %1$d</string>
+    <string name="games_over">游戏结束 · 按 OK 再玩一次</string>
+    <string name="games_start">按 OK 或方向键开始</string>
 </resources>

@@ -360,4 +360,23 @@
     <string name="fc_sum_chance">A chance of rain around %1$s</string>
     <string name="fc_sum_dry">No rain expected</string>
     <string name="fc_sum_hot">Hottest at %1$s, %2$d°</string>
+    <string name="hs_dock_size">Apps in the dock</string>
+    <string name="hs_dock_size_value">%1$d apps</string>
+    <string name="hs_festive">Festive looks</string>
+    <string name="fx_independence">Happy Independence Day</string>
+    <string name="fx_national">Happy National Day</string>
+    <string name="fx_christmas">Merry Christmas</string>
+    <string name="fx_new_year">Happy New Year</string>
+    <string name="fx_eid">Eid Mubarak</string>
+    <string name="fx_diwali">Happy Diwali</string>
+    <string name="fx_lunar">Happy Lunar New Year</string>
+    <string name="games_title">Games</string>
+    <string name="games_snake_desc">Eat, grow, and don\'t run into yourself</string>
+    <string name="games_2048_desc">Slide the tiles, join numbers, reach 2048</string>
+    <string name="games_score">Score %1$d</string>
+    <string name="games_best">Best %1$d</string>
+    <string name="games_over">Game over · Press OK to play again</string>
+    <string name="games_start">Press OK or an arrow to start</string>
+    <string name="games_snake" translatable="false">Snake</string>
+    <string name="games_2048" translatable="false">2048</string>
 </resources>

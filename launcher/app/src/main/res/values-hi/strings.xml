@@ -354,4 +354,21 @@
     <string name="fc_sum_chance">%1$s के आसपास बारिश हो सकती है</string>
     <string name="fc_sum_dry">बारिश की उम्मीद नहीं</string>
     <string name="fc_sum_hot">सबसे गर्म %1$s, %2$d°</string>
+    <string name="hs_dock_size">डॉक में ऐप</string>
+    <string name="hs_dock_size_value">%1$d ऐप</string>
+    <string name="hs_festive">त्योहार का रूप</string>
+    <string name="fx_independence">स्वतंत्रता दिवस की शुभकामनाएं</string>
+    <string name="fx_national">राष्ट्रीय दिवस की शुभकामनाएं</string>
+    <string name="fx_christmas">क्रिसमस की शुभकामनाएं</string>
+    <string name="fx_new_year">नया साल मुबारक</string>
+    <string name="fx_eid">ईद मुबारक</string>
+    <string name="fx_diwali">दिवाली की शुभकामनाएं</string>
+    <string name="fx_lunar">चंद्र नववर्ष की शुभकामनाएं</string>
+    <string name="games_title">गेम</string>
+    <string name="games_snake_desc">खाओ, बढ़ो, और खुद से मत टकराओ</string>
+    <string name="games_2048_desc">टाइलें खिसकाएं, अंक जोड़ें, 2048 तक पहुंचें</string>
+    <string name="games_score">स्कोर %1$d</string>
+    <string name="games_best">सबसे अच्छा %1$d</string>
+    <string name="games_over">गेम ख़त्म · फिर खेलने के लिए OK दबाएं</string>
+    <string name="games_start">शुरू करने के लिए OK या तीर दबाएं</string>
 </resources>

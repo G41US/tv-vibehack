@@ -354,4 +354,21 @@
     <string name="fc_sum_chance">احتمال مطر نحو %1$s</string>
     <string name="fc_sum_dry">لا أمطار متوقعة</string>
     <string name="fc_sum_hot">الأشد حرًا عند %1$s، %2$d°</string>
+    <string name="hs_dock_size">التطبيقات في الشريط</string>
+    <string name="hs_dock_size_value">%1$d تطبيقات</string>
+    <string name="hs_festive">أجواء الأعياد</string>
+    <string name="fx_independence">عيد استقلال سعيد</string>
+    <string name="fx_national">يوم وطني سعيد</string>
+    <string name="fx_christmas">عيد ميلاد مجيد</string>
+    <string name="fx_new_year">سنة جديدة سعيدة</string>
+    <string name="fx_eid">عيد مبارك</string>
+    <string name="fx_diwali">ديوالي سعيد</string>
+    <string name="fx_lunar">سنة قمرية جديدة سعيدة</string>
+    <string name="games_title">ألعاب</string>
+    <string name="games_snake_desc">كُل وكبُر ولا تصطدم بنفسك</string>
+    <string name="games_2048_desc">حرّك المربعات واجمع الأرقام حتى 2048</string>
+    <string name="games_score">النقاط %1$d</string>
+    <string name="games_best">الأفضل %1$d</string>
+    <string name="games_over">انتهت اللعبة · اضغط OK للعب مجددًا</string>
+    <string name="games_start">اضغط OK أو سهمًا للبدء</string>
 </resources>

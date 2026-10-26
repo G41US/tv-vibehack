@@ -154,7 +154,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         density = getResources().getDisplayMetrics().density;
         // config.xml, overlaid by config.json from a pushed theme (see Config and tools/theme.sh).
         Config cfg = Config.load(this);
-        COLUMNS = cfg.columns;
+        // Apps in the dock (and per row), as picked in Look; the theme's or config.xml's until then.
+        COLUMNS = getSharedPreferences(LOOK_PREFS, MODE_PRIVATE).getInt(HomeSettings.KEY_DOCK, cfg.columns);
         liveTvPkg = cfg.liveTvPackage;
         liveTvAction = cfg.liveTvAction;
         if (liveTvPkg.isEmpty() && installed("com.tcl.tv")) {
@@ -390,6 +391,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 weatherFx = new WeatherFx(this, density);
                 layer.addView(weatherFx, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
                 weatherFx.setMode(HomeSettings.weatherFxOn(this) ? WeatherFx.modeFor(Weather.code(this), Weather.visibility(this)) : WeatherFx.NONE);
+                // Festive looks: confetti, snow or sparkles on a holiday where the person is.
+                Festive.Holiday holiday = SafeStart.on(this) ? null : Festive.today(this);
+                if (holiday != null) {
+                    festiveFx = new Festive.Fx(this, density, holiday);
+                    layer.addView(festiveFx, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                    if (resumed) festiveFx.start();
+                }
                 final LiveWallpaper.Twinkle tw = twinkle;
                 new Thread(() -> {
                     float[][] stars;
@@ -462,6 +470,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         resumed = true;
         nowPlaying.start();
         if (weatherFx != null) weatherFx.start();
+        if (festiveFx != null) festiveFx.start();
         if (mood != null) mood.resume();
         if (twinkle != null) twinkle.start();
         if (driftAnim != null) {
@@ -501,6 +510,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         resumed = false;
         nowPlaying.stop();
         if (weatherFx != null) weatherFx.stop();
+        if (festiveFx != null) festiveFx.stop();
         if (mood != null) mood.pause();
         if (twinkle != null) twinkle.stop();
         if (driftAnim != null) driftAnim.pause();
@@ -511,6 +521,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private View nightShade;
     private MoodLight mood;
     private WeatherFx weatherFx;
+    private Festive.Fx festiveFx;
     private LiveWallpaper.Twinkle twinkle;
     private android.animation.ValueAnimator driftAnim;
     private NowPlaying nowPlaying;
@@ -1276,6 +1287,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         else res = R.string.good_night;
         // With several profiles, greet the person: "Good evening, Ada".
         greeting.setText(Profiles.multiple(this) ? getString(res) + ", " + Profiles.activeName(this) : getString(res));
+        Festive.Holiday holiday = Festive.today(this);
+        if (holiday != null) greeting.setText(holiday.text);   // "Happy Independence Day 🇳🇬" for the day
         if (shamsi) shamsiDate.setText(Shamsi.today());
     }
 

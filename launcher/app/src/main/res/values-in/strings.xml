@@ -354,4 +354,21 @@
     <string name="fc_sum_chance">Mungkin hujan sekitar %1$s</string>
     <string name="fc_sum_dry">Tidak ada hujan</string>
     <string name="fc_sum_hot">Terpanas pukul %1$s, %2$d°</string>
+    <string name="hs_dock_size">Aplikasi di dock</string>
+    <string name="hs_dock_size_value">%1$d aplikasi</string>
+    <string name="hs_festive">Tampilan perayaan</string>
+    <string name="fx_independence">Selamat Hari Kemerdekaan</string>
+    <string name="fx_national">Selamat Hari Nasional</string>
+    <string name="fx_christmas">Selamat Natal</string>
+    <string name="fx_new_year">Selamat Tahun Baru</string>
+    <string name="fx_eid">Selamat Hari Raya</string>
+    <string name="fx_diwali">Selamat Diwali</string>
+    <string name="fx_lunar">Selamat Tahun Baru Imlek</string>
+    <string name="games_title">Game</string>
+    <string name="games_snake_desc">Makan, tumbuh, jangan menabrak diri sendiri</string>
+    <string name="games_2048_desc">Geser ubin, gabungkan angka, capai 2048</string>
+    <string name="games_score">Skor %1$d</string>
+    <string name="games_best">Terbaik %1$d</string>
+    <string name="games_over">Permainan selesai · Tekan OK untuk main lagi</string>
+    <string name="games_start">Tekan OK atau panah untuk mulai</string>
 </resources>
