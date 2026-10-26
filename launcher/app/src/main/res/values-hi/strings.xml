@@ -379,4 +379,14 @@
     <string name="birthday_none">कोई जन्मदिन नहीं</string>
     <string name="fx_birthday">जन्मदिन मुबारक, %1$s</string>
     <string name="fx_birthday_plain">जन्मदिन मुबारक</string>
+    <string name="hs_song_popup">ऐप्स में गाने का पॉप-अप</string>
+    <string name="apps_data_title">ऐप के हिसाब से डेटा</string>
+    <string name="apps_data_month">इस महीने इस्तेमाल</string>
+    <string name="apps_data_today">आज: %1$s</string>
+    <string name="apps_data_row">%1$s · आज %2$s</string>
+    <string name="apps_data_tether">आपके वाई-फ़ाई पर फ़ोन और लैपटॉप</string>
+    <string name="apps_data_system">Android सिस्टम</string>
+    <string name="apps_data_removed">हटाए गए ऐप</string>
+    <string name="apps_data_need">ऐप के हिसाब से डेटा देखने के लिए TV Home को एक बार टीवी का डीबगिंग कनेक्शन चाहिए। \"इस टीवी पर सेटअप करें\" से इसे सेट करें, फिर दोबारा कोशिश करें।</string>
+    <string name="apps_data_empty">इस महीने अभी कोई डेटा इस्तेमाल नहीं हुआ।</string>
 </resources>

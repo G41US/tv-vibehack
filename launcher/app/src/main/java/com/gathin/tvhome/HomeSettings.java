@@ -207,6 +207,11 @@ final class HomeSettings {
             act.refreshNowPlaying();
             music(3);
         }));
+        boolean popup = SongPopup.on(act);
+        rows.add(new GlassMenu.Row(R.drawable.ic_s_sound, s(R.string.hs_song_popup), onOff(popup), () -> {
+            prefs(act).edit().putBoolean("song_popup", !popup).apply();
+            music(4);
+        }));
         page(R.string.hs_music, rows, focus);
     }
 

@@ -86,6 +86,7 @@ public class HomeKeyService extends AccessibilityService {
             if (volume != null) volume.onVolumeChanged();
         }
     };
+    private SongPopup songPopup;
     private String[] takeover = new String[0];
     private long lastTakeover;
 
@@ -100,6 +101,7 @@ public class HomeKeyService extends AccessibilityService {
             if (android.os.Build.VERSION.SDK_INT >= 33) registerReceiver(volumeReceiver, f, RECEIVER_EXPORTED);
             else registerReceiver(volumeReceiver, f);
         }
+        if (songPopup == null) songPopup = new SongPopup(this);
         live = this;
         lastInput = SystemClock.elapsedRealtime();
         idleHandler.removeCallbacks(idleCheck);
@@ -123,6 +125,7 @@ public class HomeKeyService extends AccessibilityService {
         }
         CharSequence pkg = event.getPackageName();
         if (pkg == null) return;
+        if (!"com.android.systemui".contentEquals(pkg)) SongPopup.front = pkg.toString();   // the volume bar is no app
         if (getPackageName().contentEquals(pkg)) {   // TV Home is on screen: the last takeover worked
             cameUp = true;
             failures = 0;
@@ -198,6 +201,7 @@ public class HomeKeyService extends AccessibilityService {
     @Override
     public void onDestroy() {
         if (live == this) live = null;
+        if (songPopup != null) songPopup.release();
         if (volume != null) {
             volume.release();
             try {

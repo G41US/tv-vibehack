@@ -386,4 +386,14 @@
     <string name="birthday_none">Pas d\'anniversaire</string>
     <string name="fx_birthday">Joyeux anniversaire, %1$s</string>
     <string name="fx_birthday_plain">Joyeux anniversaire</string>
+    <string name="hs_song_popup">Pop-up de chanson dans les applis</string>
+    <string name="apps_data_title">Données par appli</string>
+    <string name="apps_data_month">Utilisé ce mois-ci</string>
+    <string name="apps_data_today">Aujourd\'hui : %1$s</string>
+    <string name="apps_data_row">%1$s · aujourd\'hui %2$s</string>
+    <string name="apps_data_tether">Téléphones et ordinateurs sur votre Wi-Fi</string>
+    <string name="apps_data_system">Système Android</string>
+    <string name="apps_data_removed">Applis supprimées</string>
+    <string name="apps_data_need">Pour voir les données par appli, TV Home a besoin une fois de la connexion de débogage du téléviseur. Configurez-la avec « Configurer sur ce téléviseur », puis réessayez.</string>
+    <string name="apps_data_empty">Aucune donnée utilisée ce mois-ci.</string>
 </resources>
