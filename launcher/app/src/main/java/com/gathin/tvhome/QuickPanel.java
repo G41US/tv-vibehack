@@ -155,12 +155,12 @@ public class QuickPanel extends Activity {
             }
             render(at);
         }));
-        rows.add(new GlassMenu.Row(R.drawable.ic_s_speed, getString(R.string.su_title), getString(R.string.su_value), () -> {
+        rows.add(new GlassMenu.Row(R.drawable.ic_s_speed, getString(R.string.su_title), null, () -> {
             reopening = true;
             speeding = true;
             SpeedUp.run(this, this::finish);
         }));
-        rows.add(new GlassMenu.Row(R.drawable.ic_m_moon, getString(R.string.qp_sleep), null, () -> {
+        rows.add(new GlassMenu.Row(R.drawable.ic_pw_sleep, getString(R.string.qp_sleep), null, () -> {
             finish();
             StillWatching.turnOff(getApplicationContext());
         }));
@@ -181,8 +181,9 @@ public class QuickPanel extends Activity {
         if (w != null) {
             w.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
             WindowManager.LayoutParams lp = w.getAttributes();
-            lp.x = GlassMenu.dp(this, 36);
-            lp.width = GlassMenu.dp(this, 470);
+            // Well clear of the right edge: many TVs (LG among them) crop a few percent of the picture.
+            lp.x = GlassMenu.dp(this, 72);
+            lp.width = GlassMenu.dp(this, 500);
             w.setAttributes(lp);
             w.setWindowAnimations(R.style.QuickPanelAnim);
             w.setDimAmount(0.35f);
