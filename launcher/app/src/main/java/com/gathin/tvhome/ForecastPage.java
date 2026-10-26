@@ -75,16 +75,24 @@ final class ForecastPage {
                 for (int k = 0; k < 3; k++) ((TextView) hero.getChildAt(k)).setText(show[k]);
             });
             tile.setBackgroundResource(R.drawable.menu_tile_bg);
-            tile.setPadding(0, GlassMenu.dp(a, 12), 0, GlassMenu.dp(a, 12));
-            tile.addView(GlassMenu.text(a, i == 0 ? a.getString(R.string.fc_today) : dayName(d.date), 16, ink));
+            tile.setPadding(0, GlassMenu.dp(a, 14), 0, GlassMenu.dp(a, 14));
+            tile.setGravity(Gravity.CENTER);
+            TextView name = GlassMenu.text(a, i == 0 ? a.getString(R.string.fc_today) : dayName(d.date), 16, ink);
             // Today's tile shows the sky as it is now when the day isn't stormier than that.
-            TextView icon = GlassMenu.text(a, Weather.emoji(i == 0 && d.code <= 3 ? f.code : d.code), 30, 0xFFFFFFFF);
-            icon.setPadding(0, GlassMenu.dp(a, 6), 0, GlassMenu.dp(a, 4));
-            tile.addView(icon);
-            tile.addView(GlassMenu.text(a, d.hi + "°  " + d.lo + "°", 17, ink));
+            TextView icon = GlassMenu.text(a, Weather.emoji(i == 0 && d.code <= 3 ? f.code : d.code), 34, 0xFFFFFFFF);
+            icon.setPadding(0, GlassMenu.dp(a, 8), 0, GlassMenu.dp(a, 6));
+            // High in full, low dimmer, like a weather app.
+            android.text.SpannableString temps = new android.text.SpannableString(d.hi + "°  " + d.lo + "°");
+            temps.setSpan(new android.text.style.ForegroundColorSpan(0x99FFFFFF), String.valueOf(d.hi).length() + 3,
+                    temps.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            TextView hilo = GlassMenu.text(a, temps, 18, ink);
             TextView rain = GlassMenu.text(a, d.rain > 0 ? "💧 " + d.rain + "%" : " ", 13, dim);
-            rain.setPadding(0, GlassMenu.dp(a, 2), 0, 0);
-            tile.addView(rain);
+            rain.setPadding(0, GlassMenu.dp(a, 3), 0, 0);
+            // A vertical LinearLayout gives children full width, so each line centres its own text.
+            for (TextView v : new TextView[]{name, icon, hilo, rain}) {
+                v.setGravity(Gravity.CENTER_HORIZONTAL);
+                tile.addView(v);
+            }
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(GlassMenu.dp(a, 112),
                     ViewGroup.LayoutParams.WRAP_CONTENT);
             lp.leftMargin = i == 0 ? 0 : GlassMenu.dp(a, 10);
