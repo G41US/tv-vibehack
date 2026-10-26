@@ -120,11 +120,20 @@ final class HomeSettings {
         }));
         int dock = MainActivity.COLUMNS;
         rows.add(new GlassMenu.Row(R.drawable.ic_m_apps, s(R.string.hs_dock_size), s(R.string.hs_dock_size_value, dock), () -> {
-            int i = 0;
-            for (int k = 0; k < DOCK_SIZES.length; k++) if (DOCK_SIZES[k] == dock) i = k;
-            prefs(act).edit().putInt(KEY_DOCK, DOCK_SIZES[(i + 1) % DOCK_SIZES.length]).apply();
-            reopenLook = 5;   // TV Home redraws with the new dock, then this page comes back
-            act.recreate();
+            // A list of the sizes, the current one ticked: pick one.
+            String[] labels = new String[DOCK_SIZES.length];
+            for (int k = 0; k < DOCK_SIZES.length; k++) {
+                labels[k] = (DOCK_SIZES[k] == dock ? "✓  " : "     ") + s(R.string.hs_dock_size_value, DOCK_SIZES[k]);
+            }
+            GlassMenu.list(act, s(R.string.hs_look), s(R.string.hs_dock_size), labels, which -> {
+                if (DOCK_SIZES[which] == dock) {
+                    look(5);
+                    return;
+                }
+                prefs(act).edit().putInt(KEY_DOCK, DOCK_SIZES[which]).apply();
+                reopenLook = 5;   // TV Home redraws with the new dock, then this page comes back
+                act.recreate();
+            });
         }));
         page(R.string.hs_look, rows, focus);
     }
