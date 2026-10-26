@@ -348,4 +348,10 @@
     <string name="fc_day_details_mph">الإحساس %1$d° · المطر %2$d%% · الرياح حتى %3$d ميل/س</string>
     <string name="wx_sunny">مشمس</string>
     <string name="wx_mostly_sunny">مشمس غالبًا</string>
+    <string name="fc_now">الآن</string>
+    <string name="fc_sum_storms">عواصف رعدية محتملة %1$s – %2$s</string>
+    <string name="fc_sum_rain">أمطار محتملة %1$s – %2$s</string>
+    <string name="fc_sum_chance">احتمال مطر نحو %1$s</string>
+    <string name="fc_sum_dry">لا أمطار متوقعة</string>
+    <string name="fc_sum_hot">الأشد حرًا عند %1$s، %2$d°</string>
 </resources>

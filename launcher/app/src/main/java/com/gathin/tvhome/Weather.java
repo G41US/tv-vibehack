@@ -186,6 +186,13 @@ final class Weather {
         double wind;
         String sunrise, sunset;   // "06:32"
         final java.util.List<Day> days = new java.util.ArrayList<>();
+        final java.util.List<Hour> hours = new java.util.ArrayList<>();
+    }
+
+    static final class Hour {
+        String time;   // "2026-10-26T14:00"
+        int temp, code, rain;
+        boolean day;
     }
 
     static final class Day {
@@ -218,6 +225,8 @@ final class Weather {
                 + ",visibility,cloud_cover_low,cloud_cover_mid,cloud_cover_high,is_day"
                 + "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset"
                 + ",apparent_temperature_max,wind_speed_10m_max"
+                + "&hourly=temperature_2m,weather_code,precipitation_probability,cloud_cover_low,cloud_cover_mid"
+                + ",cloud_cover_high,is_day"
                 + "&timezone=auto&forecast_days=6" + units((String) where[3])
                 + (mph((String) where[3]) ? "&wind_speed_unit=mph" : ""), (Double) where[1], (Double) where[2]);
         JSONObject j = new JSONObject(get(url));
@@ -250,6 +259,21 @@ final class Weather {
             day.sunrise = timeOf(d.getJSONArray("sunrise").optString(i, ""));
             day.sunset = timeOf(d.getJSONArray("sunset").optString(i, ""));
             f.days.add(day);
+        }
+        JSONObject h = j.optJSONObject("hourly");
+        if (h != null) {
+            org.json.JSONArray times = h.getJSONArray("time");
+            for (int i = 0; i < times.length(); i++) {
+                Hour hour = new Hour();
+                hour.time = times.getString(i);
+                hour.temp = (int) Math.round(h.getJSONArray("temperature_2m").optDouble(i, 0));
+                hour.rain = (int) Math.round(h.getJSONArray("precipitation_probability").optDouble(i, 0));
+                hour.day = h.getJSONArray("is_day").optInt(i, 1) == 1;
+                hour.code = sky(h.getJSONArray("weather_code").optInt(i, 0),
+                        h.getJSONArray("cloud_cover_low").optDouble(i, -1), h.getJSONArray("cloud_cover_mid").optDouble(i, -1),
+                        h.getJSONArray("cloud_cover_high").optDouble(i, -1));
+                f.hours.add(hour);
+            }
         }
         return f;
     }
@@ -316,9 +340,15 @@ final class Weather {
      * low and mid cloud count fully, high cloud only a little.
      */
     static int sky(int code, JSONObject cur) {
-        if (code > 3 || !cur.has("cloud_cover_low")) return code;
-        double c = Math.max(Math.max(cur.optDouble("cloud_cover_low", 0), cur.optDouble("cloud_cover_mid", 0)),
-                cur.optDouble("cloud_cover_high", 0) * 0.3);
+        if (!cur.has("cloud_cover_low")) return code;
+        return sky(code, cur.optDouble("cloud_cover_low", 0), cur.optDouble("cloud_cover_mid", 0),
+                cur.optDouble("cloud_cover_high", 0));
+    }
+
+    /** As above, from the three cloud layers in %; a negative layer means unknown (keep the code). */
+    static int sky(int code, double low, double mid, double high) {
+        if (code > 3 || low < 0 || mid < 0 || high < 0) return code;
+        double c = Math.max(Math.max(low, mid), high * 0.3);
         return c < 15 ? 0 : c < 40 ? 1 : c < 75 ? 2 : 3;
     }
 

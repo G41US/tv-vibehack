@@ -348,4 +348,10 @@
     <string name="fc_day_details_mph">Sensació %1$d° · Pluja %2$d%% · Vent fins a %3$d mph</string>
     <string name="wx_sunny">Assolellat</string>
     <string name="wx_mostly_sunny">Majoritàriament assolellat</string>
+    <string name="fc_now">Ara</string>
+    <string name="fc_sum_storms">Tempestes probables de %1$s a %2$s</string>
+    <string name="fc_sum_rain">Pluja probable de %1$s a %2$s</string>
+    <string name="fc_sum_chance">Possible pluja cap a les %1$s</string>
+    <string name="fc_sum_dry">No es preveu pluja</string>
+    <string name="fc_sum_hot">Més calor a les %1$s, %2$d°</string>
 </resources>

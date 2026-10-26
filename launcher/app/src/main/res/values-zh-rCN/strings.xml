@@ -348,4 +348,10 @@
     <string name="fc_day_details_mph">体感 %1$d° · 降雨 %2$d%% · 风速最高 %3$d 英里/时</string>
     <string name="wx_sunny">晴</string>
     <string name="wx_mostly_sunny">大致晴朗</string>
+    <string name="fc_now">现在</string>
+    <string name="fc_sum_storms">%1$s – %2$s 可能有雷暴</string>
+    <string name="fc_sum_rain">%1$s – %2$s 可能下雨</string>
+    <string name="fc_sum_chance">%1$s 前后可能有雨</string>
+    <string name="fc_sum_dry">预计无雨</string>
+    <string name="fc_sum_hot">%1$s 最热，%2$d°</string>
 </resources>
