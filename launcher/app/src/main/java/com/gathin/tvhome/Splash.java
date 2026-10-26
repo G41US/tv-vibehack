@@ -32,7 +32,8 @@ import java.io.InputStreamReader;
  */
 final class Splash {
 
-    static final String KEY_ON = "startup_anim", KEY_UP = "startup_uptime", KEY_LAST = "startup_last";
+    static final String KEY_ON = "startup_anim", KEY_UP = "startup_uptime", KEY_LAST = "startup_last",
+            KEY_DONE = "startup_done";
     private static final long BOOTANIM_MAX_MS = 20_000, FIRST_FRAME_MS = 2500;
 
     private final Activity act;
@@ -61,8 +62,12 @@ final class Splash {
         SharedPreferences p = a.getSharedPreferences(HomeSettings.PREFS, Context.MODE_PRIVATE);
         // Time since the box started only goes down when it restarts (BOOT_COUNT isn't kept on every box).
         long up = SystemClock.elapsedRealtime(), was = p.getLong(KEY_UP, Long.MAX_VALUE);
-        p.edit().putLong(KEY_UP, up).apply();
-        if (up >= was) return null;
+        SharedPreferences.Editor e = p.edit().putLong(KEY_UP, up);
+        if (up < was) e.putBoolean(KEY_DONE, false);   // the box restarted
+        e.commit();   // written now: TV Home's process can be killed and restarted while the box starts
+        // Once per start, and never once Home has been seen (it would look like a glitch after Home).
+        if (p.getBoolean(KEY_DONE, false)) return null;
+        p.edit().putBoolean(KEY_DONE, true).commit();
         if (!on(a)) return null;
         String skip = SafeStart.on(a) ? "skipped: safe mode" : !SetupPanel.serviceOn(a) ? "skipped: setup not done"
                 : Settings.Global.getFloat(a.getContentResolver(), Settings.Global.ANIMATOR_DURATION_SCALE, 1f) == 0f
@@ -164,6 +169,12 @@ final class Splash {
             note("skipped: " + e.getClass().getSimpleName());
             end();
         }
+    }
+
+    /** Home is on screen with nothing over it: no animation until the box starts again. */
+    static void homeSeen(Context c) {
+        SharedPreferences p = c.getSharedPreferences(HomeSettings.PREFS, Context.MODE_PRIVATE);
+        if (!p.getBoolean(KEY_DONE, false)) p.edit().putBoolean(KEY_DONE, true).commit();
     }
 
     /** Runs r when the animation is gone (for "Who's watching?"). */
