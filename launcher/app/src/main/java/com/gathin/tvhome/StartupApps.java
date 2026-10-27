@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 final class StartupApps {
 
     private static final String PREFS = "startup_apps", KEY_HELD = "held", KEY_PAUSED = "paused", KEY_AUTO = "auto",
-            KEY_PROVEN = "proven";
+            KEY_PROVEN = "proven", KEY_HOMES = "homes";
     /** Held back by "Pick for me" never: Chromecast built-in and the voice assistant should work at once. */
     private static final String[] KEEP_RUNNING = {"com.google.android.apps.mediashell", "com.google.android.katniss"};
     private static volatile boolean releasing;
@@ -190,11 +190,7 @@ final class StartupApps {
         // Bringing back the box's own home screen made Android switch to it (a black flash, then TV
         // Home taking over again). Made the box's chosen home app first, TV Home stays in front.
         boolean homeBack = false;
-        android.content.Intent home = new android.content.Intent(android.content.Intent.ACTION_MAIN)
-                .addCategory(android.content.Intent.CATEGORY_HOME);
-        for (android.content.pm.ResolveInfo r : c.getPackageManager().queryIntentActivities(home, PackageManager.MATCH_DISABLED_COMPONENTS)) {
-            if (paused.contains(r.activityInfo.packageName)) homeBack = true;
-        }
+        for (String h : prefs(c).getStringSet(KEY_HOMES, new HashSet<>())) if (paused.contains(h)) homeBack = true;
         if (homeBack) claimHome(c, adb);
         for (String pkg : new ArrayList<>(paused)) {
             String out = adb.shell("pm enable --user 0 " + pkg + " 2>&1");
@@ -211,9 +207,11 @@ final class StartupApps {
     /** TV Home as the box's chosen home app (Android 10+ "home app" role; older boxes the home setting). */
     private static void claimHome(Context c, AdbSelf adb) throws Exception {
         String me = c.getPackageName();
-        adb.shell("cmd package set-home-activity --user 0 " + me + "/.MainActivity >/dev/null 2>&1");
-        adb.shell("cmd role add-role-holder --user 0 android.app.role.HOME " + me + " >/dev/null 2>&1");
-        BootTrace.mark(c, "TV Home made the box's home app");
+        String a = adb.shell("cmd package set-home-activity --user 0 " + me + "/.MainActivity 2>&1").trim();
+        String b = adb.shell("cmd role add-role-holder --user 0 android.app.role.HOME " + me + " 2>&1").trim();
+        String said = (a + " " + b).trim();
+        BootTrace.mark(c, "TV Home made the box's home app" + (said.isEmpty() || said.toLowerCase().contains("success") ? ""
+                : " (box said: " + (said.length() > 80 ? said.substring(0, 80) : said) + ")"));
     }
 
     // ---- the page -----------------------------------------------------------------------------------
@@ -276,9 +274,13 @@ final class StartupApps {
         // They come back with everything else right after the animation.
         android.content.Intent home = new android.content.Intent(android.content.Intent.ACTION_MAIN)
                 .addCategory(android.content.Intent.CATEGORY_HOME);
+        Set<String> homes = new TreeSet<>(prefs(c).getStringSet(KEY_HOMES, new HashSet<>()));
         for (android.content.pm.ResolveInfo r : pm.queryIntentActivities(home, PackageManager.MATCH_DISABLED_COMPONENTS)) {
             pkgs.add(r.activityInfo.packageName);
+            if (!r.activityInfo.packageName.equals(c.getPackageName())) homes.add(r.activityInfo.packageName);
         }
+        // Remembered while they're on: once switched off, Android leaves them out of this list.
+        prefs(c).edit().putStringSet(KEY_HOMES, homes).apply();
         android.app.admin.DevicePolicyManager dpm = c.getSystemService(android.app.admin.DevicePolicyManager.class);
         if (dpm != null && dpm.getActiveAdmins() != null) {
             for (android.content.ComponentName cn : dpm.getActiveAdmins()) busy.add(cn.getPackageName());
