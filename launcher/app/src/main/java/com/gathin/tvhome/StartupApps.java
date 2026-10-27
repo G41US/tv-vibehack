@@ -114,8 +114,11 @@ final class StartupApps {
                 if (!AdbSelf.reachable(SelfSetup.PORT)) continue;
                 try (AdbSelf adb = connect(app, 30_000)) {
                     if (boot) androidTimeline(app, adb);
-                    turnOn(app, adb);
-                    reached = paused(app).isEmpty();
+                    // The box's own home screen stays off while TV Home is on screen: bringing it back
+                    // makes Android swap to it for a moment (a blank flash). It comes back on when an
+                    // app is opened or the TV goes to standby (releaseHomes), out of sight.
+                    turnOn(app, adb, !MainActivity.visible);
+                    reached = pausedApps(app).isEmpty();
                     if (reached && auto(app)) {
                         Set<String> picks = new TreeSet<>();
                         for (App a : list(app, adb)) if (a.autoPick) picks.add(a.pkg);
@@ -185,18 +188,46 @@ final class StartupApps {
         }
     }
 
-    private static void turnOn(Context c, AdbSelf adb) throws Exception {
+    private static boolean isHome(Context c, String pkg) {
+        return prefs(c).getStringSet(KEY_HOMES, new HashSet<>()).contains(pkg);
+    }
+
+    /** Paused apps other than the box's home screens. */
+    private static Set<String> pausedApps(Context c) {
+        Set<String> s = paused(c);
+        s.removeIf(p -> isHome(c, p));
+        return s;
+    }
+
+    /** TV Home has gone to the background or the TV to standby: bring back the box's own home screen. */
+    static void releaseHomes(Context c) {
+        boolean any = false;
+        for (String p : paused(c)) if (isHome(c, p)) any = true;
+        if (!any || releasing) return;
+        Context app = c.getApplicationContext();
+        new Thread(() -> {
+            if (!AdbSelf.reachable(SelfSetup.PORT)) return;
+            try (AdbSelf adb = connect(app, 30_000)) {
+                turnOn(app, adb, true);
+            } catch (Exception ignored) {
+            }
+        }, "startup-homes").start();
+    }
+
+    private static void turnOn(Context c, AdbSelf adb, boolean homesToo) throws Exception {
         Set<String> paused = paused(c);
+        if (!homesToo) paused.removeIf(p -> isHome(c, p));
         // Bringing back the box's own home screen made Android switch to it (a black flash, then TV
         // Home taking over again). Made the box's chosen home app first, TV Home stays in front.
         boolean homeBack = false;
         for (String h : prefs(c).getStringSet(KEY_HOMES, new HashSet<>())) if (paused.contains(h)) homeBack = true;
+        Set<String> stillOff = paused(c);   // the full list, written back as each one comes on
         if (homeBack) claimHome(c, adb);
         for (String pkg : new ArrayList<>(paused)) {
             String out = adb.shell("pm enable --user 0 " + pkg + " 2>&1");
             if (out.contains("enabled") || out.contains("Unknown package")) {
-                paused.remove(pkg);
-                prefs(c).edit().putStringSet(KEY_PAUSED, paused).commit();
+                stillOff.remove(pkg);
+                prefs(c).edit().putStringSet(KEY_PAUSED, stillOff).commit();
                 // Their own start-up step; refused on boxes that don't allow it, which is fine.
                 adb.shell("am broadcast -a android.intent.action.BOOT_COMPLETED -p " + pkg + " >/dev/null 2>&1");
             }
@@ -231,7 +262,7 @@ final class StartupApps {
             if (AdbSelf.reachable(SelfSetup.PORT)) {
                 try (AdbSelf adb = AdbSelf.connect(a, SelfSetup.PORT, 30_000,
                         () -> main.post(() -> p.set(a.getString(R.string.ss_allow))))) {
-                    if (!paused(a).isEmpty()) turnOn(a, adb);
+                    if (!paused(a).isEmpty()) turnOn(a, adb, false);   // over Home: its own home screen waits
                     apps = list(a, adb);
                 } catch (Exception ignored) {
                 }
