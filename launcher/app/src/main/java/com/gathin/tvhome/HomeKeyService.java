@@ -78,6 +78,7 @@ public class HomeKeyService extends AccessibilityService {
         public void onReceive(android.content.Context c, Intent i) {
             if (Intent.ACTION_SCREEN_OFF.equals(i.getAction())) {
                 NowPlaying.startSmall(c);   // TV off: the music card comes back small
+                StartupApps.releaseHomes(c);   // and the box's own home screen, out of sight
                 return;
             }
             int stream = i.getIntExtra("android.media.EXTRA_VOLUME_STREAM_TYPE", android.media.AudioManager.STREAM_MUSIC);

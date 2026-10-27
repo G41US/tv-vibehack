@@ -485,9 +485,20 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }
     }
 
+    /** Home is on screen (the box's own home screen is only brought back when it isn't). */
+    static volatile boolean visible;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        visible = true;
+    }
+
     @Override
     protected void onStop() {
         super.onStop();
+        visible = false;
+        if (!isFinishing()) StartupApps.releaseHomes(this);
         // Not in onPause: at start-up Android brings Home to the front again, which pauses it for a moment.
         if (splash != null) splash.end();
     }
