@@ -1260,11 +1260,11 @@ final class NowPlaying {
         }
     }
 
-    private static Bitmap coverOf(MediaMetadata md) {
-        Bitmap c = md.getBitmap(MediaMetadata.METADATA_KEY_ART);
-        if (c == null) c = md.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART);
-        if (c == null) c = md.getBitmap(MediaMetadata.METADATA_KEY_DISPLAY_ICON);
-        return c;
+    /** The song's cover; a linked one (SoundCloud and others) is fetched and the card redrawn when it arrives. */
+    private Bitmap coverOf(MediaMetadata md) {
+        return CoverArt.of(act, md, () -> {
+            if (card != null) render();
+        });
     }
 
     /** {position, duration} in ms now, or null without a duration. */

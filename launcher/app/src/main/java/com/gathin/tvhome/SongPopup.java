@@ -100,9 +100,10 @@ final class SongPopup {
         CharSequence by = md.getText(MediaMetadata.METADATA_KEY_ARTIST);
         if (TextUtils.isEmpty(song)) return;
         String key = song + "|" + by;
-        Bitmap cover = md.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART);
-        if (cover == null) cover = md.getBitmap(MediaMetadata.METADATA_KEY_ART);
-        if (cover == null) cover = md.getBitmap(MediaMetadata.METADATA_KEY_DISPLAY_ICON);
+        Bitmap cover = CoverArt.of(service, md, () -> {   // a linked cover arriving a moment later
+            Bitmap late = CoverArt.of(service, md, null);
+            if (card != null && late != null && card.getParent() != null) art.setImageBitmap(late);
+        });
         if (key.equals(lastSong)) {   // the same song again, often with its cover arriving late
             if (card != null && cover != null) art.setImageBitmap(cover);
             return;
