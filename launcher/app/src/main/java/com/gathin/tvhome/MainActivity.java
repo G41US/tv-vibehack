@@ -1530,18 +1530,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         else if (hour < 22) res = R.string.good_evening;
         else res = R.string.good_night;
         // With several profiles, greet the person: "Good evening, Ada".
-        String hello = Profiles.multiple(this) ? getString(res) + ", " + Profiles.activeName(this) : getString(res);
-        String id = Profiles.active(this), pic = Profiles.emoji(this, id);
-        android.graphics.Bitmap face = Profiles.round(this, id, Math.round(greeting.getTextSize() * 1.3f));
-        if (face != null) {   // a drawn picture or photo: a small round badge after the name
-            android.text.SpannableString sp = new android.text.SpannableString(hello + "   ");
-            sp.setSpan(new android.text.style.ImageSpan(this, face, android.os.Build.VERSION.SDK_INT >= 29
-                    ? android.text.style.DynamicDrawableSpan.ALIGN_CENTER : android.text.style.DynamicDrawableSpan.ALIGN_BASELINE),
-                    sp.length() - 1, sp.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            greeting.setText(sp);
-        } else {
-            greeting.setText(pic == null ? hello : hello + "  " + pic);   // "Good evening, Ada  🦁"
-        }
+        // Greet the person by their profile's name: "Good evening, Ada".
+        String name = Profiles.activeName(this);
+        greeting.setText(name.isEmpty() ? getString(res) : getString(res) + ", " + name);
         Festive.Holiday holiday = Festive.today(this);
         if (holiday != null) greeting.setText(holiday.text);   // "Happy Independence Day 🇳🇬" for the day
         if (shamsi) shamsiDate.setText(Shamsi.today());

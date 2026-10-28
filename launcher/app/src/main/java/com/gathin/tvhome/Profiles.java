@@ -4,10 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BitmapShader;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
@@ -181,22 +177,6 @@ final class Profiles {
         } catch (Exception ignored) {
         }
         return null;
-    }
-
-    /** The picture as a round badge on the person's colour (next to the greeting), or null. */
-    static Bitmap round(Context ctx, String id, int px) {
-        Drawable d = picture(ctx, id);
-        if (d == null || px <= 0) return null;
-        Bitmap sq = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(sq);
-        c.drawColor(colours(id)[0]);
-        d.setBounds(0, 0, px, px);
-        d.draw(c);
-        Bitmap out = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888);
-        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
-        p.setShader(new BitmapShader(sq, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP));
-        new Canvas(out).drawCircle(px / 2f, px / 2f, px / 2f, p);
-        return out;
     }
 
     /** "🦁  Ada", or just the name without a picture. */
