@@ -406,7 +406,6 @@
     <string name="sec_adb_guard">Debugging hanya saat diperlukan</string>
     <string name="pp_manage">Kelola profil</string>
     <string name="pp_done">Selesai</string>
-    <string name="pp_ask">Tanya saat menyala</string>
     <string name="pp_current">Sedang menonton</string>
     <string name="pp_picture">Gambar</string>
     <string name="pp_name">Nama</string>

@@ -413,7 +413,6 @@
     <string name="sec_adb_guard">Débogage seulement si nécessaire</string>
     <string name="pp_manage">Gérer les profils</string>
     <string name="pp_done">Terminé</string>
-    <string name="pp_ask">Demander au démarrage</string>
     <string name="pp_current">Regarde en ce moment</string>
     <string name="pp_picture">Image</string>
     <string name="pp_name">Nom</string>

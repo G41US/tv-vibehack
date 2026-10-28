@@ -406,7 +406,6 @@
     <string name="sec_adb_guard">डीबगिंग केवल ज़रूरत पर</string>
     <string name="pp_manage">प्रोफ़ाइल प्रबंधित करें</string>
     <string name="pp_done">हो गया</string>
-    <string name="pp_ask">शुरू होने पर पूछें</string>
     <string name="pp_current">अभी देख रहे हैं</string>
     <string name="pp_picture">तस्वीर</string>
     <string name="pp_name">नाम</string>

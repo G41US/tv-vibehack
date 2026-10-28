@@ -563,7 +563,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 grid.post(() -> focusTile(Math.max(0, adapter.positionOf(returnKey))));
                 afterFirstFrame(() -> hold.animate().alpha(0f).setDuration(450).withEndAction(() -> {
                     if (hold.getParent() instanceof ViewGroup) ((ViewGroup) hold.getParent()).removeView(hold);
-                    if (Profiles.shouldAsk(this)) showWhoIsWatching();   // once Home is fully there
                 }).start());
             });
         } else if (splash != null && splash.active()) {
@@ -582,10 +581,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             runRestore();   // first start after a reinstall, once the photos permission is granted
         }
         setupPanel.onResume();
-        if (!fromLogo && Profiles.shouldAsk(this)) {
-            if (splash != null && splash.active()) splash.then(this::showWhoIsWatching);
-            else showWhoIsWatching();
-        }
         weather.refresh(false, this::showWeather);
         updateGreeting();
         updateWifiLabel();
@@ -963,7 +958,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     // ---- profiles ----------------------------------------------------------------------------------
 
     private void switchProfile(String id) {
-        Profiles.asked(this);
         if (id.equals(Profiles.active(this))) return;
         Profiles.setActive(this, id);
         recreate();
@@ -994,17 +988,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             return found != null && !found.isEmpty() ? found : getString(R.string.weather_auto);
         }
         return Weather.cityName(p);
-    }
-
-    /** "Who's watching?": after the box starts, or after Still watching? turned it off. */
-    private android.app.Dialog whoDialog;
-
-    private void showWhoIsWatching() {
-        if (whoDialog != null && whoDialog.isShowing()) return;   // Home came back while it's open
-        if (isFinishing() || isDestroyed()) return;
-        Profiles.asked(this);   // asked once, whichever way it's closed (picked, added, managed, Back)
-        whoDialog = ProfilePicker.show(this, false, profileHost, null);
-        BootTrace.mark(this, "Who's watching shown");
     }
 
     /** Settings > Profiles: the same page, to switch, add or manage. */

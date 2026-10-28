@@ -406,7 +406,6 @@
     <string name="sec_adb_guard">ดีบักเฉพาะตอนที่จำเป็น</string>
     <string name="pp_manage">จัดการโปรไฟล์</string>
     <string name="pp_done">เสร็จ</string>
-    <string name="pp_ask">ถามตอนเปิดเครื่อง</string>
     <string name="pp_current">กำลังดูอยู่</string>
     <string name="pp_picture">รูป</string>
     <string name="pp_name">ชื่อ</string>

@@ -34,7 +34,7 @@ import java.util.function.Consumer;
  * picture fill the screen, hugely blurred, and follow focus (as on Recent apps); the
  * focused tile springs forward and its picture floats while the others step back; the person's name
  * shows large in the middle. "Manage profiles" turns the tiles into edit buttons (picture, name,
- * birthday, remove), and "Ask at start" sits on the same screen.
+ * birthday, remove). Opened from Settings > Profiles; TV Home starts on the last profile used.
  */
 final class ProfilePicker {
 
@@ -156,7 +156,7 @@ final class ProfilePicker {
             });
         }
 
-        // Manage / Done, and whether to ask after the TV starts.
+        // Manage / Done.
         LinearLayout bar = new LinearLayout(a);
         bar.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams blp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -167,16 +167,6 @@ final class ProfilePicker {
             d.dismiss();
             show(a, !manage, host, dismissed);
         }));
-        {
-            boolean ask = Profiles.askEnabled(a);
-            TextView askPill = GlassMenu.pill(a, a.getString(R.string.pp_ask) + ": " + a.getString(ask ? R.string.tv_on : R.string.tv_off), null);
-            askPill.setOnClickListener(v -> {
-                boolean now = !Profiles.askEnabled(a);
-                Profiles.setAsk(a, now);
-                askPill.setText(a.getString(R.string.pp_ask) + ": " + a.getString(now ? R.string.tv_on : R.string.tv_off));
-            });
-            bar.addView(askPill);
-        }
 
         final View first = focus;
         d.setOnShowListener(x -> {

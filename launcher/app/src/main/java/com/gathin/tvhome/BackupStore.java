@@ -61,7 +61,7 @@ final class BackupStore {
             {"look", "*"},                    // wallpaper choice, per profile
             {"weather", "place"},
             {"guest_wifi", "ssid", "password", "security", "hidden"},
-            {Profiles.PREFS, Profiles.KEY_LIST, Profiles.KEY_ACTIVE, Profiles.KEY_ASK},
+            {Profiles.PREFS, Profiles.KEY_LIST, Profiles.KEY_ACTIVE},
             {"still", "hours", "action"},
             {DataLimit.PREFS, DataLimit.KEY_GB},
     };

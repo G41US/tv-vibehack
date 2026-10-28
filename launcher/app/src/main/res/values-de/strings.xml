@@ -406,7 +406,6 @@
     <string name="sec_adb_guard">Debugging nur bei Bedarf</string>
     <string name="pp_manage">Profile verwalten</string>
     <string name="pp_done">Fertig</string>
-    <string name="pp_ask">Beim Start fragen</string>
     <string name="pp_current">Schaut gerade</string>
     <string name="pp_picture">Bild</string>
     <string name="pp_name">Name</string>

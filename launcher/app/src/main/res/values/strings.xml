@@ -412,7 +412,6 @@
     <string name="sec_adb_guard">Debugging only when needed</string>
     <string name="pp_manage">Manage profiles</string>
     <string name="pp_done">Done</string>
-    <string name="pp_ask">Ask at start</string>
     <string name="pp_current">Watching now</string>
     <string name="pp_picture">Picture</string>
     <string name="pp_name">Name</string>

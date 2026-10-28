@@ -406,7 +406,6 @@
     <string name="sec_adb_guard">التصحيح فقط عند الحاجة</string>
     <string name="pp_manage">إدارة الملفات الشخصية</string>
     <string name="pp_done">تم</string>
-    <string name="pp_ask">السؤال عند التشغيل</string>
     <string name="pp_current">يشاهد الآن</string>
     <string name="pp_picture">الصورة</string>
     <string name="pp_name">الاسم</string>
