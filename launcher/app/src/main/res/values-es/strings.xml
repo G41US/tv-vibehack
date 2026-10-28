@@ -404,4 +404,18 @@
     <string name="fs_auto">Elegir por mí</string>
     <string name="fs_pending">Funciona a partir del próximo reinicio, cuando TV Home compruebe que puede volver a activar las apps.</string>
     <string name="sec_adb_guard">Depuración solo cuando haga falta</string>
+    <string name="pp_manage">Administrar perfiles</string>
+    <string name="pp_done">Listo</string>
+    <string name="pp_ask">Preguntar al encender</string>
+    <string name="pp_current">Viendo ahora</string>
+    <string name="pp_picture">Imagen</string>
+    <string name="pp_name">Nombre</string>
+    <string name="pp_birthday">Cumpleaños</string>
+    <string name="pp_remove">Eliminar %1$s</string>
+    <string name="rc_title">Apps recientes</string>
+    <string name="rc_clear_all">Cerrar todo</string>
+    <string name="rc_close">Cerrar</string>
+    <string name="rc_none">Aún no hay apps recientes.</string>
+    <string name="rc_need">Las apps recientes necesitan acceso de uso. Ejecuta Configurar en este televisor (Actualizaciones y configuración).</string>
+    <string name="qp_back_to">Volver a %1$s</string>
 </resources>

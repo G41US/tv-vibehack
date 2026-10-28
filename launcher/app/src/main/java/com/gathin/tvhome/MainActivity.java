@@ -995,54 +995,62 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     /** "Who's watching?": after the box starts, or after Still watching? turned it off. */
+    /** "Who's watching?": after the box starts, or after Still watching? turned it off. */
     private void showWhoIsWatching() {
-        List<String[]> people = Profiles.list(this);
-        String current = Profiles.active(this);
-        String[] names = new String[people.size()];
-        for (int i = 0; i < names.length; i++) {
-            String id = people.get(i)[0];
-            names[i] = mark(current, id, Profiles.withAvatar(this, id, people.get(i)[1]));
-        }
-        GlassMenu.list(this, getString(R.string.menu_title), getString(R.string.profile_who), names,
-                which -> switchProfile(people.get(which)[0]))
-                .setOnCancelListener(d -> Profiles.asked(this));
+        ProfilePicker.show(this, false, profileHost, () -> Profiles.asked(this));
     }
 
+    /** Settings > Profiles: the same page, to switch, add or manage. */
     void showProfilesMenu() {
-        List<String[]> people = Profiles.list(this);
-        String current = Profiles.active(this);
-        List<String> labels = new ArrayList<>();
-        List<Runnable> actions = new ArrayList<>();
-        for (String[] p : people) {
-            labels.add(mark(current, p[0], Profiles.withAvatar(this, p[0], p[1])));
-            actions.add(() -> switchProfile(p[0]));
-        }
-        labels.add(getString(R.string.profile_add));
-        actions.add(() -> askName(getString(R.string.profile_add_title), "", name -> {
-            String id = Profiles.add(this, name);
+        ProfilePicker.show(this, false, profileHost, null);
+    }
+
+    private final ProfilePicker.Host profileHost = new ProfilePicker.Host() {
+        @Override
+        public void pick(String id) {
             switchProfile(id);
-        }));
-        String me = Profiles.active(this), bday = Profiles.birthday(this, me), pic = Profiles.avatar(this, me);
-        labels.add(pic == null ? getString(R.string.profile_avatar_add, Profiles.activeName(this))
-                : getString(R.string.profile_avatar_set, Profiles.activeName(this), pic));
-        actions.add(() -> askAvatar(me));
-        labels.add(bday == null ? getString(R.string.profile_birthday_add, Profiles.activeName(this))
-                : getString(R.string.profile_birthday_set, Profiles.activeName(this), birthdayText(bday)));
-        actions.add(() -> askBirthday(me));
-        labels.add(getString(R.string.profile_rename, Profiles.activeName(this)));
-        actions.add(() -> askName(getString(R.string.profile_rename_title), Profiles.activeName(this), name -> {
-            Profiles.rename(this, Profiles.active(this), name);
-            updateGreeting();
-        }));
-        if (people.size() > 1) {
-            labels.add(getString(R.string.profile_remove));
-            actions.add(this::showRemoveProfile);
-            boolean ask = Profiles.askEnabled(this);
-            labels.add(getString(ask ? R.string.profile_ask_on : R.string.profile_ask_off));
-            actions.add(() -> Profiles.setAsk(this, !ask));
         }
-        GlassMenu.list(this, getString(R.string.menu_title), getString(R.string.menu_profiles),
-                labels.toArray(new String[0]), which -> actions.get(which).run());
+
+        @Override
+        public void add() {
+            askName(getString(R.string.profile_add_title), "", name -> switchProfile(Profiles.add(MainActivity.this, name)));
+        }
+
+        @Override
+        public void edit(String id) {
+            editProfile(id);
+        }
+    };
+
+    private String profileName(String id) {
+        for (String[] p : Profiles.list(this)) if (p[0].equals(id)) return p[1];
+        return "";
+    }
+
+    /** Manage profiles > a person: their picture, name, birthday, or removing them. */
+    private void editProfile(String id) {
+        String name = profileName(id), pic = Profiles.avatar(this, id), bday = Profiles.birthday(this, id);
+        Runnable back = () -> ProfilePicker.show(this, true, profileHost, null);
+        List<GlassMenu.Row> rows = new ArrayList<>();
+        rows.add(new GlassMenu.Row(R.drawable.ic_m_wallpaper, getString(R.string.pp_picture), pic != null ? pic : "–",
+                () -> askAvatar(id)));
+        rows.add(new GlassMenu.Row(R.drawable.ic_s_text, getString(R.string.pp_name), name,
+                () -> askName(getString(R.string.profile_rename_title), name, n -> {
+                    Profiles.rename(this, id, n);
+                    updateGreeting();
+                    editProfile(id);
+                })));
+        rows.add(new GlassMenu.Row(R.drawable.ic_m_moon, getString(R.string.pp_birthday), bday != null ? birthdayText(bday) : "–",
+                () -> askBirthday(id)));
+        if (!Profiles.MAIN.equals(id)) {
+            rows.add(new GlassMenu.Row(R.drawable.ic_s_shield, getString(R.string.pp_remove, name), null, () -> {
+                boolean wasActive = id.equals(Profiles.active(this));
+                Profiles.remove(this, id);
+                if (wasActive) recreate();
+                else back.run();
+            }));
+        }
+        GlassMenu.page(this, getString(R.string.pp_manage), (pic != null ? pic + "  " : "") + name, null, rows, back, 0);
     }
 
     /** The emoji grid; with a picture already set, a last ✕ tile removes it. */
@@ -1050,10 +1058,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         String now = Profiles.avatar(this, id);
         List<String> items = new ArrayList<>(java.util.Arrays.asList(Profiles.AVATARS));
         if (now != null) items.add("✕");
-        GlassMenu.emoji(this, getString(R.string.menu_profiles), getString(R.string.avatar_title, Profiles.activeName(this)),
+        GlassMenu.emoji(this, getString(R.string.menu_profiles), getString(R.string.avatar_title, profileName(id)),
                 items.toArray(new String[0]), now, which -> {
                     Profiles.setAvatar(this, id, which < Profiles.AVATARS.length ? Profiles.AVATARS[which] : null);
                     updateGreeting();
+                    editProfile(id);
                 });
     }
 
@@ -1095,18 +1104,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 });
     }
 
-    private void showRemoveProfile() {
-        List<String[]> others = new ArrayList<>(Profiles.list(this));
-        others.remove(0);   // the main profile stays
-        String[] names = new String[others.size()];
-        for (int i = 0; i < names.length; i++) names[i] = others.get(i)[1];
-        GlassMenu.list(this, getString(R.string.menu_profiles), getString(R.string.profile_remove), names, which -> {
-            String id = others.get(which)[0];
-            boolean wasActive = id.equals(Profiles.active(this));
-            Profiles.remove(this, id);
-            if (wasActive) recreate();
-        });
-    }
 
     private interface NameListener {
         void onName(String name);

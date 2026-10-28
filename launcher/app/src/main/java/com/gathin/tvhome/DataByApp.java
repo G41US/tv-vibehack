@@ -28,7 +28,7 @@ final class DataByApp {
     private DataByApp() {
     }
 
-    private static boolean allowed(Context c) {
+    static boolean allowed(Context c) {
         AppOpsManager ops = (AppOpsManager) c.getSystemService(Context.APP_OPS_SERVICE);
         return ops != null && ops.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, Process.myUid(),
                 c.getPackageName()) == AppOpsManager.MODE_ALLOWED;

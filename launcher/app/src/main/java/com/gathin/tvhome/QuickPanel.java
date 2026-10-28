@@ -62,6 +62,7 @@ public class QuickPanel extends Activity {
         super.onCreate(b);
         Sounds.init(this);
         showing = true;
+        findPrevious();   // quick (Android's own usage records): before the panel draws, so it doesn't jump
         render(0);
     }
 
@@ -100,6 +101,22 @@ public class QuickPanel extends Activity {
         }
     }
 
+    /** The app used before the one on screen, found once when the panel opens. */
+    private Recents.App previous;
+
+    private void findPrevious() {
+        String front = SongPopup.front;   // the app under the panel
+        try {
+            for (Recents.App a : Recents.recent(this, 3)) {
+                if (!a.pkg.equals(front)) {
+                    previous = a;
+                    return;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
     private void render(int focus) {
         if (dialog != null) {
             dialog.setOnDismissListener(null);
@@ -107,6 +124,19 @@ public class QuickPanel extends Activity {
         }
         AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         List<GlassMenu.Row> rows = new ArrayList<>();
+
+        // Recent apps (the app switcher) and one press back to the app before this one.
+        rows.add(new GlassMenu.Row(R.drawable.ic_m_apps, getString(R.string.rc_title), null, () -> {
+            finish();
+            Recents.open(getApplicationContext());
+        }));
+        if (previous != null) {
+            final Recents.App prev = previous;
+            rows.add(new GlassMenu.Row(prev.icon, getString(R.string.qp_back_to, prev.label), null, () -> {
+                finish();
+                Recents.switchTo(getApplicationContext(), prev.pkg);
+            }));
+        }
 
         MediaController mc = media();
         if (mc != null) {

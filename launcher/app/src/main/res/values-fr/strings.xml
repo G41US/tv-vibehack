@@ -411,4 +411,18 @@
     <string name="fs_auto">Choisir pour moi</string>
     <string name="fs_pending">Actif après le prochain redémarrage, une fois que TV Home a vérifié qu\'il peut réactiver les applis.</string>
     <string name="sec_adb_guard">Débogage seulement si nécessaire</string>
+    <string name="pp_manage">Gérer les profils</string>
+    <string name="pp_done">Terminé</string>
+    <string name="pp_ask">Demander au démarrage</string>
+    <string name="pp_current">Regarde en ce moment</string>
+    <string name="pp_picture">Image</string>
+    <string name="pp_name">Nom</string>
+    <string name="pp_birthday">Anniversaire</string>
+    <string name="pp_remove">Supprimer %1$s</string>
+    <string name="rc_title">Applis récentes</string>
+    <string name="rc_clear_all">Tout fermer</string>
+    <string name="rc_close">Fermer</string>
+    <string name="rc_none">Aucune appli récente.</string>
+    <string name="rc_need">Les applis récentes demandent l\'accès à l\'utilisation. Lancez Configurer sur ce téléviseur (Mises à jour et configuration).</string>
+    <string name="qp_back_to">Revenir à %1$s</string>
 </resources>

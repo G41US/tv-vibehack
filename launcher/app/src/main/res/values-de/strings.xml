@@ -404,4 +404,18 @@
     <string name="fs_auto">Für mich auswählen</string>
     <string name="fs_pending">Wirkt ab dem nächsten Neustart, sobald TV Home geprüft hat, dass es Apps wieder einschalten kann.</string>
     <string name="sec_adb_guard">Debugging nur bei Bedarf</string>
+    <string name="pp_manage">Profile verwalten</string>
+    <string name="pp_done">Fertig</string>
+    <string name="pp_ask">Beim Start fragen</string>
+    <string name="pp_current">Schaut gerade</string>
+    <string name="pp_picture">Bild</string>
+    <string name="pp_name">Name</string>
+    <string name="pp_birthday">Geburtstag</string>
+    <string name="pp_remove">%1$s entfernen</string>
+    <string name="rc_title">Letzte Apps</string>
+    <string name="rc_clear_all">Alle schließen</string>
+    <string name="rc_close">Schließen</string>
+    <string name="rc_none">Noch keine letzten Apps.</string>
+    <string name="rc_need">Letzte Apps brauchen Nutzungszugriff. Führe „Auf diesem Fernseher einrichten“ aus (Updates &amp; Einrichtung).</string>
+    <string name="qp_back_to">Zurück zu %1$s</string>
 </resources>

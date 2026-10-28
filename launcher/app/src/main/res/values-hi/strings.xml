@@ -404,4 +404,18 @@
     <string name="fs_auto">मेरे लिए चुनें</string>
     <string name="fs_pending">अगली बार रीस्टार्ट के बाद काम करेगा, जब TV Home जाँच लेगा कि वह ऐप फिर से चालू कर सकता है।</string>
     <string name="sec_adb_guard">डीबगिंग केवल ज़रूरत पर</string>
+    <string name="pp_manage">प्रोफ़ाइल प्रबंधित करें</string>
+    <string name="pp_done">हो गया</string>
+    <string name="pp_ask">शुरू होने पर पूछें</string>
+    <string name="pp_current">अभी देख रहे हैं</string>
+    <string name="pp_picture">तस्वीर</string>
+    <string name="pp_name">नाम</string>
+    <string name="pp_birthday">जन्मदिन</string>
+    <string name="pp_remove">%1$s हटाएँ</string>
+    <string name="rc_title">हाल के ऐप</string>
+    <string name="rc_clear_all">सब बंद करें</string>
+    <string name="rc_close">बंद करें</string>
+    <string name="rc_none">अभी कोई हाल का ऐप नहीं।</string>
+    <string name="rc_need">हाल के ऐप के लिए उपयोग की अनुमति चाहिए। इस टीवी पर सेट अप करें चलाएँ (अपडेट और सेटअप)।</string>
+    <string name="qp_back_to">%1$s पर वापस जाएँ</string>
 </resources>

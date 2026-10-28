@@ -404,4 +404,18 @@
     <string name="fs_auto">帮我选择</string>
     <string name="fs_pending">下次重启后生效：TV Home 会先确认可以重新打开这些应用。</string>
     <string name="sec_adb_guard">仅在需要时开启调试</string>
+    <string name="pp_manage">管理用户</string>
+    <string name="pp_done">完成</string>
+    <string name="pp_ask">开机时询问</string>
+    <string name="pp_current">正在观看</string>
+    <string name="pp_picture">头像</string>
+    <string name="pp_name">名字</string>
+    <string name="pp_birthday">生日</string>
+    <string name="pp_remove">删除 %1$s</string>
+    <string name="rc_title">最近使用的应用</string>
+    <string name="rc_clear_all">全部关闭</string>
+    <string name="rc_close">关闭</string>
+    <string name="rc_none">还没有最近使用的应用。</string>
+    <string name="rc_need">最近使用的应用需要使用情况访问权限。请运行“在此电视上设置”（更新与设置）。</string>
+    <string name="qp_back_to">返回 %1$s</string>
 </resources>

@@ -404,4 +404,18 @@
     <string name="fs_auto">Pilihkan untuk saya</string>
     <string name="fs_pending">Mulai berlaku setelah mulai ulang berikutnya, setelah TV Home memastikan bisa menyalakan aplikasi lagi.</string>
     <string name="sec_adb_guard">Debugging hanya saat diperlukan</string>
+    <string name="pp_manage">Kelola profil</string>
+    <string name="pp_done">Selesai</string>
+    <string name="pp_ask">Tanya saat menyala</string>
+    <string name="pp_current">Sedang menonton</string>
+    <string name="pp_picture">Gambar</string>
+    <string name="pp_name">Nama</string>
+    <string name="pp_birthday">Ulang tahun</string>
+    <string name="pp_remove">Hapus %1$s</string>
+    <string name="rc_title">Aplikasi terbaru</string>
+    <string name="rc_clear_all">Tutup semua</string>
+    <string name="rc_close">Tutup</string>
+    <string name="rc_none">Belum ada aplikasi terbaru.</string>
+    <string name="rc_need">Aplikasi terbaru perlu akses penggunaan. Jalankan Siapkan di TV ini (Pembaruan &amp; penyiapan).</string>
+    <string name="qp_back_to">Kembali ke %1$s</string>
 </resources>

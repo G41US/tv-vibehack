@@ -404,4 +404,18 @@
     <string name="fs_auto">Nichagulie</string>
     <string name="fs_pending">Inaanza kufanya kazi baada ya kuwasha upya ijayo, TV Home ikishathibitisha inaweza kuwasha programu tena.</string>
     <string name="sec_adb_guard">Utatuzi pale tu unapohitajika</string>
+    <string name="pp_manage">Dhibiti wasifu</string>
+    <string name="pp_done">Imekamilika</string>
+    <string name="pp_ask">Uliza wakati wa kuwasha</string>
+    <string name="pp_current">Anatazama sasa</string>
+    <string name="pp_picture">Picha</string>
+    <string name="pp_name">Jina</string>
+    <string name="pp_birthday">Siku ya kuzaliwa</string>
+    <string name="pp_remove">Ondoa %1$s</string>
+    <string name="rc_title">Programu za hivi karibuni</string>
+    <string name="rc_clear_all">Funga zote</string>
+    <string name="rc_close">Funga</string>
+    <string name="rc_none">Bado hakuna programu za hivi karibuni.</string>
+    <string name="rc_need">Programu za hivi karibuni zinahitaji ruhusa ya matumizi. Endesha Weka kwenye TV hii (Masasisho na usanidi).</string>
+    <string name="qp_back_to">Rudi kwa %1$s</string>
 </resources>

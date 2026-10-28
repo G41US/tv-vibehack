@@ -404,4 +404,18 @@
     <string name="fs_auto">اختر نيابةً عني</string>
     <string name="fs_pending">يعمل بعد إعادة التشغيل التالية، بعد أن يتأكد TV Home من قدرته على إعادة تشغيل التطبيقات.</string>
     <string name="sec_adb_guard">التصحيح فقط عند الحاجة</string>
+    <string name="pp_manage">إدارة الملفات الشخصية</string>
+    <string name="pp_done">تم</string>
+    <string name="pp_ask">السؤال عند التشغيل</string>
+    <string name="pp_current">يشاهد الآن</string>
+    <string name="pp_picture">الصورة</string>
+    <string name="pp_name">الاسم</string>
+    <string name="pp_birthday">عيد الميلاد</string>
+    <string name="pp_remove">إزالة %1$s</string>
+    <string name="rc_title">التطبيقات الأخيرة</string>
+    <string name="rc_clear_all">إغلاق الكل</string>
+    <string name="rc_close">إغلاق</string>
+    <string name="rc_none">لا توجد تطبيقات أخيرة بعد.</string>
+    <string name="rc_need">تحتاج التطبيقات الأخيرة إلى إذن الوصول إلى الاستخدام. شغّل الإعداد على هذا التلفزيون (التحديثات والإعداد).</string>
+    <string name="qp_back_to">العودة إلى %1$s</string>
 </resources>
