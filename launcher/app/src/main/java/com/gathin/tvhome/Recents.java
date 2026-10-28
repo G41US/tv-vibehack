@@ -38,7 +38,7 @@ import java.util.Set;
 /**
  * Recent apps, like a phone's app switcher: the apps used lately as big cards, newest first. OK goes
  * back to one; Close under a card shuts that app down; Clear all closes them all. Opened from the
- * Quick panel (hold Back anywhere). Android keeps live pictures of other apps to itself, so each card
+ * Quick panel (hold Back anywhere; hold it again for this), or a remote's "recent apps" button. Android keeps live pictures of other apps to itself, so each card
  * shows the app's own banner. The list comes from Android's usage records (usage access, which
  * "Set up on this TV" grants).
  */
@@ -49,6 +49,7 @@ public class Recents extends Activity {
     private final Handler main = new Handler(Looper.getMainLooper());
     private LinearLayout row;
     private TextView empty;
+    private ImageView ambient;
 
     static void open(Context c) {
         c.startActivity(new Intent(c, Recents.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
@@ -156,7 +157,18 @@ public class Recents extends Activity {
         super.onCreate(b);
         Sounds.init(this);
         FrameLayout root = new FrameLayout(this);
-        root.setBackground(new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[]{0xF0050710, 0xC0050710, 0x99050710}));
+        root.setBackgroundColor(0xFF04060C);
+        // The chosen app's own colours, hugely blurred, fill the screen behind its card.
+        ambient = new ImageView(this);
+        ambient.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        root.addView(ambient, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        View shade = new View(this);
+        shade.setBackground(new GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, new int[]{0xF0040610, 0xA6040610, 0x8C040610}));
+        root.addView(shade, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+        TextView clock = GlassMenu.text(this, android.text.format.DateFormat.getTimeFormat(this).format(new java.util.Date()), 22, 0xCCFFFFFF);
+        FrameLayout.LayoutParams cl = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.TOP | Gravity.END);
+        cl.setMargins(0, GlassMenu.dp(this, 40), GlassMenu.dp(this, 64), 0);
+        root.addView(clock, cl);
         LinearLayout col = new LinearLayout(this);
         col.setOrientation(LinearLayout.VERTICAL);
         int side = GlassMenu.dp(this, 64);
@@ -165,17 +177,20 @@ public class Recents extends Activity {
 
         LinearLayout head = new LinearLayout(this);
         head.setGravity(Gravity.CENTER_VERTICAL);
-        TextView title = GlassMenu.text(this, getString(R.string.rc_title), 32, Color.WHITE);
+        TextView title = GlassMenu.text(this, getString(R.string.rc_title), 40, Color.WHITE);
         head.addView(title, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         head.addView(GlassMenu.pill(this, getString(R.string.rc_clear_all), v -> clearAll()));
         col.addView(head);
 
         row = new LinearLayout(this);
         row.setClipChildren(false);
-        row.setPadding(0, GlassMenu.dp(this, 24), 0, GlassMenu.dp(this, 24));
+        row.setClipToPadding(false);
+        row.setPadding(GlassMenu.dp(this, 24), GlassMenu.dp(this, 36), GlassMenu.dp(this, 24), GlassMenu.dp(this, 24));
         HorizontalScrollView scroll = new HorizontalScrollView(this);
         scroll.setHorizontalScrollBarEnabled(false);
         scroll.setClipChildren(false);
+        scroll.setClipToPadding(false);
+        col.setClipChildren(false);
         scroll.addView(row);
         col.addView(scroll);
         empty = GlassMenu.text(this, getString(R.string.rc_none), 18, 0xB3FFFFFF);
@@ -241,19 +256,23 @@ public class Recents extends Activity {
             pic.setImageDrawable(app.icon);
             card.addView(pic, new FrameLayout.LayoutParams(GlassMenu.dp(this, 96), GlassMenu.dp(this, 96), Gravity.CENTER));
         }
-        t.addView(card, new LinearLayout.LayoutParams(GlassMenu.dp(this, 320), GlassMenu.dp(this, 180)));
+        // A soft sheen across the top, like glass.
+        View sheen = new View(this);
+        sheen.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{0x30FFFFFF, 0x00FFFFFF}));
+        card.addView(sheen, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, GlassMenu.dp(this, 90)));
+        t.addView(card, new LinearLayout.LayoutParams(GlassMenu.dp(this, 368), GlassMenu.dp(this, 207)));
 
         TextView name = GlassMenu.text(this, app.label, 20, Color.WHITE);
         name.setSingleLine(true);
         name.setEllipsize(TextUtils.TruncateAt.END);
         name.setGravity(Gravity.CENTER_HORIZONTAL);
-        LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(GlassMenu.dp(this, 320), ViewGroup.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(GlassMenu.dp(this, 368), ViewGroup.LayoutParams.WRAP_CONTENT);
         nlp.topMargin = GlassMenu.dp(this, 14);
         t.addView(name, nlp);
         TextView when = GlassMenu.text(this, DateUtils.getRelativeTimeSpanString(app.used, System.currentTimeMillis(),
                 DateUtils.MINUTE_IN_MILLIS), 14, 0x99FFFFFF);
         when.setGravity(Gravity.CENTER_HORIZONTAL);
-        t.addView(when, new LinearLayout.LayoutParams(GlassMenu.dp(this, 320), ViewGroup.LayoutParams.WRAP_CONTENT));
+        t.addView(when, new LinearLayout.LayoutParams(GlassMenu.dp(this, 368), ViewGroup.LayoutParams.WRAP_CONTENT));
         TextView close = GlassMenu.pill(this, "✕  " + getString(R.string.rc_close), v -> closeCard(t, app));
         LinearLayout.LayoutParams clp = (LinearLayout.LayoutParams) close.getLayoutParams();
         clp.leftMargin = 0;
@@ -264,11 +283,17 @@ public class Recents extends Activity {
         GradientDrawable ring = new GradientDrawable();
         ring.setCornerRadius(GlassMenu.dp(this, 22));
         ring.setStroke(GlassMenu.dp(this, 4), Color.WHITE);
+        android.view.animation.OvershootInterpolator spring = new android.view.animation.OvershootInterpolator(2f);
+        android.graphics.Bitmap glow = Ambient.tiny(app.banner != null ? app.banner : app.icon);
         card.setOnFocusChangeListener((v, has) -> {
-            card.animate().scaleX(has ? 1.08f : 1f).scaleY(has ? 1.08f : 1f).translationZ(has ? GlassMenu.dp(this, 12) : 0)
-                    .setDuration(160).start();
+            card.animate().scaleX(has ? 1.1f : 0.96f).scaleY(has ? 1.1f : 0.96f).translationZ(has ? GlassMenu.dp(this, 16) : 0)
+                    .setInterpolator(spring).setDuration(300).start();
             card.setForeground(has ? ring : null);
+            t.animate().alpha(has ? 1f : 0.6f).setStartDelay(0).setDuration(200).start();
+            if (has) Ambient.show(ambient, glow);
         });
+        card.setScaleX(0.96f);
+        card.setScaleY(0.96f);
         card.setOnClickListener(v -> {
             switchTo(this, app.pkg);
             finish();
@@ -283,7 +308,7 @@ public class Recents extends Activity {
         });
         t.setAlpha(0f);
         t.setTranslationX(GlassMenu.dp(this, 40));
-        t.animate().alpha(1f).translationX(0).setStartDelay(50L * index).setDuration(260).start();
+        t.animate().alpha(0.6f).translationX(0).setStartDelay(50L * index).setDuration(260).start();
         return t;
     }
 
