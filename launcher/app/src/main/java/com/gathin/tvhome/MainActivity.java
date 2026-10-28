@@ -215,6 +215,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         ambient.addOnLayoutChangeListener((v, l, t, r, b, ol, ot, or, ob) ->
                 ambientGlow.setGradientRadius((r - l) * 0.62f));
         greeting = findViewById(R.id.greeting);
+        greeting.setAllCaps(false);   // capitals done in updateGreeting: Android's own drops the bold name on older boxes
         btnWifi = findViewById(R.id.btnWifi);
         shamsiDate = findViewById(R.id.shamsiDate);
         shamsi = cfg.shamsiDate;
@@ -1521,10 +1522,31 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         else res = R.string.good_night;
         // With several profiles, greet the person: "Good evening, Ada".
         // Greet the person by their profile's name: "Good evening, Ada".
+        // The name stands out: heavier and brighter than the greeting.
         String name = Profiles.activeName(this);
-        greeting.setText(name.isEmpty() ? getString(res) : getString(res) + ", " + name);
+        if (name.isEmpty()) {
+            greeting.setText(getString(res).toUpperCase(Locale.getDefault()));
+        } else {
+            android.text.SpannableString sp = new android.text.SpannableString(
+                    (getString(res) + ", " + name).toUpperCase(Locale.getDefault()));
+            int from = sp.length() - name.toUpperCase(Locale.getDefault()).length();
+            android.graphics.Typeface heavy = Fonts.weight(this, 800);
+            sp.setSpan(new android.text.style.MetricAffectingSpan() {
+                @Override
+                public void updateMeasureState(android.text.TextPaint p) {
+                    p.setTypeface(heavy);
+                }
+
+                @Override
+                public void updateDrawState(android.text.TextPaint p) {
+                    p.setTypeface(heavy);
+                    p.setColor(Color.WHITE);
+                }
+            }, from, sp.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            greeting.setText(sp);
+        }
         Festive.Holiday holiday = Festive.today(this);
-        if (holiday != null) greeting.setText(holiday.text);   // "Happy Independence Day 🇳🇬" for the day
+        if (holiday != null) greeting.setText(holiday.text.toUpperCase(Locale.getDefault()));   // "Happy Independence Day 🇳🇬" for the day
         if (shamsi) shamsiDate.setText(Shamsi.today());
     }
 
