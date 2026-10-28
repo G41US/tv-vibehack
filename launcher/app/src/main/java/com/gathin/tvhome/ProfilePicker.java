@@ -167,7 +167,7 @@ final class ProfilePicker {
             d.dismiss();
             show(a, !manage, host, dismissed);
         }));
-        if (people.size() > 1) {
+        {
             boolean ask = Profiles.askEnabled(a);
             TextView askPill = GlassMenu.pill(a, a.getString(R.string.pp_ask) + ": " + a.getString(ask ? R.string.tv_on : R.string.tv_off), null);
             askPill.setOnClickListener(v -> {

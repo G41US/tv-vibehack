@@ -24,7 +24,7 @@ import java.util.List;
 final class Profiles {
 
     static final String PREFS = "profiles", KEY_LIST = "list", KEY_ACTIVE = "active", KEY_ASK = "ask",
-            KEY_PENDING = "ask_pending";
+            KEY_PENDING = "ask_pending", KEY_BOOT = "asked_boot", KEY_UP = "asked_uptime";
     static final String MAIN = "0";
     /** Pictures a profile can pick (emoji, so they look the same on every TV and need no files). */
     static final String[] AVATARS = {"🦁", "🐯", "🐼", "🦊", "🐨", "🐸", "🐵", "🦄", "🐶", "🐱", "🐰", "🐻",
@@ -86,9 +86,6 @@ final class Profiles {
         prefs(ctx).edit().putString(KEY_LIST, a.toString()).apply();
     }
 
-    static boolean multiple(Context ctx) {
-        return list(ctx).size() > 1;
-    }
 
     static String active(Context ctx) {
         String id = prefs(ctx).getString(KEY_ACTIVE, MAIN);
@@ -218,16 +215,30 @@ final class Profiles {
         prefs(ctx).edit().putBoolean(KEY_ASK, on).apply();
     }
 
-    /** The box just started or woke: ask who's watching next time Home shows. */
+    /** Someone may have changed (Still watching? turned the TV off): ask who's watching next time Home shows. */
     static void markPending(Context ctx) {
         prefs(ctx).edit().putBoolean(KEY_PENDING, true).apply();
     }
 
+    /**
+     * Ask after every start of the box (checked here rather than on Android's "started" message, which
+     * comes after Home is already up), and when marked; even with one profile, so others can add theirs.
+     */
     static boolean shouldAsk(Context ctx) {
-        return prefs(ctx).getBoolean(KEY_PENDING, false) && askEnabled(ctx) && multiple(ctx);
+        SharedPreferences p = prefs(ctx);
+        int b = boot(ctx);
+        boolean newBoot = b != -1 ? p.getInt(KEY_BOOT, -2) != b
+                : android.os.SystemClock.elapsedRealtime() < p.getLong(KEY_UP, Long.MAX_VALUE);   // no count: uptime went back
+        return askEnabled(ctx) && (p.getBoolean(KEY_PENDING, false) || newBoot);
     }
 
     static void asked(Context ctx) {
-        prefs(ctx).edit().putBoolean(KEY_PENDING, false).apply();
+        prefs(ctx).edit().putBoolean(KEY_PENDING, false).putInt(KEY_BOOT, boot(ctx))
+                .putLong(KEY_UP, android.os.SystemClock.elapsedRealtime()).apply();
+    }
+
+    /** Which start of the box this is (Android counts them); -1 where it doesn't. */
+    private static int boot(Context ctx) {
+        return android.provider.Settings.Global.getInt(ctx.getContentResolver(), android.provider.Settings.Global.BOOT_COUNT, -1);
     }
 }
