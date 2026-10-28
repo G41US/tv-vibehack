@@ -70,11 +70,11 @@ final class AdbSelf implements AutoCloseable {
     private static final String GUARD_PREFS = "adb_guard", KEY_GUARD = "on";
     private static final long OFF_AFTER_MS = 60_000;
     private static final android.os.Handler H = new android.os.Handler(android.os.Looper.getMainLooper());
-    private static final java.util.concurrent.atomic.AtomicInteger OPEN = new java.util.concurrent.atomic.AtomicInteger();
+    private static final java.util.concurrent.atomic.AtomicInteger IN_USE = new java.util.concurrent.atomic.AtomicInteger();
     private static Context guardCtx;
     private static final Runnable OFF = () -> {
         Context c = guardCtx;
-        if (c != null && OPEN.get() == 0 && guardOn(c)) setDebugging(c, false);
+        if (c != null && IN_USE.get() == 0 && guardOn(c)) setDebugging(c, false);
     };
 
     /** TV Home may switch debugging on and off itself. */
@@ -141,7 +141,7 @@ final class AdbSelf implements AutoCloseable {
             a.handshake(ctx, status);
             s.setSoTimeout(15000);
             a.owner = ctx.getApplicationContext();
-            OPEN.incrementAndGet();
+            IN_USE.incrementAndGet();
             return a;
         } catch (Exception e) {
             a.close();
@@ -207,7 +207,7 @@ final class AdbSelf implements AutoCloseable {
         } catch (IOException ignored) {
         }
         if (owner != null) {
-            OPEN.decrementAndGet();
+            IN_USE.decrementAndGet();
             scheduleOff(owner);
             owner = null;
         }
