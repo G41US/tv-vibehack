@@ -424,4 +424,12 @@
     <string name="rc_none">No recent apps yet.</string>
     <string name="rc_need">Recent apps needs usage access. Run Set up on this TV (Updates &amp; setup).</string>
     <string name="qp_back_to">Back to %1$s</string>
+    <string name="pp_yours">Your own</string>
+    <string name="pp_from_phone">From your phone</string>
+    <string name="pp_no_picture">No picture</string>
+    <string name="pp_people">People</string>
+    <string name="pp_robots">Robots</string>
+    <string name="pp_characters">Characters</string>
+    <string name="pp_fun">Fun</string>
+    <string name="rc_freed">Freed %1$s of memory</string>
 </resources>

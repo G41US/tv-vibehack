@@ -418,4 +418,12 @@
     <string name="rc_none">Encara no hi ha apps recents.</string>
     <string name="rc_need">Les apps recents necessiten accés d\'ús. Executa Configura en aquest televisor (Actualitzacions i configuració).</string>
     <string name="qp_back_to">Torna a %1$s</string>
+    <string name="pp_yours">Les teves</string>
+    <string name="pp_from_phone">Des del telèfon</string>
+    <string name="pp_no_picture">Sense imatge</string>
+    <string name="pp_people">Persones</string>
+    <string name="pp_robots">Robots</string>
+    <string name="pp_characters">Personatges</string>
+    <string name="pp_fun">Divertides</string>
+    <string name="rc_freed">S\'han alliberat %1$s de memòria</string>
 </resources>

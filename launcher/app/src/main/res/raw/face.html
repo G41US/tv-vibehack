@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TV Home profile picture</title>
+<style>
+  :root { color-scheme: dark; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: #0b0d14; color: #e8e9ef;
+         margin: 0 auto; padding: 28px 18px; max-width: 520px; }
+  h1 { font-weight: 600; font-size: 24px; margin: 0 0 8px; }
+  p { color: #a9adbd; line-height: 1.45; }
+  label { display: block; margin-top: 22px; background: #3d6bff; color: #fff; text-align: center;
+          padding: 16px; border-radius: 14px; font-size: 18px; font-weight: 600; }
+  input { display: none; }
+  img { width: 100%; border-radius: 12px; margin-top: 18px; }
+  #s { margin-top: 16px; font-size: 17px; color: #e8e9ef; }
+</style>
+</head>
+<body>
+<h1 data-fr="Votre photo de profil">Your profile picture</h1>
+<p data-fr="Choisissez une photo de vous. Le centre est gardé en carré et envoyé au téléviseur.">Pick a photo of yourself. The middle is kept as a square and sent straight to the TV.</p>
+<label><span data-fr="Choisir une photo">Choose a photo</span><input id="f" type="file" accept="image/*"></label>
+<img id="p" hidden alt="">
+<p id="s"></p>
+
+<script>
+if ((navigator.language || '').toLowerCase().startsWith('fr')) {
+  document.documentElement.lang = 'fr';
+  document.querySelectorAll('[data-fr]').forEach(el => { el.innerHTML = el.getAttribute('data-fr'); });
+}
+const T = (en, fr) => document.documentElement.lang === 'fr' ? fr : en;
+</script>
+<script>
+const f = document.getElementById('f'), s = document.getElementById('s'), p = document.getElementById('p');
+f.onchange = async () => {
+  const file = f.files[0];
+  if (!file) return;
+  s.textContent = T('Preparing…', 'Préparation…');
+  try {
+    const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+    const S = 512, c = document.createElement('canvas');
+    c.width = S; c.height = S;
+    const side = Math.min(bmp.width, bmp.height);
+    c.getContext('2d').drawImage(bmp, (bmp.width - side) / 2, (bmp.height - side) / 2, side, side, 0, 0, S, S);
+    const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.88));
+    p.src = URL.createObjectURL(blob);
+    p.hidden = false;
+    s.textContent = T('Sending to the TV…', 'Envoi au téléviseur…');
+    const r = await fetch(location.pathname.replace(/\/$/, '') + '/upload', { method: 'POST', body: blob });
+    s.textContent = r.ok ? T('Done ✓ Look at your TV.', 'Terminé ✓ Regardez votre téléviseur.') : T('The TV said no (', 'Le téléviseur a refusé (') + r.status + T('). Try again.', '). Réessayez.');
+  } catch (e) {
+    s.textContent = T('Something went wrong: ', 'Un problème est survenu : ') + e.message;
+  }
+};
+</script>
+</body>
+</html>

@@ -418,4 +418,12 @@
     <string name="rc_none">अभी कोई हाल का ऐप नहीं।</string>
     <string name="rc_need">हाल के ऐप के लिए उपयोग की अनुमति चाहिए। इस टीवी पर सेट अप करें चलाएँ (अपडेट और सेटअप)।</string>
     <string name="qp_back_to">%1$s पर वापस जाएँ</string>
+    <string name="pp_yours">आपकी अपनी</string>
+    <string name="pp_from_phone">अपने फ़ोन से</string>
+    <string name="pp_no_picture">कोई तस्वीर नहीं</string>
+    <string name="pp_people">लोग</string>
+    <string name="pp_robots">रोबोट</string>
+    <string name="pp_characters">किरदार</string>
+    <string name="pp_fun">मज़ेदार</string>
+    <string name="rc_freed">%1$s मेमोरी खाली हुई</string>
 </resources>

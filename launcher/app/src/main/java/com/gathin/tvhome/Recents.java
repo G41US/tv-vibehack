@@ -50,6 +50,8 @@ public class Recents extends Activity {
     private LinearLayout row;
     private TextView empty;
     private ImageView ambient;
+    /** Apps playing or paused on a song or video now, by package (for their cover on the card). */
+    private final Map<String, android.media.session.MediaController> media = new java.util.HashMap<>();
 
     static void open(Context c) {
         c.startActivity(new Intent(c, Recents.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
@@ -217,6 +219,13 @@ public class Recents extends Activity {
             }
             boolean allowed = DataByApp.allowed(this);
             List<App> apps = recent(this, MAX);
+            try {   // needs notification access (as Now playing); without it the cards keep the app's banner
+                android.media.session.MediaSessionManager msm = (android.media.session.MediaSessionManager) getSystemService(Context.MEDIA_SESSION_SERVICE);
+                for (android.media.session.MediaController mc : msm.getActiveSessions(new android.content.ComponentName(this, MediaListener.class))) {
+                    if (mc.getMetadata() != null && !media.containsKey(mc.getPackageName())) media.put(mc.getPackageName(), mc);
+                }
+            } catch (Exception ignored) {
+            }
             main.post(() -> {
                 if (isFinishing()) return;
                 if (!allowed) empty.setText(R.string.rc_need);
@@ -256,6 +265,33 @@ public class Recents extends Activity {
             pic.setImageDrawable(app.icon);
             card.addView(pic, new FrameLayout.LayoutParams(GlassMenu.dp(this, 96), GlassMenu.dp(this, 96), Gravity.CENTER));
         }
+        // Playing something: the song's or show's cover instead of the logo, the app's icon in the corner.
+        android.graphics.Bitmap[] glow = {Ambient.tiny(app.banner != null ? app.banner : app.icon)};
+        android.media.session.MediaController mc = media.get(app.pkg);
+        android.media.MediaMetadata md = mc != null ? mc.getMetadata() : null;
+        CharSequence playing = md != null ? md.getText(android.media.MediaMetadata.METADATA_KEY_TITLE) : null;
+        if (md != null) {
+            ImageView cover = new ImageView(this);
+            cover.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            card.addView(cover, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            ImageView badge = new ImageView(this);
+            badge.setImageDrawable(app.icon);
+            badge.setVisibility(View.GONE);
+            badge.setElevation(GlassMenu.dp(this, 4));
+            FrameLayout.LayoutParams blp = new FrameLayout.LayoutParams(GlassMenu.dp(this, 48), GlassMenu.dp(this, 48), Gravity.BOTTOM | Gravity.START);
+            blp.setMargins(GlassMenu.dp(this, 12), 0, 0, GlassMenu.dp(this, 12));
+            card.addView(badge, blp);
+            Runnable[] show = new Runnable[1];
+            show[0] = () -> {
+                android.graphics.Bitmap b = CoverArt.of(this, md, show[0]);
+                if (b == null || isFinishing()) return;
+                cover.setImageBitmap(b);
+                badge.setVisibility(View.VISIBLE);
+                glow[0] = Ambient.tiny(new android.graphics.drawable.BitmapDrawable(getResources(), b));
+                if (card.isFocused()) Ambient.show(ambient, glow[0]);
+            };
+            show[0].run();
+        }
         // A soft sheen across the top, like glass.
         View sheen = new View(this);
         sheen.setBackground(new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{0x30FFFFFF, 0x00FFFFFF}));
@@ -269,9 +305,13 @@ public class Recents extends Activity {
         LinearLayout.LayoutParams nlp = new LinearLayout.LayoutParams(GlassMenu.dp(this, 368), ViewGroup.LayoutParams.WRAP_CONTENT);
         nlp.topMargin = GlassMenu.dp(this, 14);
         t.addView(name, nlp);
-        TextView when = GlassMenu.text(this, DateUtils.getRelativeTimeSpanString(app.used, System.currentTimeMillis(),
-                DateUtils.MINUTE_IN_MILLIS), 14, 0x99FFFFFF);
+        boolean on = mc != null && mc.getPlaybackState() != null
+                && mc.getPlaybackState().getState() == android.media.session.PlaybackState.STATE_PLAYING;
+        TextView when = GlassMenu.text(this, !TextUtils.isEmpty(playing) ? (on ? "▶  " : "❚❚  ") + playing
+                : DateUtils.getRelativeTimeSpanString(app.used, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS), 14, 0x99FFFFFF);
         when.setGravity(Gravity.CENTER_HORIZONTAL);
+        when.setSingleLine(true);
+        when.setEllipsize(TextUtils.TruncateAt.END);
         t.addView(when, new LinearLayout.LayoutParams(GlassMenu.dp(this, 368), ViewGroup.LayoutParams.WRAP_CONTENT));
         TextView close = GlassMenu.pill(this, "✕  " + getString(R.string.rc_close), v -> closeCard(t, app));
         LinearLayout.LayoutParams clp = (LinearLayout.LayoutParams) close.getLayoutParams();
@@ -284,13 +324,12 @@ public class Recents extends Activity {
         ring.setCornerRadius(GlassMenu.dp(this, 22));
         ring.setStroke(GlassMenu.dp(this, 4), Color.WHITE);
         android.view.animation.OvershootInterpolator spring = new android.view.animation.OvershootInterpolator(2f);
-        android.graphics.Bitmap glow = Ambient.tiny(app.banner != null ? app.banner : app.icon);
         card.setOnFocusChangeListener((v, has) -> {
             card.animate().scaleX(has ? 1.1f : 0.96f).scaleY(has ? 1.1f : 0.96f).translationZ(has ? GlassMenu.dp(this, 16) : 0)
                     .setInterpolator(spring).setDuration(300).start();
             card.setForeground(has ? ring : null);
             t.animate().alpha(has ? 1f : 0.6f).setStartDelay(0).setDuration(200).start();
-            if (has) Ambient.show(ambient, glow);
+            if (has) Ambient.show(ambient, glow[0]);
         });
         card.setScaleX(0.96f);
         card.setScaleY(0.96f);
@@ -333,8 +372,18 @@ public class Recents extends Activity {
             Object tag = c.getTag();
             if (tag instanceof String) pkgs.add((String) tag);
         }
+        Context app = getApplicationContext();
         new Thread(() -> {
-            for (String p : pkgs) close(this, p);
+            ActivityManager am = (ActivityManager) app.getSystemService(Context.ACTIVITY_SERVICE);
+            ActivityManager.MemoryInfo before = new ActivityManager.MemoryInfo(), after = new ActivityManager.MemoryInfo();
+            am.getMemoryInfo(before);
+            for (String p : pkgs) close(app, p);
+            android.os.SystemClock.sleep(1200);   // Android takes a moment to hand the memory back
+            am.getMemoryInfo(after);
+            long freed = after.availMem - before.availMem;
+            if (freed > 20L * 1024 * 1024) main.post(() -> android.widget.Toast.makeText(app,
+                    app.getString(R.string.rc_freed, android.text.format.Formatter.formatShortFileSize(app, freed)),
+                    android.widget.Toast.LENGTH_SHORT).show());
         }, "recents-clear").start();
         row.animate().alpha(0f).translationY(-GlassMenu.dp(this, 60)).setDuration(260).withEndAction(this::finish).start();
     }
