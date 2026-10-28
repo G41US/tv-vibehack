@@ -418,4 +418,12 @@
     <string name="rc_none">Bado hakuna programu za hivi karibuni.</string>
     <string name="rc_need">Programu za hivi karibuni zinahitaji ruhusa ya matumizi. Endesha Weka kwenye TV hii (Masasisho na usanidi).</string>
     <string name="qp_back_to">Rudi kwa %1$s</string>
+    <string name="pp_yours">Zako</string>
+    <string name="pp_from_phone">Kutoka kwenye simu yako</string>
+    <string name="pp_no_picture">Bila picha</string>
+    <string name="pp_people">Watu</string>
+    <string name="pp_robots">Roboti</string>
+    <string name="pp_characters">Wahusika</string>
+    <string name="pp_fun">Za kufurahisha</string>
+    <string name="rc_freed">Kumbukumbu ya %1$s imeachiliwa</string>
 </resources>

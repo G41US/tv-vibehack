@@ -2,6 +2,14 @@ package com.gathin.tvhome;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Shader;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 
 import org.json.JSONArray;
 
@@ -25,6 +33,32 @@ final class Profiles {
     /** Pictures a profile can pick (emoji, so they look the same on every TV and need no files). */
     static final String[] AVATARS = {"🦁", "🐯", "🐼", "🦊", "🐨", "🐸", "🐵", "🦄", "🐶", "🐱", "🐰", "🐻",
             "🐧", "🦉", "🐙", "🦋", "⚽", "🎮", "🎧", "🎨", "🚀", "🌟", "🌈", "👑"};
+
+    /**
+     * Drawn pictures (DiceBear: Avataaars and Bottts by Pablo Stanley, free for any use; Micah by Micah
+     * Lanier, CC BY 4.0), stored as "pic:<n>". Listed here so the build keeps them.
+     */
+    static final int[] PICS = {R.drawable.av_01, R.drawable.av_02, R.drawable.av_03, R.drawable.av_04,
+            R.drawable.av_05, R.drawable.av_06, R.drawable.av_07, R.drawable.av_08, R.drawable.av_09,
+            R.drawable.av_10, R.drawable.av_11, R.drawable.av_12, R.drawable.av_13, R.drawable.av_14,
+            R.drawable.av_15, R.drawable.av_16, R.drawable.av_17, R.drawable.av_18, R.drawable.av_19,
+            R.drawable.av_20, R.drawable.av_21, R.drawable.av_22, R.drawable.av_23, R.drawable.av_24,
+            R.drawable.av_25, R.drawable.av_26, R.drawable.av_27, R.drawable.av_28, R.drawable.av_29,
+            R.drawable.av_30};
+    /** PICS from here on: people, robots, characters. */
+    static final int PEOPLE = 0, ROBOTS = 14, CHARACTERS = 22;
+    /** A photo sent from a phone. */
+    static final String PHOTO = "photo";
+
+    /** The person's own colours (tiles, glow), picked by their id so they never change. */
+    static final int[][] COLOURS = {
+            {0xFF5B6CFF, 0xFF9A5BFF}, {0xFFFF6B6B, 0xFFFF9F43}, {0xFF1DD1A1, 0xFF10AC84},
+            {0xFF48DBFB, 0xFF0ABDE3}, {0xFFFF9FF3, 0xFFF368E0}, {0xFFFECA57, 0xFFFF9F43},
+            {0xFF54A0FF, 0xFF2E86DE}, {0xFFA29BFE, 0xFF6C5CE7}};
+
+    static int[] colours(String id) {
+        return COLOURS[Math.abs(id.hashCode()) % COLOURS.length];
+    }
 
     private Profiles() {
     }
@@ -108,11 +142,13 @@ final class Profiles {
         setBirthday(ctx, id, null);
         setAvatar(ctx, id, null);
         //noinspection ResultOfMethodCallIgnored
+        photo(ctx, id).delete();
+        //noinspection ResultOfMethodCallIgnored
         new File(ctx.getFilesDir(), "custom_wallpaper_" + id + ".jpg").delete();
         if (id.equals(prefs(ctx).getString(KEY_ACTIVE, MAIN))) setActive(ctx, MAIN);
     }
 
-    /** A profile's picture (an emoji), or null. */
+    /** A profile's picture: an emoji, "pic:<n>", PHOTO, or null. */
     static String avatar(Context ctx, String id) {
         return prefs(ctx).getString("avatar_" + id, null);
     }
@@ -122,9 +158,50 @@ final class Profiles {
         else prefs(ctx).edit().putString("avatar_" + id, emoji).apply();
     }
 
+    /** The emoji, if the picture is one (shown in text); null for none or a drawn picture or photo. */
+    static String emoji(Context ctx, String id) {
+        String a = avatar(ctx, id);
+        return a == null || a.startsWith("pic:") || a.equals(PHOTO) ? null : a;
+    }
+
+    static File photo(Context ctx, String id) {
+        return new File(ctx.getFilesDir(), "avatar_" + id + ".jpg");
+    }
+
+    /** A drawn picture or photo as an image, or null (none, or an emoji). */
+    static Drawable picture(Context ctx, String id) {
+        String a = avatar(ctx, id);
+        if (a == null) return null;
+        try {
+            if (a.startsWith("pic:")) return ctx.getDrawable(PICS[Integer.parseInt(a.substring(4))]);
+            if (a.equals(PHOTO)) {
+                Bitmap b = BitmapFactory.decodeFile(photo(ctx, id).getPath());
+                return b == null ? null : new BitmapDrawable(ctx.getResources(), b);
+            }
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    /** The picture as a round badge on the person's colour (next to the greeting), or null. */
+    static Bitmap round(Context ctx, String id, int px) {
+        Drawable d = picture(ctx, id);
+        if (d == null || px <= 0) return null;
+        Bitmap sq = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(sq);
+        c.drawColor(colours(id)[0]);
+        d.setBounds(0, 0, px, px);
+        d.draw(c);
+        Bitmap out = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888);
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        p.setShader(new BitmapShader(sq, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP));
+        new Canvas(out).drawCircle(px / 2f, px / 2f, px / 2f, p);
+        return out;
+    }
+
     /** "🦁  Ada", or just the name without a picture. */
     static String withAvatar(Context ctx, String id, String name) {
-        String a = avatar(ctx, id);
+        String a = emoji(ctx, id);
         return a == null ? name : a + "  " + name;
     }
 

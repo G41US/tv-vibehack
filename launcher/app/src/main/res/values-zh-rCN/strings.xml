@@ -418,4 +418,12 @@
     <string name="rc_none">还没有最近使用的应用。</string>
     <string name="rc_need">最近使用的应用需要使用情况访问权限。请运行“在此电视上设置”（更新与设置）。</string>
     <string name="qp_back_to">返回 %1$s</string>
+    <string name="pp_yours">你自己的</string>
+    <string name="pp_from_phone">从手机发送</string>
+    <string name="pp_no_picture">不用头像</string>
+    <string name="pp_people">人物</string>
+    <string name="pp_robots">机器人</string>
+    <string name="pp_characters">角色</string>
+    <string name="pp_fun">趣味</string>
+    <string name="rc_freed">已释放 %1$s 内存</string>
 </resources>

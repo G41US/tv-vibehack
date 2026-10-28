@@ -1029,10 +1029,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
 
     /** Manage profiles > a person: their picture, name, birthday, or removing them. */
     private void editProfile(String id) {
-        String name = profileName(id), pic = Profiles.avatar(this, id), bday = Profiles.birthday(this, id);
+        String name = profileName(id), pic = Profiles.emoji(this, id), bday = Profiles.birthday(this, id);
+        boolean hasPic = Profiles.avatar(this, id) != null;
         Runnable back = () -> ProfilePicker.show(this, true, profileHost, null);
         List<GlassMenu.Row> rows = new ArrayList<>();
-        rows.add(new GlassMenu.Row(R.drawable.ic_m_wallpaper, getString(R.string.pp_picture), pic != null ? pic : "–",
+        rows.add(new GlassMenu.Row(R.drawable.ic_m_wallpaper, getString(R.string.pp_picture), pic != null ? pic : hasPic ? "✓" : "–",
                 () -> askAvatar(id)));
         rows.add(new GlassMenu.Row(R.drawable.ic_s_text, getString(R.string.pp_name), name,
                 () -> askName(getString(R.string.profile_rename_title), name, n -> {
@@ -1053,17 +1054,32 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         GlassMenu.page(this, getString(R.string.pp_manage), (pic != null ? pic + "  " : "") + name, null, rows, back, 0);
     }
 
-    /** The emoji grid; with a picture already set, a last ✕ tile removes it. */
+    /** The full-screen picture chooser; "From your phone" opens the phone page for a photo. */
     private void askAvatar(String id) {
-        String now = Profiles.avatar(this, id);
-        List<String> items = new ArrayList<>(java.util.Arrays.asList(Profiles.AVATARS));
-        if (now != null) items.add("✕");
-        GlassMenu.emoji(this, getString(R.string.menu_profiles), getString(R.string.avatar_title, profileName(id)),
-                items.toArray(new String[0]), now, which -> {
-                    Profiles.setAvatar(this, id, which < Profiles.AVATARS.length ? Profiles.AVATARS[which] : null);
-                    updateGreeting();
-                    editProfile(id);
-                });
+        ProfilePicker.pickPicture(this, id, profileName(id), v -> {
+            Profiles.setAvatar(this, id, v);
+            updateGreeting();
+            editProfile(id);
+        }, () -> showFaceReceiver(id), () -> editProfile(id));
+    }
+
+    /** Phone page for sending a profile photo: cropped square on the phone, checked and shrunk here. */
+    private void showFaceReceiver(String id) {
+        File target = Profiles.photo(this, id);
+        showPhoneLink(R.raw.face, R.string.wp_send_title, R.string.wp_send_message, body -> {
+            android.graphics.Bitmap b = android.graphics.BitmapFactory.decodeFile(body.getPath());
+            if (b == null) return false;
+            int side = Math.min(b.getWidth(), b.getHeight());
+            android.graphics.Bitmap sq = android.graphics.Bitmap.createBitmap(b, (b.getWidth() - side) / 2, (b.getHeight() - side) / 2, side, side);
+            if (side > 512) sq = android.graphics.Bitmap.createScaledBitmap(sq, 512, 512, true);
+            try (java.io.FileOutputStream out = new java.io.FileOutputStream(target)) {
+                return sq.compress(android.graphics.Bitmap.CompressFormat.JPEG, 90, out);
+            }
+        }, () -> {
+            Profiles.setAvatar(this, id, Profiles.PHOTO);
+            updateGreeting();
+            editProfile(id);
+        });
     }
 
     /** "14 March" (in the TV's language) for "03-14". */
@@ -1515,8 +1531,17 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         else res = R.string.good_night;
         // With several profiles, greet the person: "Good evening, Ada".
         String hello = Profiles.multiple(this) ? getString(res) + ", " + Profiles.activeName(this) : getString(res);
-        String pic = Profiles.avatar(this, Profiles.active(this));
-        greeting.setText(pic == null ? hello : hello + "  " + pic);   // "Good evening, Ada  🦁"
+        String id = Profiles.active(this), pic = Profiles.emoji(this, id);
+        android.graphics.Bitmap face = Profiles.round(this, id, Math.round(greeting.getTextSize() * 1.3f));
+        if (face != null) {   // a drawn picture or photo: a small round badge after the name
+            android.text.SpannableString sp = new android.text.SpannableString(hello + "   ");
+            sp.setSpan(new android.text.style.ImageSpan(this, face, android.os.Build.VERSION.SDK_INT >= 29
+                    ? android.text.style.DynamicDrawableSpan.ALIGN_CENTER : android.text.style.DynamicDrawableSpan.ALIGN_BASELINE),
+                    sp.length() - 1, sp.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            greeting.setText(sp);
+        } else {
+            greeting.setText(pic == null ? hello : hello + "  " + pic);   // "Good evening, Ada  🦁"
+        }
         Festive.Holiday holiday = Festive.today(this);
         if (holiday != null) greeting.setText(holiday.text);   // "Happy Independence Day 🇳🇬" for the day
         if (shamsi) shamsiDate.setText(Shamsi.today());

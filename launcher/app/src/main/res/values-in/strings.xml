@@ -418,4 +418,12 @@
     <string name="rc_none">Belum ada aplikasi terbaru.</string>
     <string name="rc_need">Aplikasi terbaru perlu akses penggunaan. Jalankan Siapkan di TV ini (Pembaruan &amp; penyiapan).</string>
     <string name="qp_back_to">Kembali ke %1$s</string>
+    <string name="pp_yours">Milik Anda</string>
+    <string name="pp_from_phone">Dari ponsel Anda</string>
+    <string name="pp_no_picture">Tanpa gambar</string>
+    <string name="pp_people">Orang</string>
+    <string name="pp_robots">Robot</string>
+    <string name="pp_characters">Karakter</string>
+    <string name="pp_fun">Seru</string>
+    <string name="rc_freed">%1$s memori dikosongkan</string>
 </resources>

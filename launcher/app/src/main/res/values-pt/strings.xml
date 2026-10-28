@@ -418,4 +418,12 @@
     <string name="rc_none">Ainda não há apps recentes.</string>
     <string name="rc_need">As apps recentes precisam de acesso de utilização. Execute Configurar nesta TV (Atualizações e configuração).</string>
     <string name="qp_back_to">Voltar a %1$s</string>
+    <string name="pp_yours">Suas</string>
+    <string name="pp_from_phone">Do seu telefone</string>
+    <string name="pp_no_picture">Sem imagem</string>
+    <string name="pp_people">Pessoas</string>
+    <string name="pp_robots">Robôs</string>
+    <string name="pp_characters">Personagens</string>
+    <string name="pp_fun">Divertidas</string>
+    <string name="rc_freed">%1$s de memória liberados</string>
 </resources>
