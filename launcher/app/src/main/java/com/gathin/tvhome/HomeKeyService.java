@@ -33,6 +33,10 @@ public class HomeKeyService extends AccessibilityService {
         if (volume != null && volume.onKey(event)) return true;   // TV Home's volume display
         int code = event.getKeyCode();
         if (code == KeyEvent.KEYCODE_BACK) return onBack(event);
+        if (code == KeyEvent.KEYCODE_APP_SWITCH) {   // remotes with a "recent apps" button
+            if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) Recents.open(this);
+            return true;
+        }
         if (code != KeyEvent.KEYCODE_ALL_APPS && code != KeyEvent.KEYCODE_HOME) return false;
         if (event.getAction() == KeyEvent.ACTION_UP && !event.isCanceled()) {
             goHome();
@@ -51,7 +55,9 @@ public class HomeKeyService extends AccessibilityService {
     private long passBackUntil;
     private final Runnable holdBack = () -> {
         backHeld = true;
-        QuickPanel.open(this);
+        // Hold Back: the Quick panel; hold it again there: straight to Recent apps.
+        if (QuickPanel.showing) Recents.open(this);
+        else QuickPanel.open(this);
     };
 
     private boolean onBack(KeyEvent event) {
