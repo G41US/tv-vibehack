@@ -20,6 +20,8 @@
     <!-- Data by app (network page): granted by "Set up on this TV" (appops GET_USAGE_STATS). -->
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Recent apps: closing an app when the debugging connection isn't there. -->
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES" />
     <!-- Reading the settings backup an earlier install left in Pictures/TVHome (BackupStore). -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
@@ -210,6 +212,14 @@
         </receiver>
         <activity
             android:name=".QuickPanel"
+            android:exported="false"
+            android:theme="@style/Theme.TvHome.Overlay"
+            android:launchMode="singleInstance"
+            android:taskAffinity=""
+            android:excludeFromRecents="true"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".Recents"
             android:exported="false"
             android:theme="@style/Theme.TvHome.Overlay"
             android:launchMode="singleInstance"

@@ -410,4 +410,18 @@
     <string name="fs_auto">Pick for me</string>
     <string name="fs_pending">Starts working after the next restart, once TV Home has checked it can switch apps back on.</string>
     <string name="sec_adb_guard">Debugging only when needed</string>
+    <string name="pp_manage">Manage profiles</string>
+    <string name="pp_done">Done</string>
+    <string name="pp_ask">Ask at start</string>
+    <string name="pp_current">Watching now</string>
+    <string name="pp_picture">Picture</string>
+    <string name="pp_name">Name</string>
+    <string name="pp_birthday">Birthday</string>
+    <string name="pp_remove">Remove %1$s</string>
+    <string name="rc_title">Recent apps</string>
+    <string name="rc_clear_all">Clear all</string>
+    <string name="rc_close">Close</string>
+    <string name="rc_none">No recent apps yet.</string>
+    <string name="rc_need">Recent apps needs usage access. Run Set up on this TV (Updates &amp; setup).</string>
+    <string name="qp_back_to">Back to %1$s</string>
 </resources>

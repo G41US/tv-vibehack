@@ -404,4 +404,18 @@
     <string name="fs_auto">เลือกให้ฉัน</string>
     <string name="fs_pending">เริ่มทำงานหลังรีสตาร์ทครั้งถัดไป เมื่อ TV Home ตรวจแล้วว่าเปิดแอปกลับได้</string>
     <string name="sec_adb_guard">ดีบักเฉพาะตอนที่จำเป็น</string>
+    <string name="pp_manage">จัดการโปรไฟล์</string>
+    <string name="pp_done">เสร็จ</string>
+    <string name="pp_ask">ถามตอนเปิดเครื่อง</string>
+    <string name="pp_current">กำลังดูอยู่</string>
+    <string name="pp_picture">รูป</string>
+    <string name="pp_name">ชื่อ</string>
+    <string name="pp_birthday">วันเกิด</string>
+    <string name="pp_remove">ลบ %1$s</string>
+    <string name="rc_title">แอปล่าสุด</string>
+    <string name="rc_clear_all">ปิดทั้งหมด</string>
+    <string name="rc_close">ปิด</string>
+    <string name="rc_none">ยังไม่มีแอปล่าสุด</string>
+    <string name="rc_need">แอปล่าสุดต้องใช้สิทธิ์เข้าถึงการใช้งาน เรียกใช้ ตั้งค่าบนทีวีนี้ (อัปเดตและตั้งค่า)</string>
+    <string name="qp_back_to">กลับไปที่ %1$s</string>
 </resources>

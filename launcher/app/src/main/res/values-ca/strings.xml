@@ -404,4 +404,18 @@
     <string name="fs_auto">Tria per mi</string>
     <string name="fs_pending">Funciona a partir del proper reinici, quan TV Home comprovi que pot tornar a activar les apps.</string>
     <string name="sec_adb_guard">Depuració només quan calgui</string>
+    <string name="pp_manage">Gestiona els perfils</string>
+    <string name="pp_done">Fet</string>
+    <string name="pp_ask">Pregunta en engegar</string>
+    <string name="pp_current">Mirant ara</string>
+    <string name="pp_picture">Imatge</string>
+    <string name="pp_name">Nom</string>
+    <string name="pp_birthday">Aniversari</string>
+    <string name="pp_remove">Elimina %1$s</string>
+    <string name="rc_title">Apps recents</string>
+    <string name="rc_clear_all">Tanca-ho tot</string>
+    <string name="rc_close">Tanca</string>
+    <string name="rc_none">Encara no hi ha apps recents.</string>
+    <string name="rc_need">Les apps recents necessiten accés d\'ús. Executa Configura en aquest televisor (Actualitzacions i configuració).</string>
+    <string name="qp_back_to">Torna a %1$s</string>
 </resources>
