@@ -25,8 +25,12 @@ import java.util.Locale;
 /**
  * A tiny web server for sending something from a phone on the same Wi-Fi: a wallpaper photo, or the
  * Wi-Fi name and password for the guest QR code. It runs only while its dialog is open on the TV, and
- * only answers under a random 4-digit path shown there. The page (res/raw) does the work on the phone
+ * only answers under a random 6-digit path shown there. The page (res/raw) does the work on the phone
  * and POSTs one body to PATH/upload; the handler checks and stores it.
+ *
+ * Hardened against others on the network: only devices on the home network are answered (not the
+ * internet side of a router box), and after a few wrong addresses it stops altogether, so the code
+ * can't be guessed by trying them all.
  */
 final class PhoneServer {
 
@@ -35,7 +39,8 @@ final class PhoneServer {
         boolean accept(File body) throws IOException;
     }
 
-    private static final int MAX_BODY = 20 * 1024 * 1024;
+    private static final int MAX_BODY = 20 * 1024 * 1024, MAX_WRONG = 10;
+    private int wrong;
 
     private final byte[] page;
     private final File scratch;
@@ -52,7 +57,7 @@ final class PhoneServer {
         this.scratch = scratch;
         this.handler = handler;
         this.onDone = onDone;
-        this.pin = String.format(Locale.US, "%04d", new SecureRandom().nextInt(10000));
+        this.pin = String.format(Locale.US, "%06d", new SecureRandom().nextInt(1_000_000));
     }
 
     boolean start() {
@@ -80,6 +85,10 @@ final class PhoneServer {
     private void loop() {
         while (running) {
             try (Socket s = server.accept()) {
+                InetAddress from = s.getInetAddress();
+                if (from == null || !(from.isSiteLocalAddress() || from.isLinkLocalAddress() || from.isLoopbackAddress())) {
+                    continue;   // not from the home network: no answer at all
+                }
                 s.setSoTimeout(30000);
                 handle(s);
             } catch (IOException e) {
@@ -143,6 +152,7 @@ final class PhoneServer {
             main.post(onDone);
         } else {
             respond(out, "404 Not Found", "text/plain", "not found".getBytes(StandardCharsets.UTF_8));
+            if (++wrong >= MAX_WRONG) stop();   // someone guessing addresses: close the door
         }
     }
 

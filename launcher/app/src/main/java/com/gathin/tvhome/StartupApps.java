@@ -70,12 +70,12 @@ final class StartupApps {
     static void hold(Context c) {
         Set<String> held = held(c);
         // Only where switching back on has been seen to work after a restart: never strand an app.
-        if (held.isEmpty() || !prefs(c).getBoolean(KEY_PROVEN, false) || !AdbSelf.reachable(SelfSetup.PORT)) return;
+        if (held.isEmpty() || !prefs(c).getBoolean(KEY_PROVEN, false) || !AdbSelf.ready(c)) return;
         Set<String> paused = paused(c);
         try (AdbSelf adb = connect(c, 3000)) {
             String off = adb.shell("pm list packages -d");   // already off by the person's choice: leave alone
             for (String pkg : held) {
-                if (off.contains("package:" + pkg + "\n") || off.endsWith("package:" + pkg)) continue;
+                if (!AdbSelf.safeName(pkg) || off.contains("package:" + pkg + "\n") || off.endsWith("package:" + pkg)) continue;
                 if (adb.shell("pm disable-user --user 0 " + pkg + " 2>&1").contains("disabled")) {
                     paused.add(pkg);
                     prefs(c).edit().putStringSet(KEY_PAUSED, paused).commit();   // kept even if power goes mid-way
@@ -111,7 +111,7 @@ final class StartupApps {
             boolean reached = false;
             for (int i = 0; i < 12 && !reached; i++) {
                 if (i > 0) SystemClock.sleep(10_000);
-                if (!AdbSelf.reachable(SelfSetup.PORT)) continue;
+                if (!AdbSelf.ready(app)) continue;
                 try (AdbSelf adb = connect(app, 30_000)) {
                     if (boot) androidTimeline(app, adb);
                     // The box's own home screen stays off while TV Home is on screen: bringing it back
@@ -206,7 +206,7 @@ final class StartupApps {
         if (!any || releasing) return;
         Context app = c.getApplicationContext();
         new Thread(() -> {
-            if (!AdbSelf.reachable(SelfSetup.PORT)) return;
+            if (!AdbSelf.ready(app)) return;
             try (AdbSelf adb = connect(app, 30_000)) {
                 turnOn(app, adb, true);
             } catch (Exception ignored) {
@@ -224,6 +224,7 @@ final class StartupApps {
         Set<String> stillOff = paused(c);   // the full list, written back as each one comes on
         if (homeBack) claimHome(c, adb);
         for (String pkg : new ArrayList<>(paused)) {
+            if (!AdbSelf.safeName(pkg)) continue;
             String out = adb.shell("pm enable --user 0 " + pkg + " 2>&1");
             if (out.contains("enabled") || out.contains("Unknown package")) {
                 stillOff.remove(pkg);
@@ -259,7 +260,7 @@ final class StartupApps {
         Handler main = new Handler(Looper.getMainLooper());
         new Thread(() -> {
             List<App> apps = null;
-            if (AdbSelf.reachable(SelfSetup.PORT)) {
+            if (AdbSelf.ready(a)) {
                 try (AdbSelf adb = AdbSelf.connect(a, SelfSetup.PORT, 30_000,
                         () -> main.post(() -> p.set(a.getString(R.string.ss_allow))))) {
                     if (!paused(a).isEmpty()) turnOn(a, adb, false);   // over Home: its own home screen waits

@@ -47,7 +47,7 @@ final class PowerMenu {
         Handler main = new Handler(Looper.getMainLooper());
         new Thread(() -> {
             boolean done = false;
-            if (AdbSelf.reachable(SelfSetup.PORT)) {
+            if (AdbSelf.ready(act)) {
                 try (AdbSelf adb = AdbSelf.connect(act, SelfSetup.PORT, 30_000,
                         () -> main.post(() -> p.set(act.getString(R.string.ss_allow))))) {
                     adb.shell(off ? "svc power shutdown 2>/dev/null || reboot -p" : "svc power reboot 2>/dev/null || reboot");

@@ -47,7 +47,7 @@ final class DataByApp {
         Handler main = new Handler(Looper.getMainLooper());
         new Thread(() -> {
             boolean ok = allowed(a);
-            if (!ok && AdbSelf.reachable(SelfSetup.PORT)) {   // grant it ourselves, as the setup does
+            if (!ok && AdbSelf.ready(a)) {   // grant it ourselves, as the setup does
                 try (AdbSelf adb = AdbSelf.connect(a, SelfSetup.PORT, 30_000,
                         () -> main.post(() -> p.set(a.getString(R.string.ss_allow))))) {
                     adb.shell("appops set " + a.getPackageName() + " GET_USAGE_STATS allow");

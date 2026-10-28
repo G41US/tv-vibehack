@@ -403,4 +403,5 @@
     <string name="fs_explain">Diese Apps starten bei jedem Einschalten der Box. Zurückgehaltene Apps werden beim Herunterfahren ausgeschaltet und direkt nach der TV-Home-Animation wieder eingeschaltet, damit die Box schneller startet.</string>
     <string name="fs_auto">Für mich auswählen</string>
     <string name="fs_pending">Wirkt ab dem nächsten Neustart, sobald TV Home geprüft hat, dass es Apps wieder einschalten kann.</string>
+    <string name="sec_adb_guard">Debugging nur bei Bedarf</string>
 </resources>

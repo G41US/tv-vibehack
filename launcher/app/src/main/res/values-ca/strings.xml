@@ -403,4 +403,5 @@
     <string name="fs_explain">Aquestes apps s\'engeguen cada cop que s\'encén l\'aparell. Les que retardis es desactiven en apagar-lo i es tornen a activar just després de l\'animació de TV Home, perquè arrenqui més ràpid.</string>
     <string name="fs_auto">Tria per mi</string>
     <string name="fs_pending">Funciona a partir del proper reinici, quan TV Home comprovi que pot tornar a activar les apps.</string>
+    <string name="sec_adb_guard">Depuració només quan calgui</string>
 </resources>

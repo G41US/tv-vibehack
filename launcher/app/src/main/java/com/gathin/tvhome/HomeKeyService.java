@@ -96,6 +96,7 @@ public class HomeKeyService extends AccessibilityService {
         takeover = getResources().getStringArray(R.array.takeover_packages);
         BootTrace.watch(this);
         BootTrace.mark(this, "Home button service");
+        AdbSelf.scheduleOff(this);   // debugging off again soon, unless TV Home is using it
         if (volume == null) {
             volume = new VolumeOverlay(this);
             android.content.IntentFilter f = new android.content.IntentFilter("android.media.VOLUME_CHANGED_ACTION");

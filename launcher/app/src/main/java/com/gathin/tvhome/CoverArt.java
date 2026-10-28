@@ -51,6 +51,9 @@ final class CoverArt {
 
     private static Bitmap linked(Context c, String uri, Runnable loaded) {
         if (TextUtils.isEmpty(uri)) return null;
+        // Web pictures and pictures an app shares (content://) only: never local files by path.
+        if (!(uri.startsWith("https://") || uri.startsWith("http://") || uri.startsWith("content://")
+                || uri.startsWith("android.resource://"))) return null;
         synchronized (CACHE) {
             Bitmap hit = CACHE.get(uri);
             if (hit != null || LOADING.contains(uri)) return hit;

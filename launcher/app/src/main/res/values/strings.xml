@@ -409,4 +409,5 @@
     <string name="fs_explain">These apps start every time the box turns on. Apps you hold back are switched off while the box shuts down, and switched back on right after the TV Home animation, so the box starts faster.</string>
     <string name="fs_auto">Pick for me</string>
     <string name="fs_pending">Starts working after the next restart, once TV Home has checked it can switch apps back on.</string>
+    <string name="sec_adb_guard">Debugging only when needed</string>
 </resources>

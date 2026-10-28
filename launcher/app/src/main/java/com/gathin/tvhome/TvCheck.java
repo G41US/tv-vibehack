@@ -43,7 +43,7 @@ final class TvCheck {
     static void show(Activity a, boolean afterSetup) {
         android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
         new Thread(() -> {
-            boolean debug = AdbSelf.reachable(SelfSetup.PORT);   // network work: off the main thread
+            boolean debug = AdbSelf.ready(a);   // network work: off the main thread (switches it on if TV Home keeps it off)
             main.post(() -> {
                 if (!a.isFinishing() && !a.isDestroyed()) build(a, afterSetup, debug);
             });
@@ -121,6 +121,7 @@ final class TvCheck {
         rows.add(new GlassMenu.Row(R.drawable.ic_s_tune, a.getString(R.string.ss_step_debug),
                 debug ? ok(a.getString(R.string.chk_on)) : "–  " + a.getString(R.string.chk_off), fix));
         line(report, "Debugging (port 5555)", debug);
+        report.append("- Debugging only when needed: ").append(AdbSelf.guardOn(a) ? "on" : "off").append('\n');
         report.append("- Start-up animation: ").append(Splash.on(a) ? Splash.last(a) : "off").append('\n');
         report.append("- Last start-up: ").append(BootTrace.text(a)).append('\n');
         report.append("- Faster start-up: ").append(StartupApps.state(a)).append('\n');
