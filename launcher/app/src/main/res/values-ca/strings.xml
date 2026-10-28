@@ -406,7 +406,6 @@
     <string name="sec_adb_guard">Depuració només quan calgui</string>
     <string name="pp_manage">Gestiona els perfils</string>
     <string name="pp_done">Fet</string>
-    <string name="pp_ask">Pregunta en engegar</string>
     <string name="pp_current">Mirant ara</string>
     <string name="pp_picture">Imatge</string>
     <string name="pp_name">Nom</string>

@@ -406,7 +406,6 @@
     <string name="sec_adb_guard">Depuração só quando necessário</string>
     <string name="pp_manage">Gerir perfis</string>
     <string name="pp_done">Concluído</string>
-    <string name="pp_ask">Perguntar ao ligar</string>
     <string name="pp_current">A ver agora</string>
     <string name="pp_picture">Imagem</string>
     <string name="pp_name">Nome</string>

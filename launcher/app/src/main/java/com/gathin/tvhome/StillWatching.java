@@ -98,7 +98,6 @@ final class StillWatching {
 
     /** Nobody answered: sleep (and fall back to black if the box stays awake), or black. */
     static void turnOff(Context ctx) {
-        Profiles.markPending(ctx);   // whoever comes back gets asked who's watching
         Context app = ctx.getApplicationContext();
         HomeKeyService s = HomeKeyService.live;
         if (SLEEP.equals(action(app)) && s != null && android.os.Build.VERSION.SDK_INT >= 28

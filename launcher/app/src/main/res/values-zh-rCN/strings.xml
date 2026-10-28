@@ -406,7 +406,6 @@
     <string name="sec_adb_guard">仅在需要时开启调试</string>
     <string name="pp_manage">管理用户</string>
     <string name="pp_done">完成</string>
-    <string name="pp_ask">开机时询问</string>
     <string name="pp_current">正在观看</string>
     <string name="pp_picture">头像</string>
     <string name="pp_name">名字</string>
