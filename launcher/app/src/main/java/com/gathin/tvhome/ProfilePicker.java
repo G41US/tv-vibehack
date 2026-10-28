@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * "Who's watching?": the profiles as big tiles, full screen. Home stays faintly visible behind,
- * blurred; a large glow in the focused person's colour fills the screen and follows focus; the
+ * "Who's watching?": the profiles as big tiles, full screen. The focused person's colours and
+ * picture fill the screen, hugely blurred, and follow focus (as on Recent apps); the
  * focused tile springs forward and its picture floats while the others step back; the person's name
  * shows large in the middle. "Manage profiles" turns the tiles into edit buttons (picture, name,
  * birthday, remove), and "Ask at start" sits on the same screen.
