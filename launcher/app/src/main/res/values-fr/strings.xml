@@ -410,4 +410,5 @@
     <string name="fs_explain">Ces applis démarrent à chaque mise en marche du boîtier. Celles que vous retenez sont désactivées pendant l\'arrêt, puis réactivées juste après l\'animation de TV Home : le boîtier démarre plus vite.</string>
     <string name="fs_auto">Choisir pour moi</string>
     <string name="fs_pending">Actif après le prochain redémarrage, une fois que TV Home a vérifié qu\'il peut réactiver les applis.</string>
+    <string name="sec_adb_guard">Débogage seulement si nécessaire</string>
 </resources>

@@ -254,6 +254,13 @@ final class HomeSettings {
         int held = StartupApps.held(act).size();
         rows.add(new GlassMenu.Row(R.drawable.ic_s_speed, s(R.string.fs_title), held == 0 ? null : s(R.string.fs_count, held),
                 () -> StartupApps.show(act, () -> setup(4))));
+        if (AdbSelf.canManage(act)) {
+            boolean guard = AdbSelf.guardOn(act);
+            rows.add(new GlassMenu.Row(R.drawable.ic_s_shield, s(R.string.sec_adb_guard), onOff(guard), () -> {
+                AdbSelf.setGuard(act, !guard);
+                setup(5);
+            }));
+        }
         page(R.string.hs_setup, rows, focus);
     }
 }

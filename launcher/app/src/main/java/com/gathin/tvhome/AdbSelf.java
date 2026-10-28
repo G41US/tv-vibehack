@@ -60,8 +60,79 @@ final class AdbSelf implements AutoCloseable {
         out = s.getOutputStream();
     }
 
+    // ---- debugging only while TV Home needs it ----------------------------------------------------
+    //
+    // With network debugging on, anyone on the same Wi-Fi (guests too) can pop an "Allow debugging?"
+    // box onto the TV, and one wrong OK gives them full control of the box. So once TV Home can switch
+    // debugging itself (WRITE_SECURE_SETTINGS, granted by "Set up on this TV"), it keeps it off and
+    // turns it on only for the moments it uses it, switching it off again a minute after the last use.
+
+    private static final String GUARD_PREFS = "adb_guard", KEY_GUARD = "on";
+    private static final long OFF_AFTER_MS = 60_000;
+    private static final android.os.Handler H = new android.os.Handler(android.os.Looper.getMainLooper());
+    private static final java.util.concurrent.atomic.AtomicInteger OPEN = new java.util.concurrent.atomic.AtomicInteger();
+    private static Context guardCtx;
+    private static final Runnable OFF = () -> {
+        Context c = guardCtx;
+        if (c != null && OPEN.get() == 0 && guardOn(c)) setDebugging(c, false);
+    };
+
+    /** TV Home may switch debugging on and off itself. */
+    static boolean canManage(Context c) {
+        return c.checkSelfPermission("android.permission.WRITE_SECURE_SETTINGS")
+                == android.content.pm.PackageManager.PERMISSION_GRANTED;
+    }
+
+    /** Debugging only while TV Home needs it (on by default where TV Home can manage it). */
+    static boolean guardOn(Context c) {
+        return canManage(c) && c.getSharedPreferences(GUARD_PREFS, Context.MODE_PRIVATE).getBoolean(KEY_GUARD, true);
+    }
+
+    static void setGuard(Context c, boolean on) {
+        c.getSharedPreferences(GUARD_PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_GUARD, on).apply();
+        if (on) scheduleOff(c);
+        else {
+            H.removeCallbacks(OFF);
+            if (canManage(c)) setDebugging(c, true);
+        }
+    }
+
+    private static void setDebugging(Context c, boolean on) {
+        try {
+            android.provider.Settings.Global.putInt(c.getContentResolver(), android.provider.Settings.Global.ADB_ENABLED, on ? 1 : 0);
+        } catch (Exception ignored) {
+        }
+    }
+
+    /** Switch debugging off in a minute, if TV Home is keeping it off between uses. */
+    static void scheduleOff(Context c) {
+        if (!guardOn(c)) return;
+        guardCtx = c.getApplicationContext();
+        H.removeCallbacks(OFF);
+        H.postDelayed(OFF, OFF_AFTER_MS);
+    }
+
+    /**
+     * The debugging port is answering, switching debugging on first when TV Home keeps it off.
+     * Waits up to a few seconds for it: call off the main thread.
+     */
+    static boolean ready(Context c) {
+        H.removeCallbacks(OFF);
+        if (reachable(SelfSetup.PORT)) return true;
+        if (!canManage(c)) return false;
+        setDebugging(c, true);
+        for (int i = 0; i < 30; i++) {
+            android.os.SystemClock.sleep(200);
+            if (reachable(SelfSetup.PORT)) return true;
+        }
+        return false;
+    }
+
+    private Context owner;
+
     /** Connects and authenticates, waiting up to {@code waitMs} for the person to allow it on screen. */
     static AdbSelf connect(Context ctx, int port, long waitMs, Status status) throws Exception {
+        H.removeCallbacks(OFF);
         Socket s = new Socket();
         s.connect(new InetSocketAddress("127.0.0.1", port), 3000);
         s.setSoTimeout((int) Math.max(5000, waitMs));
@@ -69,6 +140,8 @@ final class AdbSelf implements AutoCloseable {
         try {
             a.handshake(ctx, status);
             s.setSoTimeout(15000);
+            a.owner = ctx.getApplicationContext();
+            OPEN.incrementAndGet();
             return a;
         } catch (Exception e) {
             a.close();
@@ -133,6 +206,16 @@ final class AdbSelf implements AutoCloseable {
             socket.close();
         } catch (IOException ignored) {
         }
+        if (owner != null) {
+            OPEN.decrementAndGet();
+            scheduleOff(owner);
+            owner = null;
+        }
+    }
+
+    /** A package name safe to put in a shell command (letters, digits, _ and dots only). */
+    static boolean safeName(String pkg) {
+        return pkg != null && pkg.matches("[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z0-9_]+)+");
     }
 
     // ---- wire format ------------------------------------------------------------------------------

@@ -1290,9 +1290,11 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             if (ssid.isEmpty() || ssid.length() > 64) return false;
             String sec = j.optString("security", "WPA");
             if (!sec.equals("WPA") && !sec.equals("WEP") && !sec.equals("nopass")) sec = "WPA";
+            String password = j.optString("password", "");
+            if (password.length() > 63) return false;   // the longest a Wi-Fi password can be
             getSharedPreferences(WIFI_PREFS, MODE_PRIVATE).edit()
                     .putString("ssid", ssid)
-                    .putString("password", j.optString("password", ""))
+                    .putString("password", password)
                     .putString("security", sec)
                     .putBoolean("hidden", j.optBoolean("hidden", false))
                     .commit();

@@ -403,4 +403,5 @@
     <string name="fs_explain">Estas apps arrancam sempre que a box liga. As que adiar são desativadas quando a box desliga e reativadas logo após a animação do TV Home, para a box arrancar mais depressa.</string>
     <string name="fs_auto">Escolher por mim</string>
     <string name="fs_pending">Funciona a partir do próximo reinício, depois de o TV Home confirmar que consegue reativar as apps.</string>
+    <string name="sec_adb_guard">Depuração só quando necessário</string>
 </resources>

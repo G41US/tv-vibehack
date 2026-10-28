@@ -159,35 +159,47 @@ public final class Updater {
                 if (Build.VERSION.SDK_INT >= 31) {
                     params.setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED);
                 }
-                id = pi.createSession(params);
-                try (PackageInstaller.Session session = pi.openSession(id)) {
-                    HttpURLConnection c;
-                    try {
-                        c = open(url);
-                    } catch (IOException e) {
-                        if (fallbackUrl == null) throw e;
-                        c = open(fallbackUrl);
-                    }
-                    long total = c.getContentLengthLong();
-                    try (InputStream in = c.getInputStream();
-                         OutputStream out = session.openWrite("app.apk", 0, total > 0 ? total : -1)) {
-                        byte[] buf = new byte[64 * 1024];
-                        long done = 0;
-                        int n, shown = -1;
-                        while ((n = in.read(buf)) > 0) {
-                            out.write(buf, 0, n);
-                            done += n;
-                            if (total > 0) {
-                                int pct = (int) (done * 100 / total);
-                                if (pct != shown) {
-                                    shown = pct;
-                                    main.post(() -> progress.set(pct + "%"));
-                                }
+                // Downloaded to TV Home's private storage first and checked there, then handed over.
+                java.io.File apk = new java.io.File(act.getCacheDir(), "download.apk");
+                HttpURLConnection c;
+                try {
+                    c = open(url);
+                } catch (IOException e) {
+                    if (fallbackUrl == null) throw e;
+                    c = open(fallbackUrl);
+                }
+                long total = c.getContentLengthLong();
+                try (InputStream in = c.getInputStream(); OutputStream out = new java.io.FileOutputStream(apk)) {
+                    byte[] buf = new byte[64 * 1024];
+                    long done = 0;
+                    int n, shown = -1;
+                    while ((n = in.read(buf)) > 0) {
+                        out.write(buf, 0, n);
+                        done += n;
+                        if (done > MAX_APK) throw new IOException("download too large");
+                        if (total > 0) {
+                            int pct = (int) (done * 100 / total);
+                            if (pct != shown) {
+                                shown = pct;
+                                main.post(() -> progress.set(pct + "%"));
                             }
                         }
+                    }
+                } finally {
+                    c.disconnect();
+                }
+                verify(pm, apk, packageName);
+                id = pi.createSession(params);
+                try (PackageInstaller.Session session = pi.openSession(id)) {
+                    try (InputStream in = new java.io.FileInputStream(apk);
+                         OutputStream out = session.openWrite("app.apk", 0, apk.length())) {
+                        byte[] buf = new byte[64 * 1024];
+                        int n;
+                        while ((n = in.read(buf)) > 0) out.write(buf, 0, n);
                         session.fsync(out);
                     } finally {
-                        c.disconnect();
+                        //noinspection ResultOfMethodCallIgnored
+                        apk.delete();
                     }
                     Intent cb = new Intent(act, InstallResult.class);
                     PendingIntent pending = PendingIntent.getBroadcast(act, id, cb,
@@ -217,7 +229,35 @@ public final class Updater {
         Toast.makeText(act, text, Toast.LENGTH_LONG).show();
     }
 
+    private static final long MAX_APK = 400L * 1024 * 1024;
+
+    /**
+     * The download is the app it claims to be: the expected package, and for TV Home itself the same
+     * signing certificate as the installed TV Home (Android checks that too; this stops anything else
+     * before it reaches the installer, with a clear message).
+     */
+    private void verify(PackageManager pm, java.io.File apk, String packageName) throws IOException {
+        int flags = Build.VERSION.SDK_INT >= 28 ? PackageManager.GET_SIGNING_CERTIFICATES : 0;
+        android.content.pm.PackageInfo got = pm.getPackageArchiveInfo(apk.getPath(), flags);
+        if (got == null) throw new IOException("not an Android app");
+        if (packageName != null && !packageName.equals(got.packageName)) {
+            throw new IOException("wrong app (" + got.packageName + ")");
+        }
+        if (Build.VERSION.SDK_INT >= 28 && act.getPackageName().equals(got.packageName)) {
+            try {
+                android.content.pm.PackageInfo mine = pm.getPackageInfo(act.getPackageName(), PackageManager.GET_SIGNING_CERTIFICATES);
+                if (got.signingInfo == null || mine.signingInfo == null
+                        || !java.util.Arrays.equals(got.signingInfo.getApkContentsSigners(), mine.signingInfo.getApkContentsSigners())) {
+                    throw new IOException("not signed by TV Home");
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                throw new IOException(e);
+            }
+        }
+    }
+
     private static HttpURLConnection open(String url) throws IOException {
+        if (!url.startsWith("https://")) throw new IOException("only secure (https) downloads");
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
         c.setInstanceFollowRedirects(true);
         c.setConnectTimeout(15000);

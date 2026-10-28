@@ -33,7 +33,7 @@ final class SelfSetup {
         // Checking the debugging port is network work: off the main thread, then the page.
         Handler main = new Handler(Looper.getMainLooper());
         new Thread(() -> {
-            boolean ready = AdbSelf.reachable(PORT);
+            boolean ready = AdbSelf.ready(act);
             main.post(() -> {
                 if (!act.isFinishing() && !act.isDestroyed()) build(act, focus, ready);
             });
@@ -75,7 +75,7 @@ final class SelfSetup {
         Handler main = new Handler(Looper.getMainLooper());
         new Thread(() -> {
             String error = null;
-            if (!AdbSelf.reachable(PORT)) {
+            if (!AdbSelf.ready(act)) {
                 error = act.getString(R.string.ss_err_off);
             } else {
                 try (AdbSelf adb = AdbSelf.connect(act, PORT, 120_000,
@@ -107,7 +107,8 @@ final class SelfSetup {
         String pkg = act.getPackageName();
         String svc = pkg + "/" + HomeKeyService.class.getName();
         adb.shell("pm grant " + pkg + " android.permission.WRITE_SECURE_SETTINGS");
-        String cur = adb.shell("settings get secure enabled_accessibility_services");
+        // Only component-name characters go back into the command (no quotes or shell symbols).
+        String cur = adb.shell("settings get secure enabled_accessibility_services").trim().replaceAll("[^A-Za-z0-9._/:$]", "");
         if (!cur.contains(pkg + "/")) {
             String next = cur.isEmpty() || "null".equals(cur) ? svc : cur + ":" + svc;
             adb.shell("settings put secure enabled_accessibility_services '" + next + "'");

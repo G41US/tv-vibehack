@@ -28,7 +28,7 @@ final class SpeedUp {
             long space0 = freeSpace(), mem0 = freeMemory(act);
             int apps0 = -1, apps1 = -1;
             boolean done = false;
-            if (AdbSelf.reachable(SelfSetup.PORT)) {
+            if (AdbSelf.ready(act)) {
                 try (AdbSelf adb = AdbSelf.connect(act, SelfSetup.PORT, 30_000,
                         () -> main.post(() -> p.set(act.getString(R.string.ss_allow))))) {
                     main.post(() -> p.set(""));

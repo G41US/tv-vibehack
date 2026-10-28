@@ -403,4 +403,5 @@
     <string name="fs_explain">Aplikasi ini berjalan setiap kali box menyala. Aplikasi yang Anda tunda dimatikan saat box dimatikan, lalu dinyalakan lagi tepat setelah animasi TV Home, sehingga box menyala lebih cepat.</string>
     <string name="fs_auto">Pilihkan untuk saya</string>
     <string name="fs_pending">Mulai berlaku setelah mulai ulang berikutnya, setelah TV Home memastikan bisa menyalakan aplikasi lagi.</string>
+    <string name="sec_adb_guard">Debugging hanya saat diperlukan</string>
 </resources>
