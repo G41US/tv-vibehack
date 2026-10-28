@@ -71,7 +71,6 @@ public final class SelfHeal {
             }
             ensureService(app);
             if (!updated) {
-                Profiles.markPending(app);   // box started: ask who's watching
                 BootTrace.mark(app, "box ready");
                 return;
             }

@@ -995,9 +995,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     /** "Who's watching?": after the box starts, or after Still watching? turned it off. */
-    /** "Who's watching?": after the box starts, or after Still watching? turned it off. */
+    private android.app.Dialog whoDialog;
+
     private void showWhoIsWatching() {
-        ProfilePicker.show(this, false, profileHost, () -> Profiles.asked(this));
+        if (whoDialog != null && whoDialog.isShowing()) return;   // Home came back while it's open
+        Profiles.asked(this);   // asked once, whichever way it's closed (picked, added, managed, Back)
+        whoDialog = ProfilePicker.show(this, false, profileHost, null);
     }
 
     /** Settings > Profiles: the same page, to switch, add or manage. */
