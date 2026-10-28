@@ -182,6 +182,15 @@ final class ProfilePicker {
         d.setOnShowListener(x -> {
             if (first != null) first.requestFocus();
         });
+        // If the page ever has nothing chosen (it opened while the box was still busy starting), the
+        // first button press chooses the current person instead of going nowhere.
+        d.setOnKeyListener((x, code, e) -> {
+            if (first == null || d.getCurrentFocus() != null) return false;
+            if (code == android.view.KeyEvent.KEYCODE_BACK) return false;
+            BootTrace.mark(a, "Who's watching had nothing chosen: fixed");
+            if (e.getAction() == android.view.KeyEvent.ACTION_UP) first.requestFocus();
+            return true;
+        });
         if (dismissed != null) d.setOnDismissListener(x -> dismissed.run());
         d.show();
         return d;
