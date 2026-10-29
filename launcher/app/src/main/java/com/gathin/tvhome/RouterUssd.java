@@ -32,9 +32,25 @@ final class RouterUssd {
     final StringBuilder log = new StringBuilder();
     String reply;
 
+    /** The page's own meanings of ussd_write_flag (from its com.js). */
+    private static final java.util.Map<String, String> FLAGS = new java.util.HashMap<>();
+
+    static {
+        FLAGS.put("1", "no service");
+        FLAGS.put("2", "network ended it");
+        FLAGS.put("3", "timed out");
+        FLAGS.put("4", "timed out");
+        FLAGS.put("10", "try again");
+        FLAGS.put("41", "not supported");
+        FLAGS.put("99", "USSD not supported");
+        FLAGS.put("unknown", "timed out");
+        FLAGS.put("", "no answer");
+    }
+
     private final InetAddress host;
     private String get, post, cookie = "", ad;
     private int lastStatus;
+    private String lastHead = "";
 
     RouterUssd(InetAddress host) {
         this.host = host;
@@ -51,24 +67,30 @@ final class RouterUssd {
                 post = "/goform/goform_set_cmd_process";
             }
             log.append("api ").append(get);
+            // The page first: some firmware only answers its requests for a browser that has it open (session cookie).
+            String page = request("GET", "/index.html", null);
+            log.append(", page ").append(lastStatus).append(cookie.isEmpty() ? " no cookie" : " cookie");
             if (!login(user, password, how)) return null;
             signing();
+            // As the page does: send, then ask ussd_write_flag each second (15 waiting, 16 answered), then read it.
             JSONObject sent = json(postForm("goformId=USSD_PROCESS&USSD_operator=ussd_send&USSD_send_number="
                     + URLEncoder.encode(code, "UTF-8") + "&notCallback=true"));
             log.append(", sent ").append(sent);
-            for (int i = 0; i < 20; i++) {
-                Thread.sleep(1500);
-                JSONObject r = json(read("ussd_write_flag,ussd_data_info,ussd_data,ussd_action,ussd_dcs"));
-                String data = r.optString("ussd_data", "");
-                JSONObject info = r.optJSONObject("ussd_data_info");
-                if (data.isEmpty() && info != null) data = info.optString("ussd_data", "");
-                String flag = r.optString("ussd_write_flag", "");
-                if (!data.isEmpty()) {
-                    reply = decode(data, null);
-                    log.append(", reply after ").append((i + 1) * 3 / 2).append("s");
-                    break;
-                }
-                if (i == 19) log.append(", last flag ").append(flag);
+            String flag = "";
+            for (int i = 0; i < 40; i++) {
+                Thread.sleep(1000);
+                flag = json(read("ussd_write_flag")).optString("ussd_write_flag", "");
+                if (flag.equals("15") || flag.isEmpty() || flag.equals("0")) continue;
+                break;
+            }
+            log.append(", flag ").append(flag);
+            if (flag.equals("16")) {
+                JSONObject info = json(read("ussd_data_info"));
+                String data = info.optString("ussd_data", "");
+                if (!data.isEmpty()) reply = decode(data, null);
+                else log.append(" ").append(info);
+            } else {
+                log.append(" (").append(FLAGS.containsKey(flag) ? FLAGS.get(flag) : "?").append(')');
             }
             postForm("goformId=USSD_PROCESS&USSD_operator=ussd_cancel");   // close the session on the network
             if (reply == null) log.append(", no reply");
@@ -90,6 +112,7 @@ final class RouterUssd {
             String u = way == 1 ? b64(user) : user, pw = way == 1 ? b64(password) : password;
             String body = postForm("goformId=LOGIN&username=" + URLEncoder.encode(u, "UTF-8") + "&password=" + URLEncoder.encode(pw, "UTF-8"));
             JSONObject r = json(body);
+            if (body.isEmpty()) log.append(", headers [").append(lastHead).append(']');
             log.append(", login ").append(way).append('=').append(lastStatus).append(' ').append(r.optString("result", r.toString()));
             if ("0".equals(r.optString("result")) || "4".equals(r.optString("result"))) {
                 how[0] = way;
@@ -118,7 +141,7 @@ final class RouterUssd {
     }
 
     private String read(String cmd) throws IOException {
-        return body(request("GET", get + "?isTest=false&cmd=" + cmd + (cmd.contains(",") ? "&multi_data=1" : "") + "&_=" + System.currentTimeMillis(), null));
+        return body(request("GET", get + "?cmd=" + cmd + (cmd.contains(",") ? "&multi_data=1" : "") + "&_=" + System.currentTimeMillis(), null));
     }
 
     private String postForm(String form) throws Exception {
@@ -150,6 +173,9 @@ final class RouterUssd {
             }
             String r = got.toString("UTF-8");
             lastStatus = status(r);
+            int he = r.indexOf("\r\n\r\n");
+            lastHead = (he > 0 ? r.substring(0, he) : r).replace("\r\n", " | ");
+            if (lastHead.length() > 300) lastHead = lastHead.substring(0, 300);
             if (r.contains("Transfer-Encoding: chunked")) r = unchunk(r);
             Matcher c = Pattern.compile("(?im)^Set-Cookie:\\s*([^;\\r\\n]+)").matcher(r);
             while (c.find()) cookie = c.group(1).trim();   // the session (newer firmware keeps it in a cookie)
