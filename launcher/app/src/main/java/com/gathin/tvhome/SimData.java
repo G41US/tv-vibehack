@@ -154,7 +154,8 @@ final class SimData {
         }
         // What the router's own page says about itself (its maker and model), asked plainly with a socket:
         // some router pages answer in ways Android's web client refuses.
-        if (gw != null) for (String path : new String[]{"/", "/api/device/information", "/goform/goform_get_cmd_process?cmd=hardware_version,wa_inner_version,modem_main_state&multi_data=1"}) {
+        if (gw != null) for (String path : new String[]{"/", "/api/device/information", "/goform/goform_get_cmd_process?cmd=hardware_version,wa_inner_version,modem_main_state&multi_data=1",
+                "/reqproc/proc_get?isTest=false&cmd=hardware_version,wa_inner_version,modem_main_state,sms_unread_num&multi_data=1"}) {
             out.append("\n> ").append(path).append(": ").append(peek(gw, path));
         }
         if (gw != null) out.append("\nAPI: ").append(apiWords(gw));
@@ -195,22 +196,36 @@ final class SimData {
             }
             java.util.Set<String> scripts = new java.util.LinkedHashSet<>(), found = new java.util.TreeSet<>();
             Matcher src = Pattern.compile("(?:src|href)\\s*=\\s*[\"']([^\"'#?]+\\.(?:js|html?))", Pattern.CASE_INSENSITIVE).matcher(page);
-            while (src.find() && scripts.size() < 10) {
+            // RequireJS pages name their start script in data-main; their API sits in a few usual files.
+            Matcher main = Pattern.compile("data-main\\s*=\\s*[\"']([^\"']+)", Pattern.CASE_INSENSITIVE).matcher(page);
+            if (main.find()) scripts.add("/" + main.group(1).replaceFirst("^/", "").replaceFirst("(\\.js)?$", ".js"));
+            for (String usual : new String[]{"/js/service.js", "/js/main.js", "/js/config/config.js", "/js/util.js", "/js/set.js"}) scripts.add(usual);
+            while (src.find() && scripts.size() < 14) {
                 String u = src.group(1);
                 if (u.startsWith("http")) continue;
                 scripts.add(u.startsWith("/") ? u : "/" + u);
             }
-            Pattern api = Pattern.compile("[\"'](/?[A-Za-z0-9_./-]*(?:cgi|goform|api/|ajax|action|jsonrpc|ubus|ussd|sms|login)[A-Za-z0-9_./?=&-]*)[\"']",
+            Pattern api = Pattern.compile("[\"'](/?[A-Za-z0-9_./-]*(?:cgi|goform|reqproc|proc_|api/|jsonrpc|ubus|ussd|login)[A-Za-z0-9_./?=&-]*)[\"']",
                     Pattern.CASE_INSENSITIVE);
             java.util.List<String> texts = new java.util.ArrayList<>();
             texts.add(page);
-            for (String js : scripts) texts.add(get(host, js, 600_000));
+            StringBuilder sizes = new StringBuilder();
+            for (String js : scripts) {
+                String t = get(host, js, 900_000);
+                sizes.append(' ').append(js).append('=').append(t.startsWith("HTTP/1.1 200") || t.startsWith("HTTP/1.0 200") ? t.length() : 0);
+                texts.add(t);
+            }
             for (String t : texts) {
                 Matcher m = api.matcher(t);
                 while (m.find() && found.size() < 60) if (m.group(1).length() < 90) found.add(m.group(1));
+                // ZTE-style pages name each action ("goformId: 'USSD_PROCESS'") and the values they read ("ussd_data_info").
+                Matcher id = Pattern.compile("goformId\\s*[:=]\\s*[\"']([A-Z0-9_]*(?:USSD|LOGIN|SMS)[A-Z0-9_]*)[\"']").matcher(t);
+                while (id.find() && found.size() < 90) found.add("id:" + id.group(1));
+                Matcher key = Pattern.compile("[\"'](ussd_[A-Za-z_]+|USSD_[A-Za-z_]+|login_[A-Za-z_]+|LD|RD)[\"']").matcher(t);
+                while (key.find() && found.size() < 110) found.add(key.group(1));
             }
             Matcher t = Pattern.compile("<title>(.*?)</title>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL).matcher(page);
-            return (t.find() ? "title \"" + t.group(1).trim() + "\" " : "") + "scripts " + scripts + "\n" + String.join(" ", found);
+            return (t.find() ? "title \"" + t.group(1).trim() + "\" " : "") + "scripts" + sizes + "\n" + String.join(" ", found);
         } catch (Exception e) {
             return e.getClass().getSimpleName();
         }
