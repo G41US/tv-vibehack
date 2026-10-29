@@ -195,7 +195,7 @@ final class SimData {
                 for (int n; got.size() < max && (n = so.getInputStream().read(buf)) > 0; ) got.write(buf, 0, n);
             } catch (java.net.SocketTimeoutException ignored) {
             }
-            String r = got.toString("UTF-8");
+            String r = RouterUssd.normalize(got.toString("UTF-8"));
             return r.contains("Transfer-Encoding: chunked") ? RouterUssd.unchunk(r) : r;
         }
     }
