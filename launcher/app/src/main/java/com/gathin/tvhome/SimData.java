@@ -109,7 +109,10 @@ final class SimData {
                     String reply = r.send(p.getString(KEY_ROUTER_USER, "admin"), p.getString(KEY_ROUTER_PW, "admin"), how, CODE, pick);
                     p.edit().putInt(KEY_HOW, how[0]).apply();
                     note += "Router " + gw.getHostAddress() + " (" + pick + "): " + r.log + "\n";
-                    if (r.state != null) p.edit().putString(KEY_STATE, r.state.toString()).apply();
+                    if (r.state != null) {
+                        p.edit().putString(KEY_STATE, r.state.toString()).apply();
+                        note += "Router state: " + r.state + "\n";   // what the Network panel's router line comes from
+                    }
                     if (reply == null) continue;
                     last = reply;
                     String amount = amount(reply);
