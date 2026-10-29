@@ -653,7 +653,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         DataLimit.maybeWarn(this);
         updater.autoCheck();
         new Thread(() -> DataUsage.sample(this), "data-sample").start();
-        SimData.refreshIfStale(this, this::updateWifiLabel);
+        SimData.refreshIfStale(this, null);
         checkNet();
     }
     private View nightShade;
@@ -1264,6 +1264,13 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             showNetworkPanel();
         }));
         ((TextView) dlg.findViewById(R.id.dataNote)).setText(t.mobile ? R.string.net_data_mobile : R.string.net_data_all);
+        // Data left on the SIM (asked of the network every few hours), with when the bundle ends.
+        String simLeft = SimData.left(this), simUntil = SimData.until(this);
+        if (simLeft != null) {
+            dlg.findViewById(R.id.dataLeftBox).setVisibility(View.VISIBLE);
+            ((TextView) dlg.findViewById(R.id.dataLeft)).setText(simLeft);
+            ((TextView) dlg.findViewById(R.id.dataLeftLabel)).setText(simUntil != null ? getString(R.string.net_left_until, simUntil) : getString(R.string.net_left));
+        }
 
         TextView details = dlg.findViewById(R.id.btnWifiDetails);
         details.setText(ssid.isEmpty() ? R.string.net_set_up : R.string.net_change);
@@ -1552,7 +1559,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     }
 
     /** Shows the Wi-Fi network name on the button when we can read it, otherwise the connection type. */
-    void updateWifiLabel() {
+    private void updateWifiLabel() {
         String text = getString(R.string.wifi);
         boolean vpn = false;
         try {
@@ -1587,9 +1594,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             }
         } catch (Exception ignored) {
         }
-        // Data left on the SIM, when it's known: "Ethernet · 12.4 GB left".
-        String simLeft = SimData.left(this);
-        if (simLeft != null && !text.equals(getString(R.string.offline))) text = text + " · " + getString(R.string.sim_left, simLeft);
         netText = text;
         android.text.SpannableStringBuilder label = new android.text.SpannableStringBuilder(text);
         if (vpn) {

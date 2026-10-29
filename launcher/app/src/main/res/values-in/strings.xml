@@ -425,6 +425,7 @@
     <string name="pp_characters">Karakter</string>
     <string name="pp_fun">Seru</string>
     <string name="rc_freed">%1$s memori dikosongkan</string>
-    <string name="sim_left">sisa %1$s</string>
     <string name="chk_sim">Data SIM</string>
+    <string name="net_left">Sisa di SIM</string>
+    <string name="net_left_until">Sisa · s.d. %1$s</string>
 </resources>

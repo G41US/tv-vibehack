@@ -425,6 +425,7 @@
     <string name="pp_characters">ตัวละคร</string>
     <string name="pp_fun">สนุกๆ</string>
     <string name="rc_freed">คืนหน่วยความจำ %1$s แล้ว</string>
-    <string name="sim_left">เหลือ %1$s</string>
     <string name="chk_sim">ข้อมูลซิม</string>
+    <string name="net_left">เหลือในซิม</string>
+    <string name="net_left_until">เหลือ · ถึง %1$s</string>
 </resources>
