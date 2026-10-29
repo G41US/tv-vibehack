@@ -57,7 +57,8 @@ final class RouterUssd {
     }
 
     /** Logs in and sends the code; returns the network's reply text, or null (see log). */
-    String send(String user, String password, int[] how, String code) {
+    /** {@code pick}: in a menu reply, the line to choose (by a word in it), or null. */
+    String send(String user, String password, int[] how, String code, String pick) {
         try {
             if (status(request("GET", "/reqproc/proc_get?isTest=false&cmd=LD&_=" + System.currentTimeMillis(), null)) == 200) {
                 get = "/reqproc/proc_get";
@@ -73,24 +74,17 @@ final class RouterUssd {
             if (!login(user, password, how)) return null;
             signing();
             // As the page does: send, then ask ussd_write_flag each second (15 waiting, 16 answered), then read it.
-            JSONObject sent = json(postForm("goformId=USSD_PROCESS&USSD_operator=ussd_send&USSD_send_number="
+            reply = answer(postForm("goformId=USSD_PROCESS&USSD_operator=ussd_send&USSD_send_number="
                     + URLEncoder.encode(code, "UTF-8") + "&notCallback=true"));
-            log.append(", sent ").append(sent);
-            String flag = "";
-            for (int i = 0; i < 40; i++) {
-                Thread.sleep(1000);
-                flag = json(read("ussd_write_flag")).optString("ussd_write_flag", "");
-                if (flag.equals("15") || flag.isEmpty() || flag.equals("0")) continue;
-                break;
-            }
-            log.append(", flag ").append(flag);
-            if (flag.equals("16")) {
-                JSONObject info = json(read("ussd_data_info"));
-                String data = info.optString("ussd_data", "");
-                if (!data.isEmpty()) reply = decode(data, null);
-                else log.append(" ").append(info);
-            } else {
-                log.append(" (").append(FLAGS.containsKey(flag) ? FLAGS.get(flag) : "?").append(')');
+            // A menu ("1 DATA Balance / 2 ROUTER Balance ..."): reply with the number of the wanted line.
+            for (int level = 0; level < 3 && reply != null && pick != null && SimData.amount(reply) == null; level++) {
+                Matcher m = Pattern.compile("(?im)^\\s*(\\d+)[.):]?\\s+.*" + Pattern.quote(pick)).matcher(reply);
+                if (!m.find()) break;
+                log.append(", chose ").append(m.group(1));
+                String next = answer(postForm("goformId=USSD_PROCESS&USSD_operator=ussd_reply&USSD_reply_number="
+                        + m.group(1) + "&notCallback=true"));
+                if (next == null) break;
+                reply = next;
             }
             postForm("goformId=USSD_PROCESS&USSD_operator=ussd_cancel");   // close the session on the network
             if (reply == null) log.append(", no reply");
@@ -99,6 +93,23 @@ final class RouterUssd {
             log.append(", ").append(e.getClass().getSimpleName()).append(' ').append(e.getMessage());
             return null;
         }
+    }
+
+    /** After a send or reply: waits for the network's answer the way the page does, and reads it (null: none). */
+    private String answer(String postBody) throws Exception {
+        log.append(", sent ").append(json(postBody).optString("result", postBody));
+        String flag = "";
+        for (int i = 0; i < 40; i++) {
+            Thread.sleep(1000);
+            flag = json(read("ussd_write_flag")).optString("ussd_write_flag", "");
+            if (!(flag.equals("15") || flag.isEmpty() || flag.equals("0"))) break;
+        }
+        if (!flag.equals("16")) {
+            log.append(", flag ").append(flag).append(" (").append(FLAGS.containsKey(flag) ? FLAGS.get(flag) : "?").append(')');
+            return null;
+        }
+        String data = json(read("ussd_data_info")).optString("ussd_data", "");
+        return data.isEmpty() ? null : decode(data, null);
     }
 
     /**
