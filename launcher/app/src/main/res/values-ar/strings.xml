@@ -428,4 +428,6 @@
     <string name="sim_left">متبقٍ %1$s</string>
     <string name="chk_sim">بيانات الشريحة</string>
     <string name="chk_look_again">ابحث مجددًا</string>
+    <string name="chk_on_phone">افتح على الهاتف</string>
+    <string name="chk_on_phone_msg">على هاتف متصل بنفس شبكة Wi-Fi، افتح هذا في المتصفح:\n\n%1$s\n\nأبقِ هذه النافذة مفتوحة أثناء النسخ.</string>
 </resources>

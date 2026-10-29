@@ -435,4 +435,6 @@
     <string name="sim_left">%1$s restants</string>
     <string name="chk_sim">Données SIM</string>
     <string name="chk_look_again">Chercher à nouveau</string>
+    <string name="chk_on_phone">Ouvrir sur le téléphone</string>
+    <string name="chk_on_phone_msg">Sur un téléphone connecté au même Wi-Fi, ouvrez ceci dans le navigateur :\n\n%1$s\n\nGardez cette fenêtre ouverte pendant la copie.</string>
 </resources>
