@@ -157,23 +157,60 @@ final class SimData {
         if (gw != null) for (String path : new String[]{"/", "/api/device/information", "/goform/goform_get_cmd_process?cmd=hardware_version,wa_inner_version,modem_main_state&multi_data=1"}) {
             out.append("\n> ").append(path).append(": ").append(peek(gw, path));
         }
+        if (gw != null) out.append("\nAPI: ").append(apiWords(gw));
         return out.toString();
     }
 
-    /** The start of a router page's answer (status, server, title or text), via a plain socket. */
-    private static String peek(InetAddress host, String path) {
+    /** A router page's whole answer (headers and body, up to {@code max} bytes), via a plain socket. */
+    private static String get(InetAddress host, String path, int max) throws java.io.IOException {
         try (java.net.Socket so = new java.net.Socket()) {
             so.connect(new java.net.InetSocketAddress(host, 80), 2000);
             so.setSoTimeout(3000);
             so.getOutputStream().write(("GET " + path + " HTTP/1.0\r\nHost: " + host.getHostAddress() + "\r\nReferer: http://"
                     + host.getHostAddress() + "/\r\nUser-Agent: Mozilla/5.0\r\n\r\n").getBytes("UTF-8"));
             java.io.ByteArrayOutputStream got = new java.io.ByteArrayOutputStream();
-            byte[] buf = new byte[4096];
+            byte[] buf = new byte[8192];
             try {
-                for (int n; got.size() < 6000 && (n = so.getInputStream().read(buf)) > 0; ) got.write(buf, 0, n);
+                for (int n; got.size() < max && (n = so.getInputStream().read(buf)) > 0; ) got.write(buf, 0, n);
             } catch (java.net.SocketTimeoutException ignored) {
             }
-            String r = got.toString("UTF-8");
+            return got.toString("UTF-8");
+        }
+    }
+
+    /**
+     * How the router's page talks to the router: the addresses its scripts call (login, SMS, USSD...),
+     * found in the page and the scripts it loads.
+     */
+    private static String apiWords(InetAddress host) {
+        try {
+            String page = get(host, "/", 200_000);
+            java.util.Set<String> scripts = new java.util.LinkedHashSet<>(), found = new java.util.TreeSet<>();
+            Matcher src = Pattern.compile("(?:src|href)\\s*=\\s*[\"']([^\"'#?]+\\.(?:js|html?))", Pattern.CASE_INSENSITIVE).matcher(page);
+            while (src.find() && scripts.size() < 10) {
+                String u = src.group(1);
+                if (u.startsWith("http")) continue;
+                scripts.add(u.startsWith("/") ? u : "/" + u);
+            }
+            Pattern api = Pattern.compile("[\"'](/?[A-Za-z0-9_./-]*(?:cgi|goform|api/|ajax|action|jsonrpc|ubus|ussd|sms|login)[A-Za-z0-9_./?=&-]*)[\"']",
+                    Pattern.CASE_INSENSITIVE);
+            java.util.List<String> texts = new java.util.ArrayList<>();
+            texts.add(page);
+            for (String js : scripts) texts.add(get(host, js, 600_000));
+            for (String t : texts) {
+                Matcher m = api.matcher(t);
+                while (m.find() && found.size() < 60) if (m.group(1).length() < 90) found.add(m.group(1));
+            }
+            return "scripts " + scripts + "\n" + String.join(" ", found);
+        } catch (Exception e) {
+            return e.getClass().getSimpleName();
+        }
+    }
+
+    /** The start of a router page's answer (status, server, title or text), via a plain socket. */
+    private static String peek(InetAddress host, String path) {
+        try {
+            String r = get(host, path, 6000);
             StringBuilder o = new StringBuilder(r.split("\r?\n", 2)[0]);
             Matcher m = Pattern.compile("(?im)^(Server|Location|WWW-Authenticate):.*$").matcher(r);
             while (m.find()) o.append(" | ").append(m.group().trim());
