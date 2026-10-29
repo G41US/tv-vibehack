@@ -23,7 +23,7 @@ import java.util.regex.Pattern;
  *
  * That works when Android itself holds the SIM. On a box whose router part holds it (Android only sees
  * Ethernet), there is nothing to ask yet: TV check > SIM data then shows what this box has instead
- * (the router's page, Android's modem settings, the firmware's own apps), to find the way in.
+ * (the router: its open ports and what its page says it is), to find the way in.
  */
 final class SimData {
 
@@ -54,7 +54,7 @@ final class SimData {
     static void refreshIfStale(Context ctx, Runnable changed) {
         Context c = ctx.getApplicationContext();
         long at = prefs(c).getLong(KEY_AT, 0), now = System.currentTimeMillis();
-        // No SIM in Android: look again once a day only (it switches debugging on to look around).
+        // No SIM in Android: look at the router again once a day only.
         long every = left(c) != null ? EVERY : note(c).startsWith(NO_SIM) ? 24 * EVERY / 3 : RETRY;
         if (busy || (now - at < every && now >= at)) return;
         busy = true;
@@ -131,7 +131,7 @@ final class SimData {
         e.apply();
     }
 
-    /** Where else the SIM's details might be: the router's ports, Airtel's apps and what they store. */
+    /** Where else the SIM's details might be: the separate router (its open ports and what its page says it is). */
     private static String lookAround(Context c) {
         StringBuilder out = new StringBuilder();
         InetAddress gw = null;
@@ -152,30 +152,40 @@ final class SimData {
                 }
             }
         }
-        if (!AdbSelf.ready(c)) return out.append("\n(no debugging connection)").toString();
-        try (AdbSelf adb = AdbSelf.connect(c, SelfSetup.PORT, 10_000, () -> {
-        })) {
-            // Where Airtel's apps keep things, and what each answers.
-            String auths = adb.shell("dumpsys package providers | grep -B1 -E 'com\\.nes|airtel' | grep '\\[' | tr -d '[]: ' | sort -u | head -14");
-            out.append("\nStores: ").append(auths.replace('\n', ' '));
-            out.append("\nAnswers:\n").append(adb.shell("for a in " + auths.replace('\n', ' ')
-                    + "; do echo \"> $a: $(content query --uri content://$a 2>&1 | head -c 240)\"; done"));
-            // Addresses and words inside Airtel's home screen and service (their code), then what those addresses answer.
-            String files = "for p in com.nes.hometv com.nes.coreservice com.nes.skywayclient; do a=$(pm path $p | head -1 | cut -d: -f2); "
-                    + "[ -n \"$a\" ] && echo $a $(dirname $a)/oat/*/*.vdex $(dirname $a)/oat/*/*.odex; done";
-            String links = adb.shell("grep -a -o -h -E 'content://[A-Za-z0-9._/-]{4,80}|https?://[A-Za-z0-9._:/?=&-]{8,90}' $(" + files
-                    + ") 2>/dev/null | grep -v -E 'android\\.com|google|schemas|w3\\.org|apache|xmlpull|github' | sort -u | head -40");
-            out.append("\nLinks:\n").append(links);
-            out.append("\nWords: ").append(adb.shell("grep -a -o -h -i -E '[A-Za-z_]{0,24}(balance|remain|ussd|dataplan|bundle|simcard|simInfo)[A-Za-z_]{0,24}' $("
-                    + files + ") 2>/dev/null | sort -u | head -40").replace('\n', ' '));
-            StringBuilder uris = new StringBuilder();
-            for (String l : links.split("\n")) if (l.startsWith("content://") && uris.length() < 900) uris.append(l.trim()).append(' ');
-            if (uris.length() > 0) out.append("\nTheir answers:\n").append(adb.shell("for u in " + uris
-                    + "; do echo \"> $u: $(content query --uri $u 2>&1 | head -c 240)\"; done"));
-        } catch (Exception e) {
-            out.append("\n(debugging: ").append(e.getClass().getSimpleName()).append(')');
+        // What the router's own page says about itself (its maker and model), asked plainly with a socket:
+        // some router pages answer in ways Android's web client refuses.
+        if (gw != null) for (String path : new String[]{"/", "/api/device/information", "/goform/goform_get_cmd_process?cmd=hardware_version,wa_inner_version,modem_main_state&multi_data=1"}) {
+            out.append("\n> ").append(path).append(": ").append(peek(gw, path));
         }
         return out.toString();
+    }
+
+    /** The start of a router page's answer (status, server, title or text), via a plain socket. */
+    private static String peek(InetAddress host, String path) {
+        try (java.net.Socket so = new java.net.Socket()) {
+            so.connect(new java.net.InetSocketAddress(host, 80), 2000);
+            so.setSoTimeout(3000);
+            so.getOutputStream().write(("GET " + path + " HTTP/1.0\r\nHost: " + host.getHostAddress() + "\r\nReferer: http://"
+                    + host.getHostAddress() + "/\r\nUser-Agent: Mozilla/5.0\r\n\r\n").getBytes("UTF-8"));
+            java.io.ByteArrayOutputStream got = new java.io.ByteArrayOutputStream();
+            byte[] buf = new byte[4096];
+            try {
+                for (int n; got.size() < 6000 && (n = so.getInputStream().read(buf)) > 0; ) got.write(buf, 0, n);
+            } catch (java.net.SocketTimeoutException ignored) {
+            }
+            String r = got.toString("UTF-8");
+            StringBuilder o = new StringBuilder(r.split("\r?\n", 2)[0]);
+            Matcher m = Pattern.compile("(?im)^(Server|Location|WWW-Authenticate):.*$").matcher(r);
+            while (m.find()) o.append(" | ").append(m.group().trim());
+            Matcher t = Pattern.compile("<title>(.*?)</title>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL).matcher(r);
+            if (t.find()) o.append(" | title: ").append(t.group(1).trim());
+            int body = r.indexOf("\r\n\r\n");
+            String rest = body >= 0 ? r.substring(body + 4).replaceAll("\\s+", " ").trim() : "";
+            if (!rest.isEmpty()) o.append(" | ").append(rest.length() > 300 ? rest.substring(0, 300) + "…" : rest);
+            return o.toString();
+        } catch (Exception e) {
+            return e.getClass().getSimpleName();
+        }
     }
 
     /** TV check's "Look again": forget the last look and look now. */
