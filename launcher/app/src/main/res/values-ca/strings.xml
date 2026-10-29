@@ -428,4 +428,15 @@
     <string name="chk_sim">Dades de la SIM</string>
     <string name="net_left">Queda a la SIM</string>
     <string name="net_left_until">Queda · fins al %1$s</string>
+    <string name="sd_low_title">Queden poques dades</string>
+    <string name="sd_low_msg">Només queden %1$s de dades a la SIM.</string>
+    <string name="sd_end_title">El paquet acaba aviat</string>
+    <string name="sd_end_msg">El teu paquet de dades acaba el %1$s, amb %2$s restants.</string>
+    <string name="sd_devices">%1$d dispositius</string>
+    <string name="sd_messages">Missatges</string>
+    <string name="sd_loading">Carregant…</string>
+    <string name="sd_delete">Suprimeix</string>
+    <string name="sd_delete_all">Suprimeix-ho tot</string>
+    <string name="sd_none">No hi ha missatges</string>
+    <string name="sd_no_router">No s\'ha pogut connectar amb el router</string>
 </resources>

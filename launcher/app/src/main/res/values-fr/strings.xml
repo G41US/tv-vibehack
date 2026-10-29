@@ -435,4 +435,15 @@
     <string name="chk_sim">Données SIM</string>
     <string name="net_left">Restant sur la SIM</string>
     <string name="net_left_until">Restant · jusqu\'au %1$s</string>
+    <string name="sd_low_title">Données presque épuisées</string>
+    <string name="sd_low_msg">Il ne reste que %1$s de données sur la SIM.</string>
+    <string name="sd_end_title">Forfait bientôt terminé</string>
+    <string name="sd_end_msg">Votre forfait se termine le %1$s, avec %2$s restants.</string>
+    <string name="sd_devices">%1$d appareils</string>
+    <string name="sd_messages">Messages</string>
+    <string name="sd_loading">Chargement…</string>
+    <string name="sd_delete">Supprimer</string>
+    <string name="sd_delete_all">Tout supprimer</string>
+    <string name="sd_none">Aucun message</string>
+    <string name="sd_no_router">Impossible de joindre le routeur</string>
 </resources>

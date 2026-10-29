@@ -183,6 +183,17 @@
                 android:fontVariationSettings="'wght' 560"
                 android:textSize="12sp"
                 android:fontFamily="@font/outfit" />
+
+            <TextView
+                android:id="@+id/routerLine"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:textColor="#F0FFFFFF"
+                android:fontVariationSettings="'wght' 600"
+                android:textSize="15sp"
+                android:fontFamily="@font/outfit"
+                android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
 
@@ -192,6 +203,13 @@
         android:layout_marginTop="28dp"
         android:orientation="horizontal"
         android:gravity="end">
+
+        <TextView
+            android:id="@+id/btnMessages"
+            style="@style/TopButton"
+            android:fontVariationSettings="'wght' 600"
+            android:paddingStart="20dp"
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/btnDataLimit"

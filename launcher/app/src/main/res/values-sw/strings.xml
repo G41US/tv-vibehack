@@ -428,4 +428,15 @@
     <string name="chk_sim">Data ya SIM</string>
     <string name="net_left">Iliyobaki kwenye SIM</string>
     <string name="net_left_until">Iliyobaki · hadi %1$s</string>
+    <string name="sd_low_title">Data inakaribia kuisha</string>
+    <string name="sd_low_msg">Zimebaki %1$s tu za data kwenye SIM.</string>
+    <string name="sd_end_title">Kifurushi kinakaribia kuisha</string>
+    <string name="sd_end_msg">Kifurushi chako cha data kinaisha %1$s, zimebaki %2$s.</string>
+    <string name="sd_devices">Vifaa %1$d</string>
+    <string name="sd_messages">Ujumbe</string>
+    <string name="sd_loading">Inapakia…</string>
+    <string name="sd_delete">Futa</string>
+    <string name="sd_delete_all">Futa zote</string>
+    <string name="sd_none">Hakuna ujumbe</string>
+    <string name="sd_no_router">Imeshindwa kufikia ruta</string>
 </resources>

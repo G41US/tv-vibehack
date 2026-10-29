@@ -428,4 +428,15 @@
     <string name="chk_sim">SIM 卡流量</string>
     <string name="net_left">SIM 卡剩余</string>
     <string name="net_left_until">剩余 · 至 %1$s</string>
+    <string name="sd_low_title">流量即将用完</string>
+    <string name="sd_low_msg">SIM 卡仅剩 %1$s 流量。</string>
+    <string name="sd_end_title">流量套餐即将到期</string>
+    <string name="sd_end_msg">您的流量套餐将于 %1$s 到期，剩余 %2$s。</string>
+    <string name="sd_devices">%1$d 台设备</string>
+    <string name="sd_messages">短信</string>
+    <string name="sd_loading">正在加载…</string>
+    <string name="sd_delete">删除</string>
+    <string name="sd_delete_all">全部删除</string>
+    <string name="sd_none">没有短信</string>
+    <string name="sd_no_router">无法连接路由器</string>
 </resources>

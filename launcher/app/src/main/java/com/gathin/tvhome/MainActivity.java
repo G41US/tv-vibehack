@@ -653,7 +653,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         DataLimit.maybeWarn(this);
         updater.autoCheck();
         new Thread(() -> DataUsage.sample(this), "data-sample").start();
-        SimData.refreshIfStale(this, null);
+        SimData.maybeWarn(this);
+        SimData.refreshIfStale(this, () -> {
+            if (resumed && !isFinishing()) SimData.maybeWarn(this);   // running low, or the bundle ends soon
+        });
         checkNet();
     }
     private View nightShade;
@@ -1206,6 +1209,55 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         phoneDialog.setOnDismissListener(d -> running.stop());
     }
 
+    /**
+     * The router's text messages (Airtel boxes): newest first; OK on one shows it with Delete; "Delete all"
+     * clears the router's box (it holds only a few, and a full box stops new ones arriving).
+     */
+    private void showRouterMessages(int focus) {
+        android.app.Dialog wait = GlassMenu.message(this, getString(R.string.sd_messages), getString(R.string.sd_loading), new String[0], null);
+        SimData.messages(this, list -> {
+            if (wait.isShowing()) wait.dismiss();
+            if (isFinishing()) return;
+            List<GlassMenu.Row> rows = new ArrayList<>();
+            List<String> all = new ArrayList<>();
+            int n = list != null ? list.length() : 0;
+            for (int i = 0; i < n; i++) {
+                org.json.JSONObject m = list.optJSONObject(i);
+                if (m == null) continue;
+                String id = m.optString("id"), from = m.optString("number"), text = RouterUssd.decode(m.optString("content"), null);
+                String when = smsDate(m.optString("date"));
+                all.add(id);
+                String preview = text.replaceAll("\\s+", " ");
+                rows.add(new GlassMenu.Row(R.drawable.ic_s_text, from + (when.isEmpty() ? "" : "  ·  " + when),
+                        preview.length() > 48 ? preview.substring(0, 48) + "…" : preview, () ->
+                        GlassMenu.message(this, from, text + (when.isEmpty() ? "" : "\n\n" + when),
+                                new String[]{getString(R.string.sd_delete), getString(android.R.string.ok)}, w -> {
+                                    if (w == 0) SimData.deleteMessages(this, java.util.Collections.singletonList(id), ok -> showRouterMessages(0));
+                                })));
+            }
+            if (!all.isEmpty()) {
+                rows.add(0, new GlassMenu.Row(R.drawable.ic_s_delete, getString(R.string.sd_delete_all), String.valueOf(all.size()), () ->
+                        SimData.deleteMessages(this, all, ok -> showRouterMessages(0))));
+            }
+            CharSequence title = list == null ? getString(R.string.sd_no_router) : all.isEmpty() ? getString(R.string.sd_none) : getString(R.string.sd_messages);
+            GlassMenu.page(this, getString(R.string.net_title), title, null, rows, this::showNetworkPanel, Math.min(focus, Math.max(0, rows.size() - 1)));
+        });
+    }
+
+    /** The router's "26,10,29,09,11,04,+4" as "29 Oct, 09:11". */
+    private static String smsDate(String d) {
+        String[] p = d.split(",");
+        if (p.length < 5) return "";
+        try {
+            java.util.Calendar c = java.util.Calendar.getInstance();
+            c.set(2000 + Integer.parseInt(p[0].trim()), Integer.parseInt(p[1].trim()) - 1, Integer.parseInt(p[2].trim()),
+                    Integer.parseInt(p[3].trim()), Integer.parseInt(p[4].trim()));
+            return new java.text.SimpleDateFormat("d MMM, HH:mm", Locale.getDefault()).format(c.getTime());
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
     // ---- Network panel: guest Wi-Fi QR code and data used (hold OK on the network pill) ----------
 
     private static final String WIFI_PREFS = "guest_wifi";
@@ -1259,13 +1311,31 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         ((TextView) dlg.findViewById(R.id.dataMonth)).setText(DataUsage.format(t.month));
         String limit = DataLimit.panelLine(this, t.month);
         ((TextView) dlg.findViewById(R.id.dataMonthLabel)).setText(limit == null ? monthLabel : monthLabel + "  ·  " + limit);
+        dlg.findViewById(R.id.btnMessages).setOnClickListener(v -> {
+            dlg.dismiss();
+            showRouterMessages(0);
+        });
         dlg.findViewById(R.id.btnDataLimit).setOnClickListener(v -> DataLimit.showSettings(this, () -> {
             dlg.dismiss();
             showNetworkPanel();
         }));
         ((TextView) dlg.findViewById(R.id.dataNote)).setText(t.mobile ? R.string.net_data_mobile : R.string.net_data_all);
         // Data left on the SIM (asked of the network when over 5 minutes old), with when the bundle ends.
+        TextView routerLine = dlg.findViewById(R.id.routerLine);
+        TextView messages = dlg.findViewById(R.id.btnMessages);
         Runnable showLeft = () -> {
+            // The router's network, signal and devices, and its messages (Airtel boxes, from the last check).
+            CharSequence line = SimData.routerLine(this);
+            if (line != null) {
+                routerLine.setText(line);
+                routerLine.setVisibility(View.VISIBLE);
+            }
+            int[] sms = SimData.messageCounts(this);
+            if (StillWatching.isRouterBox(this)) {
+                messages.setVisibility(View.VISIBLE);
+                String count = sms[1] >= 0 && sms[2] > 0 ? " (" + sms[1] + "/" + sms[2] + ")" : sms[0] > 0 ? " (" + sms[0] + ")" : "";
+                messages.setText(getString(R.string.sd_messages) + count);
+            }
             String simLeft = SimData.left(this), simUntil = SimData.until(this);
             if (simLeft == null || !dlg.isShowing()) return;
             dlg.findViewById(R.id.dataLeftBox).setVisibility(View.VISIBLE);

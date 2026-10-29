@@ -434,4 +434,15 @@
     <string name="chk_sim">SIM data</string>
     <string name="net_left">Left on SIM</string>
     <string name="net_left_until">Left · till %1$s</string>
+    <string name="sd_low_title">Data running low</string>
+    <string name="sd_low_msg">Only %1$s of data left on the SIM.</string>
+    <string name="sd_end_title">Data bundle ending</string>
+    <string name="sd_end_msg">Your data bundle ends %1$s, with %2$s left.</string>
+    <string name="sd_devices">%1$d devices</string>
+    <string name="sd_messages">Messages</string>
+    <string name="sd_loading">Loading…</string>
+    <string name="sd_delete">Delete</string>
+    <string name="sd_delete_all">Delete all</string>
+    <string name="sd_none">No messages</string>
+    <string name="sd_no_router">Couldn\'t reach the router</string>
 </resources>

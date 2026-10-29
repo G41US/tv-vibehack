@@ -428,4 +428,15 @@
     <string name="chk_sim">بيانات الشريحة</string>
     <string name="net_left">المتبقي على الشريحة</string>
     <string name="net_left_until">المتبقي · حتى %1$s</string>
+    <string name="sd_low_title">البيانات توشك على النفاد</string>
+    <string name="sd_low_msg">تبقّى %1$s فقط من البيانات على الشريحة.</string>
+    <string name="sd_end_title">الباقة توشك على الانتهاء</string>
+    <string name="sd_end_msg">تنتهي باقة البيانات في %1$s، ومتبقٍ %2$s.</string>
+    <string name="sd_devices">%1$d أجهزة</string>
+    <string name="sd_messages">الرسائل</string>
+    <string name="sd_loading">جارٍ التحميل…</string>
+    <string name="sd_delete">حذف</string>
+    <string name="sd_delete_all">حذف الكل</string>
+    <string name="sd_none">لا توجد رسائل</string>
+    <string name="sd_no_router">تعذّر الوصول إلى الراوتر</string>
 </resources>

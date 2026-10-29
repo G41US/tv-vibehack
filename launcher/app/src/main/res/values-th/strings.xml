@@ -428,4 +428,15 @@
     <string name="chk_sim">ข้อมูลซิม</string>
     <string name="net_left">เหลือในซิม</string>
     <string name="net_left_until">เหลือ · ถึง %1$s</string>
+    <string name="sd_low_title">ข้อมูลใกล้หมด</string>
+    <string name="sd_low_msg">เหลือข้อมูลในซิมเพียง %1$s</string>
+    <string name="sd_end_title">แพ็กเกจใกล้หมดอายุ</string>
+    <string name="sd_end_msg">แพ็กเกจข้อมูลจะหมดอายุวันที่ %1$s เหลืออยู่ %2$s</string>
+    <string name="sd_devices">%1$d อุปกรณ์</string>
+    <string name="sd_messages">ข้อความ</string>
+    <string name="sd_loading">กำลังโหลด…</string>
+    <string name="sd_delete">ลบ</string>
+    <string name="sd_delete_all">ลบทั้งหมด</string>
+    <string name="sd_none">ไม่มีข้อความ</string>
+    <string name="sd_no_router">เชื่อมต่อเราเตอร์ไม่ได้</string>
 </resources>
