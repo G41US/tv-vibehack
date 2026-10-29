@@ -463,4 +463,5 @@
     <string name="hs_switched_router">Back on the Airtel router.</string>
     <string name="hs_switch_failed">Couldn\'t switch. Try again in a moment.</string>
     <string name="hs_connected">Connected to %1$s, and the password is remembered. To use it instead of the router, choose \"Use %1$s instead of the router\" on this page.</string>
+    <string name="hs_details">Connection details</string>
 </resources>

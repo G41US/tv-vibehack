@@ -457,4 +457,5 @@
     <string name="hs_switched_router">Imerudi kwenye ruta ya Airtel.</string>
     <string name="hs_switch_failed">Imeshindwa kubadilisha. Jaribu tena baada ya muda mfupi.</string>
     <string name="hs_connected">Imeunganishwa kwenye %1$s na nenosiri limehifadhiwa. Kuitumia badala ya ruta, chagua \"Tumia %1$s badala ya ruta\" kwenye ukurasa huu.</string>
+    <string name="hs_details">Maelezo ya muunganisho</string>
 </resources>

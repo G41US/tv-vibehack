@@ -102,6 +102,7 @@ public class HomeKeyService extends AccessibilityService {
         takeover = getResources().getStringArray(R.array.takeover_packages);
         BootTrace.watch(this);
         BootTrace.mark(this, "Home button service");
+        Hotspots.keepWifi(this);   // a joined hotspot stays connected beside the router (Airtel boxes)
         // The start-up screen stays on (not just switched on at shutdown, which a power cut skips).
         BootHome.enable(this, Splash.on(this) && !SafeStart.on(this) && BootHome.supported());
         AdbSelf.scheduleOff(this);   // debugging off again soon, unless TV Home is using it
