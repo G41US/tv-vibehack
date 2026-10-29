@@ -224,6 +224,8 @@ public class HomeKeyService extends AccessibilityService {
 
     private void checkIdle() {
         Night.enforceCap(this);   // night started while the volume was up
+        android.os.PowerManager screen = (android.os.PowerManager) getSystemService(POWER_SERVICE);
+        if (screen != null && screen.isInteractive()) SimData.refreshIfStale(this, null);   // keeps the SIM's data left fresh (Airtel boxes)
         int hours = StillWatching.hours(this);
         long now = SystemClock.elapsedRealtime();
         android.os.PowerManager pm = (android.os.PowerManager) getSystemService(POWER_SERVICE);
