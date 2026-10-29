@@ -144,7 +144,7 @@ final class TvCheck {
                 + "\n" + a.getString(R.string.fs_title) + ": " + StartupApps.state(a)
                 + (SafeStart.lastProblem(a) != null ? "\nLast problem: " + SafeStart.lastProblem(a) : "");
         String simLeft = SimData.left(a);
-        rows.add(new GlassMenu.Row(R.drawable.ic_s_speed, a.getString(R.string.chk_sim), simLeft != null ? simLeft : "–",
+        if (StillWatching.isRouterBox(a)) rows.add(new GlassMenu.Row(R.drawable.ic_s_speed, a.getString(R.string.chk_sim), simLeft != null ? simLeft : "–",
                 () -> simPage(a)));
         rows.add(new GlassMenu.Row(R.drawable.ic_s_speed, a.getString(R.string.chk_startup), null,
                 () -> GlassMenu.message(a, a.getString(R.string.chk_startup), trace, new String[]{a.getString(android.R.string.ok)}, w -> {
