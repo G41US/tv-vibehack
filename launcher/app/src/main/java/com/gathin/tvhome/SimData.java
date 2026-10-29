@@ -31,7 +31,7 @@ final class SimData {
     private static final String CODE = "*323#", NO_SIM = "Android has no SIM";
     /** The router's page password (the label's default unless changed) and which login form it took. */
     static final String KEY_ROUTER_USER = "router_user", KEY_ROUTER_PW = "router_password", KEY_HOW = "router_login2";
-    private static final long EVERY = 3 * 60 * 60 * 1000L, RETRY = 30 * 60 * 1000L;
+    private static final long EVERY = 5 * 60 * 1000L, RETRY = 30 * 60 * 1000L, DAY = 24 * 60 * 60 * 1000L;
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static volatile boolean busy;
 
@@ -72,9 +72,9 @@ final class SimData {
         if (!StillWatching.isRouterBox(c)) return;   // only Airtel's router boxes for now
         long at = prefs(c).getLong(KEY_AT, 0), now = System.currentTimeMillis();
         if (soon && !busy && (now - at > 60_000 || now < at)) at = 0;
-        // Known amount: every few hours; nothing yet: every half hour, or once a day when the router refused the
+        // Known amount: every 5 minutes while Home is in use; nothing yet: every half hour, or once a day when the router refused the
         // password (so it isn't asked into locking itself).
-        long every = left(c) != null ? EVERY : note(c).contains("password not accepted") ? 24 * EVERY / 3 : RETRY;
+        long every = left(c) != null ? EVERY : note(c).contains("password not accepted") ? DAY : RETRY;
         if (busy || (now - at < every && now >= at)) return;
         busy = true;
         prefs(c).edit().putLong(KEY_AT, now).apply();
