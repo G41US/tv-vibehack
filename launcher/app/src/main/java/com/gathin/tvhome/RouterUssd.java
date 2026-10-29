@@ -113,6 +113,14 @@ final class RouterUssd {
         return list != null ? list : new org.json.JSONArray();
     }
 
+    /**
+     * The router's own internet (its "Connect Status" switch): off, nothing goes out over the SIM, so the TV
+     * box falls back to a hotspot; on again for Airtel. Call after open().
+     */
+    boolean setInternet(boolean on) throws Exception {
+        return "success".equals(json(postForm("goformId=" + (on ? "CONNECT_NETWORK" : "DISCONNECT_NETWORK") + "&notCallback=true")).optString("result"));
+    }
+
     /** Deletes messages by id (as the page does: "1;2;3;"). Call after open(). */
     boolean delete(java.util.List<String> ids) throws Exception {
         StringBuilder sb = new StringBuilder();

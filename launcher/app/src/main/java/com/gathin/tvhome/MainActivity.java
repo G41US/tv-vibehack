@@ -1672,7 +1672,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             if (!online) {
                 text = getString(R.string.offline);
                 vpn = false;
-            } else if (ethernet) {
+            } else if (ethernet && !(wifi && activeIs(cm, NetworkCapabilities.TRANSPORT_WIFI))) {   // a hotspot in use: its name
                 text = getString(R.string.ethernet);
             } else if (wifi) {
                 WifiManager wm = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
@@ -1703,6 +1703,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             label.setSpan(new NetHealth.Dot(dot, density), at, label.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         btnWifi.setText(label);
+    }
+
+    /** Android's default connection (the one apps use) goes over this kind of link. */
+    private static boolean activeIs(ConnectivityManager cm, int transport) {
+        NetworkCapabilities caps = cm.getNetworkCapabilities(cm.getActiveNetwork());
+        return caps != null && caps.hasTransport(transport);
     }
 
     /** What the network pill says ("Ethernet", the Wi-Fi name, "Offline"), for the TV settings grid. */

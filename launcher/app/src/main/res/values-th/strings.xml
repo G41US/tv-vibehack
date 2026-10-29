@@ -444,8 +444,17 @@
     <string name="hs_none">ไม่พบฮอตสปอต เปิดฮอตสปอตบนโทรศัพท์แล้วค้นหาอีกครั้ง</string>
     <string name="hs_password">รหัสผ่านของ %1$s</string>
     <string name="hs_connecting">กำลังเชื่อมต่อ %1$s…</string>
-    <string name="hs_connected">เชื่อมต่อ %1$s แล้ว ทีวีจะใช้เมื่อเราเตอร์ไม่มีอินเทอร์เน็ต หากต้องการใช้ทันที ให้ถอดสายระหว่างกล่องกับเราเตอร์</string>
     <string name="hs_failed">เชื่อมต่อ %1$s ไม่ได้ ตรวจสอบรหัสผ่านแล้วลองอีกครั้ง</string>
     <string name="hs_no_wifi">เปิด Wi-Fi ของกล่องนี้ไม่ได้</string>
     <string name="hs_rescan">ค้นหาอีกครั้ง</string>
+    <string name="hs_use_router">ใช้เราเตอร์ Airtel</string>
+    <string name="hs_use_hotspot">ใช้ %1$s แทนเราเตอร์</string>
+    <string name="hs_using">กำลังใช้ %1$s</string>
+    <string name="hs_using_router">กำลังใช้เราเตอร์ Airtel</string>
+    <string name="hs_saved">บันทึกแล้ว</string>
+    <string name="hs_connected_now">เชื่อมต่อแล้ว</string>
+    <string name="hs_switched_hotspot">ตอนนี้ใช้ %1$s ปิดอินเทอร์เน็ตของเราเตอร์แล้ว จึงไม่ใช้ข้อมูล Airtel เลือก \"ใช้เราเตอร์ Airtel\" ที่นี่เพื่อกลับ</string>
+    <string name="hs_switched_router">กลับมาใช้เราเตอร์ Airtel แล้ว</string>
+    <string name="hs_switch_failed">สลับไม่ได้ ลองอีกครั้งในอีกสักครู่</string>
+    <string name="hs_connected">เชื่อมต่อ %1$s และจำรหัสผ่านแล้ว หากต้องการใช้แทนเราเตอร์ ให้เลือก \"ใช้ %1$s แทนเราเตอร์\" ในหน้านี้</string>
 </resources>

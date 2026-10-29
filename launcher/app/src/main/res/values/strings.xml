@@ -450,8 +450,17 @@
     <string name="hs_none">No hotspots found. Turn on the hotspot on your phone, then look again.</string>
     <string name="hs_password">Password for %1$s</string>
     <string name="hs_connecting">Connecting to %1$s…</string>
-    <string name="hs_connected">Connected to %1$s. The TV uses it whenever the router has no internet. To use it right now, unplug the cable between the TV box and the router.</string>
     <string name="hs_failed">Couldn\'t connect to %1$s. Check the password and try again.</string>
     <string name="hs_no_wifi">This box\'s Wi-Fi couldn\'t be turned on.</string>
     <string name="hs_rescan">Look again</string>
+    <string name="hs_use_router">Use the Airtel router</string>
+    <string name="hs_use_hotspot">Use %1$s instead of the router</string>
+    <string name="hs_using">Using %1$s</string>
+    <string name="hs_using_router">Using the Airtel router</string>
+    <string name="hs_saved">Saved</string>
+    <string name="hs_connected_now">Connected</string>
+    <string name="hs_switched_hotspot">Now using %1$s. The router\'s internet is switched off, so no Airtel data is used. Choose \"Use the Airtel router\" here to switch back.</string>
+    <string name="hs_switched_router">Back on the Airtel router.</string>
+    <string name="hs_switch_failed">Couldn\'t switch. Try again in a moment.</string>
+    <string name="hs_connected">Connected to %1$s, and the password is remembered. To use it instead of the router, choose \"Use %1$s instead of the router\" on this page.</string>
 </resources>

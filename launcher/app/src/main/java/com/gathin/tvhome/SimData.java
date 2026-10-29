@@ -354,7 +354,7 @@ final class SimData {
     }
 
     /** A logged-in connection to the router, or null. */
-    private static RouterUssd router(Context c) throws Exception {
+    static RouterUssd router(Context c) throws Exception {
         InetAddress gw = gateway(c);
         if (gw == null) return null;
         SharedPreferences p = prefs(c);

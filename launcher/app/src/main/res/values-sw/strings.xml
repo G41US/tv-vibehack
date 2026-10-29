@@ -444,8 +444,17 @@
     <string name="hs_none">Hakuna hotspot iliyopatikana. Washa hotspot kwenye simu yako, kisha utafute tena.</string>
     <string name="hs_password">Nenosiri la %1$s</string>
     <string name="hs_connecting">Inaunganisha kwenye %1$s…</string>
-    <string name="hs_connected">Imeunganishwa kwenye %1$s. TV inaitumia ruta inapokosa intaneti. Kuitumia sasa hivi, chomoa kebo kati ya kisanduku na ruta.</string>
     <string name="hs_failed">Imeshindwa kuunganisha kwenye %1$s. Angalia nenosiri na ujaribu tena.</string>
     <string name="hs_no_wifi">Wi-Fi ya kisanduku hiki haikuweza kuwashwa.</string>
     <string name="hs_rescan">Tafuta tena</string>
+    <string name="hs_use_router">Tumia ruta ya Airtel</string>
+    <string name="hs_use_hotspot">Tumia %1$s badala ya ruta</string>
+    <string name="hs_using">Inatumia %1$s</string>
+    <string name="hs_using_router">Inatumia ruta ya Airtel</string>
+    <string name="hs_saved">Imehifadhiwa</string>
+    <string name="hs_connected_now">Imeunganishwa</string>
+    <string name="hs_switched_hotspot">Sasa inatumia %1$s. Intaneti ya ruta imezimwa, kwa hiyo data ya Airtel haitumiki. Chagua \"Tumia ruta ya Airtel\" hapa kurudi.</string>
+    <string name="hs_switched_router">Imerudi kwenye ruta ya Airtel.</string>
+    <string name="hs_switch_failed">Imeshindwa kubadilisha. Jaribu tena baada ya muda mfupi.</string>
+    <string name="hs_connected">Imeunganishwa kwenye %1$s na nenosiri limehifadhiwa. Kuitumia badala ya ruta, chagua \"Tumia %1$s badala ya ruta\" kwenye ukurasa huu.</string>
 </resources>

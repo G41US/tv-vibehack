@@ -451,8 +451,17 @@
     <string name="hs_none">Aucun point d’accès trouvé. Activez le partage de connexion sur votre téléphone, puis réessayez.</string>
     <string name="hs_password">Mot de passe de %1$s</string>
     <string name="hs_connecting">Connexion à %1$s…</string>
-    <string name="hs_connected">Connecté à %1$s. Le téléviseur l’utilise dès que le routeur n’a plus Internet. Pour l’utiliser tout de suite, débranchez le câble entre le boîtier et le routeur.</string>
     <string name="hs_failed">Impossible de se connecter à %1$s. Vérifiez le mot de passe et réessayez.</string>
     <string name="hs_no_wifi">Le Wi-Fi de ce boîtier n’a pas pu être activé.</string>
     <string name="hs_rescan">Chercher à nouveau</string>
+    <string name="hs_use_router">Utiliser le routeur Airtel</string>
+    <string name="hs_use_hotspot">Utiliser %1$s au lieu du routeur</string>
+    <string name="hs_using">Utilise %1$s</string>
+    <string name="hs_using_router">Utilise le routeur Airtel</string>
+    <string name="hs_saved">Enregistré</string>
+    <string name="hs_connected_now">Connecté</string>
+    <string name="hs_switched_hotspot">%1$s est maintenant utilisé. Internet du routeur est coupé : aucune donnée Airtel n’est consommée. Choisissez « Utiliser le routeur Airtel » ici pour revenir.</string>
+    <string name="hs_switched_router">De retour sur le routeur Airtel.</string>
+    <string name="hs_switch_failed">Impossible de changer. Réessayez dans un instant.</string>
+    <string name="hs_connected">Connecté à %1$s, mot de passe enregistré. Pour l’utiliser au lieu du routeur, choisissez « Utiliser %1$s au lieu du routeur » sur cette page.</string>
 </resources>

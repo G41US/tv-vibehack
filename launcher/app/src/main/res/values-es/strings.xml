@@ -444,8 +444,17 @@
     <string name="hs_none">No se encontraron puntos de acceso. Activa el punto de acceso en tu teléfono y vuelve a buscar.</string>
     <string name="hs_password">Contraseña de %1$s</string>
     <string name="hs_connecting">Conectando a %1$s…</string>
-    <string name="hs_connected">Conectado a %1$s. La TV lo usa cuando el router no tiene internet. Para usarlo ya, desconecta el cable entre el aparato y el router.</string>
     <string name="hs_failed">No se pudo conectar a %1$s. Revisa la contraseña e inténtalo de nuevo.</string>
     <string name="hs_no_wifi">No se pudo activar el Wi-Fi de este aparato.</string>
     <string name="hs_rescan">Buscar de nuevo</string>
+    <string name="hs_use_router">Usar el router Airtel</string>
+    <string name="hs_use_hotspot">Usar %1$s en lugar del router</string>
+    <string name="hs_using">Usando %1$s</string>
+    <string name="hs_using_router">Usando el router Airtel</string>
+    <string name="hs_saved">Guardada</string>
+    <string name="hs_connected_now">Conectada</string>
+    <string name="hs_switched_hotspot">Ahora se usa %1$s. El internet del router está apagado, así que no se gastan datos de Airtel. Elige «Usar el router Airtel» aquí para volver.</string>
+    <string name="hs_switched_router">De nuevo en el router Airtel.</string>
+    <string name="hs_switch_failed">No se pudo cambiar. Inténtalo de nuevo en un momento.</string>
+    <string name="hs_connected">Conectado a %1$s y contraseña guardada. Para usarlo en lugar del router, elige «Usar %1$s en lugar del router» en esta página.</string>
 </resources>

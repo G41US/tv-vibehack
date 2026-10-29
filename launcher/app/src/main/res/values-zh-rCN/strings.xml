@@ -444,8 +444,17 @@
     <string name="hs_none">未找到热点。请在手机上打开热点，然后重新查找。</string>
     <string name="hs_password">%1$s 的密码</string>
     <string name="hs_connecting">正在连接 %1$s…</string>
-    <string name="hs_connected">已连接 %1$s。路由器没有网络时电视会自动使用它。如需立即使用，请拔掉盒子与路由器之间的网线。</string>
     <string name="hs_failed">无法连接 %1$s。请检查密码后重试。</string>
     <string name="hs_no_wifi">无法打开此盒子的 Wi-Fi。</string>
     <string name="hs_rescan">重新查找</string>
+    <string name="hs_use_router">使用 Airtel 路由器</string>
+    <string name="hs_use_hotspot">使用 %1$s 代替路由器</string>
+    <string name="hs_using">正在使用 %1$s</string>
+    <string name="hs_using_router">正在使用 Airtel 路由器</string>
+    <string name="hs_saved">已保存</string>
+    <string name="hs_connected_now">已连接</string>
+    <string name="hs_switched_hotspot">现在使用 %1$s。路由器的网络已关闭，不会消耗 Airtel 流量。在此选择\"使用 Airtel 路由器\"即可切换回来。</string>
+    <string name="hs_switched_router">已切换回 Airtel 路由器。</string>
+    <string name="hs_switch_failed">无法切换，请稍后重试。</string>
+    <string name="hs_connected">已连接 %1$s 并记住了密码。如需代替路由器使用，请在此页选择\"使用 %1$s 代替路由器\"。</string>
 </resources>

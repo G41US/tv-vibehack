@@ -444,8 +444,17 @@
     <string name="hs_none">Tidak ada hotspot. Nyalakan hotspot di ponsel, lalu cari lagi.</string>
     <string name="hs_password">Kata sandi %1$s</string>
     <string name="hs_connecting">Menyambung ke %1$s…</string>
-    <string name="hs_connected">Tersambung ke %1$s. TV memakainya saat router tidak ada internet. Untuk memakainya sekarang, cabut kabel antara boks dan router.</string>
     <string name="hs_failed">Gagal menyambung ke %1$s. Periksa kata sandi dan coba lagi.</string>
     <string name="hs_no_wifi">Wi-Fi boks ini tidak bisa dinyalakan.</string>
     <string name="hs_rescan">Cari lagi</string>
+    <string name="hs_use_router">Pakai router Airtel</string>
+    <string name="hs_use_hotspot">Pakai %1$s, bukan router</string>
+    <string name="hs_using">Memakai %1$s</string>
+    <string name="hs_using_router">Memakai router Airtel</string>
+    <string name="hs_saved">Tersimpan</string>
+    <string name="hs_connected_now">Tersambung</string>
+    <string name="hs_switched_hotspot">Sekarang memakai %1$s. Internet router dimatikan, jadi data Airtel tidak terpakai. Pilih \"Pakai router Airtel\" di sini untuk kembali.</string>
+    <string name="hs_switched_router">Kembali ke router Airtel.</string>
+    <string name="hs_switch_failed">Gagal beralih. Coba lagi sebentar lagi.</string>
+    <string name="hs_connected">Tersambung ke %1$s dan kata sandi disimpan. Untuk memakainya, bukan router, pilih \"Pakai %1$s, bukan router\" di halaman ini.</string>
 </resources>
