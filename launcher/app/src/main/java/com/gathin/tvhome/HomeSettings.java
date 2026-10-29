@@ -138,7 +138,7 @@ final class HomeSettings {
         boolean startup = Splash.on(act);
         rows.add(new GlassMenu.Row(R.drawable.ic_s_play, s(R.string.hs_startup), onOff(startup), () -> {
             prefs(act).edit().putBoolean(Splash.KEY_ON, !startup).apply();
-            if (startup) BootHome.enable(act, false);
+            BootHome.enable(act, !startup && BootHome.supported() && !SafeStart.on(act));
             look(6);
         }));
         page(R.string.hs_look, rows, focus);

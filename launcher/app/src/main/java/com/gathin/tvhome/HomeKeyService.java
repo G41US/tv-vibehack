@@ -102,6 +102,8 @@ public class HomeKeyService extends AccessibilityService {
         takeover = getResources().getStringArray(R.array.takeover_packages);
         BootTrace.watch(this);
         BootTrace.mark(this, "Home button service");
+        // The start-up screen stays on (not just switched on at shutdown, which a power cut skips).
+        BootHome.enable(this, Splash.on(this) && !SafeStart.on(this) && BootHome.supported());
         AdbSelf.scheduleOff(this);   // debugging off again soon, unless TV Home is using it
         if (volume == null) {
             volume = new VolumeOverlay(this);
@@ -266,9 +268,8 @@ public class HomeKeyService extends AccessibilityService {
 
     void goHome() {
         if (BootHome.showing) return;   // the start-up screen hands over to Home itself
-        Intent home = new Intent(Intent.ACTION_MAIN)
+        Intent home = new Intent(this, MainActivity.class).setAction(Intent.ACTION_MAIN)
                 .addCategory(Intent.CATEGORY_HOME)
-                .setPackage(getPackageName())
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         startActivity(home);
     }
