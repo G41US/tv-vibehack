@@ -171,7 +171,7 @@ final class RouterUssd {
                 for (int n; got.size() < 200_000 && (n = so.getInputStream().read(buf)) > 0; ) got.write(buf, 0, n);
             } catch (SocketTimeoutException ignored) {
             }
-            String r = got.toString("UTF-8");
+            String r = normalize(got.toString("UTF-8"));
             lastStatus = status(r);
             int he = r.indexOf("\r\n\r\n");
             lastHead = (he > 0 ? r.substring(0, he) : r).replace("\r\n", " | ");
@@ -181,6 +181,13 @@ final class RouterUssd {
             while (c.find()) cookie = c.group(1).trim();   // the session (newer firmware keeps it in a cookie)
             return r;
         }
+    }
+
+    /** This router ends its header lines with a bare newline: made standard (CRLF) so the body can be found. */
+    static String normalize(String r) {
+        Matcher m = Pattern.compile("\r?\n\r?\n").matcher(r);
+        if (!m.find()) return r;
+        return r.substring(0, m.start()).replaceAll("\r?\n", "\r\n") + "\r\n\r\n" + r.substring(m.end());
     }
 
     /** A chunked HTTP/1.1 answer as one body. */
