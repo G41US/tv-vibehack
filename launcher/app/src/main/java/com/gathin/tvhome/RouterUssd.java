@@ -34,13 +34,14 @@ final class RouterUssd {
 
     private final InetAddress host;
     private String get, post, cookie = "", ad;
+    private int lastStatus;
 
     RouterUssd(InetAddress host) {
         this.host = host;
     }
 
     /** Logs in and sends the code; returns the network's reply text, or null (see log). */
-    String send(String password, int[] how, String code) {
+    String send(String user, String password, int[] how, String code) {
         try {
             if (status(request("GET", "/reqproc/proc_get?isTest=false&cmd=LD&_=" + System.currentTimeMillis(), null)) == 200) {
                 get = "/reqproc/proc_get";
@@ -50,7 +51,7 @@ final class RouterUssd {
                 post = "/goform/goform_set_cmd_process";
             }
             log.append("api ").append(get);
-            if (!login(password, how)) return null;
+            if (!login(user, password, how)) return null;
             signing();
             JSONObject sent = json(postForm("goformId=USSD_PROCESS&USSD_operator=ussd_send&USSD_send_number="
                     + URLEncoder.encode(code, "UTF-8") + "&notCallback=true"));
@@ -79,25 +80,32 @@ final class RouterUssd {
     }
 
     /**
-     * Two password forms: SHA-256 twice with the router's one-time value (LD), as newer firmware wants,
-     * or Base64 as older firmware does. {@code how[0]} says which worked last time (0 unknown, 1, 2).
+     * The router page's own login (its com.js): username and password, Base64-encoded when the firmware
+     * says so (PASSWORD_ENCODE), plain otherwise; both are tried and the one that works is kept
+     * ({@code how[0]}: 0 unknown, 1 Base64, 2 plain). Result 0 is logged in, 4 already was.
      */
-    private boolean login(String password, int[] how) throws Exception {
+    private boolean login(String user, String password, int[] how) throws Exception {
         int[] order = how[0] == 2 ? new int[]{2, 1} : new int[]{1, 2};
         for (int way : order) {
-            String ld = json(read("LD")).optString("LD", "");
-            String pw = way == 1 ? sha256(sha256(password) + ld) : Base64.encodeToString(password.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
-            if (way == 1 && ld.isEmpty()) continue;
-            JSONObject r = json(postForm("goformId=LOGIN&password=" + URLEncoder.encode(pw, "UTF-8")));
-            log.append(", login ").append(way).append('=').append(r.optString("result", r.toString()));
-            if ("0".equals(r.optString("result")) || "4".equals(r.optString("result"))) {   // 4: already logged in
+            String u = way == 1 ? b64(user) : user, pw = way == 1 ? b64(password) : password;
+            String body = postForm("goformId=LOGIN&username=" + URLEncoder.encode(u, "UTF-8") + "&password=" + URLEncoder.encode(pw, "UTF-8"));
+            JSONObject r = json(body);
+            log.append(", login ").append(way).append('=').append(lastStatus).append(' ').append(r.optString("result", r.toString()));
+            if ("0".equals(r.optString("result")) || "4".equals(r.optString("result"))) {
                 how[0] = way;
                 return true;
             }
             if ("3".equals(r.optString("result")) && way == order[1]) break;   // wrong password both ways
         }
+        String info = read("loginfo");
+        log.append(", loginfo ").append(info.length() > 60 ? info.substring(0, 60) : info);
+        if (info.contains("\"ok\"")) return true;
         log.append(" (password not accepted)");
         return false;
+    }
+
+    private static String b64(String s) {
+        return Base64.encodeToString(s.getBytes(StandardCharsets.UTF_8), Base64.NO_WRAP);
     }
 
     /** Firmware that signs requests: AD = md5(md5(version + cr_version) + RD), fresh for each request. */
@@ -124,7 +132,7 @@ final class RouterUssd {
             so.connect(new InetSocketAddress(host, 80), 3000);
             so.setSoTimeout(5000);
             String h = host.getHostAddress();
-            StringBuilder req = new StringBuilder(method).append(' ').append(path).append(" HTTP/1.0\r\nHost: ").append(h)
+            StringBuilder req = new StringBuilder(method).append(' ').append(path).append(" HTTP/1.1\r\nConnection: close\r\nHost: ").append(h)
                     .append("\r\nReferer: http://").append(h).append("/index.html\r\nX-Requested-With: XMLHttpRequest\r\n")
                     .append("User-Agent: Mozilla/5.0\r\nAccept: application/json, text/javascript, */*\r\n");
             if (!cookie.isEmpty()) req.append("Cookie: ").append(cookie).append("\r\n");
@@ -141,10 +149,34 @@ final class RouterUssd {
             } catch (SocketTimeoutException ignored) {
             }
             String r = got.toString("UTF-8");
+            lastStatus = status(r);
+            if (r.contains("Transfer-Encoding: chunked")) r = unchunk(r);
             Matcher c = Pattern.compile("(?im)^Set-Cookie:\\s*([^;\\r\\n]+)").matcher(r);
             while (c.find()) cookie = c.group(1).trim();   // the session (newer firmware keeps it in a cookie)
             return r;
         }
+    }
+
+    /** A chunked HTTP/1.1 answer as one body. */
+    static String unchunk(String r) {
+        int at = r.indexOf("\r\n\r\n");
+        if (at < 0) return r;
+        StringBuilder out = new StringBuilder(r.substring(0, at + 4));
+        int i = at + 4;
+        while (i < r.length()) {
+            int eol = r.indexOf("\r\n", i);
+            if (eol < 0) break;
+            int len;
+            try {
+                len = Integer.parseInt(r.substring(i, eol).split(";")[0].trim(), 16);
+            } catch (NumberFormatException e) {
+                break;
+            }
+            if (len == 0) break;
+            out.append(r, eol + 2, Math.min(r.length(), eol + 2 + len));
+            i = eol + 2 + len + 2;
+        }
+        return out.toString();
     }
 
     private static int status(String response) {

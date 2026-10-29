@@ -30,7 +30,7 @@ final class SimData {
     private static final String PREFS = "sim_data", KEY_LEFT = "left", KEY_AT = "at", KEY_NOTE = "note";
     private static final String CODE = "*323#", NO_SIM = "Android has no SIM";
     /** The router's page password (the label's default unless changed) and which login form it took. */
-    static final String KEY_ROUTER_PW = "router_password", KEY_HOW = "router_login";
+    static final String KEY_ROUTER_USER = "router_user", KEY_ROUTER_PW = "router_password", KEY_HOW = "router_login2";
     private static final long EVERY = 3 * 60 * 60 * 1000L, RETRY = 30 * 60 * 1000L;
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static volatile boolean busy;
@@ -83,7 +83,7 @@ final class SimData {
                 SharedPreferences p = prefs(c);
                 int[] how = {p.getInt(KEY_HOW, 0)};
                 RouterUssd r = new RouterUssd(gw);
-                String reply = r.send(p.getString(KEY_ROUTER_PW, "admin"), how, CODE);
+                String reply = r.send(p.getString(KEY_ROUTER_USER, "admin"), p.getString(KEY_ROUTER_PW, "admin"), how, CODE);
                 p.edit().putInt(KEY_HOW, how[0]).apply();
                 note += "Router " + gw.getHostAddress() + ": " + r.log + "\n";
                 if (reply != null) {
@@ -187,7 +187,7 @@ final class SimData {
         try (java.net.Socket so = new java.net.Socket()) {
             so.connect(new java.net.InetSocketAddress(host, 80), 2000);
             so.setSoTimeout(3000);
-            so.getOutputStream().write(("GET " + path + " HTTP/1.0\r\nHost: " + host.getHostAddress() + "\r\nReferer: http://"
+            so.getOutputStream().write(("GET " + path + " HTTP/1.1\r\nConnection: close\r\nHost: " + host.getHostAddress() + "\r\nReferer: http://"
                     + host.getHostAddress() + "/\r\nUser-Agent: Mozilla/5.0\r\n\r\n").getBytes("UTF-8"));
             java.io.ByteArrayOutputStream got = new java.io.ByteArrayOutputStream();
             byte[] buf = new byte[8192];
@@ -195,7 +195,8 @@ final class SimData {
                 for (int n; got.size() < max && (n = so.getInputStream().read(buf)) > 0; ) got.write(buf, 0, n);
             } catch (java.net.SocketTimeoutException ignored) {
             }
-            return got.toString("UTF-8");
+            String r = got.toString("UTF-8");
+            return r.contains("Transfer-Encoding: chunked") ? RouterUssd.unchunk(r) : r;
         }
     }
 
@@ -246,7 +247,7 @@ final class SimData {
             StringBuilder o = new StringBuilder("files");
             for (java.util.Map.Entry<String, String> e : files.entrySet()) o.append(' ').append(e.getKey()).append('=').append(e.getValue().length());
             java.util.Set<String> seen = new java.util.HashSet<>();
-            Pattern hot = Pattern.compile("proc_get|proc_post|goform_|USSD|ussd_|goformId|LOGIN|\\bLD\\b|paswordAlg|SHA256|sha256|base64|encode\\(");
+            Pattern hot = Pattern.compile("USSD|ussd");   // how the page sends a code (if it can)
             int snippets = 0;
             for (java.util.Map.Entry<String, String> e : files.entrySet()) {
                 String b = e.getValue();
