@@ -1357,9 +1357,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         });
         View close = dlg.findViewById(R.id.btnClose);
         close.setOnClickListener(v -> dlg.dismiss());
+        // Five buttons don't fit: with Messages there, Close goes (Back closes the panel) and Messages starts focused.
+        boolean router = StillWatching.isRouterBox(this);
+        if (router) close.setVisibility(View.GONE);
         dlg.setOnShowListener(d -> {
-            close.requestFocus();
             showLeft.run();
+            (router ? messages : close).requestFocus();
         });
         dlg.show();
     }
