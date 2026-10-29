@@ -21,9 +21,9 @@ import java.util.regex.Pattern;
  * Data left on the SIM, for the network pill ("Ethernet · 12.4 GB left"). Asked of the network with
  * *323#, Nigeria's data-balance code on every network, a few times a day, and read from the reply.
  *
- * That works when Android itself holds the SIM. On a box whose router part holds it (Android only sees
- * Ethernet), there is nothing to ask yet: TV check > SIM data then shows what this box has instead
- * (the router: its open ports and what its page says it is), to find the way in.
+ * Asked of Android when it holds the SIM; on a box whose separate router holds it (Airtel's: Android
+ * only sees Ethernet), through the router's own page (RouterUssd), choosing "DATA Balance" in the menu.
+ * TV check > SIM data shows the amount and the network's whole reply.
  */
 final class SimData {
 
@@ -56,8 +56,9 @@ final class SimData {
     static void refreshIfStale(Context ctx, Runnable changed) {
         Context c = ctx.getApplicationContext();
         long at = prefs(c).getLong(KEY_AT, 0), now = System.currentTimeMillis();
-        // Known amount: every few hours; nothing yet: every half hour, or once a day when no way was found.
-        long every = left(c) != null ? EVERY : note(c).contains("Router: ") ? 24 * EVERY / 3 : RETRY;
+        // Known amount: every few hours; nothing yet: every half hour, or once a day when the router refused the
+        // password (so it isn't asked into locking itself).
+        long every = left(c) != null ? EVERY : note(c).contains("password not accepted") ? 24 * EVERY / 3 : RETRY;
         if (busy || (now - at < every && now >= at)) return;
         busy = true;
         prefs(c).edit().putLong(KEY_AT, now).apply();
@@ -106,7 +107,7 @@ final class SimData {
                     return;
                 }
             }
-            save(c, null, note + lookAround(c));
+            save(c, null, note);
             busy = false;
             return;
         }
@@ -187,122 +188,6 @@ final class SimData {
         e.apply();
     }
 
-    /** Where else the SIM's details might be: the separate router (its open ports and what its page says it is). */
-    private static String lookAround(Context c) {
-        StringBuilder out = new StringBuilder();
-        InetAddress gw = null;
-        try {
-            ConnectivityManager cm = c.getSystemService(ConnectivityManager.class);
-            Network n = cm.getActiveNetwork();
-            LinkProperties lp = n != null ? cm.getLinkProperties(n) : null;
-            if (lp != null) for (RouteInfo r : lp.getRoutes()) if (r.isDefaultRoute() && r.getGateway() != null) gw = r.getGateway();
-        } catch (Exception ignored) {
-        }
-        out.append("Router: ").append(gw != null ? gw.getHostAddress() : "?").append(" open:");
-        if (gw != null) {
-            for (int port : new int[]{80, 443, 8080, 8443, 5000, 7547}) {
-                try (java.net.Socket so = new java.net.Socket()) {
-                    so.connect(new java.net.InetSocketAddress(gw, port), 1500);
-                    out.append(' ').append(port);
-                } catch (Exception ignored) {
-                }
-            }
-        }
-        // What the router's own page says about itself (its maker and model), asked plainly with a socket:
-        // some router pages answer in ways Android's web client refuses.
-        if (gw != null) for (String path : new String[]{"/", "/api/device/information", "/goform/goform_get_cmd_process?cmd=hardware_version,wa_inner_version,modem_main_state&multi_data=1",
-                "/reqproc/proc_get?isTest=false&cmd=hardware_version,wa_inner_version,modem_main_state,sms_unread_num&multi_data=1"}) {
-            out.append("\n> ").append(path).append(": ").append(peek(gw, path));
-        }
-        if (gw != null) out.append("\nAPI: ").append(apiWords(gw));
-        return out.toString();
-    }
-
-    /** A router page's whole answer (headers and body, up to {@code max} bytes), via a plain socket. */
-    private static String get(InetAddress host, String path, int max) throws java.io.IOException {
-        try (java.net.Socket so = new java.net.Socket()) {
-            so.connect(new java.net.InetSocketAddress(host, 80), 2000);
-            so.setSoTimeout(3000);
-            so.getOutputStream().write(("GET " + path + " HTTP/1.1\r\nConnection: close\r\nHost: " + host.getHostAddress() + "\r\nReferer: http://"
-                    + host.getHostAddress() + "/\r\nUser-Agent: Mozilla/5.0\r\n\r\n").getBytes("UTF-8"));
-            java.io.ByteArrayOutputStream got = new java.io.ByteArrayOutputStream();
-            byte[] buf = new byte[8192];
-            try {
-                for (int n; got.size() < max && (n = so.getInputStream().read(buf)) > 0; ) got.write(buf, 0, n);
-            } catch (java.net.SocketTimeoutException ignored) {
-            }
-            String r = RouterUssd.normalize(got.toString("UTF-8"));
-            return r.contains("Transfer-Encoding: chunked") ? RouterUssd.unchunk(r) : r;
-        }
-    }
-
-    /**
-     * How the router's page talks to the router: the addresses its scripts call (login, SMS, USSD...),
-     * found in the page and the scripts it loads.
-     */
-    private static String apiWords(InetAddress host) {
-        try {
-            String page = get(host, "/", 200_000);
-            // Follow the page's redirect ("/" sends on to /index.html), then any login page it points to.
-            for (int hop = 0; hop < 3; hop++) {
-                Matcher loc = Pattern.compile("(?im)^Location:\\s*(?:https?://[^/\\s]+)?(/\\S*)").matcher(page);
-                Matcher meta = Pattern.compile("(?i)(?:location(?:\\.href)?\\s*=|url=)\\s*[\"']?(/?[A-Za-z0-9_./-]+\\.(?:html?|asp|cgi))").matcher(page);
-                String next = loc.find() ? loc.group(1) : page.length() < 3000 && meta.find() ? meta.group(1) : null;
-                if (next == null) break;
-                page = get(host, next.startsWith("/") ? next : "/" + next, 200_000);
-            }
-            // Crawl the page's scripts: RequireJS names modules as quoted words ('service', 'lib/jquery.cookie'),
-            // loaded from the start script's folder; follow those that exist, a couple of levels deep.
-            java.util.LinkedHashMap<String, String> files = new java.util.LinkedHashMap<>();
-            java.util.ArrayDeque<String> queue = new java.util.ArrayDeque<>();
-            Matcher main = Pattern.compile("data-main\\s*=\\s*[\"']([^\"']+)", Pattern.CASE_INSENSITIVE).matcher(page);
-            String start = main.find() ? "/" + main.group(1).replaceFirst("^/", "").replaceFirst("(\\.js)?$", ".js") : "/js/main.js";
-            String base = start.substring(0, start.lastIndexOf('/') + 1);
-            queue.add(start);
-            Matcher src = Pattern.compile("src\\s*=\\s*[\"']([^\"'#?:]+\\.js)", Pattern.CASE_INSENSITIVE).matcher(page);
-            while (src.find()) queue.add(src.group(1).startsWith("/") ? src.group(1) : "/" + src.group(1));
-            Pattern word = Pattern.compile("[\"']((?:\\.{0,2}/)?[a-zA-Z][a-zA-Z0-9_\\-]*(?:/[a-zA-Z0-9_\\-.]+)*)[\"']");
-            java.util.Set<String> tried = new java.util.HashSet<>();
-            while (!queue.isEmpty() && tried.size() < 80 && files.size() < 30) {
-                String f = queue.poll();
-                if (!tried.add(f)) continue;
-                String r = get(host, f, 900_000);
-                if (!(r.startsWith("HTTP/1.1 200") || r.startsWith("HTTP/1.0 200"))) continue;
-                String body = r.substring(Math.max(0, r.indexOf("\r\n\r\n")));
-                files.put(f, body);
-                if (body.length() > 300_000) continue;   // a library: its quoted words aren't modules
-                Matcher w = word.matcher(body);
-                while (w.find()) {
-                    String m = w.group(1);
-                    if (m.length() > 60 || m.contains("..") || m.endsWith(".html") || m.endsWith(".css") || m.endsWith(".png")) continue;
-                    if (!m.contains("/") && !m.matches("[a-z][a-zA-Z0-9_]{2,30}")) continue;
-                    queue.add(m.startsWith("/") ? (m.endsWith(".js") ? m : m + ".js") : base + m.replaceFirst("^\\./", "") + (m.endsWith(".js") ? "" : ".js"));
-                }
-            }
-            // Where the scripts talk to the router: the text around each request and login.
-            StringBuilder o = new StringBuilder("files");
-            for (java.util.Map.Entry<String, String> e : files.entrySet()) o.append(' ').append(e.getKey()).append('=').append(e.getValue().length());
-            java.util.Set<String> seen = new java.util.HashSet<>();
-            Pattern hot = Pattern.compile("USSD|ussd");   // how the page sends a code (if it can)
-            int snippets = 0;
-            for (java.util.Map.Entry<String, String> e : files.entrySet()) {
-                String b = e.getValue();
-                if (b.length() > 300_000) continue;
-                Matcher m = hot.matcher(b);
-                while (m.find() && snippets < 40) {
-                    int a = Math.max(0, m.start() - 70), z = Math.min(b.length(), m.end() + 90);
-                    String snip = b.substring(a, z).replaceAll("\\s+", " ");
-                    if (!seen.add(snip.substring(Math.max(0, snip.length() / 2 - 20), Math.min(snip.length(), snip.length() / 2 + 20)))) continue;
-                    o.append("\n[").append(e.getKey()).append("] …").append(snip).append('…');
-                    snippets++;
-                }
-            }
-            return o.toString();
-        } catch (Exception e) {
-            return e.getClass().getSimpleName();
-        }
-    }
-
     /** The router's address (the default route's gateway), or null. */
     private static InetAddress gateway(Context c) {
         try {
@@ -313,34 +198,5 @@ final class SimData {
         } catch (Exception ignored) {
         }
         return null;
-    }
-
-    /** The start of a router page's answer (status, server, title or text), via a plain socket. */
-    private static String peek(InetAddress host, String path) {
-        try {
-            String r = get(host, path, 6000);
-            StringBuilder o = new StringBuilder(r.split("\r?\n", 2)[0]);
-            Matcher m = Pattern.compile("(?im)^(Server|Location|WWW-Authenticate):.*$").matcher(r);
-            while (m.find()) o.append(" | ").append(m.group().trim());
-            Matcher t = Pattern.compile("<title>(.*?)</title>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL).matcher(r);
-            if (t.find()) o.append(" | title: ").append(t.group(1).trim());
-            int body = r.indexOf("\r\n\r\n");
-            String rest = body >= 0 ? r.substring(body + 4).replaceAll("\\s+", " ").trim() : "";
-            if (!rest.isEmpty()) o.append(" | ").append(rest.length() > 300 ? rest.substring(0, 300) + "…" : rest);
-            return o.toString();
-        } catch (Exception e) {
-            return e.getClass().getSimpleName();
-        }
-    }
-
-    /** TV check's "Look again": forget the last look and look now. */
-    static void lookNow(Context ctx, Runnable done) {
-        Context c = ctx.getApplicationContext();
-        prefs(c).edit().putLong(KEY_AT, 0).putString(KEY_NOTE, "looking…").apply();
-        refreshIfStale(c, null);
-        new Thread(() -> {
-            for (int i = 0; i < 120 && busy; i++) android.os.SystemClock.sleep(500);
-            MAIN.post(done);
-        }, "sim-look").start();
     }
 }

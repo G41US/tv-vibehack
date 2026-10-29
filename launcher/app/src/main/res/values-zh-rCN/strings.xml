@@ -427,7 +427,4 @@
     <string name="rc_freed">已释放 %1$s 内存</string>
     <string name="sim_left">剩余 %1$s</string>
     <string name="chk_sim">SIM 卡流量</string>
-    <string name="chk_look_again">重新查找</string>
-    <string name="chk_on_phone">在手机上打开</string>
-    <string name="chk_on_phone_msg">在连接同一 Wi-Fi 的手机浏览器中打开：\n\n%1$s\n\n复制时请保持此窗口打开。</string>
 </resources>
