@@ -17,8 +17,8 @@ import java.util.regex.Pattern;
  * shows Ethernet only). Done the way Android's own shell tool does it, over TV Home's debugging
  * connection: switch Wi-Fi on, scan, list what's near, connect with the password.
  *
- * Android keeps using the wired router while it has internet; when it hasn't (data finished), the
- * hotspot takes over by itself. Unplugging the router's cable makes the TV use the hotspot at once.
+ * Passwords are remembered on the box. "Use <hotspot> instead of the router" switches the router's own
+ * internet off (no Airtel data used) so Android moves to the hotspot; "Use the Airtel router" switches back.
  */
 final class Hotspots {
 
@@ -33,16 +33,37 @@ final class Hotspots {
         int rssi;
     }
 
-    /** Scans and shows what's near; choosing one asks its password and connects. */
+    private static final String PREFS = "hotspots", KEY_LAST = "last", KEY_MODE = "use_hotspot";
+
+    private static android.content.SharedPreferences prefs(android.content.Context c) {
+        return c.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE);
+    }
+
+    /** The hotspot is in use instead of the router (its internet switched off). */
+    static boolean usingHotspot(android.content.Context c) {
+        return prefs(c).getBoolean(KEY_MODE, false);
+    }
+
+    /**
+     * The hotspot page: which internet the TV uses (and a switch to the other), then what's near, with the
+     * one connected and the ones whose password is remembered marked. Choosing one connects (asking the
+     * password only the first time).
+     */
     static void show(Activity a, Runnable back) {
         Dialog wait = GlassMenu.message(a, a.getString(R.string.hs_join), a.getString(R.string.hs_scanning), new String[0], null);
         new Thread(() -> {
             List<Net> nets = null;
+            String connected = null;
             try (AdbSelf adb = shell(a)) {
-                if (adb != null) nets = scan(adb);
+                if (adb != null) {
+                    nets = scan(adb);
+                    Matcher m = Pattern.compile("connected to \"(.*?)\"").matcher(adb.shell("cmd wifi status"));
+                    if (m.find()) connected = m.group(1);
+                }
             } catch (Exception ignored) {
             }
             final List<Net> found = nets;
+            final String now = connected;
             MAIN.post(() -> {
                 if (wait.isShowing()) wait.dismiss();
                 if (a.isFinishing()) return;
@@ -51,17 +72,32 @@ final class Hotspots {
                             new String[]{a.getString(android.R.string.ok)}, w -> back.run());
                     return;
                 }
+                android.content.SharedPreferences p = prefs(a);
+                String last = p.getString(KEY_LAST, null);
+                Runnable again = () -> show(a, back);
                 List<GlassMenu.Row> rows = new ArrayList<>();
-                rows.add(new GlassMenu.Row(R.drawable.ic_m_update, a.getString(R.string.hs_rescan), null, () -> show(a, back)));
+                // Which internet: the router's (Airtel SIM) or the hotspot's, and the switch to the other.
+                if (usingHotspot(a)) {
+                    rows.add(new GlassMenu.Row(R.drawable.ic_s_data, a.getString(R.string.hs_use_router),
+                            a.getString(R.string.hs_using, last != null ? last : "Wi-Fi"), () -> useRouter(a, again)));
+                } else if (last != null && p.contains("pw_" + last)) {
+                    rows.add(new GlassMenu.Row(R.drawable.ic_s_data, a.getString(R.string.hs_use_hotspot, last),
+                            a.getString(R.string.hs_using_router), () -> useHotspot(a, last, again)));
+                }
+                rows.add(new GlassMenu.Row(R.drawable.ic_m_update, a.getString(R.string.hs_rescan), null, again));
                 for (Net n : found) {
                     String bars = n.rssi >= -60 ? "▂▄▆█" : n.rssi >= -70 ? "▂▄▆" : n.rssi >= -80 ? "▂▄" : "▂";
-                    rows.add(new GlassMenu.Row(R.drawable.ic_s_data, n.ssid, bars + (n.security.equals("open") ? "" : "  🔒"), () -> {
+                    boolean saved = p.contains("pw_" + n.ssid);
+                    String state = n.ssid.equals(now) ? a.getString(R.string.hs_connected_now) : saved ? a.getString(R.string.hs_saved) : "";
+                    rows.add(new GlassMenu.Row(R.drawable.ic_s_data, n.ssid,
+                            (state.isEmpty() ? "" : state + "  ") + bars + (n.security.equals("open") || saved ? "" : "  🔒"), () -> {
                         if (n.security.equals("open")) connect(a, n, "", back);
+                        else if (saved) connect(a, n, p.getString("pw_" + n.ssid, ""), back);
                         else GlassMenu.input(a, a.getString(R.string.hs_password, n.ssid), "", pw -> connect(a, n, pw, back));
                     }));
                 }
                 GlassMenu.page(a, a.getString(R.string.net_title), found.isEmpty() ? a.getString(R.string.hs_none) : a.getString(R.string.hs_join),
-                        null, rows, back, found.isEmpty() ? 0 : 1);
+                        null, rows, back, 0);
             });
         }, "hotspots").start();
     }
@@ -69,19 +105,15 @@ final class Hotspots {
     private static void connect(Activity a, Net n, String password, Runnable back) {
         Dialog wait = GlassMenu.message(a, n.ssid, a.getString(R.string.hs_connecting, n.ssid), new String[0], null);
         new Thread(() -> {
-            boolean ok = false;
+            boolean ok;
             try (AdbSelf adb = shell(a)) {
-                if (adb != null) {
-                    adb.shell("cmd wifi connect-network " + quote(n.ssid) + " " + n.security
-                            + (n.security.equals("open") ? "" : " " + quote(password)));
-                    for (int i = 0; i < 20 && !ok; i++) {
-                        android.os.SystemClock.sleep(1000);
-                        String st = adb.shell("cmd wifi status");
-                        ok = st.contains("connected to") && st.contains(n.ssid);
-                    }
-                }
-            } catch (Exception ignored) {
+                ok = adb != null && join(adb, n.ssid, n.security, password);
+            } catch (Exception e) {
+                ok = false;
             }
+            // Remembered on this box only, so it's not asked again (and the switch can rejoin it).
+            if (ok) prefs(a).edit().putString("pw_" + n.ssid, password).putString("sec_" + n.ssid, n.security).putString(KEY_LAST, n.ssid).apply();
+            else prefs(a).edit().remove("pw_" + n.ssid).apply();   // a wrong remembered password: ask next time
             final boolean joined = ok;
             MAIN.post(() -> {
                 if (wait.isShowing()) wait.dismiss();
@@ -90,6 +122,82 @@ final class Hotspots {
                         new String[]{a.getString(android.R.string.ok)}, w -> back.run());
             });
         }, "hotspot-join").start();
+    }
+
+    /** Connects to a network and waits up to 20 s for it. */
+    private static boolean join(AdbSelf adb, String ssid, String security, String password) throws Exception {
+        if (adb.shell("cmd wifi status").contains("Wifi is disabled")) adb.shell("cmd wifi set-wifi-enabled enabled");
+        adb.shell("cmd wifi connect-network " + quote(ssid) + " " + security + (security.equals("open") ? "" : " " + quote(password)));
+        for (int i = 0; i < 20; i++) {
+            android.os.SystemClock.sleep(1000);
+            String st = adb.shell("cmd wifi status");
+            if (st.contains("connected to") && st.contains(ssid)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Hotspot instead of the router: join the hotspot, switch the router's own internet off (no Airtel data
+     * used), and tell Android the wired connection no longer reaches the internet so it moves to Wi-Fi now.
+     */
+    private static void useHotspot(Activity a, String ssid, Runnable done) {
+        Dialog wait = GlassMenu.message(a, ssid, a.getString(R.string.hs_connecting, ssid), new String[0], null);
+        new Thread(() -> {
+            boolean ok = false;
+            try (AdbSelf adb = shell(a)) {
+                android.content.SharedPreferences p = prefs(a);
+                if (adb != null && join(adb, ssid, p.getString("sec_" + ssid, "wpa2"), p.getString("pw_" + ssid, ""))) {
+                    RouterUssd r = SimData.router(a);
+                    ok = r != null && r.setInternet(false);
+                }
+            } catch (Exception ignored) {
+            }
+            if (ok) {
+                prefs(a).edit().putBoolean(KEY_MODE, true).apply();
+                recheckWired(a, false);
+            }
+            finish(a, wait, ssid, ok ? a.getString(R.string.hs_switched_hotspot, ssid) : a.getString(R.string.hs_switch_failed), done);
+        }, "use-hotspot").start();
+    }
+
+    /** Back to the router: its internet on again; Android prefers the wired connection once it works. */
+    private static void useRouter(Activity a, Runnable done) {
+        String title = a.getString(R.string.hs_use_router);
+        Dialog wait = GlassMenu.message(a, title, a.getString(R.string.sd_loading), new String[0], null);
+        new Thread(() -> {
+            boolean ok = false;
+            try {
+                RouterUssd r = SimData.router(a);
+                ok = r != null && r.setInternet(true);
+            } catch (Exception ignored) {
+            }
+            if (ok) {
+                prefs(a).edit().putBoolean(KEY_MODE, false).apply();
+                android.os.SystemClock.sleep(5000);   // the router reconnects to Airtel
+                recheckWired(a, true);
+            }
+            finish(a, wait, title, a.getString(ok ? R.string.hs_switched_router : R.string.hs_switch_failed), done);
+        }, "use-router").start();
+    }
+
+    /** Asks Android to check the wired connection again now (instead of minutes later). */
+    private static void recheckWired(android.content.Context c, boolean works) {
+        try {
+            android.net.ConnectivityManager cm = c.getSystemService(android.net.ConnectivityManager.class);
+            for (android.net.Network n : cm.getAllNetworks()) {
+                android.net.NetworkCapabilities caps = cm.getNetworkCapabilities(n);
+                if (caps != null && caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_ETHERNET)) cm.reportNetworkConnectivity(n, works);
+            }
+        } catch (Exception ignored) {
+        }
+    }
+
+    private static void finish(Activity a, Dialog wait, String title, String message, Runnable done) {
+        MAIN.post(() -> {
+            if (wait.isShowing()) wait.dismiss();
+            if (a.isFinishing()) return;
+            GlassMenu.message(a, title, message, new String[]{a.getString(android.R.string.ok)}, w -> done.run());
+        });
     }
 
     /** TV Home's debugging connection, or null when it can't be had. Call off the main thread. */

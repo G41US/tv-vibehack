@@ -444,8 +444,17 @@
     <string name="hs_none">Nenhum hotspot encontrado. Ative o hotspot no telefone e procure de novo.</string>
     <string name="hs_password">Palavra-passe de %1$s</string>
     <string name="hs_connecting">A ligar a %1$s…</string>
-    <string name="hs_connected">Ligado a %1$s. A TV usa-o quando o router não tem internet. Para o usar já, desligue o cabo entre a box e o router.</string>
     <string name="hs_failed">Não foi possível ligar a %1$s. Verifique a palavra-passe e tente de novo.</string>
     <string name="hs_no_wifi">Não foi possível ligar o Wi-Fi desta box.</string>
     <string name="hs_rescan">Procurar de novo</string>
+    <string name="hs_use_router">Usar o router Airtel</string>
+    <string name="hs_use_hotspot">Usar %1$s em vez do router</string>
+    <string name="hs_using">A usar %1$s</string>
+    <string name="hs_using_router">A usar o router Airtel</string>
+    <string name="hs_saved">Guardada</string>
+    <string name="hs_connected_now">Ligada</string>
+    <string name="hs_switched_hotspot">Agora a usar %1$s. A internet do router está desligada, por isso não se gastam dados Airtel. Escolha «Usar o router Airtel» aqui para voltar.</string>
+    <string name="hs_switched_router">De volta ao router Airtel.</string>
+    <string name="hs_switch_failed">Não foi possível mudar. Tente de novo daqui a pouco.</string>
+    <string name="hs_connected">Ligado a %1$s, palavra-passe guardada. Para o usar em vez do router, escolha «Usar %1$s em vez do router» nesta página.</string>
 </resources>

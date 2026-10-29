@@ -444,8 +444,17 @@
     <string name="hs_none">لم يتم العثور على نقاط اتصال. شغّل نقطة الاتصال على هاتفك ثم ابحث مجددًا.</string>
     <string name="hs_password">كلمة مرور %1$s</string>
     <string name="hs_connecting">جارٍ الاتصال بـ %1$s…</string>
-    <string name="hs_connected">تم الاتصال بـ %1$s. يستخدمها التلفزيون عندما لا يتوفر الإنترنت في الراوتر. لاستخدامها الآن، افصل الكابل بين الجهاز والراوتر.</string>
     <string name="hs_failed">تعذّر الاتصال بـ %1$s. تحقّق من كلمة المرور وحاول مجددًا.</string>
     <string name="hs_no_wifi">تعذّر تشغيل Wi-Fi في هذا الجهاز.</string>
     <string name="hs_rescan">ابحث مجددًا</string>
+    <string name="hs_use_router">استخدم راوتر Airtel</string>
+    <string name="hs_use_hotspot">استخدم %1$s بدل الراوتر</string>
+    <string name="hs_using">يستخدم %1$s</string>
+    <string name="hs_using_router">يستخدم راوتر Airtel</string>
+    <string name="hs_saved">محفوظة</string>
+    <string name="hs_connected_now">متصلة</string>
+    <string name="hs_switched_hotspot">يتم الآن استخدام %1$s. تم إيقاف إنترنت الراوتر فلا تُستهلك بيانات Airtel. اختر «استخدم راوتر Airtel» هنا للعودة.</string>
+    <string name="hs_switched_router">تمت العودة إلى راوتر Airtel.</string>
+    <string name="hs_switch_failed">تعذّر التبديل. حاول مجددًا بعد قليل.</string>
+    <string name="hs_connected">تم الاتصال بـ %1$s وحُفظت كلمة المرور. لاستخدامها بدل الراوتر، اختر «استخدم %1$s بدل الراوتر» في هذه الصفحة.</string>
 </resources>

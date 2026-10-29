@@ -444,8 +444,17 @@
     <string name="hs_none">Keine Hotspots gefunden. Schalte den Hotspot am Handy ein und suche erneut.</string>
     <string name="hs_password">Passwort für %1$s</string>
     <string name="hs_connecting">Verbinde mit %1$s…</string>
-    <string name="hs_connected">Mit %1$s verbunden. Der Fernseher nutzt ihn, sobald der Router kein Internet hat. Um ihn sofort zu nutzen, zieh das Kabel zwischen Box und Router.</string>
     <string name="hs_failed">Verbindung mit %1$s fehlgeschlagen. Prüfe das Passwort und versuche es erneut.</string>
     <string name="hs_no_wifi">Das WLAN dieser Box ließ sich nicht einschalten.</string>
     <string name="hs_rescan">Erneut suchen</string>
+    <string name="hs_use_router">Airtel-Router verwenden</string>
+    <string name="hs_use_hotspot">%1$s statt des Routers verwenden</string>
+    <string name="hs_using">Verwendet %1$s</string>
+    <string name="hs_using_router">Verwendet den Airtel-Router</string>
+    <string name="hs_saved">Gespeichert</string>
+    <string name="hs_connected_now">Verbunden</string>
+    <string name="hs_switched_hotspot">Jetzt über %1$s. Das Internet des Routers ist aus, es werden keine Airtel-Daten verbraucht. Wähle hier „Airtel-Router verwenden“, um zurückzuwechseln.</string>
+    <string name="hs_switched_router">Wieder über den Airtel-Router.</string>
+    <string name="hs_switch_failed">Wechsel fehlgeschlagen. Versuche es gleich noch einmal.</string>
+    <string name="hs_connected">Mit %1$s verbunden, Passwort gespeichert. Um ihn statt des Routers zu nutzen, wähle auf dieser Seite „%1$s statt des Routers verwenden“.</string>
 </resources>

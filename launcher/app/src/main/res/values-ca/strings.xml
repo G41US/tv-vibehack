@@ -444,8 +444,17 @@
     <string name="hs_none">No s’ha trobat cap punt d’accés. Activa el punt d’accés al telèfon i torna a cercar.</string>
     <string name="hs_password">Contrasenya de %1$s</string>
     <string name="hs_connecting">Connectant a %1$s…</string>
-    <string name="hs_connected">Connectat a %1$s. La TV l’utilitza quan el router no té internet. Per fer-lo servir ara, desconnecta el cable entre l’aparell i el router.</string>
     <string name="hs_failed">No s’ha pogut connectar a %1$s. Revisa la contrasenya i torna-ho a provar.</string>
     <string name="hs_no_wifi">No s’ha pogut activar la Wi-Fi d’aquest aparell.</string>
     <string name="hs_rescan">Torna a cercar</string>
+    <string name="hs_use_router">Fes servir el router Airtel</string>
+    <string name="hs_use_hotspot">Fes servir %1$s en lloc del router</string>
+    <string name="hs_using">S’està fent servir %1$s</string>
+    <string name="hs_using_router">S’està fent servir el router Airtel</string>
+    <string name="hs_saved">Desada</string>
+    <string name="hs_connected_now">Connectada</string>
+    <string name="hs_switched_hotspot">Ara es fa servir %1$s. L’internet del router està apagat, així que no es gasten dades d’Airtel. Tria «Fes servir el router Airtel» aquí per tornar.</string>
+    <string name="hs_switched_router">De nou al router Airtel.</string>
+    <string name="hs_switch_failed">No s’ha pogut canviar. Torna-ho a provar d’aquí a un moment.</string>
+    <string name="hs_connected">Connectat a %1$s i contrasenya desada. Per fer-lo servir en lloc del router, tria «Fes servir %1$s en lloc del router» en aquesta pàgina.</string>
 </resources>
