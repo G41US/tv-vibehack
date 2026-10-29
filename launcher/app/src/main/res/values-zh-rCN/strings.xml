@@ -425,4 +425,6 @@
     <string name="pp_characters">角色</string>
     <string name="pp_fun">趣味</string>
     <string name="rc_freed">已释放 %1$s 内存</string>
+    <string name="sim_left">剩余 %1$s</string>
+    <string name="chk_sim">SIM 卡流量</string>
 </resources>
