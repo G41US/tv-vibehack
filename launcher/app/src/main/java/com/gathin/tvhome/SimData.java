@@ -82,9 +82,11 @@ final class SimData {
             if (gw != null) {
                 SharedPreferences p = prefs(c);
                 int[] how = {p.getInt(KEY_HOW, 0)};
-                // *323# answers with a menu: the router's own bundle first, then ordinary data.
+                // *323# answers with a menu: choose "DATA Balance" ("ROUTER Balance" asks for a router number).
+                // A second try a little later if the network was still busy with the last request.
                 String last = null;
-                for (String pick : new String[]{"ROUTER", "DATA"}) {
+                for (String pick : new String[]{"DATA", "DATA"}) {
+                    if (last == null && note.contains("(DATA)")) android.os.SystemClock.sleep(8000);
                     RouterUssd r = new RouterUssd(gw);
                     String reply = r.send(p.getString(KEY_ROUTER_USER, "admin"), p.getString(KEY_ROUTER_PW, "admin"), how, CODE, pick);
                     p.edit().putInt(KEY_HOW, how[0]).apply();
@@ -92,7 +94,7 @@ final class SimData {
                     if (reply == null) continue;
                     last = reply;
                     String amount = amount(reply);
-                    if (amount == null) continue;
+                    if (amount == null) break;   // answered, but with no amount: shown as it is
                     save(c, amount, note + CODE + " said: " + reply);
                     busy = false;
                     if (changed != null) MAIN.post(changed);
