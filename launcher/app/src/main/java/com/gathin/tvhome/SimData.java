@@ -64,19 +64,26 @@ final class SimData {
         refresh(ctx, changed, false);
     }
 
+    /** A check is running now. */
+    static boolean checking() {
+        return busy;
+    }
+
     /**
      * {@code soon}: someone is looking for the amount (the Network panel) and there is none yet, so ask now
      * unless a check started in the last minute.
      */
-    static void refresh(Context ctx, Runnable changed, boolean soon) {
+    /** Returns whether a check started ({@code changed} then runs when it ends, whatever the outcome). */
+    static boolean refresh(Context ctx, Runnable changed, boolean soon) {
         Context c = ctx.getApplicationContext();
-        if (!StillWatching.isRouterBox(c)) return;   // only Airtel's router boxes for now
+        if (!StillWatching.isRouterBox(c)) return false;   // only Airtel's router boxes for now
         long at = prefs(c).getLong(KEY_AT, 0), now = System.currentTimeMillis();
-        if (soon && !busy && (now - at > 60_000 || now < at)) at = 0;
+        boolean refused = note(c).contains("password not accepted");
+        if (soon && !busy && !refused && (now - at > 60_000 || now < at)) at = 0;
         // Known amount: every 5 minutes while Home is in use; nothing yet: every half hour, or once a day when the router refused the
         // password (so it isn't asked into locking itself).
-        long every = left(c) != null ? EVERY : note(c).contains("password not accepted") ? DAY : RETRY;
-        if (busy || (now - at < every && now >= at)) return;
+        long every = refused ? DAY : left(c) != null ? EVERY : RETRY;
+        if (busy || (now - at < every && now >= at)) return false;
         busy = true;
         prefs(c).edit().putLong(KEY_AT, now).apply();
         new Thread(() -> {
@@ -86,7 +93,9 @@ final class SimData {
                 save(c, null, "error: " + t);
                 busy = false;
             }
+            if (changed != null) MAIN.post(changed);   // done, answered or not
         }, "sim-data").start();
+        return true;
     }
 
     @android.annotation.SuppressLint("MissingPermission")   // checked just before

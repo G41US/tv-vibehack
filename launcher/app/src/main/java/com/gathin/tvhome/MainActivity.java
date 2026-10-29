@@ -1339,11 +1339,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             String simLeft = SimData.left(this), simUntil = SimData.until(this);
             if (simLeft == null || !dlg.isShowing()) return;
             dlg.findViewById(R.id.dataLeftBox).setVisibility(View.VISIBLE);
-            ((TextView) dlg.findViewById(R.id.dataLeft)).setText(simLeft);
+            TextView left = dlg.findViewById(R.id.dataLeft);
+            left.setText(simLeft);
+            left.animate().alpha(SimData.checking() ? 0.45f : 1f).setDuration(250).start();   // dim while the fresh figure comes
             ((TextView) dlg.findViewById(R.id.dataLeftLabel)).setText(simUntil != null ? getString(R.string.net_left_until, simUntil) : getString(R.string.net_left));
         };
-        // Not known yet: ask now; known but over 5 minutes old: ask again. Filled in when the network answers.
-        SimData.refresh(this, showLeft, SimData.left(this) == null);
+        // Opening the panel asks Airtel again (unless a check ran in the last minute): the last figure shows
+        // dimmed meanwhile, and the fresh one replaces it when the network answers.
+        SimData.refresh(this, showLeft, true);
 
         TextView details = dlg.findViewById(R.id.btnWifiDetails);
         details.setText(ssid.isEmpty() ? R.string.net_set_up : R.string.net_change);
