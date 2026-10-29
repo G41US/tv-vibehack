@@ -82,15 +82,25 @@ final class SimData {
             if (gw != null) {
                 SharedPreferences p = prefs(c);
                 int[] how = {p.getInt(KEY_HOW, 0)};
-                RouterUssd r = new RouterUssd(gw);
-                String reply = r.send(p.getString(KEY_ROUTER_USER, "admin"), p.getString(KEY_ROUTER_PW, "admin"), how, CODE);
-                p.edit().putInt(KEY_HOW, how[0]).apply();
-                note += "Router " + gw.getHostAddress() + ": " + r.log + "\n";
-                if (reply != null) {
+                // *323# answers with a menu: the router's own bundle first, then ordinary data.
+                String last = null;
+                for (String pick : new String[]{"ROUTER", "DATA"}) {
+                    RouterUssd r = new RouterUssd(gw);
+                    String reply = r.send(p.getString(KEY_ROUTER_USER, "admin"), p.getString(KEY_ROUTER_PW, "admin"), how, CODE, pick);
+                    p.edit().putInt(KEY_HOW, how[0]).apply();
+                    note += "Router " + gw.getHostAddress() + " (" + pick + "): " + r.log + "\n";
+                    if (reply == null) continue;
+                    last = reply;
                     String amount = amount(reply);
+                    if (amount == null) continue;
                     save(c, amount, note + CODE + " said: " + reply);
                     busy = false;
-                    if (amount != null && changed != null) MAIN.post(changed);
+                    if (changed != null) MAIN.post(changed);
+                    return;
+                }
+                if (last != null) {   // the network answered, but with no amount in it (no bundle?)
+                    save(c, null, note + CODE + " said: " + last);
+                    busy = false;
                     return;
                 }
             }
