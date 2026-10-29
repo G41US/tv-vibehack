@@ -195,8 +195,6 @@ final class SimData {
         m.find(first);
         return m;
     }
-        return first;
-    }
 
     /** 7838.23 MB as "7.7 GB", 512 MB as "512 MB". */
     static String tidy(double v, String unit) {
