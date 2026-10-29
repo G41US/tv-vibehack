@@ -169,7 +169,9 @@ final class TvCheck {
         GlassMenu.message(a, a.getString(R.string.chk_sim), SimData.note(a),
                 new String[]{a.getString(R.string.chk_look_again), a.getString(R.string.chk_on_phone), a.getString(android.R.string.ok)}, w -> {
                     if (w == 0) SimData.lookNow(a, () -> {
-                        if (!a.isFinishing()) simPage(a);
+                        if (a.isFinishing()) return;
+                        if (a instanceof MainActivity) ((MainActivity) a).updateWifiLabel();   // the new amount on the button now
+                        simPage(a);
                     });
                     if (w == 1) onPhone(a, a.getString(R.string.chk_sim), SimData.note(a));
                 });
