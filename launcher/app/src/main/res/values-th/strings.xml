@@ -427,7 +427,4 @@
     <string name="rc_freed">คืนหน่วยความจำ %1$s แล้ว</string>
     <string name="sim_left">เหลือ %1$s</string>
     <string name="chk_sim">ข้อมูลซิม</string>
-    <string name="chk_look_again">ตรวจอีกครั้ง</string>
-    <string name="chk_on_phone">เปิดบนโทรศัพท์</string>
-    <string name="chk_on_phone_msg">บนโทรศัพท์ที่ใช้ Wi-Fi เดียวกัน เปิดลิงก์นี้ในเบราว์เซอร์:\n\n%1$s\n\nเปิดหน้าต่างนี้ไว้ระหว่างคัดลอก</string>
 </resources>

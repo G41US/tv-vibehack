@@ -427,7 +427,4 @@
     <string name="rc_freed">%1$s de memória liberados</string>
     <string name="sim_left">%1$s restantes</string>
     <string name="chk_sim">Dados do SIM</string>
-    <string name="chk_look_again">Procurar de novo</string>
-    <string name="chk_on_phone">Abrir no telefone</string>
-    <string name="chk_on_phone_msg">Num telefone ligado ao mesmo Wi-Fi, abra isto no navegador:\n\n%1$s\n\nMantenha esta janela aberta enquanto copia.</string>
 </resources>
