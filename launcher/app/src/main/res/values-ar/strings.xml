@@ -425,6 +425,7 @@
     <string name="pp_characters">شخصيات</string>
     <string name="pp_fun">مرحة</string>
     <string name="rc_freed">تم تحرير %1$s من الذاكرة</string>
-    <string name="sim_left">متبقٍ %1$s</string>
     <string name="chk_sim">بيانات الشريحة</string>
+    <string name="net_left">المتبقي على الشريحة</string>
+    <string name="net_left_until">المتبقي · حتى %1$s</string>
 </resources>

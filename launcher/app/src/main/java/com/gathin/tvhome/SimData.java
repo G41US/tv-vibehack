@@ -18,7 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Data left on the SIM, for the network pill ("Ethernet · 12.4 GB left"). Asked of the network with
+ * Data left on the SIM, for the Network panel ("7.7 GB, left till 3 Nov"). Asked of the network with
  * *323#, Nigeria's data-balance code on every network, a few times a day, and read from the reply.
  *
  * Asked of Android when it holds the SIM; on a box whose separate router holds it (Airtel's: Android
@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  */
 final class SimData {
 
-    private static final String PREFS = "sim_data", KEY_LEFT = "left", KEY_AT = "at", KEY_NOTE = "note";
+    private static final String PREFS = "sim_data", KEY_LEFT = "left_gb", KEY_AT = "at", KEY_NOTE = "note", KEY_UNTIL = "until";
     private static final String CODE = "*323#", NO_SIM = "Android has no SIM";
     /** The router's page password (the label's default unless changed) and which login form it took. */
     static final String KEY_ROUTER_USER = "router_user", KEY_ROUTER_PW = "router_password", KEY_HOW = "router_login2";
@@ -39,6 +39,11 @@ final class SimData {
     }
 
     /** "12.4 GB", or null when not known. */
+    /** When the bundle ends ("3 Nov"), or null. */
+    static String until(Context c) {
+        return prefs(c).getString(KEY_UNTIL, null);
+    }
+
     static String left(Context c) {
         return prefs(c).getString(KEY_LEFT, null);
     }
@@ -96,6 +101,7 @@ final class SimData {
                     last = reply;
                     String amount = amount(reply);
                     if (amount == null) break;   // answered, but with no amount: shown as it is
+                    prefs(c).edit().putString(KEY_UNTIL, until(reply)).apply();
                     save(c, amount, note + CODE + " said: " + reply);
                     busy = false;
                     if (changed != null) MAIN.post(changed);
@@ -159,16 +165,36 @@ final class SimData {
      * 15360.06MB ..." gives "7.7 GB"): the first amount whose name isn't an app or night bundle, else the first.
      */
     static String amount(String reply) {
+        Matcher m = chosen(reply);
+        return m == null ? null : tidy(Double.parseDouble(m.group(1).replace(',', '.')), m.group(2).toUpperCase(Locale.US));
+    }
+
+    /** When that bundle ends ("... 7838.23MB till 03-11-2026 ..." gives "3 Nov"), or null. */
+    static String until(String reply) {
+        Matcher m = chosen(reply);
+        if (m == null) return null;
+        int end = reply.indexOf(',', m.end());
+        Matcher d = Pattern.compile("(\\d{1,2})[-/.](\\d{1,2})[-/.](\\d{4})").matcher(reply.substring(m.end(), end < 0 ? reply.length() : end));
+        if (!d.find()) return null;
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.set(Integer.parseInt(d.group(3)), Integer.parseInt(d.group(2)) - 1, Integer.parseInt(d.group(1)));
+        return new java.text.SimpleDateFormat("d MMM", Locale.getDefault()).format(cal.getTime());
+    }
+
+    /** The amount to show: the first whose name isn't an app or night bundle, else the first. */
+    private static Matcher chosen(String reply) {
         if (reply == null) return null;
         Matcher m = AMOUNT.matcher(reply);
-        String first = null;
+        int first = -1;
         while (m.find()) {
             int from = Math.max(reply.lastIndexOf(',', m.start()), reply.lastIndexOf('\n', m.start()));
-            String label = reply.substring(from + 1, m.start());
-            String tidy = tidy(Double.parseDouble(m.group(1).replace(',', '.')), m.group(2).toUpperCase(Locale.US));
-            if (!SPECIAL.matcher(label).find()) return tidy;
-            if (first == null) first = tidy;
+            if (!SPECIAL.matcher(reply.substring(from + 1, m.start())).find()) return m;
+            if (first < 0) first = m.start();
         }
+        if (first < 0) return null;
+        m.find(first);
+        return m;
+    }
         return first;
     }
 

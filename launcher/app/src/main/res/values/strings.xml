@@ -431,6 +431,7 @@
     <string name="pp_characters">Characters</string>
     <string name="pp_fun">Fun</string>
     <string name="rc_freed">Freed %1$s of memory</string>
-    <string name="sim_left">%1$s left</string>
     <string name="chk_sim">SIM data</string>
+    <string name="net_left">Left on SIM</string>
+    <string name="net_left_until">Left · till %1$s</string>
 </resources>

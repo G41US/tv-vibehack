@@ -145,6 +145,33 @@
                 android:textSize="13sp"
                         android:fontFamily="@font/outfit" />
                 </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/dataLeftBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="40dp"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/dataLeft"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#FF7CF0B0"
+                        android:fontVariationSettings="'wght' 650"
+                        android:textSize="24sp"
+                        android:fontFamily="@font/outfit" />
+
+                    <TextView
+                        android:id="@+id/dataLeftLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#D9FFFFFF"
+                        android:fontVariationSettings="'wght' 560"
+                        android:textSize="13sp"
+                        android:fontFamily="@font/outfit" />
+                </LinearLayout>
             </LinearLayout>
 
             <TextView

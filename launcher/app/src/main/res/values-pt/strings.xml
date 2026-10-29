@@ -425,6 +425,7 @@
     <string name="pp_characters">Personagens</string>
     <string name="pp_fun">Divertidas</string>
     <string name="rc_freed">%1$s de memória liberados</string>
-    <string name="sim_left">%1$s restantes</string>
     <string name="chk_sim">Dados do SIM</string>
+    <string name="net_left">Resta no SIM</string>
+    <string name="net_left_until">Resta · até %1$s</string>
 </resources>
