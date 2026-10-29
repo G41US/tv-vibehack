@@ -428,4 +428,6 @@
     <string name="sim_left">queden %1$s</string>
     <string name="chk_sim">Dades de la SIM</string>
     <string name="chk_look_again">Torna a cercar</string>
+    <string name="chk_on_phone">Obre al telèfon</string>
+    <string name="chk_on_phone_msg">En un telèfon connectat a la mateixa Wi-Fi, obre això al navegador:\n\n%1$s\n\nMantén aquesta finestra oberta mentre ho copies.</string>
 </resources>

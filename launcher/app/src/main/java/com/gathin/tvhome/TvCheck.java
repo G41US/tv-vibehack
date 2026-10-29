@@ -167,11 +167,33 @@ final class TvCheck {
     /** What was found about the SIM; "Look again" looks now and shows the new findings. */
     private static void simPage(Activity a) {
         GlassMenu.message(a, a.getString(R.string.chk_sim), SimData.note(a),
-                new String[]{a.getString(R.string.chk_look_again), a.getString(android.R.string.ok)}, w -> {
+                new String[]{a.getString(R.string.chk_look_again), a.getString(R.string.chk_on_phone), a.getString(android.R.string.ok)}, w -> {
                     if (w == 0) SimData.lookNow(a, () -> {
                         if (!a.isFinishing()) simPage(a);
                     });
+                    if (w == 1) onPhone(a, a.getString(R.string.chk_sim), SimData.note(a));
                 });
+    }
+
+    /** Shows a long text on a phone on the same Wi-Fi (to copy and send), while this message is open. */
+    private static void onPhone(Activity a, String title, String text) {
+        String html = "<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>"
+                + "<title>" + android.text.TextUtils.htmlEncode(title) + "</title><body style='font:14px system-ui;padding:16px;background:#0b0d14;color:#e8e9ef'>"
+                + "<button onclick=\"var r=document.createRange();r.selectNodeContents(document.getElementById('t'));var s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy')\" style='padding:12px 18px;font-size:16px'>Copy</button>"
+                + "<pre id=t style='white-space:pre-wrap;word-break:break-word'>" + android.text.TextUtils.htmlEncode(text) + "</pre>";
+        PhoneServer server = new PhoneServer(html.getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                new java.io.File(a.getCacheDir(), "phone-text.part"), body -> false, () -> {
+        });
+        java.util.List<String> ips = PhoneServer.lanAddresses();
+        if (ips.isEmpty() || !server.start()) {
+            server.stop();
+            return;
+        }
+        String url = "http://" + ips.get(0) + ":" + server.port + "/" + server.pin;
+        android.app.Dialog d = GlassMenu.message(a, title, a.getString(R.string.chk_on_phone_msg, url),
+                new String[]{a.getString(android.R.string.ok)}, w -> {
+                });
+        d.setOnDismissListener(x -> server.stop());
     }
 
     private static void showReport(Activity a, String model, String text) {

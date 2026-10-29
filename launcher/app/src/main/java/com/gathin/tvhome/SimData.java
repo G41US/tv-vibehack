@@ -146,7 +146,7 @@ final class SimData {
     }
 
     private static void save(Context c, String left, String note) {
-        SharedPreferences.Editor e = prefs(c).edit().putString(KEY_NOTE, note.length() > 9000 ? note.substring(0, 9000) : note);
+        SharedPreferences.Editor e = prefs(c).edit().putString(KEY_NOTE, note.length() > 20000 ? note.substring(0, 20000) : note);
         if (left != null) e.putString(KEY_LEFT, left);
         e.apply();
     }
@@ -214,38 +214,53 @@ final class SimData {
                 if (next == null) break;
                 page = get(host, next.startsWith("/") ? next : "/" + next, 200_000);
             }
-            java.util.Set<String> scripts = new java.util.LinkedHashSet<>(), found = new java.util.TreeSet<>();
-            Matcher src = Pattern.compile("(?:src|href)\\s*=\\s*[\"']([^\"'#?]+\\.(?:js|html?))", Pattern.CASE_INSENSITIVE).matcher(page);
-            // RequireJS pages name their start script in data-main; their API sits in a few usual files.
+            // Crawl the page's scripts: RequireJS names modules as quoted words ('service', 'lib/jquery.cookie'),
+            // loaded from the start script's folder; follow those that exist, a couple of levels deep.
+            java.util.LinkedHashMap<String, String> files = new java.util.LinkedHashMap<>();
+            java.util.ArrayDeque<String> queue = new java.util.ArrayDeque<>();
             Matcher main = Pattern.compile("data-main\\s*=\\s*[\"']([^\"']+)", Pattern.CASE_INSENSITIVE).matcher(page);
-            if (main.find()) scripts.add("/" + main.group(1).replaceFirst("^/", "").replaceFirst("(\\.js)?$", ".js"));
-            for (String usual : new String[]{"/js/service.js", "/js/main.js", "/js/config/config.js", "/js/util.js", "/js/set.js"}) scripts.add(usual);
-            while (src.find() && scripts.size() < 14) {
-                String u = src.group(1);
-                if (u.startsWith("http")) continue;
-                scripts.add(u.startsWith("/") ? u : "/" + u);
+            String start = main.find() ? "/" + main.group(1).replaceFirst("^/", "").replaceFirst("(\\.js)?$", ".js") : "/js/main.js";
+            String base = start.substring(0, start.lastIndexOf('/') + 1);
+            queue.add(start);
+            Matcher src = Pattern.compile("src\\s*=\\s*[\"']([^\"'#?:]+\\.js)", Pattern.CASE_INSENSITIVE).matcher(page);
+            while (src.find()) queue.add(src.group(1).startsWith("/") ? src.group(1) : "/" + src.group(1));
+            Pattern word = Pattern.compile("[\"']((?:\\.{0,2}/)?[a-zA-Z][a-zA-Z0-9_\\-]*(?:/[a-zA-Z0-9_\\-.]+)*)[\"']");
+            java.util.Set<String> tried = new java.util.HashSet<>();
+            while (!queue.isEmpty() && tried.size() < 80 && files.size() < 30) {
+                String f = queue.poll();
+                if (!tried.add(f)) continue;
+                String r = get(host, f, 900_000);
+                if (!(r.startsWith("HTTP/1.1 200") || r.startsWith("HTTP/1.0 200"))) continue;
+                String body = r.substring(Math.max(0, r.indexOf("\r\n\r\n")));
+                files.put(f, body);
+                if (body.length() > 300_000) continue;   // a library: its quoted words aren't modules
+                Matcher w = word.matcher(body);
+                while (w.find()) {
+                    String m = w.group(1);
+                    if (m.length() > 60 || m.contains("..") || m.endsWith(".html") || m.endsWith(".css") || m.endsWith(".png")) continue;
+                    if (!m.contains("/") && !m.matches("[a-z][a-zA-Z0-9_]{2,30}")) continue;
+                    queue.add(m.startsWith("/") ? (m.endsWith(".js") ? m : m + ".js") : base + m.replaceFirst("^\\./", "") + (m.endsWith(".js") ? "" : ".js"));
+                }
             }
-            Pattern api = Pattern.compile("[\"'](/?[A-Za-z0-9_./-]*(?:cgi|goform|reqproc|proc_|api/|jsonrpc|ubus|ussd|login)[A-Za-z0-9_./?=&-]*)[\"']",
-                    Pattern.CASE_INSENSITIVE);
-            java.util.List<String> texts = new java.util.ArrayList<>();
-            texts.add(page);
-            StringBuilder sizes = new StringBuilder();
-            for (String js : scripts) {
-                String t = get(host, js, 900_000);
-                sizes.append(' ').append(js).append('=').append(t.startsWith("HTTP/1.1 200") || t.startsWith("HTTP/1.0 200") ? t.length() : 0);
-                texts.add(t);
+            // Where the scripts talk to the router: the text around each request and login.
+            StringBuilder o = new StringBuilder("files");
+            for (java.util.Map.Entry<String, String> e : files.entrySet()) o.append(' ').append(e.getKey()).append('=').append(e.getValue().length());
+            java.util.Set<String> seen = new java.util.HashSet<>();
+            Pattern hot = Pattern.compile("proc_get|proc_post|goform_|USSD|ussd_|goformId|LOGIN|\\bLD\\b|paswordAlg|SHA256|sha256|base64|encode\\(");
+            int snippets = 0;
+            for (java.util.Map.Entry<String, String> e : files.entrySet()) {
+                String b = e.getValue();
+                if (b.length() > 300_000) continue;
+                Matcher m = hot.matcher(b);
+                while (m.find() && snippets < 40) {
+                    int a = Math.max(0, m.start() - 70), z = Math.min(b.length(), m.end() + 90);
+                    String snip = b.substring(a, z).replaceAll("\\s+", " ");
+                    if (!seen.add(snip.substring(Math.max(0, snip.length() / 2 - 20), Math.min(snip.length(), snip.length() / 2 + 20)))) continue;
+                    o.append("\n[").append(e.getKey()).append("] …").append(snip).append('…');
+                    snippets++;
+                }
             }
-            for (String t : texts) {
-                Matcher m = api.matcher(t);
-                while (m.find() && found.size() < 60) if (m.group(1).length() < 90) found.add(m.group(1));
-                // ZTE-style pages name each action ("goformId: 'USSD_PROCESS'") and the values they read ("ussd_data_info").
-                Matcher id = Pattern.compile("goformId\\s*[:=]\\s*[\"']([A-Z0-9_]*(?:USSD|LOGIN|SMS)[A-Z0-9_]*)[\"']").matcher(t);
-                while (id.find() && found.size() < 90) found.add("id:" + id.group(1));
-                Matcher key = Pattern.compile("[\"'](ussd_[A-Za-z_]+|USSD_[A-Za-z_]+|login_[A-Za-z_]+|LD|RD)[\"']").matcher(t);
-                while (key.find() && found.size() < 110) found.add(key.group(1));
-            }
-            Matcher t = Pattern.compile("<title>(.*?)</title>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL).matcher(page);
-            return (t.find() ? "title \"" + t.group(1).trim() + "\" " : "") + "scripts" + sizes + "\n" + String.join(" ", found);
+            return o.toString();
         } catch (Exception e) {
             return e.getClass().getSimpleName();
         }

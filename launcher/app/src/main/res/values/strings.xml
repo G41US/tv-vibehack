@@ -434,4 +434,6 @@
     <string name="sim_left">%1$s left</string>
     <string name="chk_sim">SIM data</string>
     <string name="chk_look_again">Look again</string>
+    <string name="chk_on_phone">Open on phone</string>
+    <string name="chk_on_phone_msg">On a phone on the same Wi-Fi, open this in the browser:\n\n%1$s\n\nKeep this window open while you copy it.</string>
 </resources>

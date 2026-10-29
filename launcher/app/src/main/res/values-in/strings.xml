@@ -428,4 +428,6 @@
     <string name="sim_left">sisa %1$s</string>
     <string name="chk_sim">Data SIM</string>
     <string name="chk_look_again">Cari lagi</string>
+    <string name="chk_on_phone">Buka di ponsel</string>
+    <string name="chk_on_phone_msg">Di ponsel pada Wi-Fi yang sama, buka ini di browser:\n\n%1$s\n\nBiarkan jendela ini terbuka saat menyalin.</string>
 </resources>
