@@ -185,6 +185,14 @@ final class SimData {
     private static String apiWords(InetAddress host) {
         try {
             String page = get(host, "/", 200_000);
+            // Follow the page's redirect ("/" sends on to /index.html), then any login page it points to.
+            for (int hop = 0; hop < 3; hop++) {
+                Matcher loc = Pattern.compile("(?im)^Location:\\s*(?:https?://[^/\\s]+)?(/\\S*)").matcher(page);
+                Matcher meta = Pattern.compile("(?i)(?:location(?:\\.href)?\\s*=|url=)\\s*[\"']?(/?[A-Za-z0-9_./-]+\\.(?:html?|asp|cgi))").matcher(page);
+                String next = loc.find() ? loc.group(1) : page.length() < 3000 && meta.find() ? meta.group(1) : null;
+                if (next == null) break;
+                page = get(host, next.startsWith("/") ? next : "/" + next, 200_000);
+            }
             java.util.Set<String> scripts = new java.util.LinkedHashSet<>(), found = new java.util.TreeSet<>();
             Matcher src = Pattern.compile("(?:src|href)\\s*=\\s*[\"']([^\"'#?]+\\.(?:js|html?))", Pattern.CASE_INSENSITIVE).matcher(page);
             while (src.find() && scripts.size() < 10) {
@@ -201,7 +209,8 @@ final class SimData {
                 Matcher m = api.matcher(t);
                 while (m.find() && found.size() < 60) if (m.group(1).length() < 90) found.add(m.group(1));
             }
-            return "scripts " + scripts + "\n" + String.join(" ", found);
+            Matcher t = Pattern.compile("<title>(.*?)</title>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL).matcher(page);
+            return (t.find() ? "title \"" + t.group(1).trim() + "\" " : "") + "scripts " + scripts + "\n" + String.join(" ", found);
         } catch (Exception e) {
             return e.getClass().getSimpleName();
         }
