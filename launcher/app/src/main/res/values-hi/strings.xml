@@ -428,4 +428,15 @@
     <string name="chk_sim">सिम डेटा</string>
     <string name="net_left">सिम पर बाकी</string>
     <string name="net_left_until">बाकी · %1$s तक</string>
+    <string name="sd_low_title">डेटा कम बचा है</string>
+    <string name="sd_low_msg">सिम पर केवल %1$s डेटा बचा है।</string>
+    <string name="sd_end_title">डेटा पैक खत्म होने वाला है</string>
+    <string name="sd_end_msg">आपका डेटा पैक %1$s को खत्म होगा, %2$s बाकी है।</string>
+    <string name="sd_devices">%1$d डिवाइस</string>
+    <string name="sd_messages">संदेश</string>
+    <string name="sd_loading">लोड हो रहा है…</string>
+    <string name="sd_delete">हटाएं</string>
+    <string name="sd_delete_all">सभी हटाएं</string>
+    <string name="sd_none">कोई संदेश नहीं</string>
+    <string name="sd_no_router">राउटर से संपर्क नहीं हो सका</string>
 </resources>

@@ -56,23 +56,32 @@ final class RouterUssd {
         this.host = host;
     }
 
+    /** The router's state after the last send (signal, network, devices, messages), or null. */
+    JSONObject state;
+
+    /** Finds the router's API, opens its page and logs in (see log). */
+    boolean open(String user, String password, int[] how) throws Exception {
+        if (status(request("GET", "/reqproc/proc_get?isTest=false&cmd=LD&_=" + System.currentTimeMillis(), null)) == 200) {
+            get = "/reqproc/proc_get";
+            post = "/reqproc/proc_post";
+        } else {
+            get = "/goform/goform_get_cmd_process";
+            post = "/goform/goform_set_cmd_process";
+        }
+        log.append("api ").append(get);
+        // The page first: some firmware only answers its requests for a browser that has it open (session cookie).
+        String page = request("GET", "/index.html", null);
+        log.append(", page ").append(lastStatus).append(cookie.isEmpty() ? " no cookie" : " cookie");
+        if (!login(user, password, how)) return false;
+        signing();
+        return true;
+    }
+
     /** Logs in and sends the code; returns the network's reply text, or null (see log). */
     /** {@code pick}: in a menu reply, the line to choose (by a word in it), or null. */
     String send(String user, String password, int[] how, String code, String pick) {
         try {
-            if (status(request("GET", "/reqproc/proc_get?isTest=false&cmd=LD&_=" + System.currentTimeMillis(), null)) == 200) {
-                get = "/reqproc/proc_get";
-                post = "/reqproc/proc_post";
-            } else {
-                get = "/goform/goform_get_cmd_process";
-                post = "/goform/goform_set_cmd_process";
-            }
-            log.append("api ").append(get);
-            // The page first: some firmware only answers its requests for a browser that has it open (session cookie).
-            String page = request("GET", "/index.html", null);
-            log.append(", page ").append(lastStatus).append(cookie.isEmpty() ? " no cookie" : " cookie");
-            if (!login(user, password, how)) return null;
-            signing();
+            if (!open(user, password, how)) return null;
             // As the page does: send, then ask ussd_write_flag each second (15 waiting, 16 answered), then read it.
             reply = answer(postForm("goformId=USSD_PROCESS&USSD_operator=ussd_send&USSD_send_number="
                     + URLEncoder.encode(code, "UTF-8") + "&notCallback=true"));
@@ -87,12 +96,29 @@ final class RouterUssd {
                 reply = next;
             }
             postForm("goformId=USSD_PROCESS&USSD_operator=ussd_cancel");   // close the session on the network
+            // While logged in: how the router is doing (the same values its own status bar shows).
+            state = json(read("signalbar,network_type,network_provider,rssi,lte_rsrp,sta_count,sms_dev_used,sms_nv_total,sms_unread_num"));
             if (reply == null) log.append(", no reply");
             return reply;
         } catch (Exception e) {
             log.append(", ").append(e.getClass().getSimpleName()).append(' ').append(e.getMessage());
             return null;
         }
+    }
+
+    /** The router's own text messages (newest first): id, number, content, date. Call after open(). */
+    org.json.JSONArray messages() throws IOException {
+        JSONObject r = json(read("sms_data_total&page=0&data_per_page=100&mem_store=1&tags=10&order_by=order+by+id+desc"));
+        org.json.JSONArray list = r.optJSONArray("messages");
+        return list != null ? list : new org.json.JSONArray();
+    }
+
+    /** Deletes messages by id (as the page does: "1;2;3;"). Call after open(). */
+    boolean delete(java.util.List<String> ids) throws Exception {
+        StringBuilder sb = new StringBuilder();
+        for (String id : ids) sb.append(id).append(';');
+        return "success".equals(json(postForm("goformId=DELETE_SMS&msg_id=" + URLEncoder.encode(sb.toString(), "UTF-8")
+                + "&notCallback=true")).optString("result"));
     }
 
     /** After a send or reply: waits for the network's answer the way the page does, and reads it (null: none). */

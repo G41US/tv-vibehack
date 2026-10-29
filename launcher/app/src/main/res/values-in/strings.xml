@@ -428,4 +428,15 @@
     <string name="chk_sim">Data SIM</string>
     <string name="net_left">Sisa di SIM</string>
     <string name="net_left_until">Sisa · s.d. %1$s</string>
+    <string name="sd_low_title">Data hampir habis</string>
+    <string name="sd_low_msg">Sisa data di SIM hanya %1$s.</string>
+    <string name="sd_end_title">Paket data segera berakhir</string>
+    <string name="sd_end_msg">Paket data Anda berakhir %1$s, sisa %2$s.</string>
+    <string name="sd_devices">%1$d perangkat</string>
+    <string name="sd_messages">Pesan</string>
+    <string name="sd_loading">Memuat…</string>
+    <string name="sd_delete">Hapus</string>
+    <string name="sd_delete_all">Hapus semua</string>
+    <string name="sd_none">Tidak ada pesan</string>
+    <string name="sd_no_router">Tidak dapat menghubungi router</string>
 </resources>
