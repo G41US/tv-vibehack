@@ -12,10 +12,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.telephony.TelephonyManager;
 
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.InetAddress;
-import java.net.URL;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -129,56 +126,66 @@ final class SimData {
     }
 
     private static void save(Context c, String left, String note) {
-        SharedPreferences.Editor e = prefs(c).edit().putString(KEY_NOTE, note.length() > 1500 ? note.substring(0, 1500) : note);
+        SharedPreferences.Editor e = prefs(c).edit().putString(KEY_NOTE, note.length() > 9000 ? note.substring(0, 9000) : note);
         if (left != null) e.putString(KEY_LEFT, left);
         e.apply();
     }
 
-    /** Where else the SIM's details might be: the router's page, Android's modem settings, the firmware's apps. */
+    /** Where else the SIM's details might be: the router's ports, Airtel's apps and what they store. */
     private static String lookAround(Context c) {
         StringBuilder out = new StringBuilder();
+        InetAddress gw = null;
         try {
             ConnectivityManager cm = c.getSystemService(ConnectivityManager.class);
             Network n = cm.getActiveNetwork();
             LinkProperties lp = n != null ? cm.getLinkProperties(n) : null;
-            InetAddress gw = null;
             if (lp != null) for (RouteInfo r : lp.getRoutes()) if (r.isDefaultRoute() && r.getGateway() != null) gw = r.getGateway();
-            out.append("Router: ").append(gw != null ? gw.getHostAddress() : "?");
-            if (gw != null) {
-                HttpURLConnection con = (HttpURLConnection) new URL("http://" + gw.getHostAddress() + "/").openConnection();
-                con.setConnectTimeout(3000);
-                con.setReadTimeout(3000);
-                try {
-                    int code = con.getResponseCode();
-                    String page = "";
-                    try (InputStream in = code < 400 ? con.getInputStream() : con.getErrorStream()) {
-                        if (in != null) {
-                            byte[] buf = new byte[8192];
-                            int len = in.read(buf);
-                            page = len > 0 ? new String(buf, 0, len, "UTF-8") : "";
-                        }
-                    }
-                    Matcher t = Pattern.compile("<title>(.*?)</title>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL).matcher(page);
-                    out.append(" page ").append(code).append(" \"").append(t.find() ? t.group(1).trim() : "").append("\" server ")
-                            .append(con.getHeaderField("Server"));
-                } finally {
-                    con.disconnect();
+        } catch (Exception ignored) {
+        }
+        out.append("Router: ").append(gw != null ? gw.getHostAddress() : "?").append(" open:");
+        if (gw != null) {
+            for (int port : new int[]{80, 443, 8080, 8443, 5000, 7547}) {
+                try (java.net.Socket so = new java.net.Socket()) {
+                    so.connect(new java.net.InetSocketAddress(gw, port), 1500);
+                    out.append(' ').append(port);
+                } catch (Exception ignored) {
                 }
             }
-        } catch (Exception e) {
-            out.append(" (").append(e.getClass().getSimpleName()).append(')');
         }
-        if (AdbSelf.ready(c)) {
-            try (AdbSelf adb = AdbSelf.connect(c, SelfSetup.PORT, 10_000, () -> {
-            })) {
-                out.append("\nModem: ").append(adb.shell("getprop | grep -iE 'gsm\\.|ril\\.|modem|radio' | head -8"));
-                out.append("\nFirmware apps: ").append(adb.shell("pm list packages | grep -iE 'nes|airtel|router|modem' | head -12"));
-                out.append("\nTheir data: ").append(adb.shell(
-                        "for p in $(pm list packages | grep -iE 'nes|airtel' | cut -d: -f2); do dumpsys package $p | grep -iE 'authority|Provider\\{' | head -4; done | head -16"));
-            } catch (Exception e) {
-                out.append("\n(debugging: ").append(e.getClass().getSimpleName()).append(')');
-            }
+        if (!AdbSelf.ready(c)) return out.append("\n(no debugging connection)").toString();
+        try (AdbSelf adb = AdbSelf.connect(c, SelfSetup.PORT, 10_000, () -> {
+        })) {
+            // Where Airtel's apps keep things, and what each answers.
+            String auths = adb.shell("dumpsys package providers | grep -B1 -E 'com\\.nes|airtel' | grep '\\[' | tr -d '[]: ' | sort -u | head -14");
+            out.append("\nStores: ").append(auths.replace('\n', ' '));
+            out.append("\nAnswers:\n").append(adb.shell("for a in " + auths.replace('\n', ' ')
+                    + "; do echo \"> $a: $(content query --uri content://$a 2>&1 | head -c 240)\"; done"));
+            // Addresses and words inside Airtel's home screen and service (their code), then what those addresses answer.
+            String files = "for p in com.nes.hometv com.nes.coreservice com.nes.skywayclient; do a=$(pm path $p | head -1 | cut -d: -f2); "
+                    + "[ -n \"$a\" ] && echo $a $(dirname $a)/oat/*/*.vdex $(dirname $a)/oat/*/*.odex; done";
+            String links = adb.shell("grep -a -o -h -E 'content://[A-Za-z0-9._/-]{4,80}|https?://[A-Za-z0-9._:/?=&-]{8,90}' $(" + files
+                    + ") 2>/dev/null | grep -v -E 'android\\.com|google|schemas|w3\\.org|apache|xmlpull|github' | sort -u | head -40");
+            out.append("\nLinks:\n").append(links);
+            out.append("\nWords: ").append(adb.shell("grep -a -o -h -i -E '[A-Za-z_]{0,24}(balance|remain|ussd|dataplan|bundle|simcard|simInfo)[A-Za-z_]{0,24}' $("
+                    + files + ") 2>/dev/null | sort -u | head -40").replace('\n', ' '));
+            StringBuilder uris = new StringBuilder();
+            for (String l : links.split("\n")) if (l.startsWith("content://") && uris.length() < 900) uris.append(l.trim()).append(' ');
+            if (uris.length() > 0) out.append("\nTheir answers:\n").append(adb.shell("for u in " + uris
+                    + "; do echo \"> $u: $(content query --uri $u 2>&1 | head -c 240)\"; done"));
+        } catch (Exception e) {
+            out.append("\n(debugging: ").append(e.getClass().getSimpleName()).append(')');
         }
         return out.toString();
+    }
+
+    /** TV check's "Look again": forget the last look and look now. */
+    static void lookNow(Context ctx, Runnable done) {
+        Context c = ctx.getApplicationContext();
+        prefs(c).edit().putLong(KEY_AT, 0).putString(KEY_NOTE, "looking…").apply();
+        refreshIfStale(c, null);
+        new Thread(() -> {
+            for (int i = 0; i < 120 && busy; i++) android.os.SystemClock.sleep(500);
+            MAIN.post(done);
+        }, "sim-look").start();
     }
 }

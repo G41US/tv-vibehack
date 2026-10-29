@@ -427,4 +427,5 @@
     <string name="rc_freed">S\'han alliberat %1$s de memòria</string>
     <string name="sim_left">queden %1$s</string>
     <string name="chk_sim">Dades de la SIM</string>
+    <string name="chk_look_again">Torna a cercar</string>
 </resources>

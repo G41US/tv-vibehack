@@ -427,4 +427,5 @@
     <string name="rc_freed">Kumbukumbu ya %1$s imeachiliwa</string>
     <string name="sim_left">%1$s zimebaki</string>
     <string name="chk_sim">Data ya SIM</string>
+    <string name="chk_look_again">Tafuta tena</string>
 </resources>
