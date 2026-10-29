@@ -5,6 +5,7 @@
     <uses-feature android:name="android.software.leanback" android:required="false" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-feature android:name="android.hardware.wifi" android:required="false" />
+    <uses-feature android:name="android.hardware.telephony" android:required="false" />
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -13,6 +14,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <!-- Update checks and downloads (Updater), and the phone photo receiver (PhotoServer). -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Only to ask the network the data-balance code (*323#) when Android holds the SIM. -->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
     <!-- TV settings > Remotes: list paired remotes and their battery. -->
     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />

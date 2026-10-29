@@ -653,6 +653,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         DataLimit.maybeWarn(this);
         updater.autoCheck();
         new Thread(() -> DataUsage.sample(this), "data-sample").start();
+        SimData.refreshIfStale(this, this::updateWifiLabel);
         checkNet();
     }
     private View nightShade;
@@ -1586,6 +1587,9 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             }
         } catch (Exception ignored) {
         }
+        // Data left on the SIM, when it's known: "Ethernet · 12.4 GB left".
+        String simLeft = SimData.left(this);
+        if (simLeft != null && !text.equals(getString(R.string.offline))) text = text + " · " + getString(R.string.sim_left, simLeft);
         netText = text;
         android.text.SpannableStringBuilder label = new android.text.SpannableStringBuilder(text);
         if (vpn) {

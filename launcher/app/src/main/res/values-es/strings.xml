@@ -425,4 +425,6 @@
     <string name="pp_characters">Personajes</string>
     <string name="pp_fun">Divertidas</string>
     <string name="rc_freed">Se liberaron %1$s de memoria</string>
+    <string name="sim_left">quedan %1$s</string>
+    <string name="chk_sim">Datos de la SIM</string>
 </resources>
