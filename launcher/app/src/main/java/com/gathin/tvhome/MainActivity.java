@@ -1265,12 +1265,15 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         }));
         ((TextView) dlg.findViewById(R.id.dataNote)).setText(t.mobile ? R.string.net_data_mobile : R.string.net_data_all);
         // Data left on the SIM (asked of the network every few hours), with when the bundle ends.
-        String simLeft = SimData.left(this), simUntil = SimData.until(this);
-        if (simLeft != null) {
+        Runnable showLeft = () -> {
+            String simLeft = SimData.left(this), simUntil = SimData.until(this);
+            if (simLeft == null || !dlg.isShowing()) return;
             dlg.findViewById(R.id.dataLeftBox).setVisibility(View.VISIBLE);
             ((TextView) dlg.findViewById(R.id.dataLeft)).setText(simLeft);
             ((TextView) dlg.findViewById(R.id.dataLeftLabel)).setText(simUntil != null ? getString(R.string.net_left_until, simUntil) : getString(R.string.net_left));
-        }
+        };
+        // Not known yet: ask now, and fill it in when the network answers (about half a minute).
+        if (SimData.left(this) == null) SimData.refresh(this, showLeft, true);
 
         TextView details = dlg.findViewById(R.id.btnWifiDetails);
         details.setText(ssid.isEmpty() ? R.string.net_set_up : R.string.net_change);
@@ -1284,7 +1287,10 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         });
         View close = dlg.findViewById(R.id.btnClose);
         close.setOnClickListener(v -> dlg.dismiss());
-        dlg.setOnShowListener(d -> close.requestFocus());
+        dlg.setOnShowListener(d -> {
+            close.requestFocus();
+            showLeft.run();
+        });
         dlg.show();
     }
 
