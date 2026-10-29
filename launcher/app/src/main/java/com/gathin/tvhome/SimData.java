@@ -45,6 +45,7 @@ final class SimData {
     }
 
     static String left(Context c) {
+        if (!StillWatching.isRouterBox(c)) return null;
         return prefs(c).getString(KEY_LEFT, null);
     }
 
@@ -68,6 +69,7 @@ final class SimData {
      */
     static void refresh(Context ctx, Runnable changed, boolean soon) {
         Context c = ctx.getApplicationContext();
+        if (!StillWatching.isRouterBox(c)) return;   // only Airtel's router boxes for now
         long at = prefs(c).getLong(KEY_AT, 0), now = System.currentTimeMillis();
         if (soon && !busy && (now - at > 60_000 || now < at)) at = 0;
         // Known amount: every few hours; nothing yet: every half hour, or once a day when the router refused the
