@@ -145,8 +145,7 @@ final class TvCheck {
                 + (SafeStart.lastProblem(a) != null ? "\nLast problem: " + SafeStart.lastProblem(a) : "");
         String simLeft = SimData.left(a);
         rows.add(new GlassMenu.Row(R.drawable.ic_s_speed, a.getString(R.string.chk_sim), simLeft != null ? simLeft : "–",
-                () -> GlassMenu.message(a, a.getString(R.string.chk_sim), SimData.note(a), new String[]{a.getString(android.R.string.ok)}, w -> {
-                })));
+                () -> simPage(a)));
         rows.add(new GlassMenu.Row(R.drawable.ic_s_speed, a.getString(R.string.chk_startup), null,
                 () -> GlassMenu.message(a, a.getString(R.string.chk_startup), trace, new String[]{a.getString(android.R.string.ok)}, w -> {
                 })));
@@ -165,6 +164,16 @@ final class TvCheck {
     }
 
     /** A QR code for the phone: a new GitHub issue with this report filled in. Nothing leaves the TV itself. */
+    /** What was found about the SIM; "Look again" looks now and shows the new findings. */
+    private static void simPage(Activity a) {
+        GlassMenu.message(a, a.getString(R.string.chk_sim), SimData.note(a),
+                new String[]{a.getString(R.string.chk_look_again), a.getString(android.R.string.ok)}, w -> {
+                    if (w == 0) SimData.lookNow(a, () -> {
+                        if (!a.isFinishing()) simPage(a);
+                    });
+                });
+    }
+
     private static void showReport(Activity a, String model, String text) {
         String url = "https://github.com/G41US/tv-vibehack/issues/new?title=" + Uri.encode("TV check: " + model)
                 + "&body=" + Uri.encode(text);

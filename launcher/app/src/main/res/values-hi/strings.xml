@@ -427,4 +427,5 @@
     <string name="rc_freed">%1$s मेमोरी खाली हुई</string>
     <string name="sim_left">%1$s बाकी</string>
     <string name="chk_sim">सिम डेटा</string>
+    <string name="chk_look_again">फिर से देखें</string>
 </resources>

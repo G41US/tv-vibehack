@@ -427,4 +427,5 @@
     <string name="rc_freed">%1$s Speicher freigegeben</string>
     <string name="sim_left">%1$s übrig</string>
     <string name="chk_sim">SIM-Daten</string>
+    <string name="chk_look_again">Erneut suchen</string>
 </resources>
