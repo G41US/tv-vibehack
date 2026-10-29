@@ -149,12 +149,36 @@ final class SimData {
 
     private static final Pattern AMOUNT = Pattern.compile("(\\d+(?:[.,]\\d+)?)\\s*(TB|GB|MB|KB)", Pattern.CASE_INSENSITIVE);
 
-    /** The first data amount in the network's reply ("Your data bal: 2.5GB exp 05/11"), tidied: "2.5 GB". */
+    /** Bundles for one app or the night only: not "data left" for everything. */
+    private static final Pattern SPECIAL = Pattern.compile("youtube|night|social|whatsapp|instagram|tiktok|facebook|bonus|voice|sms",
+            Pattern.CASE_INSENSITIVE);
+
+    /**
+     * The main data left in the network's reply, tidied ("Weekly Bundle: 7838.23MB till ..., YouTube Night:
+     * 15360.06MB ..." gives "7.7 GB"): the first amount whose name isn't an app or night bundle, else the first.
+     */
     static String amount(String reply) {
         if (reply == null) return null;
         Matcher m = AMOUNT.matcher(reply);
-        if (!m.find()) return null;
-        return m.group(1).replace(',', '.') + " " + m.group(2).toUpperCase(Locale.US);
+        String first = null;
+        while (m.find()) {
+            int from = Math.max(reply.lastIndexOf(',', m.start()), reply.lastIndexOf('\n', m.start()));
+            String label = reply.substring(from + 1, m.start());
+            String tidy = tidy(Double.parseDouble(m.group(1).replace(',', '.')), m.group(2).toUpperCase(Locale.US));
+            if (!SPECIAL.matcher(label).find()) return tidy;
+            if (first == null) first = tidy;
+        }
+        return first;
+    }
+
+    /** 7838.23 MB as "7.7 GB", 512 MB as "512 MB". */
+    static String tidy(double v, String unit) {
+        double mb = unit.equals("TB") ? v * 1024 * 1024 : unit.equals("GB") ? v * 1024 : unit.equals("KB") ? v / 1024 : v;
+        if (mb >= 1024) {
+            double gb = mb / 1024;
+            return (gb >= 100 ? String.valueOf(Math.round(gb)) : String.format(Locale.US, "%.1f", gb).replace(".0", "")) + " GB";
+        }
+        return Math.round(mb) + " MB";
     }
 
     private static void save(Context c, String left, String note) {
