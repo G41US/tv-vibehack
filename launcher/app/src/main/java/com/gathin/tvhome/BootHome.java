@@ -27,8 +27,9 @@ import android.widget.FrameLayout;
  * unlocked run that early (directBootAware), so this one touches no settings or files: it just plays
  * the TV Home animation, then, once the video is done and Android has unlocked, hands over to TV Home.
  *
- * It is switched on while the box shuts down (when the start-up animation is on) and switches itself
- * off before handing over, so the Home button only ever finds TV Home's real home screen.
+ * It stays switched on while the start-up animation is on. Its lower priority keeps Android's default
+ * home on TV Home's real home screen once the box is unlocked; if Android still opens this one later
+ * (not a start-up), it goes straight on to Home without the animation.
  */
 public class BootHome extends Activity {
 
@@ -70,6 +71,11 @@ public class BootHome extends Activity {
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
+        if (SystemClock.elapsedRealtime() > 180_000 && unlocked()) {   // not a start-up: straight to Home
+            videoDone = true;
+            handOver();
+            return;
+        }
         showing = true;
         try {
             FrameLayout root = new FrameLayout(this);
@@ -192,19 +198,13 @@ public class BootHome extends Activity {
         if (handed || !videoDone || !unlocked()) return;
         handed = true;
         release();
-        enable(this, false);   // first, so Home resolves to TV Home's real home screen only
         try {
             if (startedAt > 0) BootTrace.mark(this, "animation started (start-up screen)", startedAt);
             BootTrace.mark(this, "start-up screen handed over");
         } catch (Exception ignored) {
         }
-        Intent home = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).setPackage(getPackageName())
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).putExtra(EXTRA_PLAYED, startedAt > 0);
-        try {
-            startActivity(home);
-        } catch (Exception e) {
-            startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        }
+        startActivity(new Intent(this, MainActivity.class).setAction(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK).putExtra(EXTRA_PLAYED, startedAt > 0));
         finish();
         overridePendingTransition(0, android.R.anim.fade_out);
     }

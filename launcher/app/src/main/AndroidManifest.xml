@@ -166,8 +166,10 @@
         </activity>
 
         <!-- Start-up screen: plays the animation right after the boot logo, before the box unlocks
-             its storage (only directBootAware home screens may run then). Off until the box shuts
-             down with the animation on; switches itself off when it hands over to MainActivity. -->
+             its storage (only directBootAware home screens may run then). Kept on while the start-up
+             animation is (switched on when the Home button service starts, so a power cut can't leave
+             it off). Priority -1: below MainActivity, so once the box is unlocked Android's default
+             home is always MainActivity, yet above Android's own waiting screen (-1000) before. -->
         <activity
             android:name=".BootHome"
             android:exported="true"
@@ -177,7 +179,7 @@
             android:excludeFromRecents="true"
             android:configChanges="orientation|screenSize|keyboard|keyboardHidden|uiMode"
             android:screenOrientation="landscape">
-            <intent-filter>
+            <intent-filter android:priority="-1">
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />

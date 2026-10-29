@@ -20,8 +20,16 @@ final class BootTrace {
         mark(c, what, SystemClock.elapsedRealtime());
     }
 
-    static synchronized void mark(Context c, String what, long at) {
+    /** Marks are written one after another off the main thread: the box's storage is slow while starting (3 s once). */
+    private static final java.util.concurrent.Executor WRITER = java.util.concurrent.Executors.newSingleThreadExecutor();
+
+    static void mark(Context c, String what, long at) {
         if (SystemClock.elapsedRealtime() > WINDOW_MS) return;
+        Context app = c.getApplicationContext() != null ? c.getApplicationContext() : c;
+        WRITER.execute(() -> write(app, what, at));
+    }
+
+    private static synchronized void write(Context c, String what, long at) {
         SharedPreferences p = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         long now = SystemClock.elapsedRealtime();
         String text = now < p.getLong("at", Long.MAX_VALUE) ? "" : p.getString("text", "");   // a new start: begin again
