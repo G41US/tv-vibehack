@@ -439,4 +439,13 @@
     <string name="sd_delete_all">حذف الكل</string>
     <string name="sd_none">لا توجد رسائل</string>
     <string name="sd_no_router">تعذّر الوصول إلى الراوتر</string>
+    <string name="hs_join">الاتصال بنقطة اتصال</string>
+    <string name="hs_scanning">جارٍ البحث عن نقاط اتصال…</string>
+    <string name="hs_none">لم يتم العثور على نقاط اتصال. شغّل نقطة الاتصال على هاتفك ثم ابحث مجددًا.</string>
+    <string name="hs_password">كلمة مرور %1$s</string>
+    <string name="hs_connecting">جارٍ الاتصال بـ %1$s…</string>
+    <string name="hs_connected">تم الاتصال بـ %1$s. يستخدمها التلفزيون عندما لا يتوفر الإنترنت في الراوتر. لاستخدامها الآن، افصل الكابل بين الجهاز والراوتر.</string>
+    <string name="hs_failed">تعذّر الاتصال بـ %1$s. تحقّق من كلمة المرور وحاول مجددًا.</string>
+    <string name="hs_no_wifi">تعذّر تشغيل Wi-Fi في هذا الجهاز.</string>
+    <string name="hs_rescan">ابحث مجددًا</string>
 </resources>

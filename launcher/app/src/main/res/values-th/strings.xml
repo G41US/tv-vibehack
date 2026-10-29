@@ -439,4 +439,13 @@
     <string name="sd_delete_all">ลบทั้งหมด</string>
     <string name="sd_none">ไม่มีข้อความ</string>
     <string name="sd_no_router">เชื่อมต่อเราเตอร์ไม่ได้</string>
+    <string name="hs_join">เชื่อมต่อฮอตสปอต</string>
+    <string name="hs_scanning">กำลังค้นหาฮอตสปอต…</string>
+    <string name="hs_none">ไม่พบฮอตสปอต เปิดฮอตสปอตบนโทรศัพท์แล้วค้นหาอีกครั้ง</string>
+    <string name="hs_password">รหัสผ่านของ %1$s</string>
+    <string name="hs_connecting">กำลังเชื่อมต่อ %1$s…</string>
+    <string name="hs_connected">เชื่อมต่อ %1$s แล้ว ทีวีจะใช้เมื่อเราเตอร์ไม่มีอินเทอร์เน็ต หากต้องการใช้ทันที ให้ถอดสายระหว่างกล่องกับเราเตอร์</string>
+    <string name="hs_failed">เชื่อมต่อ %1$s ไม่ได้ ตรวจสอบรหัสผ่านแล้วลองอีกครั้ง</string>
+    <string name="hs_no_wifi">เปิด Wi-Fi ของกล่องนี้ไม่ได้</string>
+    <string name="hs_rescan">ค้นหาอีกครั้ง</string>
 </resources>

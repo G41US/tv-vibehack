@@ -445,4 +445,13 @@
     <string name="sd_delete_all">Delete all</string>
     <string name="sd_none">No messages</string>
     <string name="sd_no_router">Couldn\'t reach the router</string>
+    <string name="hs_join">Join a hotspot</string>
+    <string name="hs_scanning">Looking for hotspots…</string>
+    <string name="hs_none">No hotspots found. Turn on the hotspot on your phone, then look again.</string>
+    <string name="hs_password">Password for %1$s</string>
+    <string name="hs_connecting">Connecting to %1$s…</string>
+    <string name="hs_connected">Connected to %1$s. The TV uses it whenever the router has no internet. To use it right now, unplug the cable between the TV box and the router.</string>
+    <string name="hs_failed">Couldn\'t connect to %1$s. Check the password and try again.</string>
+    <string name="hs_no_wifi">This box\'s Wi-Fi couldn\'t be turned on.</string>
+    <string name="hs_rescan">Look again</string>
 </resources>

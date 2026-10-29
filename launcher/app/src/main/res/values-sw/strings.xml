@@ -439,4 +439,13 @@
     <string name="sd_delete_all">Futa zote</string>
     <string name="sd_none">Hakuna ujumbe</string>
     <string name="sd_no_router">Imeshindwa kufikia ruta</string>
+    <string name="hs_join">Unganisha kwenye hotspot</string>
+    <string name="hs_scanning">Inatafuta hotspot…</string>
+    <string name="hs_none">Hakuna hotspot iliyopatikana. Washa hotspot kwenye simu yako, kisha utafute tena.</string>
+    <string name="hs_password">Nenosiri la %1$s</string>
+    <string name="hs_connecting">Inaunganisha kwenye %1$s…</string>
+    <string name="hs_connected">Imeunganishwa kwenye %1$s. TV inaitumia ruta inapokosa intaneti. Kuitumia sasa hivi, chomoa kebo kati ya kisanduku na ruta.</string>
+    <string name="hs_failed">Imeshindwa kuunganisha kwenye %1$s. Angalia nenosiri na ujaribu tena.</string>
+    <string name="hs_no_wifi">Wi-Fi ya kisanduku hiki haikuweza kuwashwa.</string>
+    <string name="hs_rescan">Tafuta tena</string>
 </resources>

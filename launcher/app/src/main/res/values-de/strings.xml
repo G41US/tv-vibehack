@@ -439,4 +439,13 @@
     <string name="sd_delete_all">Alle löschen</string>
     <string name="sd_none">Keine Nachrichten</string>
     <string name="sd_no_router">Router nicht erreichbar</string>
+    <string name="hs_join">Mit Hotspot verbinden</string>
+    <string name="hs_scanning">Suche nach Hotspots…</string>
+    <string name="hs_none">Keine Hotspots gefunden. Schalte den Hotspot am Handy ein und suche erneut.</string>
+    <string name="hs_password">Passwort für %1$s</string>
+    <string name="hs_connecting">Verbinde mit %1$s…</string>
+    <string name="hs_connected">Mit %1$s verbunden. Der Fernseher nutzt ihn, sobald der Router kein Internet hat. Um ihn sofort zu nutzen, zieh das Kabel zwischen Box und Router.</string>
+    <string name="hs_failed">Verbindung mit %1$s fehlgeschlagen. Prüfe das Passwort und versuche es erneut.</string>
+    <string name="hs_no_wifi">Das WLAN dieser Box ließ sich nicht einschalten.</string>
+    <string name="hs_rescan">Erneut suchen</string>
 </resources>

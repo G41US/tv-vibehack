@@ -439,4 +439,13 @@
     <string name="sd_delete_all">Eliminar tudo</string>
     <string name="sd_none">Sem mensagens</string>
     <string name="sd_no_router">Não foi possível ligar ao router</string>
+    <string name="hs_join">Ligar a um hotspot</string>
+    <string name="hs_scanning">A procurar hotspots…</string>
+    <string name="hs_none">Nenhum hotspot encontrado. Ative o hotspot no telefone e procure de novo.</string>
+    <string name="hs_password">Palavra-passe de %1$s</string>
+    <string name="hs_connecting">A ligar a %1$s…</string>
+    <string name="hs_connected">Ligado a %1$s. A TV usa-o quando o router não tem internet. Para o usar já, desligue o cabo entre a box e o router.</string>
+    <string name="hs_failed">Não foi possível ligar a %1$s. Verifique a palavra-passe e tente de novo.</string>
+    <string name="hs_no_wifi">Não foi possível ligar o Wi-Fi desta box.</string>
+    <string name="hs_rescan">Procurar de novo</string>
 </resources>

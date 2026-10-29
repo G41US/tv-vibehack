@@ -1354,10 +1354,19 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             dlg.dismiss();
             showWifiSetup();
         });
-        dlg.findViewById(R.id.btnWifiSettings).setOnClickListener(v -> {
-            dlg.dismiss();
-            open(new Intent(Settings.ACTION_WIFI_SETTINGS));
-        });
+        TextView wifiButton = dlg.findViewById(R.id.btnWifiSettings);
+        if (StillWatching.isRouterBox(this)) {   // its settings show Ethernet only: TV Home lists and joins hotspots itself
+            wifiButton.setText(R.string.hs_join);
+            wifiButton.setOnClickListener(v -> {
+                dlg.dismiss();
+                Hotspots.show(this, this::showNetworkPanel);
+            });
+        } else {
+            wifiButton.setOnClickListener(v -> {
+                dlg.dismiss();
+                open(new Intent(Settings.ACTION_WIFI_SETTINGS));
+            });
+        }
         View close = dlg.findViewById(R.id.btnClose);
         close.setOnClickListener(v -> dlg.dismiss());
         // Five buttons don't fit: with Messages there, Close goes (Back closes the panel) and Messages starts focused.
