@@ -439,4 +439,13 @@
     <string name="sd_delete_all">Hapus semua</string>
     <string name="sd_none">Tidak ada pesan</string>
     <string name="sd_no_router">Tidak dapat menghubungi router</string>
+    <string name="hs_join">Sambungkan ke hotspot</string>
+    <string name="hs_scanning">Mencari hotspot…</string>
+    <string name="hs_none">Tidak ada hotspot. Nyalakan hotspot di ponsel, lalu cari lagi.</string>
+    <string name="hs_password">Kata sandi %1$s</string>
+    <string name="hs_connecting">Menyambung ke %1$s…</string>
+    <string name="hs_connected">Tersambung ke %1$s. TV memakainya saat router tidak ada internet. Untuk memakainya sekarang, cabut kabel antara boks dan router.</string>
+    <string name="hs_failed">Gagal menyambung ke %1$s. Periksa kata sandi dan coba lagi.</string>
+    <string name="hs_no_wifi">Wi-Fi boks ini tidak bisa dinyalakan.</string>
+    <string name="hs_rescan">Cari lagi</string>
 </resources>

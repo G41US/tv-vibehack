@@ -439,4 +439,13 @@
     <string name="sd_delete_all">Eliminar todo</string>
     <string name="sd_none">No hay mensajes</string>
     <string name="sd_no_router">No se pudo conectar con el router</string>
+    <string name="hs_join">Conectarse a un punto de acceso</string>
+    <string name="hs_scanning">Buscando puntos de acceso…</string>
+    <string name="hs_none">No se encontraron puntos de acceso. Activa el punto de acceso en tu teléfono y vuelve a buscar.</string>
+    <string name="hs_password">Contraseña de %1$s</string>
+    <string name="hs_connecting">Conectando a %1$s…</string>
+    <string name="hs_connected">Conectado a %1$s. La TV lo usa cuando el router no tiene internet. Para usarlo ya, desconecta el cable entre el aparato y el router.</string>
+    <string name="hs_failed">No se pudo conectar a %1$s. Revisa la contraseña e inténtalo de nuevo.</string>
+    <string name="hs_no_wifi">No se pudo activar el Wi-Fi de este aparato.</string>
+    <string name="hs_rescan">Buscar de nuevo</string>
 </resources>

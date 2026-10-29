@@ -439,4 +439,13 @@
     <string name="sd_delete_all">全部删除</string>
     <string name="sd_none">没有短信</string>
     <string name="sd_no_router">无法连接路由器</string>
+    <string name="hs_join">连接热点</string>
+    <string name="hs_scanning">正在查找热点…</string>
+    <string name="hs_none">未找到热点。请在手机上打开热点，然后重新查找。</string>
+    <string name="hs_password">%1$s 的密码</string>
+    <string name="hs_connecting">正在连接 %1$s…</string>
+    <string name="hs_connected">已连接 %1$s。路由器没有网络时电视会自动使用它。如需立即使用，请拔掉盒子与路由器之间的网线。</string>
+    <string name="hs_failed">无法连接 %1$s。请检查密码后重试。</string>
+    <string name="hs_no_wifi">无法打开此盒子的 Wi-Fi。</string>
+    <string name="hs_rescan">重新查找</string>
 </resources>

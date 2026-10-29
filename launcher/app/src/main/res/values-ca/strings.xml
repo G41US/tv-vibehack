@@ -439,4 +439,13 @@
     <string name="sd_delete_all">Suprimeix-ho tot</string>
     <string name="sd_none">No hi ha missatges</string>
     <string name="sd_no_router">No s\'ha pogut connectar amb el router</string>
+    <string name="hs_join">Connecta a un punt d’accés</string>
+    <string name="hs_scanning">Cercant punts d’accés…</string>
+    <string name="hs_none">No s’ha trobat cap punt d’accés. Activa el punt d’accés al telèfon i torna a cercar.</string>
+    <string name="hs_password">Contrasenya de %1$s</string>
+    <string name="hs_connecting">Connectant a %1$s…</string>
+    <string name="hs_connected">Connectat a %1$s. La TV l’utilitza quan el router no té internet. Per fer-lo servir ara, desconnecta el cable entre l’aparell i el router.</string>
+    <string name="hs_failed">No s’ha pogut connectar a %1$s. Revisa la contrasenya i torna-ho a provar.</string>
+    <string name="hs_no_wifi">No s’ha pogut activar la Wi-Fi d’aquest aparell.</string>
+    <string name="hs_rescan">Torna a cercar</string>
 </resources>

@@ -446,4 +446,13 @@
     <string name="sd_delete_all">Tout supprimer</string>
     <string name="sd_none">Aucun message</string>
     <string name="sd_no_router">Impossible de joindre le routeur</string>
+    <string name="hs_join">Rejoindre un point d’accès</string>
+    <string name="hs_scanning">Recherche de points d’accès…</string>
+    <string name="hs_none">Aucun point d’accès trouvé. Activez le partage de connexion sur votre téléphone, puis réessayez.</string>
+    <string name="hs_password">Mot de passe de %1$s</string>
+    <string name="hs_connecting">Connexion à %1$s…</string>
+    <string name="hs_connected">Connecté à %1$s. Le téléviseur l’utilise dès que le routeur n’a plus Internet. Pour l’utiliser tout de suite, débranchez le câble entre le boîtier et le routeur.</string>
+    <string name="hs_failed">Impossible de se connecter à %1$s. Vérifiez le mot de passe et réessayez.</string>
+    <string name="hs_no_wifi">Le Wi-Fi de ce boîtier n’a pas pu être activé.</string>
+    <string name="hs_rescan">Chercher à nouveau</string>
 </resources>
