@@ -59,8 +59,17 @@ final class SimData {
 
     /** Asks again if the last answer is old; {@code changed} runs on the main thread with a new amount. */
     static void refreshIfStale(Context ctx, Runnable changed) {
+        refresh(ctx, changed, false);
+    }
+
+    /**
+     * {@code soon}: someone is looking for the amount (the Network panel) and there is none yet, so ask now
+     * unless a check started in the last minute.
+     */
+    static void refresh(Context ctx, Runnable changed, boolean soon) {
         Context c = ctx.getApplicationContext();
         long at = prefs(c).getLong(KEY_AT, 0), now = System.currentTimeMillis();
+        if (soon && !busy && (now - at > 60_000 || now < at)) at = 0;
         // Known amount: every few hours; nothing yet: every half hour, or once a day when the router refused the
         // password (so it isn't asked into locking itself).
         long every = left(c) != null ? EVERY : note(c).contains("password not accepted") ? 24 * EVERY / 3 : RETRY;
