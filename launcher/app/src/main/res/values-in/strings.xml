@@ -457,4 +457,5 @@
     <string name="hs_switched_router">Kembali ke router Airtel.</string>
     <string name="hs_switch_failed">Gagal beralih. Coba lagi sebentar lagi.</string>
     <string name="hs_connected">Tersambung ke %1$s dan kata sandi disimpan. Untuk memakainya, bukan router, pilih \"Pakai %1$s, bukan router\" di halaman ini.</string>
+    <string name="hs_details">Detail koneksi</string>
 </resources>

@@ -457,4 +457,5 @@
     <string name="hs_switched_router">De volta ao router Airtel.</string>
     <string name="hs_switch_failed">Não foi possível mudar. Tente de novo daqui a pouco.</string>
     <string name="hs_connected">Ligado a %1$s, palavra-passe guardada. Para o usar em vez do router, escolha «Usar %1$s em vez do router» nesta página.</string>
+    <string name="hs_details">Detalhes da ligação</string>
 </resources>

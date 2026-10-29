@@ -457,4 +457,5 @@
     <string name="hs_switched_router">फिर से Airtel राउटर पर।</string>
     <string name="hs_switch_failed">बदल नहीं सके। थोड़ी देर में फिर कोशिश करें।</string>
     <string name="hs_connected">%1$s से जुड़ गए और पासवर्ड सहेजा गया। राउटर की जगह इसे इस्तेमाल करने के लिए इस पेज पर \"राउटर की जगह %1$s इस्तेमाल करें\" चुनें।</string>
+    <string name="hs_details">कनेक्शन विवरण</string>
 </resources>

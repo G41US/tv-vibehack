@@ -457,4 +457,5 @@
     <string name="hs_switched_router">已切换回 Airtel 路由器。</string>
     <string name="hs_switch_failed">无法切换，请稍后重试。</string>
     <string name="hs_connected">已连接 %1$s 并记住了密码。如需代替路由器使用，请在此页选择\"使用 %1$s 代替路由器\"。</string>
+    <string name="hs_details">连接详情</string>
 </resources>

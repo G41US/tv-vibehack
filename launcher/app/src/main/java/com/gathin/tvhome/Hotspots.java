@@ -39,6 +39,47 @@ final class Hotspots {
         return c.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE);
     }
 
+    private static android.net.ConnectivityManager.NetworkCallback keep;
+
+    /**
+     * Android disconnects Wi-Fi it thinks nobody needs: with the wired router up, a joined hotspot is
+     * dropped after a few seconds. Asking for a Wi-Fi connection (and holding the request) keeps it up,
+     * ready for the switch. Held by the Home button service, which runs all the time.
+     */
+    static synchronized void keepWifi(android.content.Context ctx) {
+        if (keep != null || !StillWatching.isRouterBox(ctx)) return;
+        try {
+            android.net.ConnectivityManager cm = ctx.getApplicationContext().getSystemService(android.net.ConnectivityManager.class);
+            keep = new android.net.ConnectivityManager.NetworkCallback();
+            cm.requestNetwork(new android.net.NetworkRequest.Builder()
+                    .addTransportType(android.net.NetworkCapabilities.TRANSPORT_WIFI)
+                    .addCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET).build(), keep);
+        } catch (Exception e) {
+            keep = null;
+        }
+    }
+
+    /** What Android says about the connections now (for when something doesn't work): Wi-Fi, default, who switched it. */
+    private static void details(Activity a, Runnable back) {
+        Dialog wait = GlassMenu.message(a, a.getString(R.string.hs_details), a.getString(R.string.sd_loading), new String[0], null);
+        new Thread(() -> {
+            String out;
+            try (AdbSelf adb = shell(a)) {
+                out = adb == null ? "(no debugging connection)" : adb.shell("cmd wifi status | head -4; echo; "
+                        + "dumpsys connectivity | grep -E 'Active default network|NetworkAgentInfo\\{' | sed 's/LinkProperties.*Capabilities/ Caps/' | cut -c1-260 | head -6; echo; "
+                        + "dumpsys wifi | grep -iE 'setWifiEnabled|disconnect|unwanted' | tail -12 | cut -c1-200");
+            } catch (Exception e) {
+                out = e.toString();
+            }
+            final String text = out;
+            MAIN.post(() -> {
+                if (wait.isShowing()) wait.dismiss();
+                if (!a.isFinishing()) GlassMenu.message(a, a.getString(R.string.hs_details), text,
+                        new String[]{a.getString(android.R.string.ok)}, w -> back.run());
+            });
+        }, "hotspot-details").start();
+    }
+
     /** The hotspot is in use instead of the router (its internet switched off). */
     static boolean usingHotspot(android.content.Context c) {
         return prefs(c).getBoolean(KEY_MODE, false);
@@ -85,6 +126,7 @@ final class Hotspots {
                             a.getString(R.string.hs_using_router), () -> useHotspot(a, last, again)));
                 }
                 rows.add(new GlassMenu.Row(R.drawable.ic_m_update, a.getString(R.string.hs_rescan), null, again));
+                rows.add(new GlassMenu.Row(R.drawable.ic_s_tune, a.getString(R.string.hs_details), null, () -> details(a, again)));
                 for (Net n : found) {
                     String bars = n.rssi >= -60 ? "▂▄▆█" : n.rssi >= -70 ? "▂▄▆" : n.rssi >= -80 ? "▂▄" : "▂";
                     boolean saved = p.contains("pw_" + n.ssid);

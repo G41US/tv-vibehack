@@ -457,4 +457,5 @@
     <string name="hs_switched_router">Wieder über den Airtel-Router.</string>
     <string name="hs_switch_failed">Wechsel fehlgeschlagen. Versuche es gleich noch einmal.</string>
     <string name="hs_connected">Mit %1$s verbunden, Passwort gespeichert. Um ihn statt des Routers zu nutzen, wähle auf dieser Seite „%1$s statt des Routers verwenden“.</string>
+    <string name="hs_details">Verbindungsdetails</string>
 </resources>
