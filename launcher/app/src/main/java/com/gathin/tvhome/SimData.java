@@ -29,6 +29,8 @@ final class SimData {
 
     private static final String PREFS = "sim_data", KEY_LEFT = "left", KEY_AT = "at", KEY_NOTE = "note";
     private static final String CODE = "*323#", NO_SIM = "Android has no SIM";
+    /** The router's page password (the label's default unless changed) and which login form it took. */
+    static final String KEY_ROUTER_PW = "router_password", KEY_HOW = "router_login";
     private static final long EVERY = 3 * 60 * 60 * 1000L, RETRY = 30 * 60 * 1000L;
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
     private static volatile boolean busy;
@@ -54,8 +56,8 @@ final class SimData {
     static void refreshIfStale(Context ctx, Runnable changed) {
         Context c = ctx.getApplicationContext();
         long at = prefs(c).getLong(KEY_AT, 0), now = System.currentTimeMillis();
-        // No SIM in Android: look at the router again once a day only.
-        long every = left(c) != null ? EVERY : note(c).startsWith(NO_SIM) ? 24 * EVERY / 3 : RETRY;
+        // Known amount: every few hours; nothing yet: every half hour, or once a day when no way was found.
+        long every = left(c) != null ? EVERY : note(c).contains("Router: ") ? 24 * EVERY / 3 : RETRY;
         if (busy || (now - at < every && now >= at)) return;
         busy = true;
         prefs(c).edit().putLong(KEY_AT, now).apply();
@@ -74,7 +76,25 @@ final class SimData {
         TelephonyManager tm = c.getSystemService(TelephonyManager.class);
         int sim = tm != null ? tm.getSimState() : TelephonyManager.SIM_STATE_UNKNOWN;
         if (sim != TelephonyManager.SIM_STATE_READY) {
-            save(c, null, NO_SIM + " (state " + sim + "): the router part holds it.\n" + lookAround(c));
+            // The SIM is in the router: ask it through the router's own page, as a person would there.
+            InetAddress gw = gateway(c);
+            String note = NO_SIM + " (state " + sim + "): the router holds it.\n";
+            if (gw != null) {
+                SharedPreferences p = prefs(c);
+                int[] how = {p.getInt(KEY_HOW, 0)};
+                RouterUssd r = new RouterUssd(gw);
+                String reply = r.send(p.getString(KEY_ROUTER_PW, "admin"), how, CODE);
+                p.edit().putInt(KEY_HOW, how[0]).apply();
+                note += "Router " + gw.getHostAddress() + ": " + r.log + "\n";
+                if (reply != null) {
+                    String amount = amount(reply);
+                    save(c, amount, note + CODE + " said: " + reply);
+                    busy = false;
+                    if (amount != null && changed != null) MAIN.post(changed);
+                    return;
+                }
+            }
+            save(c, null, note + lookAround(c));
             busy = false;
             return;
         }
@@ -229,6 +249,18 @@ final class SimData {
         } catch (Exception e) {
             return e.getClass().getSimpleName();
         }
+    }
+
+    /** The router's address (the default route's gateway), or null. */
+    private static InetAddress gateway(Context c) {
+        try {
+            ConnectivityManager cm = c.getSystemService(ConnectivityManager.class);
+            Network n = cm.getActiveNetwork();
+            LinkProperties lp = n != null ? cm.getLinkProperties(n) : null;
+            if (lp != null) for (RouteInfo r : lp.getRoutes()) if (r.isDefaultRoute() && r.getGateway() != null) return r.getGateway();
+        } catch (Exception ignored) {
+        }
+        return null;
     }
 
     /** The start of a router page's answer (status, server, title or text), via a plain socket. */
