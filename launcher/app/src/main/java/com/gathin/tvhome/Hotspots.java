@@ -94,9 +94,6 @@ final class Hotspots {
         if (n == null || apk == null) return;
         try {
             kept = adb.shell("CLASSPATH=" + quote(apk) + " app_process / com.gathin.tvhome.AcceptWifi " + n + " 2>&1 | tail -2").trim();
-            // Wi-Fi power saving off while on a hotspot: dozing between packets makes a phone's hotspot lose
-            // the box for seconds at a time (the phone stops answering, pages crawl). Back to normal at restart.
-            kept += " · low latency: " + adb.shell("cmd wifi force-low-latency-mode enabled 2>&1 | tail -1").trim();
         } catch (Exception e) {
             kept = e.toString();
         }
