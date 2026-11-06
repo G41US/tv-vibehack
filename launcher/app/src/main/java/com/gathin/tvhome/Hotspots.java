@@ -65,7 +65,7 @@ final class Hotspots {
                 public void onLost(android.net.Network n) {
                     wifiUp = false;
                     wifiInternet = false;
-                    noteDrop(app);
+                    if (!leaving) noteDrop(app);   // left on purpose (back to the router): not a drop to chase
                 }
             };
             cm.requestNetwork(new android.net.NetworkRequest.Builder()
@@ -78,7 +78,7 @@ final class Hotspots {
 
     /** The hotspot is connected, and it reaches the internet (Android checked). */
     static volatile boolean wifiUp, wifiInternet;
-    private static volatile boolean rejoining;
+    private static volatile boolean rejoining, leaving;
     /** The Wi-Fi connection now, TV Home's own APK (the shell runs AcceptWifi from it), what keeping it said. */
     private static volatile android.net.Network wifiNet;
     private static volatile String apk, kept = "";
@@ -300,6 +300,7 @@ final class Hotspots {
             keepEvenIfCheckFails(adb);
             return true;
         }
+        leaving = false;
         if (now.contains("Wifi is disabled")) adb.shell("cmd wifi set-wifi-enabled enabled");
         // First as Android normally joins (a made-up hardware address per network), then, if the phone gave
         // no address, with the box's real one: some phones' hotspots don't hand addresses to the made-up kind.
@@ -359,7 +360,14 @@ final class Hotspots {
             } catch (Exception ignored) {
             }
             if (ok) {
-                prefs(a).edit().putBoolean(KEY_MODE, false).apply();
+                prefs(a).edit().putBoolean(KEY_MODE, false).remove(KEY_DROP_AT).apply();
+                // A joined hotspot stays the TV's main connection while it's there: leave it (Wi-Fi off;
+                // joining a hotspot again turns it back on).
+                leaving = true;
+                try (AdbSelf adb = shell(a)) {
+                    if (adb != null) adb.shell("cmd wifi set-wifi-enabled disabled");
+                } catch (Exception ignored) {
+                }
                 android.os.SystemClock.sleep(5000);   // the router reconnects to Airtel
                 recheckWired(a, true);
             }
