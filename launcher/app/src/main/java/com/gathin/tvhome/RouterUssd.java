@@ -197,6 +197,8 @@ final class RouterUssd {
 
     private String request(String method, String path, String form) throws IOException {
         try (Socket so = new Socket()) {
+            android.net.Network via = SimData.routerNet;
+            if (via != null) via.bindSocket(so);   // over the cable, even when a hotspot is the main connection
             so.connect(new InetSocketAddress(host, 80), 3000);
             so.setSoTimeout(5000);
             String h = host.getHostAddress();

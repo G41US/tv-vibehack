@@ -363,13 +363,32 @@ final class SimData {
         return r.open(p.getString(KEY_ROUTER_USER, "admin"), p.getString(KEY_ROUTER_PW, "admin"), how) ? r : null;
     }
 
-    /** The router's address (the default route's gateway), or null. */
+    /** The connection the router is reached over (set by gateway()); router requests go out on it. */
+    static volatile Network routerNet;
+
+    /**
+     * The router's address: the cable's gateway (a joined hotspot becomes the main connection, and its
+     * gateway is the phone), else the main connection's; null if neither.
+     */
     private static InetAddress gateway(Context c) {
         try {
             ConnectivityManager cm = c.getSystemService(ConnectivityManager.class);
-            Network n = cm.getActiveNetwork();
-            LinkProperties lp = n != null ? cm.getLinkProperties(n) : null;
-            if (lp != null) for (RouteInfo r : lp.getRoutes()) if (r.isDefaultRoute() && r.getGateway() != null) return r.getGateway();
+            InetAddress main = null;
+            routerNet = null;
+            for (Network n : cm.getAllNetworks()) {
+                android.net.NetworkCapabilities caps = cm.getNetworkCapabilities(n);
+                LinkProperties lp = cm.getLinkProperties(n);
+                if (caps == null || lp == null) continue;
+                boolean wired = caps.hasTransport(android.net.NetworkCapabilities.TRANSPORT_ETHERNET);
+                if (!wired && !n.equals(cm.getActiveNetwork())) continue;
+                for (RouteInfo r : lp.getRoutes()) {
+                    if (!r.isDefaultRoute() || !(r.getGateway() instanceof java.net.Inet4Address)) continue;
+                    routerNet = n;
+                    if (wired) return r.getGateway();
+                    main = r.getGateway();
+                }
+            }
+            return main;
         } catch (Exception ignored) {
         }
         return null;
