@@ -135,18 +135,33 @@ final class Hotspots {
     private static void details(Activity a, Runnable back) {
         Dialog wait = GlassMenu.message(a, a.getString(R.string.hs_details), a.getString(R.string.sd_loading), new String[0], null);
         new Thread(() -> {
-            String out;
+            StringBuilder out = new StringBuilder(prefs(a).getString(KEY_DROP, ""));
+            if (out.length() > 0) out.append("\n\n");
             try (AdbSelf adb = shell(a)) {
-                String drop = prefs(a).getString(KEY_DROP, "");
-                out = (drop.isEmpty() ? "" : drop + "\n\n") + (adb == null ? "(no debugging connection)" : adb.shell("cmd wifi status | head -4; echo; "
-                        + "dumpsys connectivity | grep -E 'Active default network|NetworkAgentInfo\\{' | sed 's/LinkProperties.*Capabilities/ Caps/' | cut -c1-260 | head -6; echo; "
-                        // Why each try ended: the Wi-Fi chip's own events (wrong password, rejected, lost) and the address step (DHCP).
-                        + "logcat -d -v time | grep -iE 'CTRL-EVENT-(CONNECTED|DISCONNECTED|SSID-TEMP-DISABLED|ASSOC-REJECT|AUTH-REJECT)|"
-                        + "DhcpClient|IpClient.*(fail|timeout|error|lost)|provisioning|WRONG_KEY|unwanted' | tail -16 | cut -c1-200"));
+                if (adb == null) {
+                    out.append("(no debugging connection)");
+                } else {
+                    // Separate, quick asks: one slow part (the log) can't hide the others.
+                    String[] asks = {
+                            "cmd wifi status | head -4",
+                            "dumpsys connectivity | grep -E 'Active default network|NetworkAgentInfo\\{' | sed 's/LinkProperties.*Capabilities/ Caps/' | cut -c1-260 | head -6",
+                            // Why each try ended: the Wi-Fi chip's own events (wrong password, rejected, lost) and the
+                            // address step (DHCP). Only the Wi-Fi parts of the newest 3000 log lines.
+                            "logcat -d -t 3000 -v time -s wpa_supplicant WifiClientModeImpl DhcpClient IpClient WifiConnectivityManager 2>/dev/null"
+                                    + " | grep -iE 'CTRL-EVENT-(CONNECTED|DISCONNECTED|SSID-TEMP-DISABLED|ASSOC-REJECT|AUTH-REJECT)|reason|timeout|fail|WRONG_KEY|provision'"
+                                    + " | tail -14 | cut -c1-200"};
+                    for (String ask : asks) {
+                        try {
+                            out.append(adb.shell(ask).trim()).append("\n\n");
+                        } catch (Exception e) {
+                            out.append("(").append(e.getClass().getSimpleName()).append(")\n\n");
+                        }
+                    }
+                }
             } catch (Exception e) {
-                out = e.toString();
+                out.append(e);
             }
-            final String text = out;
+            final String text = out.toString().trim();
             MAIN.post(() -> {
                 if (wait.isShowing()) wait.dismiss();
                 if (!a.isFinishing()) GlassMenu.message(a, a.getString(R.string.hs_details), text,
