@@ -71,6 +71,11 @@ final class Hotspots {
             cm.requestNetwork(new android.net.NetworkRequest.Builder()
                     .addTransportType(android.net.NetworkCapabilities.TRANSPORT_WIFI)
                     .addCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET).build(), keep);
+            // And the other way round: once a hotspot is the main connection Android drops the cable too, and
+            // the router (its internet switch, SIM data, messages) is only reachable over the cable.
+            cm.requestNetwork(new android.net.NetworkRequest.Builder()
+                    .addTransportType(android.net.NetworkCapabilities.TRANSPORT_ETHERNET).build(),
+                    new android.net.ConnectivityManager.NetworkCallback());
         } catch (Exception e) {
             keep = null;
         }
