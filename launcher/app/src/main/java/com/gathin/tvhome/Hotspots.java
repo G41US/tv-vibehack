@@ -269,7 +269,7 @@ final class Hotspots {
         }, "hotspot-join").start();
     }
 
-    /** Connects to a network and waits up to 20 s for it. */
+    /** Connects to a network and waits (up to a minute, two ways) until it has an address. */
     private static boolean join(AdbSelf adb, String ssid, String security, String password) throws Exception {
         String now = adb.shell("cmd wifi status");
         if (wifiUp && now.contains("connected to") && now.contains(ssid)) return true;   // already on it
@@ -290,8 +290,6 @@ final class Hotspots {
                 }
             }
         }
-        return false;
-    }
         return false;
     }
 
