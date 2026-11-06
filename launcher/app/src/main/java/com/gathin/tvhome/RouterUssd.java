@@ -118,7 +118,9 @@ final class RouterUssd {
      * box falls back to a hotspot; on again for Airtel. Call after open().
      */
     boolean setInternet(boolean on) throws Exception {
-        return "success".equals(json(postForm("goformId=" + (on ? "CONNECT_NETWORK" : "DISCONNECT_NETWORK") + "&notCallback=true")).optString("result"));
+        String got = postForm("goformId=" + (on ? "CONNECT_NETWORK" : "DISCONNECT_NETWORK") + "&notCallback=true");
+        log.append(", internet ").append(on ? "on" : "off").append(": ").append(got.length() > 100 ? got.substring(0, 100) : got);
+        return "success".equals(json(got).optString("result"));
     }
 
     /** Deletes messages by id (as the page does: "1;2;3;"). Call after open(). */

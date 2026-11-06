@@ -356,12 +356,18 @@ final class SimData {
     /** A logged-in connection to the router, or null. */
     static RouterUssd router(Context c) throws Exception {
         InetAddress gw = gateway(c);
+        routerNote = "Router not found";
         if (gw == null) return null;
         SharedPreferences p = prefs(c);
         int[] how = {p.getInt(KEY_HOW, 0)};
         RouterUssd r = new RouterUssd(gw);
-        return r.open(p.getString(KEY_ROUTER_USER, "admin"), p.getString(KEY_ROUTER_PW, "admin"), how) ? r : null;
+        boolean in = r.open(p.getString(KEY_ROUTER_USER, "admin"), p.getString(KEY_ROUTER_PW, "admin"), how);
+        routerNote = "Router " + gw.getHostAddress() + " over network " + routerNet + ": " + r.log;
+        return in ? r : null;
     }
+
+    /** How the last router() went (for a failed switch's message). */
+    static volatile String routerNote = "";
 
     /** The connection the router is reached over (set by gateway()); router requests go out on it. */
     static volatile Network routerNet;
