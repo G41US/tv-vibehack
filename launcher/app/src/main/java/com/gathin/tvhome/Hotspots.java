@@ -149,7 +149,10 @@ final class Hotspots {
                             // address step (DHCP). Only the Wi-Fi parts of the newest 3000 log lines.
                             "logcat -d -t 4000 -v time 2>/dev/null"
                                     + " | grep -iE 'CTRL-EVENT-(CONNECTED|DISCONNECTED|SSID-TEMP-DISABLED|ASSOC-REJECT|AUTH-REJECT)|DhcpClient|IpClient|provision|unwanted|teardown|WRONG_KEY'"
-                                    + " | grep -viE 'eth0|ethernet' | tail -18 | cut -c1-200"};
+                                    + " | grep -viE 'eth0|ethernet' | tail -18 | cut -c1-200",
+                            // Android's internet check on the hotspot: what it tried and what came back.
+                            "logcat -d -t 4000 -v time 2>/dev/null | grep -E 'NetworkMonitor' | grep -iE 'probe|valid|dns|http|portal|fail'"
+                                    + " | grep -v '/100' | tail -10 | cut -c1-200"};
                     for (String ask : asks) {
                         try {
                             out.append(adb.shell(ask).trim()).append("\n\n");
