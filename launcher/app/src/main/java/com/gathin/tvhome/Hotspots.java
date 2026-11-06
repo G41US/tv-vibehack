@@ -332,19 +332,24 @@ final class Hotspots {
         Dialog wait = GlassMenu.message(a, ssid, a.getString(R.string.hs_connecting, ssid), new String[0], null);
         new Thread(() -> {
             boolean ok = false;
+            String why;   // which step failed, shown under the message
             try (AdbSelf adb = shell(a)) {
                 android.content.SharedPreferences p = prefs(a);
-                if (adb != null && join(adb, ssid, p.getString("sec_" + ssid, "wpa2"), p.getString("pw_" + ssid, ""))) {
+                if (adb == null) why = "No debugging connection.";
+                else if (!join(adb, ssid, p.getString("sec_" + ssid, "wpa2"), p.getString("pw_" + ssid, ""))) why = "Didn't join " + ssid + ".";
+                else {
                     RouterUssd r = SimData.router(a);
                     ok = r != null && r.setInternet(false);
+                    why = r != null ? r.log.toString() : SimData.routerNote;
                 }
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                why = e.toString();
             }
             if (ok) {
                 prefs(a).edit().putBoolean(KEY_MODE, true).apply();
                 recheckWired(a, false);
             }
-            finish(a, wait, ssid, ok ? a.getString(R.string.hs_switched_hotspot, ssid) : a.getString(R.string.hs_switch_failed), done);
+            finish(a, wait, ssid, ok ? a.getString(R.string.hs_switched_hotspot, ssid) : a.getString(R.string.hs_switch_failed) + "\n\n" + why, done);
         }, "use-hotspot").start();
     }
 
