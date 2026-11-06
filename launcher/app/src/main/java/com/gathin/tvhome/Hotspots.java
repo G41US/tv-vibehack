@@ -147,9 +147,9 @@ final class Hotspots {
                             "dumpsys connectivity | grep -E 'Active default network|NetworkAgentInfo\\{' | sed 's/LinkProperties.*Capabilities/ Caps/' | cut -c1-260 | head -6",
                             // Why each try ended: the Wi-Fi chip's own events (wrong password, rejected, lost) and the
                             // address step (DHCP). Only the Wi-Fi parts of the newest 3000 log lines.
-                            "logcat -d -t 3000 -v time -s wpa_supplicant WifiClientModeImpl DhcpClient IpClient WifiConnectivityManager 2>/dev/null"
-                                    + " | grep -iE 'CTRL-EVENT-(CONNECTED|DISCONNECTED|SSID-TEMP-DISABLED|ASSOC-REJECT|AUTH-REJECT)|reason|timeout|fail|WRONG_KEY|provision'"
-                                    + " | tail -14 | cut -c1-200"};
+                            "logcat -d -t 4000 -v time 2>/dev/null"
+                                    + " | grep -iE 'CTRL-EVENT-(CONNECTED|DISCONNECTED|SSID-TEMP-DISABLED|ASSOC-REJECT|AUTH-REJECT)|DhcpClient|IpClient|provision|unwanted|teardown|WRONG_KEY'"
+                                    + " | grep -viE 'eth0|ethernet' | tail -18 | cut -c1-200"};
                     for (String ask : asks) {
                         try {
                             out.append(adb.shell(ask).trim()).append("\n\n");
@@ -271,13 +271,27 @@ final class Hotspots {
 
     /** Connects to a network and waits up to 20 s for it. */
     private static boolean join(AdbSelf adb, String ssid, String security, String password) throws Exception {
-        if (adb.shell("cmd wifi status").contains("Wifi is disabled")) adb.shell("cmd wifi set-wifi-enabled enabled");
-        adb.shell("cmd wifi connect-network " + quote(ssid) + " " + security + (security.equals("open") ? "" : " " + quote(password)));
-        for (int i = 0; i < 20; i++) {
-            android.os.SystemClock.sleep(1000);
-            String st = adb.shell("cmd wifi status");
-            if (st.contains("connected to") && st.contains(ssid)) return true;
+        String now = adb.shell("cmd wifi status");
+        if (wifiUp && now.contains("connected to") && now.contains(ssid)) return true;   // already on it
+        if (now.contains("Wifi is disabled")) adb.shell("cmd wifi set-wifi-enabled enabled");
+        // First as Android normally joins (a made-up hardware address per network), then, if the phone gave
+        // no address, with the box's real one: some phones' hotspots don't hand addresses to the made-up kind.
+        for (String mac : new String[]{"", " -r none"}) {
+            wifiUp = false;
+            adb.shell("cmd wifi connect-network " + quote(ssid) + " " + security + (security.equals("open") ? "" : " " + quote(password)) + mac);
+            for (int i = 0; i < 30; i++) {
+                android.os.SystemClock.sleep(1000);
+                // Joined means an address too (Android only then reports the network): "connected to" alone
+                // comes before the address and can still fail.
+                if (wifiUp) return true;
+                if (keep == null) {
+                    String st = adb.shell("cmd wifi status");
+                    if (st.contains("connected to") && st.contains(ssid) && i > 8) return true;
+                }
+            }
         }
+        return false;
+    }
         return false;
     }
 
