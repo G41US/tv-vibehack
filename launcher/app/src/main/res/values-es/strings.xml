@@ -458,4 +458,6 @@
     <string name="hs_switch_failed">No se pudo cambiar. Inténtalo de nuevo en un momento.</string>
     <string name="hs_connected">Conectado a %1$s y contraseña guardada. Para usarlo en lugar del router, elige «Usar %1$s en lugar del router» en esta página.</string>
     <string name="hs_details">Detalles de la conexión</string>
+    <string name="hs_internet_ok">con internet</string>
+    <string name="hs_internet_no">sin internet</string>
 </resources>

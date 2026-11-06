@@ -465,4 +465,6 @@
     <string name="hs_switch_failed">Impossible de changer. Réessayez dans un instant.</string>
     <string name="hs_connected">Connecté à %1$s, mot de passe enregistré. Pour l’utiliser au lieu du routeur, choisissez « Utiliser %1$s au lieu du routeur » sur cette page.</string>
     <string name="hs_details">Détails de la connexion</string>
+    <string name="hs_internet_ok">Internet OK</string>
+    <string name="hs_internet_no">pas d’Internet</string>
 </resources>

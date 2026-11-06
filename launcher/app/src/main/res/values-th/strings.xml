@@ -458,4 +458,6 @@
     <string name="hs_switch_failed">สลับไม่ได้ ลองอีกครั้งในอีกสักครู่</string>
     <string name="hs_connected">เชื่อมต่อ %1$s และจำรหัสผ่านแล้ว หากต้องการใช้แทนเราเตอร์ ให้เลือก \"ใช้ %1$s แทนเราเตอร์\" ในหน้านี้</string>
     <string name="hs_details">รายละเอียดการเชื่อมต่อ</string>
+    <string name="hs_internet_ok">ใช้อินเทอร์เน็ตได้</string>
+    <string name="hs_internet_no">ไม่มีอินเทอร์เน็ต</string>
 </resources>
