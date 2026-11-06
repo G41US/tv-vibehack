@@ -458,4 +458,6 @@
     <string name="hs_switch_failed">Gagal beralih. Coba lagi sebentar lagi.</string>
     <string name="hs_connected">Tersambung ke %1$s dan kata sandi disimpan. Untuk memakainya, bukan router, pilih \"Pakai %1$s, bukan router\" di halaman ini.</string>
     <string name="hs_details">Detail koneksi</string>
+    <string name="hs_internet_ok">internet berfungsi</string>
+    <string name="hs_internet_no">tanpa internet</string>
 </resources>

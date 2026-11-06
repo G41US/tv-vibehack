@@ -458,4 +458,6 @@
     <string name="hs_switch_failed">No s’ha pogut canviar. Torna-ho a provar d’aquí a un moment.</string>
     <string name="hs_connected">Connectat a %1$s i contrasenya desada. Per fer-lo servir en lloc del router, tria «Fes servir %1$s en lloc del router» en aquesta pàgina.</string>
     <string name="hs_details">Detalls de la connexió</string>
+    <string name="hs_internet_ok">amb internet</string>
+    <string name="hs_internet_no">sense internet</string>
 </resources>

@@ -458,4 +458,6 @@
     <string name="hs_switch_failed">Wechsel fehlgeschlagen. Versuche es gleich noch einmal.</string>
     <string name="hs_connected">Mit %1$s verbunden, Passwort gespeichert. Um ihn statt des Routers zu nutzen, wähle auf dieser Seite „%1$s statt des Routers verwenden“.</string>
     <string name="hs_details">Verbindungsdetails</string>
+    <string name="hs_internet_ok">Internet funktioniert</string>
+    <string name="hs_internet_no">kein Internet</string>
 </resources>

@@ -458,4 +458,6 @@
     <string name="hs_switch_failed">تعذّر التبديل. حاول مجددًا بعد قليل.</string>
     <string name="hs_connected">تم الاتصال بـ %1$s وحُفظت كلمة المرور. لاستخدامها بدل الراوتر، اختر «استخدم %1$s بدل الراوتر» في هذه الصفحة.</string>
     <string name="hs_details">تفاصيل الاتصال</string>
+    <string name="hs_internet_ok">الإنترنت يعمل</string>
+    <string name="hs_internet_no">لا يوجد إنترنت</string>
 </resources>

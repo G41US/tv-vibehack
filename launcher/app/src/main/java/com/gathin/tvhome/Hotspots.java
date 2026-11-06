@@ -33,7 +33,7 @@ final class Hotspots {
         int rssi;
     }
 
-    private static final String PREFS = "hotspots", KEY_LAST = "last", KEY_MODE = "use_hotspot";
+    private static final String PREFS = "hotspots", KEY_LAST = "last", KEY_MODE = "use_hotspot", KEY_DROP = "last_drop";
 
     private static android.content.SharedPreferences prefs(android.content.Context c) {
         return c.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE);
@@ -48,9 +48,24 @@ final class Hotspots {
      */
     static synchronized void keepWifi(android.content.Context ctx) {
         if (keep != null || !StillWatching.isRouterBox(ctx)) return;
+        android.content.Context app = ctx.getApplicationContext();
         try {
-            android.net.ConnectivityManager cm = ctx.getApplicationContext().getSystemService(android.net.ConnectivityManager.class);
-            keep = new android.net.ConnectivityManager.NetworkCallback();
+            android.net.ConnectivityManager cm = app.getSystemService(android.net.ConnectivityManager.class);
+            // Also follows the hotspot: whether it's up and reaches the internet, and why it dropped.
+            keep = new android.net.ConnectivityManager.NetworkCallback() {
+                @Override
+                public void onCapabilitiesChanged(android.net.Network n, android.net.NetworkCapabilities caps) {
+                    wifiUp = true;
+                    wifiInternet = caps.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+                }
+
+                @Override
+                public void onLost(android.net.Network n) {
+                    wifiUp = false;
+                    wifiInternet = false;
+                    noteDrop(app);
+                }
+            };
             cm.requestNetwork(new android.net.NetworkRequest.Builder()
                     .addTransportType(android.net.NetworkCapabilities.TRANSPORT_WIFI)
                     .addCapability(android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET).build(), keep);
@@ -59,15 +74,51 @@ final class Hotspots {
         }
     }
 
+    /** The hotspot is connected, and it reaches the internet (Android checked). */
+    static volatile boolean wifiUp, wifiInternet;
+
+    /** When the hotspot drops: the time and what Android's Wi-Fi log says about it, for Connection details. */
+    private static void noteDrop(android.content.Context c) {
+        String when = new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.US).format(new java.util.Date());
+        new Thread(() -> {
+            String why = "";
+            try (AdbSelf adb = AdbSelf.ready(c) ? AdbSelf.connect(c, SelfSetup.PORT, 10_000, () -> {
+            }) : null) {
+                if (adb != null) why = adb.shell("dumpsys wifi | grep -iE 'setWifiEnabled|disconnect|unwanted|reason' | tail -8 | cut -c1-200");
+            } catch (Exception ignored) {
+            }
+            prefs(c).edit().putString(KEY_DROP, "Dropped at " + when + "\n" + why).apply();
+        }, "hotspot-drop").start();
+    }
+
+    /**
+     * Every couple of minutes (Home button service): while the hotspot is chosen over the router, rejoin
+     * it if it dropped.
+     */
+    static void watch(android.content.Context c) {
+        if (!usingHotspot(c) || wifiUp) return;
+        android.content.SharedPreferences p = prefs(c);
+        String ssid = p.getString(KEY_LAST, null);
+        if (ssid == null || !p.contains("pw_" + ssid)) return;
+        new Thread(() -> {
+            try (AdbSelf adb = AdbSelf.ready(c) ? AdbSelf.connect(c, SelfSetup.PORT, 10_000, () -> {
+            }) : null) {
+                if (adb != null) join(adb, ssid, p.getString("sec_" + ssid, "wpa2"), p.getString("pw_" + ssid, ""));
+            } catch (Exception ignored) {
+            }
+        }, "hotspot-rejoin").start();
+    }
+
     /** What Android says about the connections now (for when something doesn't work): Wi-Fi, default, who switched it. */
     private static void details(Activity a, Runnable back) {
         Dialog wait = GlassMenu.message(a, a.getString(R.string.hs_details), a.getString(R.string.sd_loading), new String[0], null);
         new Thread(() -> {
             String out;
             try (AdbSelf adb = shell(a)) {
-                out = adb == null ? "(no debugging connection)" : adb.shell("cmd wifi status | head -4; echo; "
+                String drop = prefs(a).getString(KEY_DROP, "");
+                out = (drop.isEmpty() ? "" : drop + "\n\n") + (adb == null ? "(no debugging connection)" : adb.shell("cmd wifi status | head -4; echo; "
                         + "dumpsys connectivity | grep -E 'Active default network|NetworkAgentInfo\\{' | sed 's/LinkProperties.*Capabilities/ Caps/' | cut -c1-260 | head -6; echo; "
-                        + "dumpsys wifi | grep -iE 'setWifiEnabled|disconnect|unwanted' | tail -12 | cut -c1-200");
+                        + "dumpsys wifi | grep -iE 'setWifiEnabled|disconnect|unwanted' | tail -12 | cut -c1-200"));
             } catch (Exception e) {
                 out = e.toString();
             }
@@ -130,7 +181,9 @@ final class Hotspots {
                 for (Net n : found) {
                     String bars = n.rssi >= -60 ? "▂▄▆█" : n.rssi >= -70 ? "▂▄▆" : n.rssi >= -80 ? "▂▄" : "▂";
                     boolean saved = p.contains("pw_" + n.ssid);
-                    String state = n.ssid.equals(now) ? a.getString(R.string.hs_connected_now) : saved ? a.getString(R.string.hs_saved) : "";
+                    String state = n.ssid.equals(now) ? a.getString(R.string.hs_connected_now)
+                            + (keep == null ? "" : wifiInternet ? " · " + a.getString(R.string.hs_internet_ok) : " · " + a.getString(R.string.hs_internet_no))
+                            : saved ? a.getString(R.string.hs_saved) : "";
                     rows.add(new GlassMenu.Row(R.drawable.ic_s_data, n.ssid,
                             (state.isEmpty() ? "" : state + "  ") + bars + (n.security.equals("open") || saved ? "" : "  🔒"), () -> {
                         if (n.security.equals("open")) connect(a, n, "", back);
