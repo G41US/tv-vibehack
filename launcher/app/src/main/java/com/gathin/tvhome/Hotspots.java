@@ -33,7 +33,7 @@ final class Hotspots {
         int rssi;
     }
 
-    private static final String PREFS = "hotspots", KEY_LAST = "last", KEY_MODE = "use_hotspot", KEY_DROP = "last_drop";
+    private static final String PREFS = "hotspots", KEY_LAST = "last", KEY_MODE = "use_hotspot", KEY_DROP = "last_drop", KEY_DROP_AT = "last_drop_at";
 
     private static android.content.SharedPreferences prefs(android.content.Context c) {
         return c.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE);
@@ -76,35 +76,57 @@ final class Hotspots {
 
     /** The hotspot is connected, and it reaches the internet (Android checked). */
     static volatile boolean wifiUp, wifiInternet;
+    private static volatile boolean rejoining;
 
     /** When the hotspot drops: the time and what Android's Wi-Fi log says about it, for Connection details. */
     private static void noteDrop(android.content.Context c) {
         String when = new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.US).format(new java.util.Date());
+        prefs(c).edit().putLong(KEY_DROP_AT, System.currentTimeMillis()).apply();
         new Thread(() -> {
-            String why = "";
+            StringBuilder why = new StringBuilder();
             try (AdbSelf adb = AdbSelf.ready(c) ? AdbSelf.connect(c, SelfSetup.PORT, 10_000, () -> {
             }) : null) {
-                if (adb != null) why = adb.shell("dumpsys wifi | grep -iE 'setWifiEnabled|disconnect|unwanted|reason' | tail -8 | cut -c1-200");
+                if (adb != null) {
+                    String log = adb.shell("dumpsys wifi | grep -iE 'setWifiEnabled|disconnect|unwanted|reason' | tail -10 | cut -c1-220");
+                    why.append(log);
+                    // Another app switched Wi-Fi off (Airtel's firmware keeps the box on the cable): stop it
+                    // doing that, so the hotspot can stay. Only that one permission, only for that app.
+                    Matcher off = Pattern.compile("setWifiEnabled.*?package[=: ]+([A-Za-z0-9_.]+).*?(?:enable|enabled|state)[=: ]+false",
+                            Pattern.CASE_INSENSITIVE).matcher(log);
+                    String culprit = null;
+                    while (off.find()) culprit = off.group(1);
+                    if (culprit != null && !culprit.equals(c.getPackageName()) && !culprit.equals("com.android.shell")
+                            && AdbSelf.safeName(culprit)) {
+                        adb.shell("cmd appops set " + culprit + " CHANGE_WIFI_STATE ignore");
+                        why.append("\nStopped ").append(culprit).append(" from switching Wi-Fi off.");
+                    }
+                }
             } catch (Exception ignored) {
             }
             prefs(c).edit().putString(KEY_DROP, "Dropped at " + when + "\n" + why).apply();
+            watch(c);   // and rejoin straight away
         }, "hotspot-drop").start();
     }
 
     /**
-     * Every couple of minutes (Home button service): while the hotspot is chosen over the router, rejoin
-     * it if it dropped.
+     * Rejoins the hotspot when it dropped: while it's chosen over the router, or within half an hour of
+     * the drop (so a hotspot switched off for good isn't chased all day). Every couple of minutes from
+     * the Home button service, and right after a drop.
      */
     static void watch(android.content.Context c) {
-        if (!usingHotspot(c) || wifiUp) return;
         android.content.SharedPreferences p = prefs(c);
+        boolean recent = System.currentTimeMillis() - p.getLong(KEY_DROP_AT, 0) < 30 * 60_000L;
+        if (wifiUp || !(usingHotspot(c) || recent)) return;
         String ssid = p.getString(KEY_LAST, null);
-        if (ssid == null || !p.contains("pw_" + ssid)) return;
+        if (ssid == null || !p.contains("pw_" + ssid) || rejoining) return;
+        rejoining = true;
         new Thread(() -> {
             try (AdbSelf adb = AdbSelf.ready(c) ? AdbSelf.connect(c, SelfSetup.PORT, 10_000, () -> {
             }) : null) {
                 if (adb != null) join(adb, ssid, p.getString("sec_" + ssid, "wpa2"), p.getString("pw_" + ssid, ""));
             } catch (Exception ignored) {
+            } finally {
+                rejoining = false;
             }
         }, "hotspot-rejoin").start();
     }
