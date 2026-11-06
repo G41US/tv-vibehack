@@ -49,12 +49,14 @@ final class Hotspots {
     static synchronized void keepWifi(android.content.Context ctx) {
         if (keep != null || !StillWatching.isRouterBox(ctx)) return;
         android.content.Context app = ctx.getApplicationContext();
+        apk = app.getApplicationInfo().sourceDir;
         try {
             android.net.ConnectivityManager cm = app.getSystemService(android.net.ConnectivityManager.class);
             // Also follows the hotspot: whether it's up and reaches the internet, and why it dropped.
             keep = new android.net.ConnectivityManager.NetworkCallback() {
                 @Override
                 public void onCapabilitiesChanged(android.net.Network n, android.net.NetworkCapabilities caps) {
+                    wifiNet = n;
                     wifiUp = true;
                     wifiInternet = caps.hasCapability(android.net.NetworkCapabilities.NET_CAPABILITY_VALIDATED);
                 }
@@ -77,6 +79,20 @@ final class Hotspots {
     /** The hotspot is connected, and it reaches the internet (Android checked). */
     static volatile boolean wifiUp, wifiInternet;
     private static volatile boolean rejoining;
+    /** The Wi-Fi connection now, TV Home's own APK (the shell runs AcceptWifi from it), what keeping it said. */
+    private static volatile android.net.Network wifiNet;
+    private static volatile String apk, kept = "";
+
+    /** Android keeps this Wi-Fi even when its internet check fails (see AcceptWifi). */
+    private static void keepEvenIfCheckFails(AdbSelf adb) {
+        android.net.Network n = wifiNet;
+        if (n == null || apk == null) return;
+        try {
+            kept = adb.shell("CLASSPATH=" + quote(apk) + " app_process / com.gathin.tvhome.AcceptWifi " + n + " 2>&1 | tail -2").trim();
+        } catch (Exception e) {
+            kept = e.toString();
+        }
+    }
 
     /** When the hotspot drops: the time and what Android's Wi-Fi log says about it, for Connection details. */
     private static void noteDrop(android.content.Context c) {
@@ -135,7 +151,8 @@ final class Hotspots {
     private static void details(Activity a, Runnable back) {
         Dialog wait = GlassMenu.message(a, a.getString(R.string.hs_details), a.getString(R.string.sd_loading), new String[0], null);
         new Thread(() -> {
-            StringBuilder out = new StringBuilder(prefs(a).getString(KEY_DROP, ""));
+            StringBuilder out = new StringBuilder(kept.isEmpty() ? "" : "Keep: " + kept + "\n");
+            out.append(prefs(a).getString(KEY_DROP, ""));
             if (out.length() > 0) out.append("\n\n");
             try (AdbSelf adb = shell(a)) {
                 if (adb == null) {
@@ -279,7 +296,10 @@ final class Hotspots {
     /** Connects to a network and waits (up to a minute, two ways) until it has an address. */
     private static boolean join(AdbSelf adb, String ssid, String security, String password) throws Exception {
         String now = adb.shell("cmd wifi status");
-        if (wifiUp && now.contains("connected to") && now.contains(ssid)) return true;   // already on it
+        if (wifiUp && now.contains("connected to") && now.contains(ssid)) {   // already on it
+            keepEvenIfCheckFails(adb);
+            return true;
+        }
         if (now.contains("Wifi is disabled")) adb.shell("cmd wifi set-wifi-enabled enabled");
         // First as Android normally joins (a made-up hardware address per network), then, if the phone gave
         // no address, with the box's real one: some phones' hotspots don't hand addresses to the made-up kind.
@@ -290,7 +310,10 @@ final class Hotspots {
                 android.os.SystemClock.sleep(1000);
                 // Joined means an address too (Android only then reports the network): "connected to" alone
                 // comes before the address and can still fail.
-                if (wifiUp) return true;
+                if (wifiUp) {
+                    keepEvenIfCheckFails(adb);
+                    return true;
+                }
                 if (keep == null) {
                     String st = adb.shell("cmd wifi status");
                     if (st.contains("connected to") && st.contains(ssid) && i > 8) return true;
