@@ -202,6 +202,17 @@ final class Hotspots {
                 }
                 rows.add(new GlassMenu.Row(R.drawable.ic_m_update, a.getString(R.string.hs_rescan), null, again));
                 rows.add(new GlassMenu.Row(R.drawable.ic_s_tune, a.getString(R.string.hs_details), null, () -> details(a, again)));
+                // Not in the list (a phone not sending its name right then): type it in.
+                rows.add(new GlassMenu.Row(R.drawable.ic_s_text, a.getString(R.string.hs_other), null, () ->
+                        GlassMenu.input(a, a.getString(R.string.hs_other), "", name -> {
+                            if (name.trim().isEmpty()) return;
+                            Net n = new Net();
+                            n.ssid = name.trim();
+                            GlassMenu.input(a, a.getString(R.string.hs_password, n.ssid), "", pw -> {
+                                n.security = pw.isEmpty() ? "open" : "wpa2";
+                                connect(a, n, pw, back);
+                            });
+                        })));
                 for (Net n : found) {
                     String bars = n.rssi >= -60 ? "▂▄▆█" : n.rssi >= -70 ? "▂▄▆" : n.rssi >= -80 ? "▂▄" : "▂";
                     boolean saved = p.contains("pw_" + n.ssid);
@@ -335,9 +346,13 @@ final class Hotspots {
             for (int i = 0; i < 8 && adb.shell("cmd wifi status").contains("Wifi is disabled"); i++) android.os.SystemClock.sleep(500);
             if (adb.shell("cmd wifi status").contains("Wifi is disabled")) return null;
         }
+        // Two scans a few seconds apart: a phone's hotspot can be missed by one (it sends its name less often).
         adb.shell("cmd wifi start-scan");
         android.os.SystemClock.sleep(5000);
-        return parse(adb.shell("cmd wifi list-scan-results"));
+        String first = adb.shell("cmd wifi list-scan-results");
+        adb.shell("cmd wifi start-scan");
+        android.os.SystemClock.sleep(5000);
+        return parse(first + "\n" + adb.shell("cmd wifi list-scan-results"));
     }
 
     /** "  aa:bb:..  2412  -45  1.2  My Phone  [WPA2-PSK-CCMP][ESS]" lines, as networks. */

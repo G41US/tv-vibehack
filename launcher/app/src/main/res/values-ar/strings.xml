@@ -460,4 +460,5 @@
     <string name="hs_details">تفاصيل الاتصال</string>
     <string name="hs_internet_ok">الإنترنت يعمل</string>
     <string name="hs_internet_no">لا يوجد إنترنت</string>
+    <string name="hs_other">اكتب اسم الشبكة</string>
 </resources>

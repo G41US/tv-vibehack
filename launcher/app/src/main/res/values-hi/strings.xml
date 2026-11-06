@@ -460,4 +460,5 @@
     <string name="hs_details">कनेक्शन विवरण</string>
     <string name="hs_internet_ok">इंटरनेट चल रहा है</string>
     <string name="hs_internet_no">इंटरनेट नहीं</string>
+    <string name="hs_other">नेटवर्क का नाम लिखें</string>
 </resources>

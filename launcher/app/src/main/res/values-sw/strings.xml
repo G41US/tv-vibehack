@@ -460,4 +460,5 @@
     <string name="hs_details">Maelezo ya muunganisho</string>
     <string name="hs_internet_ok">intaneti inafanya kazi</string>
     <string name="hs_internet_no">hakuna intaneti</string>
+    <string name="hs_other">Andika jina la mtandao</string>
 </resources>

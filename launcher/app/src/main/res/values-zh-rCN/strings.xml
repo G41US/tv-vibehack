@@ -460,4 +460,5 @@
     <string name="hs_details">连接详情</string>
     <string name="hs_internet_ok">网络正常</string>
     <string name="hs_internet_no">无网络</string>
+    <string name="hs_other">输入网络名称</string>
 </resources>

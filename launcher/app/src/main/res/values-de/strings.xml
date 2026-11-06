@@ -460,4 +460,5 @@
     <string name="hs_details">Verbindungsdetails</string>
     <string name="hs_internet_ok">Internet funktioniert</string>
     <string name="hs_internet_no">kein Internet</string>
+    <string name="hs_other">Netzwerknamen eingeben</string>
 </resources>
