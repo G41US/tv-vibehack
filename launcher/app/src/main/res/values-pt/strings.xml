@@ -460,4 +460,5 @@
     <string name="hs_details">Detalhes da ligação</string>
     <string name="hs_internet_ok">com internet</string>
     <string name="hs_internet_no">sem internet</string>
+    <string name="hs_other">Escrever o nome da rede</string>
 </resources>

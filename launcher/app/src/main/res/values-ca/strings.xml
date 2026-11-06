@@ -460,4 +460,5 @@
     <string name="hs_details">Detalls de la connexió</string>
     <string name="hs_internet_ok">amb internet</string>
     <string name="hs_internet_no">sense internet</string>
+    <string name="hs_other">Escriu el nom de la xarxa</string>
 </resources>

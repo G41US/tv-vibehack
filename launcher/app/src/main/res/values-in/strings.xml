@@ -460,4 +460,5 @@
     <string name="hs_details">Detail koneksi</string>
     <string name="hs_internet_ok">internet berfungsi</string>
     <string name="hs_internet_no">tanpa internet</string>
+    <string name="hs_other">Ketik nama jaringan</string>
 </resources>
