@@ -140,7 +140,9 @@ final class Hotspots {
                 String drop = prefs(a).getString(KEY_DROP, "");
                 out = (drop.isEmpty() ? "" : drop + "\n\n") + (adb == null ? "(no debugging connection)" : adb.shell("cmd wifi status | head -4; echo; "
                         + "dumpsys connectivity | grep -E 'Active default network|NetworkAgentInfo\\{' | sed 's/LinkProperties.*Capabilities/ Caps/' | cut -c1-260 | head -6; echo; "
-                        + "dumpsys wifi | grep -iE 'setWifiEnabled|disconnect|unwanted' | tail -12 | cut -c1-200"));
+                        // Why each try ended: the Wi-Fi chip's own events (wrong password, rejected, lost) and the address step (DHCP).
+                        + "logcat -d -v time | grep -iE 'CTRL-EVENT-(CONNECTED|DISCONNECTED|SSID-TEMP-DISABLED|ASSOC-REJECT|AUTH-REJECT)|"
+                        + "DhcpClient|IpClient.*(fail|timeout|error|lost)|provisioning|WRONG_KEY|unwanted' | tail -16 | cut -c1-200"));
             } catch (Exception e) {
                 out = e.toString();
             }
