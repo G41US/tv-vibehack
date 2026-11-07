@@ -33,8 +33,8 @@ final class AppPack {
 
     /** Direct SportzX APK link supplied by the user; pinned to version 3.0 and not independently verified. */
     private static final String SPORTZX_LIVE_URL = "https://pub-da7a734dcc5649388b83d515f2c87182.r2.dev/SportzX_3.0v.apk";
-    /** Official Voltra TV APK download endpoint. */
-    private static final String VOLTRA_TV_URL = "https://voltra.tv/voltratvversion.apk";
+    /** User-supplied Voltra TV 11.0 APK hosted in the TV Vibe R2 bucket. */
+    private static final String VOLTRA_TV_URL = "https://pub-ed1e1a727e754d99bf1175389c444351.r2.dev/Voltra_TV_11.0.apk";
 
     /** Licensed movie and TV services, searched for in the Play Store by name. */
     private static final String[] STORE_APPS = {"Netflix", "Prime Video", "Showmax", "Plex"};
